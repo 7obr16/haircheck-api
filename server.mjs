@@ -1,0 +1,671 @@
+// _design-handoff/api/server.mjs
+// Tiny Node sidecar for AFTER-photo generation via OpenAI gpt-image-2.
+// Runs on its own port (4322). The frontend (python http.server on 4321)
+// POSTs a base64 selfie here, the sidecar holds the OPENAI_API_KEY in
+// env (never sent to the browser), calls images/edits, returns the
+// generated image as a data URL.
+//
+// Start: node _design-handoff/api/server.mjs
+// Stop:  Ctrl-C
+//
+// Requires Node 18+ (fetch, FormData, Blob built in). Tested on Node 25.
+
+import { createServer } from 'node:http';
+import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
+import { basename, dirname, extname, join, normalize } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// ─── env loader (no dotenv dep) ─────────────────────────────────
+const here = dirname(fileURLToPath(import.meta.url));
+try {
+  const raw = readFileSync(join(here, '.env'), 'utf8');
+  for (const line of raw.split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$/i);
+    if (m && !process.env[m[1]]) {
+      let v = m[2];
+      if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+        v = v.slice(1, -1);
+      }
+      process.env[m[1]] = v;
+    }
+  }
+} catch (e) {
+  // .env missing is fine — the user can also set OPENAI_API_KEY in the shell
+}
+
+if (!process.env.OPENAI_API_KEY) {
+  console.error('\n[after-photo api] ERROR: OPENAI_API_KEY is not set.');
+  console.error('Paste your key into _design-handoff/api/.env (one line: OPENAI_API_KEY=sk-...) then rerun.\n');
+  process.exit(1);
+}
+
+const PORT = Number(process.env.PORT || 4322);
+const SERVE_STATIC = process.env.SERVE_STATIC === '1';
+const staticRoot = join(here, '..');
+const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES || 14 * 1024 * 1024);
+const RATE_LIMIT_WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS || 60 * 1000);
+const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX || 18);
+const ALLOWED_ORIGINS = new Set([
+  `http://localhost:${PORT}`,
+  `http://127.0.0.1:${PORT}`,
+  'http://localhost:4321',
+  'http://127.0.0.1:4321',
+  ...(process.env.ALLOWED_ORIGINS || process.env.APP_ORIGIN || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean),
+]);
+const rateBuckets = new Map();
+
+const mimeTypes = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.jsx': 'text/jsx; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.svg': 'image/svg+xml',
+  '.mp4': 'video/mp4',
+};
+
+// ─── prompt ─────────────────────────────────────────────────────
+// Tight, single-purpose: keep everything identical, only restore hair.
+// Edit this string to tune the result.
+const AFTER_PROMPT = `Edit this photo. Keep every visual detail identical: same face, same expression, same camera angle, same distance to camera, same head position and tilt, same aspect ratio, same crop/framing, same lighting, same skin tone, same eyes, same ears, same clothing, same background. Do not change framing, pose, or any feature.
+
+Change only one thing: replace any visible hair loss, recession, baldness, or thinning with a natural full head of hair. The new hair must match the person's existing hair color, texture, density and ethnicity. Keep the hairline shape natural and age-appropriate.
+
+The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`;
+
+// Per-month progression prompts. 3-month results in real life are subtle —
+// the model must NOT overshoot to "perfect" or it stops being credible.
+const PROGRESSION_PROMPTS = {
+  3: `Edit this photo to show a SUBTLE 3-month treatment result. Keep face, expression, camera angle, distance to camera, head position, aspect ratio, crop/framing, lighting, skin tone, eyes, ears, clothing, and background pixel-identical to the input.
+
+Make ONLY a small, realistic improvement that matches what a user would expect after 12 weeks of minoxidil + supplements + medicated shampoo:
+- Slight thickening at the existing thinning edges (NOT in obviously bald spots — those don't fully fill in by month 3)
+- Reduce visible scalp shine through hair by maybe 15–20%
+- Vellus (peach-fuzz) hair starting to appear in receded zones, but NOT yet fully pigmented
+- Hairline shape unchanged — recession edges still visible, just slightly softer
+
+DO NOT regrow lost zones to completion. DO NOT change hair color or style. The user should think "subtle but real" — not "miracle." Most people wouldn't notice unless comparing photos side-by-side.
+
+The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`,
+
+  6: `Edit this photo to show a MODERATE 6-month treatment result. Keep face, expression, camera angle, distance to camera, head position, aspect ratio, crop/framing, lighting, skin tone, eyes, ears, clothing, and background pixel-identical to the input.
+
+Make a clearly visible but still realistic improvement that matches what a committed user would see after 6 months of consistent treatment:
+- Noticeable density gain in the thinning areas, roughly 40–50% closer to the user's natural full density
+- Hairline edges look more defined and the temple recession appears partially filled with new pigmented hair
+- Crown/vertex thinning area shows real coverage (not bald patch — nor full restoration)
+- Hair color, length, style, and texture exactly match the original
+
+DO NOT make it look like a completely full head of hair. There should still be some evidence of the original hair loss pattern, just clearly improved. The viewer should think "real progress" — not "different person."
+
+The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`,
+
+  12: `Edit this photo to show a STRONG 12-month treatment result. Keep face, expression, camera angle, distance to camera, head position, aspect ratio, crop/framing, lighting, skin tone, eyes, ears, clothing, and background pixel-identical to the input.
+
+Make a substantial, realistic improvement matching what a fully-compliant user might achieve after a year of treatment:
+- Full natural-looking density across the previously-thin areas
+- Hairline restored to a credible age-appropriate shape (NOT a teenager's hairline — match the user's age)
+- Crown looks naturally full
+- New hair matches the user's existing color, texture, and ethnicity exactly
+- A trace of the original recession may still be visible if it was severe — most real cases never reach 100% baseline
+
+DO NOT change hair color, style, length, or any other feature. The viewer should think "best realistic outcome" — clearly the same person with clearly more hair.
+
+The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`,
+};
+
+const buildAnalysisMapPrompt = (kind, result = {}) => {
+  const density = Number.isFinite(Number(result.density)) ? Math.round(Number(result.density)) : 'unknown';
+  const crown = Number.isFinite(Number(result.crown)) ? Math.round(Number(result.crown)) : 'unknown';
+  const hairline = Number.isFinite(Number(result.hairline)) ? Math.round(Number(result.hairline)) : 'unknown';
+  const focus = kind === 'crown'
+    ? `Focus the overlay on crown and vertex thinning. Use crown score ${crown}/100, density score ${density}/100, and hairline score ${hairline}/100 as guidance.`
+    : `Focus the overlay on visible scalp density across the top, mid-scalp, temples, and hairline. Use density score ${density}/100, crown score ${crown}/100, and hairline score ${hairline}/100 as guidance.`;
+
+  return `Edit this input photo into a clinical in-app hair analysis visualization. Keep the original photograph underneath completely unchanged: same person, same face, same head position, same camera angle, same distance, same crop/framing, same lighting, same background, same hair style, same hair color, same skin tone, same clothing. Do not beautify, redraw, restore, move, rotate, zoom, or replace anything in the photo.
+
+Add only a translucent diagnostic heatmap overlay on the scalp/hair region, like a premium trichology analysis screen. ${focus}
+
+Overlay rules:
+- Green/teal means high density.
+- Yellow/orange means medium density.
+- Red means low density or visible thinning.
+- Align the colored regions to the actual hairline, temples, crown, and visible scalp in the image.
+- Keep the overlay semi-transparent so the original photo remains clearly visible.
+- It may include subtle scan-grid texture, small non-text dots, or soft contour lines, but no words, no numbers, no UI labels, no arrows, no legend, no watermark.
+
+Return the same aspect ratio and the same framing as the input. This is an analysis overlay image, not a before/after restoration.`;
+};
+
+// ─── helpers ────────────────────────────────────────────────────
+const requestId = () => `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+
+const originAllowed = (origin) => {
+  if (!origin) return true;
+  if (ALLOWED_ORIGINS.has(origin)) return true;
+  if (!SERVE_STATIC) return false;
+  try {
+    const host = new URL(origin).hostname;
+    return host === 'localhost'
+      || host === '127.0.0.1'
+      || host.endsWith('.loca.lt')
+      || host.endsWith('.ngrok-free.app')
+      || host.endsWith('.trycloudflare.com');
+  } catch (_) {
+    return false;
+  }
+};
+
+const cors = (req, res) => {
+  const origin = req.headers.origin;
+  const ok = originAllowed(origin);
+  if (origin && ok) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  return ok;
+};
+
+const json = (res, code, body) => {
+  res.writeHead(code, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(body));
+};
+
+const readJsonBody = async (req) => {
+  let body = '';
+  let bytes = 0;
+  for await (const chunk of req) {
+    bytes += chunk.length;
+    if (bytes > MAX_BODY_BYTES) {
+      const err = new Error(`Request body too large. Limit is ${Math.round(MAX_BODY_BYTES / 1024 / 1024)}MB.`);
+      err.statusCode = 413;
+      throw err;
+    }
+    body += chunk;
+  }
+  try {
+    return JSON.parse(body || '{}');
+  } catch (_) {
+    const err = new Error('Invalid JSON body');
+    err.statusCode = 400;
+    throw err;
+  }
+};
+
+const rateLimit = (req) => {
+  if (req.method !== 'POST') return null;
+  const now = Date.now();
+  const forwardedFor = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  const key = forwardedFor || req.socket.remoteAddress || 'unknown';
+  const bucket = rateBuckets.get(key) || { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS };
+  if (now > bucket.resetAt) {
+    bucket.count = 0;
+    bucket.resetAt = now + RATE_LIMIT_WINDOW_MS;
+  }
+  bucket.count += 1;
+  rateBuckets.set(key, bucket);
+  if (bucket.count > RATE_LIMIT_MAX) {
+    return {
+      status: 429,
+      body: {
+        error: 'Too many requests. Please wait a minute and try again.',
+        retryAfterMs: Math.max(0, bucket.resetAt - now),
+      },
+    };
+  }
+  return null;
+};
+
+const normalizeOpenAIError = (fallback, status, payload) => {
+  const code = payload?.error?.code || payload?.code || null;
+  const message = payload?.error?.message || payload?.message || fallback;
+  const billing = code === 'billing_hard_limit_reached'
+    || code === 'insufficient_quota'
+    || /billing|quota/i.test(message || '');
+  return {
+    error: billing
+      ? 'OpenAI generation is temporarily paused because billing or quota is unavailable.'
+      : message,
+    code,
+    retryable: billing || status === 429 || status >= 500,
+    detail: payload,
+  };
+};
+
+const dataUrlToBuffer = (dataUrl) => {
+  const m = dataUrl.match(/^data:(image\/[a-z+.-]+);base64,(.+)$/i);
+  if (!m) throw new Error('Expected data:image/...;base64,...');
+  return { mime: m[1], buffer: Buffer.from(m[2], 'base64') };
+};
+
+const serveStatic = (req, res) => {
+  if (!SERVE_STATIC || (req.method !== 'GET' && req.method !== 'HEAD')) return false;
+
+  const url = new URL(req.url, `http://localhost:${PORT}`);
+  let pathname = decodeURIComponent(url.pathname);
+  if (pathname === '/') pathname = '/index.html';
+
+  let filePath = normalize(join(staticRoot, pathname));
+  if (!filePath.startsWith(staticRoot) || !existsSync(filePath) || !statSync(filePath).isFile()) {
+    return false;
+  }
+
+  // Phone previews go through a slow HTTPS tunnel. Serve pre-compressed WebP
+  // siblings for PNG assets while keeping the public paths unchanged.
+  if (extname(filePath).toLowerCase() === '.png') {
+    const fastPath = join(dirname(filePath), 'fast', `${basename(filePath, '.png')}.webp`);
+    if (existsSync(fastPath) && statSync(fastPath).isFile()) {
+      filePath = fastPath;
+    }
+  }
+
+  res.writeHead(200, {
+    'Content-Type': mimeTypes[extname(filePath).toLowerCase()] || 'application/octet-stream',
+    'Cache-Control': extname(filePath).toLowerCase() === '.webp'
+      ? 'public, max-age=3600'
+      : 'no-store',
+  });
+  if (req.method === 'HEAD') {
+    res.end();
+    return true;
+  }
+  createReadStream(filePath).pipe(res);
+  return true;
+};
+
+// ─── server ─────────────────────────────────────────────────────
+const server = createServer(async (req, res) => {
+  const reqId = requestId();
+  res.setHeader('X-Request-Id', reqId);
+  const corsOk = cors(req, res);
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(corsOk ? 204 : 403).end();
+    return;
+  }
+
+  if (!corsOk) {
+    json(res, 403, { error: 'Origin not allowed', requestId: reqId });
+    return;
+  }
+
+  const limited = rateLimit(req);
+  if (limited) {
+    json(res, limited.status, { ...limited.body, requestId: reqId });
+    return;
+  }
+
+  if (req.method === 'GET' && req.url === '/api/health') {
+    json(res, 200, { ok: true, model: 'gpt-image-2', port: PORT, requestId: reqId });
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/generate-after') {
+    try {
+      const { photoDataUrl, prompt } = await readJsonBody(req);
+      if (!photoDataUrl) throw new Error('photoDataUrl required (data:image/...;base64,...)');
+
+      const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
+      const startedAt = Date.now();
+      console.log('[openai] generate-after start', { mime, inputKb: Math.round(buffer.length / 1024) });
+
+      // Build multipart body for the OpenAI Images Edits endpoint.
+      const fd = new FormData();
+      fd.append('model', 'gpt-image-2');
+      fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
+      fd.append('prompt', prompt || AFTER_PROMPT);
+      fd.append('n', '1');
+      fd.append('size', 'auto');
+      fd.append('quality', 'high');
+
+      const r = await fetch('https://api.openai.com/v1/images/edits', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+        body: fd,
+      });
+
+      const text = await r.text();
+      let payload;
+      try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
+
+      if (!r.ok) {
+        console.error('[openai] error', r.status, payload);
+        json(res, r.status, { ...normalizeOpenAIError('OpenAI request failed', r.status, payload), requestId: reqId });
+        return;
+      }
+
+      const b64 = payload?.data?.[0]?.b64_json;
+      if (!b64) {
+        json(res, 502, { error: 'No image returned', detail: payload });
+        return;
+      }
+
+      console.log('[openai] generate-after ok', {
+        ms: Date.now() - startedAt,
+        outputKb: Math.round((b64.length * 3 / 4) / 1024),
+      });
+      json(res, 200, { afterPhoto: `data:image/png;base64,${b64}`, requestId: reqId });
+    } catch (err) {
+      console.error('[server] handler error', err);
+      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+    }
+    return;
+  }
+
+  // ─── /api/generate-progression — N-month after-photo via gpt-image-2 ─
+  // Input: { photoDataUrl, month: 3 | 6 | 12 }
+  // Output: { afterPhoto: 'data:image/png;base64,...' }
+  // Cost: ~$0.05 per call. Caller should cache aggressively in localStorage.
+  if (req.method === 'POST' && req.url === '/api/generate-progression') {
+    try {
+      const { photoDataUrl, month } = await readJsonBody(req);
+      if (!photoDataUrl) throw new Error('photoDataUrl required');
+      const m = Number(month);
+      if (!PROGRESSION_PROMPTS[m]) throw new Error('month must be 3, 6, or 12');
+
+      const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
+      const startedAt = Date.now();
+      console.log('[progression] start', {
+        month: m,
+        mime,
+        inputKb: Math.round(buffer.length / 1024),
+      });
+      const fd = new FormData();
+      fd.append('model', 'gpt-image-2');
+      fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
+      fd.append('prompt', PROGRESSION_PROMPTS[m]);
+      fd.append('n', '1');
+      fd.append('size', 'auto');
+      fd.append('quality', 'high');
+
+      const r = await fetch('https://api.openai.com/v1/images/edits', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+        body: fd,
+      });
+
+      const text = await r.text();
+      let payload;
+      try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
+
+      if (!r.ok) {
+        console.error('[openai progression] error', r.status, payload);
+        json(res, r.status, { ...normalizeOpenAIError('OpenAI request failed', r.status, payload), requestId: reqId });
+        return;
+      }
+
+      const b64 = payload?.data?.[0]?.b64_json;
+      if (!b64) { json(res, 502, { error: 'No image returned', detail: payload }); return; }
+
+      console.log('[progression] ok', {
+        month: m,
+        ms: Date.now() - startedAt,
+        outputKb: Math.round((b64.length * 3 / 4) / 1024),
+      });
+      json(res, 200, { afterPhoto: `data:image/png;base64,${b64}`, month: m, requestId: reqId });
+    } catch (err) {
+      console.error('[server] generate-progression error', err);
+      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+    }
+    return;
+  }
+
+  // ─── /api/generate-analysis-map — photo-locked GPT image edit overlay ─
+  // Input: { photoDataUrl, kind: 'density' | 'crown', result? }
+  // Output: { analysisMap: 'data:image/png;base64,...', kind }
+  if (req.method === 'POST' && req.url === '/api/generate-analysis-map') {
+    try {
+      const { photoDataUrl, kind = 'density', result = {} } = await readJsonBody(req);
+      if (!photoDataUrl) throw new Error('photoDataUrl required');
+      const mapKind = String(kind).toLowerCase() === 'crown' ? 'crown' : 'density';
+
+      const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
+      const startedAt = Date.now();
+      console.log('[analysis-map] start', {
+        kind: mapKind,
+        mime,
+        inputKb: Math.round(buffer.length / 1024),
+      });
+
+      const fd = new FormData();
+      fd.append('model', 'gpt-image-2');
+      fd.append('image', new Blob([buffer], { type: mime }), 'scan.png');
+      fd.append('prompt', buildAnalysisMapPrompt(mapKind, result));
+      fd.append('n', '1');
+      fd.append('size', 'auto');
+      fd.append('quality', 'medium');
+
+      const r = await fetch('https://api.openai.com/v1/images/edits', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+        body: fd,
+      });
+
+      const text = await r.text();
+      let payload;
+      try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
+
+      if (!r.ok) {
+        console.error('[analysis-map] error', r.status, payload);
+        json(res, r.status, { ...normalizeOpenAIError('OpenAI request failed', r.status, payload), requestId: reqId });
+        return;
+      }
+
+      const b64 = payload?.data?.[0]?.b64_json;
+      if (!b64) { json(res, 502, { error: 'No image returned', detail: payload }); return; }
+
+      console.log('[analysis-map] ok', {
+        kind: mapKind,
+        ms: Date.now() - startedAt,
+        outputKb: Math.round((b64.length * 3 / 4) / 1024),
+      });
+      json(res, 200, { analysisMap: `data:image/png;base64,${b64}`, kind: mapKind, requestId: reqId });
+    } catch (err) {
+      console.error('[server] generate-analysis-map error', err);
+      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+    }
+    return;
+  }
+
+  // ─── /api/analyze-scan — GPT-4o Vision → full scan result ────────
+  // Input: { photoDataUrl, profile? }
+  // Output: full scan record with scores + Norwood + headline + 3 insights + verdict
+  // Cost: ~$0.01 per call.
+  if (req.method === 'POST' && req.url === '/api/analyze-scan') {
+    try {
+      const { photoDataUrl, profile = {} } = await readJsonBody(req);
+      if (!photoDataUrl) throw new Error('photoDataUrl required');
+      const { buffer: visionBuffer } = dataUrlToBuffer(photoDataUrl);
+      const startedAt = Date.now();
+      console.log('[vision] start', { inputKb: Math.round(visionBuffer.length / 1024) });
+
+      const ctx = [
+        `Sex: ${profile.sex || 'unspecified'}`,
+        `Age: ${profile.age || 'unspecified'}`,
+        `Concerns: ${Array.isArray(profile.concern) ? (profile.concern.join(', ') || 'none') : (profile.concern || 'none')}`,
+        `Onset: ${profile.timeline || 'unspecified'}`,
+        `Family history: ${(profile.family || []).join(', ') || 'none reported'}`,
+        `Stress: ${profile.lifestyle?.stress ?? '?'}/10`,
+        `Sleep: ${profile.lifestyle?.sleep ?? '?'}h`,
+        `Current routine: ${(profile.routine || []).join(', ') || 'none'}`,
+        `Goals: ${(profile.goals || []).join(', ') || 'unspecified'}`,
+      ].join('\n');
+
+      const sys = `You are an aesthetic hair-analysis AI for a consumer hair-loss app. Look at the scalp photo and the user's profile context, then return ONLY valid JSON (no prose, no markdown). Required shape:
+
+{
+  "hairline":   0-100,
+  "density":    0-100,
+  "crown":      0-100,
+  "health":     0-100,
+  "potential":  0-100,
+  "stage":      "NW1" | "NW2" | "NW3" | "NW3v" | "NW4" | "NW5" | "NW6" | "NW7" | "diffuse" | "n/a (female)",
+  "headline":   "<6-9 word punchy summary, confident tone>",
+  "insights": [
+    { "title": "<5-word title>", "body": "<12-22 word actionable observation>", "metric": "Hairline" | "Density" | "Crown" | "Health" | "Potential" }
+  ],
+  "verdict":    "<1-2 sentence verdict, slightly aspirational, no medical claims>"
+}
+
+Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = improvement headroom with treatment (lower if already healthy). Be honest but encouraging. Most users score 55-80 overall. If the photo doesn't clearly show hair, score conservatively around 70 and reflect that in the verdict. Never refuse — produce a best-effort estimate. Insights array MUST contain exactly 3 entries.`;
+
+      const r = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          response_format: { type: 'json_object' },
+          messages: [
+            { role: 'system', content: sys },
+            {
+              role: 'user',
+              content: [
+                { type: 'text', text: 'Analyze this scalp photo with the context below. Return JSON only.\n\n' + ctx },
+                { type: 'image_url', image_url: { url: photoDataUrl } },
+              ],
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 700,
+        }),
+      });
+
+      const text = await r.text();
+      let payload;
+      try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
+
+      if (!r.ok) {
+        console.error('[openai vision] error', r.status, payload);
+        json(res, r.status, { ...normalizeOpenAIError('Vision request failed', r.status, payload), requestId: reqId });
+        return;
+      }
+
+      let parsed;
+      try { parsed = JSON.parse(payload.choices?.[0]?.message?.content || '{}'); }
+      catch (e) { json(res, 502, { error: 'Vision returned non-JSON', detail: payload }); return; }
+
+      const clamp = (n) => Math.max(0, Math.min(100, Math.round(Number(n) || 0)));
+      const result = {
+        hairline:  clamp(parsed.hairline),
+        density:   clamp(parsed.density),
+        crown:     clamp(parsed.crown ?? parsed.density),
+        health:    clamp(parsed.health),
+        potential: clamp(parsed.potential),
+        stage:     parsed.stage || 'n/a',
+        headline:  String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
+        insights:  Array.isArray(parsed.insights) ? parsed.insights.slice(0, 3) : [],
+        verdict:   String(parsed.verdict || '').slice(0, 400),
+      };
+      result.overall = Math.round((result.hairline + result.density + result.health + result.potential) / 4);
+
+      console.log('[vision] ok', { overall: result.overall, ms: Date.now() - startedAt });
+      json(res, 200, { ...result, requestId: reqId });
+    } catch (err) {
+      console.error('[server] analyze-scan error', err);
+      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+    }
+    return;
+  }
+
+  // ─── /api/coach — GPT-4o chat with user context ──────────────
+  // Input: { message, history, userContext: { result, routine, profile } }
+  // Output: { reply }
+  // Cost: ~$0.005/message. History trimmed to last 10 turns to keep it cheap.
+  if (req.method === 'POST' && req.url === '/api/coach') {
+    try {
+      const { message, history = [], userContext = {} } = await readJsonBody(req);
+      if (!message || typeof message !== 'string') throw new Error('message required');
+
+      const ctx = {
+        scan: userContext.result ? {
+          overall: userContext.result.overall,
+          hairline: userContext.result.hairline,
+          density: userContext.result.density,
+          health: userContext.result.health,
+          potential: userContext.result.potential,
+        } : null,
+        routine: Array.isArray(userContext.routine) ? userContext.routine : [],
+        age: userContext.profile?.age || null,
+        sex: userContext.profile?.sex || null,
+      };
+
+      const systemPrompt = [
+        'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
+        'Tone: friendly, direct, evidence-based. Avoid medical disclaimers unless specifically asked.',
+        'Constraints: never prescribe Rx drugs; recommend talking to a doctor for finasteride/dutasteride.',
+        'Length: short, scannable. Use bullets when listing options.',
+        '',
+        'User context (use when relevant, do not parrot back):',
+        ctx.scan ? `- Last scan: overall ${ctx.scan.overall}/100, hairline ${ctx.scan.hairline}, density ${ctx.scan.density}, health ${ctx.scan.health}, potential ${ctx.scan.potential}.` : '- No scan yet.',
+        ctx.routine.length ? `- Current routine: ${ctx.routine.join(', ')}.` : '- No routine logged yet.',
+        ctx.age ? `- Age: ${ctx.age}.` : '',
+        ctx.sex ? `- Sex: ${ctx.sex}.` : '',
+      ].filter(Boolean).join('\n');
+
+      // Trim history to last 10 turns for cost control
+      const recentHistory = Array.isArray(history) ? history.slice(-10) : [];
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        ...recentHistory.map((m) => ({ role: m.role === 'user' ? 'user' : 'assistant', content: String(m.content || '').slice(0, 1500) })),
+        { role: 'user', content: message.slice(0, 1500) },
+      ];
+
+      const r = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages,
+          temperature: 0.6,
+          max_tokens: 500,
+        }),
+      });
+
+      const text = await r.text();
+      let payload;
+      try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
+
+      if (!r.ok) {
+        console.error('[coach] error', r.status, payload);
+        json(res, r.status, { ...normalizeOpenAIError('Coach request failed', r.status, payload), requestId: reqId });
+        return;
+      }
+
+      const reply = payload.choices?.[0]?.message?.content?.trim() || '';
+      json(res, 200, { reply, requestId: reqId });
+    } catch (err) {
+      console.error('[server] coach error', err);
+      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+    }
+    return;
+  }
+
+  if (serveStatic(req, res)) return;
+
+  json(res, 404, { error: 'Not found', requestId: reqId });
+});
+
+server.listen(PORT, () => {
+  console.log(`\n[hairlinecheck api] running on http://localhost:${PORT}`);
+  if (SERVE_STATIC) console.log(`[hairlinecheck api] serving static app from ${staticRoot}`);
+  console.log(`[hairlinecheck api] POST /api/generate-after { photoDataUrl }`);
+  console.log(`[hairlinecheck api] POST /api/generate-analysis-map { photoDataUrl, kind }`);
+  console.log(`[hairlinecheck api] POST /api/analyze-scan   { photoDataUrl }`);
+  console.log(`[hairlinecheck api] POST /api/coach          { message, history, userContext }`);
+  console.log(`[hairlinecheck api] GET  /api/health\n`);
+});

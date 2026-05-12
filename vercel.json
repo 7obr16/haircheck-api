@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": null,
+  "outputDirectory": null,
+  "framework": null,
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/server.mjs" },
+    { "source": "/(.*)", "destination": "/server.mjs" }
+  ],
+  "functions": {
+    "server.mjs": {
+      "maxDuration": 300,
+      "memory": 1024
+    }
+  }
+}
