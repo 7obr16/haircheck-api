@@ -14,6 +14,41 @@ import { createServer } from 'node:http';
 import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
 import { basename, dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
+
+// ─── In-memory cache for AFTER-photo generation ──────────────────
+// gpt-image-2 takes 2-3 minutes per call. Many client retries are the
+// same photo (e.g. Safari's 60s fetch timeout cancels client-side but
+// the server keeps running and OpenAI does deliver). We cache by SHA-256
+// of the input data URL so a retry returns the result instantly.
+//
+// Also tracks in-flight requests: if request A is mid-generation and
+// request B for the same photo arrives, B awaits the same promise
+// instead of hitting OpenAI a second time.
+const AFTER_CACHE = new Map();           // hash -> { result, at }
+const AFTER_INFLIGHT = new Map();        // hash -> Promise<result>
+const CACHE_MAX = 50;
+const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
+
+function cacheHashOf(prefix, ...parts) {
+  return createHash('sha256').update(prefix + '\0' + parts.join('\0')).digest('hex');
+}
+
+function cacheRead(map, key) {
+  const entry = map.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.at > CACHE_TTL_MS) { map.delete(key); return null; }
+  return entry.result;
+}
+
+function cacheWrite(map, key, result) {
+  if (map.size >= CACHE_MAX) {
+    // FIFO eviction — drop the oldest entry
+    const firstKey = map.keys().next().value;
+    map.delete(firstKey);
+  }
+  map.set(key, { result, at: Date.now() });
+}
 
 // ─── env loader (no dotenv dep) ─────────────────────────────────
 const here = dirname(fileURLToPath(import.meta.url));
@@ -315,45 +350,76 @@ const server = createServer(async (req, res) => {
       if (!photoDataUrl) throw new Error('photoDataUrl required (data:image/...;base64,...)');
 
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
+      const hash = cacheHashOf('after', mime, buffer.length, createHash('sha256').update(buffer).digest('hex'), prompt || '');
+
+      // 1. Cache hit — return instantly
+      const cached = cacheRead(AFTER_CACHE, hash);
+      if (cached) {
+        console.log('[openai] generate-after CACHE HIT', { hash: hash.slice(0, 8) });
+        json(res, 200, { afterPhoto: cached, cached: true, requestId: reqId });
+        return;
+      }
+
+      // 2. In-flight dedup — piggyback on the same OpenAI call
+      let inflight = AFTER_INFLIGHT.get(hash);
+      if (inflight) {
+        console.log('[openai] generate-after IN-FLIGHT JOIN', { hash: hash.slice(0, 8) });
+        const result = await inflight;
+        if (result.ok) {
+          json(res, 200, { afterPhoto: result.afterPhoto, deduped: true, requestId: reqId });
+        } else {
+          json(res, result.status || 502, { error: result.error, requestId: reqId });
+        }
+        return;
+      }
+
       const startedAt = Date.now();
-      console.log('[openai] generate-after start', { mime, inputKb: Math.round(buffer.length / 1024) });
+      console.log('[openai] generate-after START', { hash: hash.slice(0, 8), mime, inputKb: Math.round(buffer.length / 1024) });
 
-      // Build multipart body for the OpenAI Images Edits endpoint.
-      const fd = new FormData();
-      fd.append('model', 'gpt-image-2');
-      fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
-      fd.append('prompt', prompt || AFTER_PROMPT);
-      fd.append('n', '1');
-      fd.append('size', 'auto');
-      fd.append('quality', 'high');
+      const promise = (async () => {
+        const fd = new FormData();
+        fd.append('model', 'gpt-image-2');
+        fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
+        fd.append('prompt', prompt || AFTER_PROMPT);
+        fd.append('n', '1');
+        fd.append('size', 'auto');
+        fd.append('quality', 'high');
 
-      const r = await fetch('https://api.openai.com/v1/images/edits', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-        body: fd,
-      });
+        const r = await fetch('https://api.openai.com/v1/images/edits', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+          body: fd,
+        });
 
-      const text = await r.text();
-      let payload;
-      try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
+        const text = await r.text();
+        let payload;
+        try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
 
-      if (!r.ok) {
-        console.error('[openai] error', r.status, payload);
-        json(res, r.status, { ...normalizeOpenAIError('OpenAI request failed', r.status, payload), requestId: reqId });
-        return;
+        if (!r.ok) {
+          console.error('[openai] error', r.status, payload);
+          return { ok: false, status: r.status, error: payload };
+        }
+        const b64 = payload?.data?.[0]?.b64_json;
+        if (!b64) return { ok: false, status: 502, error: 'No image returned' };
+        const afterPhoto = `data:image/png;base64,${b64}`;
+        return { ok: true, afterPhoto };
+      })();
+
+      AFTER_INFLIGHT.set(hash, promise);
+      let result;
+      try {
+        result = await promise;
+      } finally {
+        AFTER_INFLIGHT.delete(hash);
       }
 
-      const b64 = payload?.data?.[0]?.b64_json;
-      if (!b64) {
-        json(res, 502, { error: 'No image returned', detail: payload });
+      if (!result.ok) {
+        json(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         return;
       }
-
-      console.log('[openai] generate-after ok', {
-        ms: Date.now() - startedAt,
-        outputKb: Math.round((b64.length * 3 / 4) / 1024),
-      });
-      json(res, 200, { afterPhoto: `data:image/png;base64,${b64}`, requestId: reqId });
+      cacheWrite(AFTER_CACHE, hash, result.afterPhoto);
+      console.log('[openai] generate-after OK', { ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
+      json(res, 200, { afterPhoto: result.afterPhoto, requestId: reqId });
     } catch (err) {
       console.error('[server] handler error', err);
       json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
