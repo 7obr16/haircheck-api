@@ -85,6 +85,8 @@ const ALLOWED_ORIGINS = new Set([
   `http://127.0.0.1:${PORT}`,
   'http://localhost:4321',
   'http://127.0.0.1:4321',
+  'capacitor://localhost',
+  'ionic://localhost',
   ...(process.env.ALLOWED_ORIGINS || process.env.APP_ORIGIN || '')
     .split(',')
     .map((value) => value.trim())
@@ -185,9 +187,9 @@ const requestId = () => `req_${Date.now().toString(36)}_${Math.random().toString
 const originAllowed = (origin) => {
   if (!origin) return true;
   if (ALLOWED_ORIGINS.has(origin)) return true;
-  if (!SERVE_STATIC) return false;
   try {
-    const host = new URL(origin).hostname;
+    const { hostname: host, protocol } = new URL(origin);
+    if (protocol === 'capacitor:' || protocol === 'ionic:') return host === 'localhost';
     return host === 'localhost'
       || host === '127.0.0.1'
       || host.endsWith('.loca.lt')
