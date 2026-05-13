@@ -27,6 +27,8 @@ import { createHash } from 'node:crypto';
 // instead of hitting OpenAI a second time.
 const AFTER_CACHE = new Map();           // hash -> { result, at }
 const AFTER_INFLIGHT = new Map();        // hash -> Promise<result>
+const ADVICE_VISUAL_CACHE = new Map();   // hash -> { result, at }
+const ADVICE_VISUAL_INFLIGHT = new Map();// hash -> Promise<result>
 const CACHE_MAX = 50;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
@@ -180,6 +182,19 @@ Overlay rules:
 
 Return the same aspect ratio and the same framing as the input. This is an analysis overlay image, not a before/after restoration.`;
 };
+
+const ADVICE_VISUAL_PROMPTS = {
+  topical: `Create a photorealistic premium hair-health app advice card image. Subject: close crop of a realistic male hairline/top scalp while a glass dropper applies topical serum to the target area. Add a subtle translucent violet diagnostic glow over the application zone, but no UI and no text. Style: dark luxury clinical lighting, realistic skin and hair texture, black background, shallow depth of field, expensive medical-aesthetic. Avoid brand names, logos, labels, watermarks, extra text, cartoon style, and exaggerated hair restoration.`,
+  supplements: `Create a photorealistic premium hair-health app advice card image. Subject: a dark luxury still life of neutral hair supplements beside a glass of water on a black marble surface. Style: restrained medical-aesthetic, subtle violet rim light, realistic capsule shapes without identifiable logos. Avoid brand names, labels, watermarks, text, UI, messy clutter, and bright pharmacy colors.`,
+  massage: `Create a photorealistic premium hair-health app advice card image. Subject: close crop of gentle scalp massage on dark hair, clean hands parting hair, healthy scalp texture visible. Style: dark premium clinical background, subtle teal/violet light, calm aspirational mood, realistic. Avoid text, logos, watermark, cartoon style, medical gore, or hands covering the entire scalp.`,
+  shampoo: `Create a photorealistic premium hair-health app advice card image. Subject: matte black unbranded medicated shampoo bottle beside rich foam, water droplets, and dark hair texture on black stone. Style: dark clinical luxury, high detail, subtle violet rim light, aspirational but medical-aesthetic. Avoid people, shower nudity, text, labels, logos, watermark, UI, and generic stock-photo brightness.`,
+};
+
+const normalizeAdviceKind = (kind) => (
+  Object.prototype.hasOwnProperty.call(ADVICE_VISUAL_PROMPTS, String(kind || '').toLowerCase())
+    ? String(kind).toLowerCase()
+    : 'topical'
+);
 
 // ─── helpers ────────────────────────────────────────────────────
 const requestId = () => `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
@@ -549,6 +564,91 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // ─── /api/generate-advice-visual — image-led protocol card art ─
+  // Input: { kind: 'topical' | 'supplements' | 'massage' | 'shampoo', quality? }
+  // Output: { adviceVisual: 'data:image/png;base64,...', kind }
+  if (req.method === 'POST' && req.url === '/api/generate-advice-visual') {
+    try {
+      const { kind, quality: qParam } = await readJsonBody(req);
+      const visualKind = normalizeAdviceKind(kind);
+      const quality = ['auto','high','medium','low'].includes(qParam) ? qParam : 'low';
+      const prompt = ADVICE_VISUAL_PROMPTS[visualKind];
+      const hash = cacheHashOf('advice-visual', visualKind, prompt, quality);
+
+      const cached = cacheRead(ADVICE_VISUAL_CACHE, hash);
+      if (cached) {
+        console.log('[advice-visual] CACHE HIT', { kind: visualKind, hash: hash.slice(0, 8) });
+        json(res, 200, { adviceVisual: cached, kind: visualKind, cached: true, requestId: reqId });
+        return;
+      }
+
+      let inflight = ADVICE_VISUAL_INFLIGHT.get(hash);
+      if (inflight) {
+        console.log('[advice-visual] IN-FLIGHT JOIN', { kind: visualKind, hash: hash.slice(0, 8) });
+        const result = await inflight;
+        if (result.ok) {
+          json(res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, deduped: true, requestId: reqId });
+        } else {
+          json(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+        }
+        return;
+      }
+
+      const startedAt = Date.now();
+      console.log('[advice-visual] start', { kind: visualKind, quality });
+
+      const promise = (async () => {
+        const r = await fetch('https://api.openai.com/v1/images/generations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: 'gpt-image-2',
+            prompt,
+            n: 1,
+            size: '1024x1024',
+            quality,
+            output_format: 'png',
+          }),
+        });
+
+        const text = await r.text();
+        let payload;
+        try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
+
+        if (!r.ok) {
+          console.error('[advice-visual] error', r.status, payload);
+          return { ok: false, status: r.status, error: payload };
+        }
+        const b64 = payload?.data?.[0]?.b64_json;
+        if (!b64) return { ok: false, status: 502, error: 'No image returned' };
+        return { ok: true, adviceVisual: `data:image/png;base64,${b64}` };
+      })();
+
+      ADVICE_VISUAL_INFLIGHT.set(hash, promise);
+      let result;
+      try {
+        result = await promise;
+      } finally {
+        ADVICE_VISUAL_INFLIGHT.delete(hash);
+      }
+
+      if (!result.ok) {
+        json(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+        return;
+      }
+      cacheWrite(ADVICE_VISUAL_CACHE, hash, result.adviceVisual);
+      console.log('[advice-visual] ok', { kind: visualKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
+      json(res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, requestId: reqId });
+    } catch (err) {
+      console.error('[server] generate-advice-visual error', err);
+      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+    }
+    return;
+  }
+
   // ─── /api/analyze-scan — GPT-4o Vision → full scan result ────────
   // Input: { photoDataUrl, profile? }
   // Output: full scan record with scores + Norwood + headline + 3 insights + verdict
@@ -748,6 +848,7 @@ server.listen(PORT, () => {
   if (SERVE_STATIC) console.log(`[hairlinecheck api] serving static app from ${staticRoot}`);
   console.log(`[hairlinecheck api] POST /api/generate-after { photoDataUrl }`);
   console.log(`[hairlinecheck api] POST /api/generate-analysis-map { photoDataUrl, kind }`);
+  console.log(`[hairlinecheck api] POST /api/generate-advice-visual { kind }`);
   console.log(`[hairlinecheck api] POST /api/analyze-scan   { photoDataUrl }`);
   console.log(`[hairlinecheck api] POST /api/coach          { message, history, userContext }`);
   console.log(`[hairlinecheck api] GET  /api/health\n`);
