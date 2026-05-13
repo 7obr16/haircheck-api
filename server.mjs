@@ -346,11 +346,17 @@ const server = createServer(async (req, res) => {
 
   if (req.method === 'POST' && req.url === '/api/generate-after') {
     try {
-      const { photoDataUrl, prompt } = await readJsonBody(req);
+      const { photoDataUrl, prompt, quality: qParam } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required (data:image/...;base64,...)');
 
+      // Quality knob — lets us tune speed/cost vs visual quality without redeploying.
+      // gpt-image-2 supports: auto | high | medium | low. Default 'medium' for the
+      // best speed/quality tradeoff. Pass `"quality":"high"` from the client to
+      // force premium.
+      const quality = ['auto','high','medium','low'].includes(qParam) ? qParam : 'medium';
+
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
-      const hash = cacheHashOf('after', mime, buffer.length, createHash('sha256').update(buffer).digest('hex'), prompt || '');
+      const hash = cacheHashOf('after', mime, buffer.length, createHash('sha256').update(buffer).digest('hex'), prompt || '', quality);
 
       // 1. Cache hit — return instantly
       const cached = cacheRead(AFTER_CACHE, hash);
@@ -383,7 +389,7 @@ const server = createServer(async (req, res) => {
         fd.append('prompt', prompt || AFTER_PROMPT);
         fd.append('n', '1');
         fd.append('size', 'auto');
-        fd.append('quality', 'high');
+        fd.append('quality', quality);
 
         const r = await fetch('https://api.openai.com/v1/images/edits', {
           method: 'POST',
