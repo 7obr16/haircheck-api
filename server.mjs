@@ -349,11 +349,10 @@ const server = createServer(async (req, res) => {
       const { photoDataUrl, prompt, quality: qParam } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required (data:image/...;base64,...)');
 
-      // Quality knob — lets us tune speed/cost vs visual quality without redeploying.
-      // gpt-image-2 supports: auto | high | medium | low. Default 'medium' for the
-      // best speed/quality tradeoff. Pass `"quality":"high"` from the client to
-      // force premium.
-      const quality = ['auto','high','medium','low'].includes(qParam) ? qParam : 'medium';
+      // Quality knob — gpt-image-2 supports: auto | high | medium | low.
+      // Default 'low' for fastest experience (~30s vs ~200s for high).
+      // Pass `"quality":"high"` from the client to force premium.
+      const quality = ['auto','high','medium','low'].includes(qParam) ? qParam : 'low';
 
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
       const hash = cacheHashOf('after', mime, buffer.length, createHash('sha256').update(buffer).digest('hex'), prompt || '', quality);
