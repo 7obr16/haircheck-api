@@ -555,7 +555,7 @@ const server = createServer(async (req, res) => {
   // Cost: ~$0.01 per call.
   if (req.method === 'POST' && req.url === '/api/analyze-scan') {
     try {
-      const { photoDataUrl, profile = {} } = await readJsonBody(req);
+      const { photoDataUrl, profile = {}, scoringInstruction = '' } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const { buffer: visionBuffer } = dataUrlToBuffer(photoDataUrl);
       const startedAt = Date.now();
@@ -571,6 +571,7 @@ const server = createServer(async (req, res) => {
         `Sleep: ${profile.lifestyle?.sleep ?? '?'}h`,
         `Current routine: ${(profile.routine || []).join(', ') || 'none'}`,
         `Goals: ${(profile.goals || []).join(', ') || 'unspecified'}`,
+        scoringInstruction ? `Scoring instruction: ${String(scoringInstruction).slice(0, 280)}` : '',
       ].join('\n');
 
       const sys = `You are an aesthetic hair-analysis AI for a consumer hair-loss app. Look at the scalp photo and the user's profile context, then return ONLY valid JSON (no prose, no markdown). Required shape:
@@ -589,7 +590,7 @@ const server = createServer(async (req, res) => {
   "verdict":    "<1-2 sentence verdict, slightly aspirational, no medical claims>"
 }
 
-Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = improvement headroom with treatment (lower if already healthy). Be honest but encouraging. Most users score 55-80 overall. If the photo doesn't clearly show hair, score conservatively around 70 and reflect that in the verdict. Never refuse — produce a best-effort estimate. Insights array MUST contain exactly 3 entries.`;
+Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = improvement headroom with treatment (lower if already healthy). Use a conservative baseline: do not inflate scores for flattering lighting, wet hair, styling, distance, or unclear crown visibility. Bias toward conservative scoring when the hairline, crown, or density is uncertain. Most paying users should land 45-72 overall; clearly healthy cases land 73-85; 86+ should be rare. If the photo doesn't clearly show hair, score conservatively around 62-70 and reflect uncertainty in the verdict. Be honest but encouraging. Never refuse — produce a best-effort estimate. Insights array MUST contain exactly 3 entries.`;
 
       const r = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -653,7 +654,7 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = improvement
   }
 
   // ─── /api/coach — GPT-4o chat with user context ──────────────
-  // Input: { message, history, userContext: { result, routine, profile } }
+  // Input: { message, history, userContext: { result, routine, profile, history, planProducts, routineDoneToday, weakestMetric } }
   // Output: { reply }
   // Cost: ~$0.005/message. History trimmed to last 10 turns to keep it cheap.
   if (req.method === 'POST' && req.url === '/api/coach') {
@@ -666,10 +667,15 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = improvement
           overall: userContext.result.overall,
           hairline: userContext.result.hairline,
           density: userContext.result.density,
+          crown: userContext.result.crown,
           health: userContext.result.health,
           potential: userContext.result.potential,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
+        scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
+        planProducts: Array.isArray(userContext.planProducts) ? userContext.planProducts.slice(0, 8) : [],
+        routineDoneToday: Array.isArray(userContext.routineDoneToday) ? userContext.routineDoneToday.slice(0, 12) : [],
+        weakestMetric: userContext.weakestMetric || null,
         age: userContext.profile?.age || null,
         sex: userContext.profile?.sex || null,
       };
@@ -681,8 +687,12 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = improvement
         'Length: short, scannable. Use bullets when listing options.',
         '',
         'User context (use when relevant, do not parrot back):',
-        ctx.scan ? `- Last scan: overall ${ctx.scan.overall}/100, hairline ${ctx.scan.hairline}, density ${ctx.scan.density}, health ${ctx.scan.health}, potential ${ctx.scan.potential}.` : '- No scan yet.',
+        ctx.scan ? `- Last scan: overall ${ctx.scan.overall}/100, hairline ${ctx.scan.hairline}, density ${ctx.scan.density}, crown ${ctx.scan.crown}, health ${ctx.scan.health}, potential ${ctx.scan.potential}.` : '- No scan yet.',
+        ctx.weakestMetric?.label ? `- Current weakest metric: ${ctx.weakestMetric.label} (${ctx.weakestMetric.value}/100).` : '',
         ctx.routine.length ? `- Current routine: ${ctx.routine.join(', ')}.` : '- No routine logged yet.',
+        ctx.routineDoneToday.length ? `- Routine tasks completed today: ${ctx.routineDoneToday.join(', ')}.` : '- No routine tasks completed today.',
+        ctx.planProducts.length ? `- Saved plan products: ${ctx.planProducts.join(', ')}.` : '- No saved plan products yet.',
+        ctx.scanHistory.length ? `- Scan history count: ${ctx.scanHistory.length}. Latest first values: ${ctx.scanHistory.map((h) => h.overall || '?').join(', ')}.` : '- No scan history yet.',
         ctx.age ? `- Age: ${ctx.age}.` : '',
         ctx.sex ? `- Sex: ${ctx.sex}.` : '',
       ].filter(Boolean).join('\n');
