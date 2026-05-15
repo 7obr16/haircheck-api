@@ -373,8 +373,9 @@ const server = createServer(async (req, res) => {
       // Pass `"quality":"high"` from the client to force premium.
       const quality = ['auto','high','medium','low'].includes(qParam) ? qParam : 'low';
 
+      const effectivePrompt = prompt || AFTER_PROMPT;
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
-      const hash = cacheHashOf('after', mime, buffer.length, createHash('sha256').update(buffer).digest('hex'), prompt || '', quality);
+      const hash = cacheHashOf('after', mime, buffer.length, createHash('sha256').update(buffer).digest('hex'), effectivePrompt, quality);
 
       // 1. Cache hit — return instantly
       const cached = cacheRead(AFTER_CACHE, hash);
@@ -404,7 +405,7 @@ const server = createServer(async (req, res) => {
         const fd = new FormData();
         fd.append('model', 'gpt-image-2');
         fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
-        fd.append('prompt', prompt || AFTER_PROMPT);
+        fd.append('prompt', effectivePrompt);
         fd.append('n', '1');
         fd.append('size', 'auto');
         fd.append('quality', quality);

@@ -15,5 +15,11 @@ assert(
     !source.includes('natural full head of hair. The new hair must match'),
   'after-photo prompt should preserve the original hairstyle and only fill visible thinning/bald areas'
 );
+assert(
+  source.includes('const effectivePrompt = prompt || AFTER_PROMPT;') &&
+    source.includes("cacheHashOf('after', mime, buffer.length, createHash('sha256').update(buffer).digest('hex'), effectivePrompt, quality)") &&
+    source.includes("fd.append('prompt', effectivePrompt)"),
+  'generate-after cache key should include the effective default prompt so prompt changes invalidate old cached images'
+);
 
 console.log('server contract passed');
