@@ -115,7 +115,9 @@ const mimeTypes = {
 // Edit this string to tune the result.
 const AFTER_PROMPT = `Edit this photo. Keep every visual detail identical: same face, same expression, same camera angle, same distance to camera, same head position and tilt, same aspect ratio, same crop/framing, same lighting, same skin tone, same eyes, same ears, same clothing, same background. Do not change framing, pose, or any feature.
 
-Change only one thing: replace any visible hair loss, recession, baldness, or thinning with a natural full head of hair. The new hair must match the person's existing hair color, texture, density and ethnicity. Keep the hairline shape natural and age-appropriate.
+Change only one thing: locally improve the visible hair-loss areas while preserving the person's current hairstyle. Only add plausible density inside the already visible thinning, receded, sparse, or bald spots. Fill those weak areas with short, natural hair that matches the existing surrounding hair color, curl/wave pattern, direction, texture, shine, thickness, and ethnicity.
+
+Do NOT create a new hairstyle. Do NOT change the existing hair length, parting, volume, silhouette, styling direction, forehead size, temples beyond the recession area, beard, eyebrows, skin, head shape, or background. Do NOT make the hair look freshly styled, longer, darker, wet, or like a different person. Keep the original hairline character and make it only moderately denser and more even.
 
 The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`;
 
