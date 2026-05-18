@@ -21,5 +21,11 @@ assert(
     source.includes("fd.append('prompt', effectivePrompt)"),
   'generate-after cache key should include the effective default prompt so prompt changes invalidate old cached images'
 );
+assert(
+  source.includes('Use a balanced visual baseline') &&
+    source.includes('Do not artificially lower scores for healthy-looking or stable-looking areas') &&
+    !source.includes('Most paying users should land 45-72 overall'),
+  'analysis scoring prompt should stay truthful and balanced instead of pushing most users into pessimistic low ranges'
+);
 
 console.log('server contract passed');
