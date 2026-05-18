@@ -170,17 +170,18 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
     ? `Focus the overlay on crown and vertex thinning. Use crown score ${crown}/100, density score ${density}/100, and hairline score ${hairline}/100 as guidance.`
     : `Focus the overlay on visible scalp density across the top, mid-scalp, temples, and hairline. Use density score ${density}/100, crown score ${crown}/100, and hairline score ${hairline}/100 as guidance.`;
 
-  return `Edit this input photo into a clinical in-app hair analysis visualization. Keep the original photograph underneath completely unchanged: same person, same face, same head position, same camera angle, same distance, same crop/framing, same lighting, same background, same hair style, same hair color, same skin tone, same clothing. Do not beautify, redraw, restore, move, rotate, zoom, or replace anything in the photo.
+  return `Edit this input scan photo into a clear clinical hair-density heatmap of the user's actual head hair. Keep the original photograph underneath completely unchanged: same person, same face, same head position, same camera angle, same distance, same crop/framing, same lighting, same background, same hair style, same hair color, same skin tone, same clothing. Do not beautify, redraw, restore, move, rotate, zoom, or replace anything in the photo.
 
-Add only a translucent diagnostic heatmap overlay on the scalp/hair region, like a premium trichology analysis screen. ${focus}
+Add only a visible translucent diagnostic heatmap overlay directly on the hair-bearing scalp region, like a premium trichology analysis screen. The heatmap must be obvious enough that the user immediately sees it is an AI-generated scalp map, not just their original photo. ${focus}
 
 Overlay rules:
 - Green/teal means high density.
 - Yellow/orange means medium density.
 - Red means low density or visible thinning.
-- Align the colored regions to the actual hairline, temples, crown, and visible scalp in the image.
-- Keep the overlay semi-transparent so the original photo remains clearly visible.
-- It may include subtle scan-grid texture, small non-text dots, or soft contour lines, but no words, no numbers, no UI labels, no arrows, no legend, no watermark.
+- Align the colored regions to the actual visible hairline, temples, mid-scalp, crown, vertex, and visible scalp in the image. Do not place heatmap color on the face, eyes, neck, hands, clothing, wall, or background.
+- Use several soft contour patches and gradients that follow the shape of the head and hair. Low-density zones should get red/orange patches; stronger hair zones should get teal/green patches.
+- Keep the overlay semi-transparent so the original photo remains clearly visible, but make the color patches strong enough to read on a phone screen.
+- It may include subtle scan-grid texture, small non-text dots, or soft contour lines over the scalp/hair only, but no words, no numbers, no UI labels, no arrows, no legend, no watermark.
 
 Return the same aspect ratio and the same framing as the input. This is an analysis overlay image, not a before/after restoration.`;
 };
