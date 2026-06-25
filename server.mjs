@@ -15,6 +15,7 @@ import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
 import { basename, dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { execSync } from 'node:child_process';
 
 // ─── In-memory cache for AFTER-photo generation ──────────────────
 // gpt-image-2 takes 2-3 minutes per call. Many client retries are the
@@ -74,6 +75,12 @@ if (!process.env.OPENAI_API_KEY) {
   console.error('\n[after-photo api] ERROR: OPENAI_API_KEY is not set.');
   console.error('Paste your key into _design-handoff/api/.env (one line: OPENAI_API_KEY=sk-...) then rerun.\n');
   process.exit(1);
+}
+
+let GIT_SHA = process.env.GIT_SHA || 'unknown';
+if (GIT_SHA === 'unknown') {
+  try { GIT_SHA = execSync('git rev-parse --short HEAD', { cwd: here, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); }
+  catch (_) {}
 }
 
 const PORT = Number(process.env.PORT || 4322);
@@ -296,6 +303,25 @@ const normalizeOpenAIError = (fallback, status, payload) => {
   };
 };
 
+// Retry OpenAI calls on transient errors (429, 5xx) with exponential backoff.
+// requestFactory must return a new fetch Promise each time (FormData can't be reused).
+const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDelayMs = 1000 } = {}) => {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const r = await requestFactory();
+    const text = await r.text();
+    let payload;
+    try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
+    if (r.ok) return { ok: true, status: r.status, payload };
+    const retryable = r.status === 429 || r.status >= 500;
+    if (!retryable || attempt >= maxAttempts) {
+      return { ok: false, status: r.status, payload };
+    }
+    const delay = baseDelayMs * Math.pow(2, attempt - 1) * (0.75 + Math.random() * 0.5);
+    console.log(`[openai retry] ${label} status=${r.status} attempt=${attempt}/${maxAttempts} delay=${Math.round(delay)}ms`);
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+};
+
 const dataUrlToBuffer = (dataUrl) => {
   const m = dataUrl.match(/^data:(image\/[a-z+.-]+);base64,(.+)$/i);
   if (!m) throw new Error('Expected data:image/...;base64,...');
@@ -364,6 +390,11 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && req.url === '/api/version') {
+    json(res, 200, { sha: GIT_SHA, requestId: reqId });
+    return;
+  }
+
   if (req.method === 'POST' && req.url === '/api/generate-after') {
     try {
       const { photoDataUrl, prompt, quality: qParam } = await readJsonBody(req);
@@ -403,32 +434,28 @@ const server = createServer(async (req, res) => {
       console.log('[openai] generate-after START', { hash: hash.slice(0, 8), mime, inputKb: Math.round(buffer.length / 1024) });
 
       const promise = (async () => {
-        const fd = new FormData();
-        fd.append('model', 'gpt-image-2');
-        fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
-        fd.append('prompt', effectivePrompt);
-        fd.append('n', '1');
-        fd.append('size', 'auto');
-        fd.append('quality', quality);
-
-        const r = await fetch('https://api.openai.com/v1/images/edits', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-          body: fd,
+        const { ok, status, payload } = await withOpenAIRetry('generate-after', () => {
+          const fd = new FormData();
+          fd.append('model', 'gpt-image-2');
+          fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
+          fd.append('prompt', effectivePrompt);
+          fd.append('n', '1');
+          fd.append('size', 'auto');
+          fd.append('quality', quality);
+          return fetch('https://api.openai.com/v1/images/edits', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+            body: fd,
+          });
         });
 
-        const text = await r.text();
-        let payload;
-        try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
-
-        if (!r.ok) {
-          console.error('[openai] error', r.status, payload);
-          return { ok: false, status: r.status, error: payload };
+        if (!ok) {
+          console.error('[openai] generate-after error', status, payload);
+          return { ok: false, status, error: payload };
         }
         const b64 = payload?.data?.[0]?.b64_json;
         if (!b64) return { ok: false, status: 502, error: 'No image returned' };
-        const afterPhoto = `data:image/png;base64,${b64}`;
-        return { ok: true, afterPhoto };
+        return { ok: true, afterPhoto: `data:image/png;base64,${b64}` };
       })();
 
       AFTER_INFLIGHT.set(hash, promise);
@@ -471,32 +498,30 @@ const server = createServer(async (req, res) => {
         mime,
         inputKb: Math.round(buffer.length / 1024),
       });
-      const fd = new FormData();
-      fd.append('model', 'gpt-image-2');
-      fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
-      fd.append('prompt', PROGRESSION_PROMPTS[m]);
-      fd.append('n', '1');
-      fd.append('size', 'auto');
-      fd.append('quality', 'high');
 
-      const r = await fetch('https://api.openai.com/v1/images/edits', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-        body: fd,
+      const { ok: progOk, status: progStatus, payload: progPayload } = await withOpenAIRetry('generate-progression', () => {
+        const fd = new FormData();
+        fd.append('model', 'gpt-image-2');
+        fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
+        fd.append('prompt', PROGRESSION_PROMPTS[m]);
+        fd.append('n', '1');
+        fd.append('size', 'auto');
+        fd.append('quality', 'high');
+        return fetch('https://api.openai.com/v1/images/edits', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+          body: fd,
+        });
       });
 
-      const text = await r.text();
-      let payload;
-      try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
-
-      if (!r.ok) {
-        console.error('[openai progression] error', r.status, payload);
-        json(res, r.status, { ...normalizeOpenAIError('OpenAI request failed', r.status, payload), requestId: reqId });
+      if (!progOk) {
+        console.error('[openai progression] error', progStatus, progPayload);
+        json(res, progStatus, { ...normalizeOpenAIError('OpenAI request failed', progStatus, progPayload), requestId: reqId });
         return;
       }
 
-      const b64 = payload?.data?.[0]?.b64_json;
-      if (!b64) { json(res, 502, { error: 'No image returned', detail: payload }); return; }
+      const b64 = progPayload?.data?.[0]?.b64_json;
+      if (!b64) { json(res, 502, { error: 'No image returned', detail: progPayload }); return; }
 
       console.log('[progression] ok', {
         month: m,
@@ -528,32 +553,30 @@ const server = createServer(async (req, res) => {
         inputKb: Math.round(buffer.length / 1024),
       });
 
-      const fd = new FormData();
-      fd.append('model', 'gpt-image-2');
-      fd.append('image', new Blob([buffer], { type: mime }), 'scan.png');
-      fd.append('prompt', buildAnalysisMapPrompt(mapKind, result));
-      fd.append('n', '1');
-      fd.append('size', 'auto');
-      fd.append('quality', 'medium');
-
-      const r = await fetch('https://api.openai.com/v1/images/edits', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-        body: fd,
+      const mapPromptText = buildAnalysisMapPrompt(mapKind, result);
+      const { ok: mapOk, status: mapStatus, payload: mapPayload } = await withOpenAIRetry('generate-analysis-map', () => {
+        const fd = new FormData();
+        fd.append('model', 'gpt-image-2');
+        fd.append('image', new Blob([buffer], { type: mime }), 'scan.png');
+        fd.append('prompt', mapPromptText);
+        fd.append('n', '1');
+        fd.append('size', 'auto');
+        fd.append('quality', 'medium');
+        return fetch('https://api.openai.com/v1/images/edits', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+          body: fd,
+        });
       });
 
-      const text = await r.text();
-      let payload;
-      try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
-
-      if (!r.ok) {
-        console.error('[analysis-map] error', r.status, payload);
-        json(res, r.status, { ...normalizeOpenAIError('OpenAI request failed', r.status, payload), requestId: reqId });
+      if (!mapOk) {
+        console.error('[analysis-map] error', mapStatus, mapPayload);
+        json(res, mapStatus, { ...normalizeOpenAIError('OpenAI request failed', mapStatus, mapPayload), requestId: reqId });
         return;
       }
 
-      const b64 = payload?.data?.[0]?.b64_json;
-      if (!b64) { json(res, 502, { error: 'No image returned', detail: payload }); return; }
+      const b64 = mapPayload?.data?.[0]?.b64_json;
+      if (!b64) { json(res, 502, { error: 'No image returned', detail: mapPayload }); return; }
 
       console.log('[analysis-map] ok', {
         kind: mapKind,
@@ -602,29 +625,18 @@ const server = createServer(async (req, res) => {
       console.log('[advice-visual] start', { kind: visualKind, quality });
 
       const promise = (async () => {
-        const r = await fetch('https://api.openai.com/v1/images/generations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: 'gpt-image-2',
-            prompt,
-            n: 1,
-            size: '1024x1024',
-            quality,
-            output_format: 'png',
-          }),
-        });
+        const reqBody = JSON.stringify({ model: 'gpt-image-2', prompt, n: 1, size: '1024x1024', quality, output_format: 'png' });
+        const { ok, status, payload } = await withOpenAIRetry('generate-advice-visual', () =>
+          fetch('https://api.openai.com/v1/images/generations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+            body: reqBody,
+          })
+        );
 
-        const text = await r.text();
-        let payload;
-        try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
-
-        if (!r.ok) {
-          console.error('[advice-visual] error', r.status, payload);
-          return { ok: false, status: r.status, error: payload };
+        if (!ok) {
+          console.error('[advice-visual] error', status, payload);
+          return { ok: false, status, error: payload };
         }
         const b64 = payload?.data?.[0]?.b64_json;
         if (!b64) return { ok: false, status: 502, error: 'No image returned' };
@@ -696,43 +708,40 @@ const server = createServer(async (req, res) => {
 
 Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic improvement headroom with a consistent routine (lower if already very healthy, higher when there is visible room to improve). Use a balanced visual baseline: score what is actually visible in the photo and user context. Do not artificially lower scores for healthy-looking or stable-looking areas, and do not push users into a low range just for motivation. Typical mild early thinning can land 62-78 overall; clearly healthy cases can land 78-90; significant visible recession or density loss can land 35-62; 91+ should be rare. If the photo doesn't clearly show hair, use a moderate uncertainty range around 62-76 and reflect uncertainty in the verdict. Be honest but encouraging. Never refuse — produce a best-effort estimate. Insights array MUST contain exactly 3 entries.`;
 
-      const r = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          response_format: { type: 'json_object' },
-          messages: [
-            { role: 'system', content: sys },
-            {
-              role: 'user',
-              content: [
-                { type: 'text', text: 'Analyze this scalp photo with the context below. Return JSON only.\n\n' + ctx },
-                { type: 'image_url', image_url: { url: photoDataUrl } },
-              ],
-            },
-          ],
-          temperature: 0.3,
-          max_tokens: 700,
-        }),
+      const scanReqBody = JSON.stringify({
+        model: 'gpt-4o',
+        response_format: { type: 'json_object' },
+        messages: [
+          { role: 'system', content: sys },
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: 'Analyze this scalp photo with the context below. Return JSON only.\n\n' + ctx },
+              { type: 'image_url', image_url: { url: photoDataUrl } },
+            ],
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 700,
       });
 
-      const text = await r.text();
-      let payload;
-      try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
+      const { ok: scanOk, status: scanStatus, payload: scanPayload } = await withOpenAIRetry('analyze-scan', () =>
+        fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+          body: scanReqBody,
+        })
+      );
 
-      if (!r.ok) {
-        console.error('[openai vision] error', r.status, payload);
-        json(res, r.status, { ...normalizeOpenAIError('Vision request failed', r.status, payload), requestId: reqId });
+      if (!scanOk) {
+        console.error('[openai vision] error', scanStatus, scanPayload);
+        json(res, scanStatus, { ...normalizeOpenAIError('Vision request failed', scanStatus, scanPayload), requestId: reqId });
         return;
       }
 
       let parsed;
-      try { parsed = JSON.parse(payload.choices?.[0]?.message?.content || '{}'); }
-      catch (e) { json(res, 502, { error: 'Vision returned non-JSON', detail: payload }); return; }
+      try { parsed = JSON.parse(scanPayload.choices?.[0]?.message?.content || '{}'); }
+      catch (e) { json(res, 502, { error: 'Vision returned non-JSON', detail: scanPayload }); return; }
 
       const clamp = (n) => Math.max(0, Math.min(100, Math.round(Number(n) || 0)));
       const result = {
@@ -809,31 +818,22 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
         { role: 'user', content: message.slice(0, 1500) },
       ];
 
-      const r = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o',
-          messages,
-          temperature: 0.6,
-          max_tokens: 500,
-        }),
-      });
+      const coachReqBody = JSON.stringify({ model: 'gpt-4o', messages, temperature: 0.6, max_tokens: 500 });
+      const { ok: coachOk, status: coachStatus, payload: coachPayload } = await withOpenAIRetry('coach', () =>
+        fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+          body: coachReqBody,
+        })
+      );
 
-      const text = await r.text();
-      let payload;
-      try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
-
-      if (!r.ok) {
-        console.error('[coach] error', r.status, payload);
-        json(res, r.status, { ...normalizeOpenAIError('Coach request failed', r.status, payload), requestId: reqId });
+      if (!coachOk) {
+        console.error('[coach] error', coachStatus, coachPayload);
+        json(res, coachStatus, { ...normalizeOpenAIError('Coach request failed', coachStatus, coachPayload), requestId: reqId });
         return;
       }
 
-      const reply = payload.choices?.[0]?.message?.content?.trim() || '';
+      const reply = coachPayload.choices?.[0]?.message?.content?.trim() || '';
       json(res, 200, { reply, requestId: reqId });
     } catch (err) {
       console.error('[server] coach error', err);
@@ -848,12 +848,13 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
 });
 
 server.listen(PORT, () => {
-  console.log(`\n[hairlinecheck api] running on http://localhost:${PORT}`);
+  console.log(`\n[hairlinecheck api] running on http://localhost:${PORT} sha=${GIT_SHA}`);
   if (SERVE_STATIC) console.log(`[hairlinecheck api] serving static app from ${staticRoot}`);
   console.log(`[hairlinecheck api] POST /api/generate-after { photoDataUrl }`);
   console.log(`[hairlinecheck api] POST /api/generate-analysis-map { photoDataUrl, kind }`);
   console.log(`[hairlinecheck api] POST /api/generate-advice-visual { kind }`);
   console.log(`[hairlinecheck api] POST /api/analyze-scan   { photoDataUrl }`);
   console.log(`[hairlinecheck api] POST /api/coach          { message, history, userContext }`);
-  console.log(`[hairlinecheck api] GET  /api/health\n`);
+  console.log(`[hairlinecheck api] GET  /api/health`);
+  console.log(`[hairlinecheck api] GET  /api/version\n`);
 });
