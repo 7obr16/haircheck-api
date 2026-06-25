@@ -30,6 +30,10 @@ const AFTER_CACHE = new Map();           // hash -> { result, at }
 const AFTER_INFLIGHT = new Map();        // hash -> Promise<result>
 const ADVICE_VISUAL_CACHE = new Map();   // hash -> { result, at }
 const ADVICE_VISUAL_INFLIGHT = new Map();// hash -> Promise<result>
+const PROGRESSION_CACHE = new Map();     // hash -> { result, at }
+const PROGRESSION_INFLIGHT = new Map();  // hash -> Promise<result>
+const MAP_CACHE = new Map();             // hash -> { result, at }
+const MAP_INFLIGHT = new Map();          // hash -> Promise<result>
 const CACHE_MAX = 50;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
@@ -486,49 +490,78 @@ const server = createServer(async (req, res) => {
   // Cost: ~$0.05 per call. Caller should cache aggressively in localStorage.
   if (req.method === 'POST' && req.url === '/api/generate-progression') {
     try {
-      const { photoDataUrl, month } = await readJsonBody(req);
+      const { photoDataUrl, month, quality: qParam } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const m = Number(month);
       if (!PROGRESSION_PROMPTS[m]) throw new Error('month must be 3, 6, or 12');
+      const quality = ['auto', 'high', 'medium', 'low'].includes(qParam) ? qParam : 'high';
 
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
-      const startedAt = Date.now();
-      console.log('[progression] start', {
-        month: m,
-        mime,
-        inputKb: Math.round(buffer.length / 1024),
-      });
+      const hash = cacheHashOf('progression', mime, createHash('sha256').update(buffer).digest('hex'), String(m), quality);
 
-      const { ok: progOk, status: progStatus, payload: progPayload } = await withOpenAIRetry('generate-progression', () => {
-        const fd = new FormData();
-        fd.append('model', 'gpt-image-2');
-        fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
-        fd.append('prompt', PROGRESSION_PROMPTS[m]);
-        fd.append('n', '1');
-        fd.append('size', 'auto');
-        fd.append('quality', 'high');
-        return fetch('https://api.openai.com/v1/images/edits', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-          body: fd,
-        });
-      });
-
-      if (!progOk) {
-        console.error('[openai progression] error', progStatus, progPayload);
-        json(res, progStatus, { ...normalizeOpenAIError('OpenAI request failed', progStatus, progPayload), requestId: reqId });
+      // 1. Cache hit — return instantly
+      const progCached = cacheRead(PROGRESSION_CACHE, hash);
+      if (progCached) {
+        console.log('[progression] CACHE HIT', { month: m, hash: hash.slice(0, 8) });
+        json(res, 200, { afterPhoto: progCached, month: m, cached: true, requestId: reqId });
         return;
       }
 
-      const b64 = progPayload?.data?.[0]?.b64_json;
-      if (!b64) { json(res, 502, { error: 'No image returned', detail: progPayload }); return; }
+      // 2. In-flight dedup
+      let progInflight = PROGRESSION_INFLIGHT.get(hash);
+      if (progInflight) {
+        console.log('[progression] IN-FLIGHT JOIN', { month: m, hash: hash.slice(0, 8) });
+        const progResult = await progInflight;
+        if (progResult.ok) {
+          json(res, 200, { afterPhoto: progResult.afterPhoto, month: m, deduped: true, requestId: reqId });
+        } else {
+          json(res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
+        }
+        return;
+      }
 
-      console.log('[progression] ok', {
-        month: m,
-        ms: Date.now() - startedAt,
-        outputKb: Math.round((b64.length * 3 / 4) / 1024),
-      });
-      json(res, 200, { afterPhoto: `data:image/png;base64,${b64}`, month: m, requestId: reqId });
+      const startedAt = Date.now();
+      console.log('[progression] start', { month: m, mime, inputKb: Math.round(buffer.length / 1024), quality });
+
+      const progPromise = (async () => {
+        const { ok, status, payload } = await withOpenAIRetry('generate-progression', () => {
+          const fd = new FormData();
+          fd.append('model', 'gpt-image-2');
+          fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
+          fd.append('prompt', PROGRESSION_PROMPTS[m]);
+          fd.append('n', '1');
+          fd.append('size', 'auto');
+          fd.append('quality', quality);
+          return fetch('https://api.openai.com/v1/images/edits', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+            body: fd,
+          });
+        });
+        if (!ok) {
+          console.error('[openai progression] error', status, payload);
+          return { ok: false, status, error: payload };
+        }
+        const b64 = payload?.data?.[0]?.b64_json;
+        if (!b64) return { ok: false, status: 502, error: 'No image returned' };
+        return { ok: true, afterPhoto: `data:image/png;base64,${b64}` };
+      })();
+
+      PROGRESSION_INFLIGHT.set(hash, progPromise);
+      let progResult;
+      try {
+        progResult = await progPromise;
+      } finally {
+        PROGRESSION_INFLIGHT.delete(hash);
+      }
+
+      if (!progResult.ok) {
+        json(res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
+        return;
+      }
+      cacheWrite(PROGRESSION_CACHE, hash, progResult.afterPhoto);
+      console.log('[progression] ok', { month: m, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
+      json(res, 200, { afterPhoto: progResult.afterPhoto, month: m, requestId: reqId });
     } catch (err) {
       console.error('[server] generate-progression error', err);
       json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
@@ -541,49 +574,83 @@ const server = createServer(async (req, res) => {
   // Output: { analysisMap: 'data:image/png;base64,...', kind }
   if (req.method === 'POST' && req.url === '/api/generate-analysis-map') {
     try {
-      const { photoDataUrl, kind = 'density', result = {} } = await readJsonBody(req);
+      const { photoDataUrl, kind = 'density', result: scanScores = {} } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const mapKind = String(kind).toLowerCase() === 'crown' ? 'crown' : 'density';
 
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
-      const startedAt = Date.now();
-      console.log('[analysis-map] start', {
-        kind: mapKind,
-        mime,
-        inputKb: Math.round(buffer.length / 1024),
-      });
+      // Include scores in cache key because buildAnalysisMapPrompt interpolates them
+      const scoreKey = [
+        Number.isFinite(Number(scanScores.density)) ? Math.round(Number(scanScores.density)) : 'x',
+        Number.isFinite(Number(scanScores.crown)) ? Math.round(Number(scanScores.crown)) : 'x',
+        Number.isFinite(Number(scanScores.hairline)) ? Math.round(Number(scanScores.hairline)) : 'x',
+      ].join(',');
+      const hash = cacheHashOf('map', mime, createHash('sha256').update(buffer).digest('hex'), mapKind, scoreKey);
 
-      const mapPromptText = buildAnalysisMapPrompt(mapKind, result);
-      const { ok: mapOk, status: mapStatus, payload: mapPayload } = await withOpenAIRetry('generate-analysis-map', () => {
-        const fd = new FormData();
-        fd.append('model', 'gpt-image-2');
-        fd.append('image', new Blob([buffer], { type: mime }), 'scan.png');
-        fd.append('prompt', mapPromptText);
-        fd.append('n', '1');
-        fd.append('size', 'auto');
-        fd.append('quality', 'medium');
-        return fetch('https://api.openai.com/v1/images/edits', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-          body: fd,
-        });
-      });
-
-      if (!mapOk) {
-        console.error('[analysis-map] error', mapStatus, mapPayload);
-        json(res, mapStatus, { ...normalizeOpenAIError('OpenAI request failed', mapStatus, mapPayload), requestId: reqId });
+      // 1. Cache hit — return instantly
+      const mapCached = cacheRead(MAP_CACHE, hash);
+      if (mapCached) {
+        console.log('[analysis-map] CACHE HIT', { kind: mapKind, hash: hash.slice(0, 8) });
+        json(res, 200, { analysisMap: mapCached, kind: mapKind, cached: true, requestId: reqId });
         return;
       }
 
-      const b64 = mapPayload?.data?.[0]?.b64_json;
-      if (!b64) { json(res, 502, { error: 'No image returned', detail: mapPayload }); return; }
+      // 2. In-flight dedup
+      let mapInflight = MAP_INFLIGHT.get(hash);
+      if (mapInflight) {
+        console.log('[analysis-map] IN-FLIGHT JOIN', { kind: mapKind, hash: hash.slice(0, 8) });
+        const mapResult = await mapInflight;
+        if (mapResult.ok) {
+          json(res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, deduped: true, requestId: reqId });
+        } else {
+          json(res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
+        }
+        return;
+      }
 
-      console.log('[analysis-map] ok', {
-        kind: mapKind,
-        ms: Date.now() - startedAt,
-        outputKb: Math.round((b64.length * 3 / 4) / 1024),
-      });
-      json(res, 200, { analysisMap: `data:image/png;base64,${b64}`, kind: mapKind, requestId: reqId });
+      const startedAt = Date.now();
+      console.log('[analysis-map] start', { kind: mapKind, mime, inputKb: Math.round(buffer.length / 1024) });
+
+      const mapPromptText = buildAnalysisMapPrompt(mapKind, scanScores);
+      const mapPromise = (async () => {
+        const { ok, status, payload } = await withOpenAIRetry('generate-analysis-map', () => {
+          const fd = new FormData();
+          fd.append('model', 'gpt-image-2');
+          fd.append('image', new Blob([buffer], { type: mime }), 'scan.png');
+          fd.append('prompt', mapPromptText);
+          fd.append('n', '1');
+          fd.append('size', 'auto');
+          fd.append('quality', 'medium');
+          return fetch('https://api.openai.com/v1/images/edits', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+            body: fd,
+          });
+        });
+        if (!ok) {
+          console.error('[analysis-map] error', status, payload);
+          return { ok: false, status, error: payload };
+        }
+        const b64 = payload?.data?.[0]?.b64_json;
+        if (!b64) return { ok: false, status: 502, error: 'No image returned' };
+        return { ok: true, analysisMap: `data:image/png;base64,${b64}` };
+      })();
+
+      MAP_INFLIGHT.set(hash, mapPromise);
+      let mapResult;
+      try {
+        mapResult = await mapPromise;
+      } finally {
+        MAP_INFLIGHT.delete(hash);
+      }
+
+      if (!mapResult.ok) {
+        json(res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
+        return;
+      }
+      cacheWrite(MAP_CACHE, hash, mapResult.analysisMap);
+      console.log('[analysis-map] ok', { kind: mapKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
+      json(res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, requestId: reqId });
     } catch (err) {
       console.error('[server] generate-analysis-map error', err);
       json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
