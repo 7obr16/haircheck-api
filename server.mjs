@@ -326,10 +326,18 @@ const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDel
   }
 };
 
+const ALLOWED_IMAGE_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
 const dataUrlToBuffer = (dataUrl) => {
   const m = dataUrl.match(/^data:(image\/[a-z+.-]+);base64,(.+)$/i);
   if (!m) throw new Error('Expected data:image/...;base64,...');
-  return { mime: m[1], buffer: Buffer.from(m[2], 'base64') };
+  const mime = m[1].toLowerCase();
+  if (!ALLOWED_IMAGE_MIMES.has(mime)) {
+    const err = new Error(`Unsupported image type "${mime}". Accepted: jpeg, png, webp, gif.`);
+    err.statusCode = 415;
+    throw err;
+  }
+  return { mime, buffer: Buffer.from(m[2], 'base64') };
 };
 
 const serveStatic = (req, res) => {
@@ -370,7 +378,14 @@ const serveStatic = (req, res) => {
 // ─── server ─────────────────────────────────────────────────────
 const server = createServer(async (req, res) => {
   const reqId = requestId();
+  const reqStart = Date.now();
   res.setHeader('X-Request-Id', reqId);
+  console.log(`[req] ${req.method} ${req.url} ${reqId}`);
+  const origEnd = res.end.bind(res);
+  res.end = (...args) => {
+    console.log(`[res] ${req.method} ${req.url} ${reqId} ${res.statusCode} ${Date.now() - reqStart}ms`);
+    return origEnd(...args);
+  };
   const corsOk = cors(req, res);
 
   if (req.method === 'OPTIONS') {
@@ -824,7 +839,8 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
       };
       result.overall = Math.round((result.hairline + result.density + result.health + result.potential) / 4);
 
-      console.log('[vision] ok', { overall: result.overall, ms: Date.now() - startedAt });
+      const scanUsage = scanPayload.usage;
+      console.log('[vision] ok', { overall: result.overall, stage: result.stage, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null });
       json(res, 200, { ...result, requestId: reqId });
     } catch (err) {
       console.error('[server] analyze-scan error', err);
@@ -841,6 +857,7 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
     try {
       const { message, history = [], userContext = {} } = await readJsonBody(req);
       if (!message || typeof message !== 'string') throw new Error('message required');
+      const startedAt = Date.now();
 
       const ctx = {
         scan: userContext.result ? {
@@ -901,6 +918,8 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
       }
 
       const reply = coachPayload.choices?.[0]?.message?.content?.trim() || '';
+      const coachUsage = coachPayload.usage;
+      if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens } });
       json(res, 200, { reply, requestId: reqId });
     } catch (err) {
       console.error('[server] coach error', err);
