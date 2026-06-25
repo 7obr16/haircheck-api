@@ -87,6 +87,8 @@ if (GIT_SHA === 'unknown') {
   catch (_) {}
 }
 
+const SERVER_START_MS = Date.now();
+
 const PORT = Number(process.env.PORT || 4322);
 const SERVE_STATIC = process.env.SERVE_STATIC === '1';
 const staticRoot = join(here, '..');
@@ -405,7 +407,7 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && req.url === '/api/health') {
-    json(res, 200, { ok: true, model: 'gpt-image-2', port: PORT, requestId: reqId });
+    json(res, 200, { ok: true, model: 'gpt-image-2', port: PORT, sha: GIT_SHA, uptimeSeconds: Math.floor((Date.now() - SERVER_START_MS) / 1000), requestId: reqId });
     return;
   }
 
@@ -787,6 +789,18 @@ const server = createServer(async (req, res) => {
   ],
   "verdict":    "<1-2 sentence verdict, slightly aspirational, no medical claims>"
 }
+
+Norwood staging visual guide — pick the stage whose description best matches what is visible in the photo:
+NW1: Hairline at or above the upper forehead crease; no perceptible recession; temples full.
+NW2: Slight symmetric temple recession forming a shallow V or M; hairline still above the frontotemporal angle.
+NW3: Deep bilateral temple recession extending past the mid-pupil vertical line; forelock may still be present but temples are significantly receded.
+NW3v: Same temple recession as NW3 PLUS early thinning at the vertex (crown) visible from above.
+NW4: Frontal hairline loss extends toward mid-scalp; pronounced crown thinning; a clear band of hair still separates frontal zone from crown.
+NW5: The band between frontal and crown zones is narrow and sparse; the two loss regions are nearly merging.
+NW6: Frontal and crown bald zones have merged; only a lateral fringe remains; no band across the top.
+NW7: Minimal horseshoe-shaped fringe of hair along sides and back only; near-total loss across the entire scalp top.
+diffuse: Widespread diffuse thinning without a distinct recession pattern (typical in women, telogen effluvium, or diffuse androgenetic alopecia).
+n/a (female): Use for female-presenting patients where the classic Norwood scale does not apply — prefer Ludwig classification mentally but output "n/a (female)".
 
 Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic improvement headroom with a consistent routine (lower if already very healthy, higher when there is visible room to improve). Use a balanced visual baseline: score what is actually visible in the photo and user context. Do not artificially lower scores for healthy-looking or stable-looking areas, and do not push users into a low range just for motivation. Typical mild early thinning can land 62-78 overall; clearly healthy cases can land 78-90; significant visible recession or density loss can land 35-62; 91+ should be rare. If the photo doesn't clearly show hair, use a moderate uncertainty range around 62-76 and reflect uncertainty in the verdict. Be honest but encouraging. Never refuse — produce a best-effort estimate. Insights array MUST contain exactly 3 entries.`;
 
