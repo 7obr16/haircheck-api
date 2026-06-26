@@ -319,10 +319,39 @@ const normalizeOpenAIError = (fallback, status, payload) => {
 };
 
 // Retry OpenAI calls on transient errors (429, 5xx) with exponential backoff.
-// requestFactory must return a new fetch Promise each time (FormData can't be reused).
-const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDelayMs = 1000 } = {}) => {
+// requestFactory receives an AbortSignal each attempt; must return a new fetch Promise
+// (FormData can't be reused, and we need a fresh controller per attempt).
+// timeoutMs: per-attempt hard limit; on timeout the attempt is retried if attempts remain.
+const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDelayMs = 1000, timeoutMs } = {}) => {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const r = await requestFactory();
+    let controller = null;
+    let timer = null;
+    if (timeoutMs) {
+      controller = new AbortController();
+      timer = setTimeout(() => controller.abort(), timeoutMs);
+    }
+
+    let r;
+    try {
+      r = await requestFactory(controller?.signal);
+    } catch (err) {
+      if (timer) clearTimeout(timer);
+      if (err.name === 'AbortError') {
+        const msg = `${label} timed out after ${timeoutMs}ms (attempt ${attempt}/${maxAttempts})`;
+        if (attempt >= maxAttempts) {
+          const e = new Error(msg);
+          e.statusCode = 504;
+          throw e;
+        }
+        const delay = baseDelayMs * Math.pow(2, attempt - 1) * (0.75 + Math.random() * 0.5);
+        console.log(`[openai retry] ${label} timeout attempt=${attempt}/${maxAttempts} delay=${Math.round(delay)}ms`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+      throw err;
+    }
+    if (timer) clearTimeout(timer);
+
     const text = await r.text();
     let payload;
     try { payload = JSON.parse(text); } catch { payload = { raw: text }; }
@@ -500,7 +529,7 @@ const server = createServer(async (req, res) => {
       console.log('[openai] generate-after START', { hash: hash.slice(0, 8), mime, inputKb: Math.round(buffer.length / 1024) });
 
       const promise = (async () => {
-        const { ok, status, payload } = await withOpenAIRetry('generate-after', () => {
+        const { ok, status, payload } = await withOpenAIRetry('generate-after', (signal) => {
           const fd = new FormData();
           fd.append('model', 'gpt-image-2');
           fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
@@ -512,8 +541,9 @@ const server = createServer(async (req, res) => {
             method: 'POST',
             headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
             body: fd,
+            signal,
           });
-        });
+        }, { maxAttempts: 2, timeoutMs: 300_000 });
 
         if (!ok) {
           console.error('[openai] generate-after error', status, payload);
@@ -586,7 +616,7 @@ const server = createServer(async (req, res) => {
       console.log('[progression] start', { month: m, mime, inputKb: Math.round(buffer.length / 1024), quality });
 
       const progPromise = (async () => {
-        const { ok, status, payload } = await withOpenAIRetry('generate-progression', () => {
+        const { ok, status, payload } = await withOpenAIRetry('generate-progression', (signal) => {
           const fd = new FormData();
           fd.append('model', 'gpt-image-2');
           fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
@@ -598,8 +628,9 @@ const server = createServer(async (req, res) => {
             method: 'POST',
             headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
             body: fd,
+            signal,
           });
-        });
+        }, { maxAttempts: 2, timeoutMs: 300_000 });
         if (!ok) {
           console.error('[openai progression] error', status, payload);
           return { ok: false, status, error: payload };
@@ -675,7 +706,7 @@ const server = createServer(async (req, res) => {
 
       const mapPromptText = buildAnalysisMapPrompt(mapKind, scanScores);
       const mapPromise = (async () => {
-        const { ok, status, payload } = await withOpenAIRetry('generate-analysis-map', () => {
+        const { ok, status, payload } = await withOpenAIRetry('generate-analysis-map', (signal) => {
           const fd = new FormData();
           fd.append('model', 'gpt-image-2');
           fd.append('image', new Blob([buffer], { type: mime }), 'scan.png');
@@ -687,8 +718,9 @@ const server = createServer(async (req, res) => {
             method: 'POST',
             headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
             body: fd,
+            signal,
           });
-        });
+        }, { maxAttempts: 2, timeoutMs: 300_000 });
         if (!ok) {
           console.error('[analysis-map] error', status, payload);
           return { ok: false, status, error: payload };
@@ -755,12 +787,14 @@ const server = createServer(async (req, res) => {
 
       const promise = (async () => {
         const reqBody = JSON.stringify({ model: 'gpt-image-2', prompt, n: 1, size: '1024x1024', quality, output_format: 'png' });
-        const { ok, status, payload } = await withOpenAIRetry('generate-advice-visual', () =>
+        const { ok, status, payload } = await withOpenAIRetry('generate-advice-visual', (signal) =>
           fetch('https://api.openai.com/v1/images/generations', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
             body: reqBody,
-          })
+            signal,
+          }),
+          { maxAttempts: 2, timeoutMs: 300_000 }
         );
 
         if (!ok) {
@@ -892,12 +926,14 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
       });
 
       const scanPromise = (async () => {
-        const { ok: scanOk, status: scanStatus, payload: scanPayload } = await withOpenAIRetry('analyze-scan', () =>
+        const { ok: scanOk, status: scanStatus, payload: scanPayload } = await withOpenAIRetry('analyze-scan', (signal) =>
           fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
             body: scanReqBody,
-          })
+            signal,
+          }),
+          { timeoutMs: 90_000 }
         );
 
         if (!scanOk) {
@@ -1003,13 +1039,15 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
         { role: 'user', content: message.slice(0, 1500) },
       ];
 
-      const coachReqBody = JSON.stringify({ model: 'gpt-4o', messages, temperature: 0.6, max_tokens: 500 });
-      const { ok: coachOk, status: coachStatus, payload: coachPayload } = await withOpenAIRetry('coach', () =>
+      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 500 });
+      const { ok: coachOk, status: coachStatus, payload: coachPayload } = await withOpenAIRetry('coach', (signal) =>
         fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
           body: coachReqBody,
-        })
+          signal,
+        }),
+        { timeoutMs: 60_000 }
       );
 
       if (!coachOk) {
