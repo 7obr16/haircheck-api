@@ -308,12 +308,18 @@ const normalizeOpenAIError = (fallback, status, payload) => {
   const billing = code === 'billing_hard_limit_reached'
     || code === 'insufficient_quota'
     || /billing|quota/i.test(message || '');
+  const contentPolicy = code === 'content_policy_violation'
+    || code === 'moderation_blocked'
+    || /safety system|content policy|violates our|not allowed|moderation/i.test(message || '');
   return {
     error: billing
       ? 'OpenAI generation is temporarily paused because billing or quota is unavailable.'
-      : message,
+      : contentPolicy
+        ? 'This photo could not be processed. Please try a clearer, well-lit photo showing only your hair and scalp.'
+        : message,
     code,
     retryable: billing || status === 429 || status >= 500,
+    contentPolicy,
     detail: payload,
   };
 };
@@ -374,6 +380,13 @@ const normalizeInsight = (ins, i) => ({
   body:   String(ins?.body   || '').slice(0, 120),
   metric: VALID_INSIGHT_METRICS.has(ins?.metric) ? ins.metric : (DEFAULT_METRICS[i] || 'Health'),
 });
+
+// Fallback insights used to pad the array to exactly 3 when GPT-4o returns fewer.
+const FALLBACK_INSIGHTS = [
+  { title: 'Maintain consistency', body: 'A consistent daily routine is the single biggest driver of long-term hair improvement.', metric: 'Health' },
+  { title: 'Track progress monthly', body: 'Monthly photos reveal improvements that are hard to notice day-to-day.', metric: 'Potential' },
+  { title: 'Protect your scalp', body: 'UV exposure and heat styling accelerate thinning — broad-spectrum SPF on the scalp helps.', metric: 'Crown' },
+];
 
 const dataUrlToBuffer = (dataUrl) => {
   const m = dataUrl.match(/^data:(image\/[a-z+.-]+);base64,(.+)$/i);
@@ -490,7 +503,21 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && req.url === '/api/health') {
-    json(res, 200, { ok: true, model: 'gpt-image-2', port: PORT, sha: GIT_SHA, uptimeSeconds: Math.floor((Date.now() - SERVER_START_MS) / 1000), requestId: reqId });
+    json(res, 200, {
+      ok: true,
+      model: 'gpt-image-2',
+      port: PORT,
+      sha: GIT_SHA,
+      uptimeSeconds: Math.floor((Date.now() - SERVER_START_MS) / 1000),
+      cache: {
+        scan:        { size: SCAN_CACHE.size,         inflight: SCAN_INFLIGHT.size },
+        after:       { size: AFTER_CACHE.size,        inflight: AFTER_INFLIGHT.size },
+        progression: { size: PROGRESSION_CACHE.size,  inflight: PROGRESSION_INFLIGHT.size },
+        map:         { size: MAP_CACHE.size,           inflight: MAP_INFLIGHT.size },
+        adviceVisual:{ size: ADVICE_VISUAL_CACHE.size, inflight: ADVICE_VISUAL_INFLIGHT.size },
+      },
+      requestId: reqId,
+    });
     return;
   }
 
@@ -955,6 +982,11 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
         catch (e) { return { ok: false, status: 502, error: { error: 'Vision returned non-JSON' } }; }
 
         const clamp = (n) => Math.max(0, Math.min(100, Math.round(Number(n) || 0)));
+        const rawInsights = (Array.isArray(parsed.insights) ? parsed.insights.slice(0, 3) : []).map(normalizeInsight);
+        // GPT-4o must return exactly 3; pad with sensible defaults if it falls short.
+        while (rawInsights.length < 3) {
+          rawInsights.push(FALLBACK_INSIGHTS[rawInsights.length]);
+        }
         const data = {
           hairline:  clamp(parsed.hairline),
           density:   clamp(parsed.density),
@@ -963,7 +995,7 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
           potential: clamp(parsed.potential),
           stage:     parsed.stage || 'n/a',
           headline:  String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
-          insights:  (Array.isArray(parsed.insights) ? parsed.insights.slice(0, 3) : []).map(normalizeInsight),
+          insights:  rawInsights,
           verdict:   String(parsed.verdict || '').slice(0, 400),
         };
         // Include all 5 metrics in overall: hairline, density, crown, health, potential.
