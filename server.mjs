@@ -1056,7 +1056,24 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
         weakestMetric: userContext.weakestMetric || null,
         age: userContext.profile?.age || null,
         sex: userContext.profile?.sex || null,
+        goals: Array.isArray(userContext.profile?.goals)
+          ? userContext.profile.goals
+          : (userContext.profile?.goals ? [String(userContext.profile.goals)] : []),
+        concerns: Array.isArray(userContext.profile?.concern)
+          ? userContext.profile.concern
+          : (userContext.profile?.concern ? [String(userContext.profile.concern)] : []),
+        timeline: userContext.profile?.timeline || null,
+        familyHistory: Array.isArray(userContext.profile?.family) ? userContext.profile.family : [],
       };
+
+      // Compute overall trend if ≥2 scans are available (scanHistory is newest-first).
+      const overallScores = ctx.scanHistory.map((h) => h.overall).filter((v) => typeof v === 'number' && Number.isFinite(v));
+      let trendStr = null;
+      if (overallScores.length >= 2) {
+        const delta = overallScores[0] - overallScores[overallScores.length - 1];
+        const direction = delta > 1 ? 'improving' : delta < -1 ? 'declining' : 'stable';
+        trendStr = `${delta >= 0 ? '+' : ''}${delta} over ${overallScores.length} scans (${direction})`;
+      }
 
       // Brief Norwood interpretation so the model can give stage-specific advice without
       // going off-track. Only included when the user has a scan with a known stage.
@@ -1097,6 +1114,11 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
           : '- No scan history yet.',
         ctx.age ? `- Age: ${ctx.age}.` : '',
         ctx.sex ? `- Sex: ${ctx.sex}.` : '',
+        ctx.goals.length ? `- Goals: ${ctx.goals.join(', ')}.` : '',
+        ctx.concerns.length ? `- Concerns: ${ctx.concerns.join(', ')}.` : '',
+        ctx.timeline ? `- Hair loss onset: ${ctx.timeline}.` : '',
+        ctx.familyHistory.length ? `- Family history: ${ctx.familyHistory.join(', ')}.` : '',
+        trendStr ? `- Overall score trend: ${trendStr}.` : '',
       ].filter(Boolean).join('\n');
 
       // Trim history to last 10 turns for cost control
