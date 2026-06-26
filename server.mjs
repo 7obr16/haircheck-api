@@ -1039,12 +1039,15 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
 
       const ctx = {
         scan: userContext.result ? {
-          overall: userContext.result.overall,
+          overall:  userContext.result.overall,
           hairline: userContext.result.hairline,
-          density: userContext.result.density,
-          crown: userContext.result.crown,
-          health: userContext.result.health,
+          density:  userContext.result.density,
+          crown:    userContext.result.crown,
+          health:   userContext.result.health,
           potential: userContext.result.potential,
+          stage:    String(userContext.result.stage || '').slice(0, 20) || null,
+          headline: String(userContext.result.headline || '').slice(0, 120) || null,
+          verdict:  String(userContext.result.verdict || '').slice(0, 400) || null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -1055,19 +1058,43 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
         sex: userContext.profile?.sex || null,
       };
 
+      // Brief Norwood interpretation so the model can give stage-specific advice without
+      // going off-track. Only included when the user has a scan with a known stage.
+      const NORWOOD_GUIDE = {
+        NW1:  'full hairline, no visible loss — protective / maintenance phase',
+        NW2:  'slight temple recession — very early; OTC topicals work best now',
+        NW3:  'clear bilateral temple recession past mid-pupil — established AGA; strong treatment response window',
+        NW3v: 'NW3 temples + early crown thinning — dual-zone priority',
+        NW4:  'significant frontal + crown loss — consistent multi-therapy protocol important',
+        NW5:  'frontal and crown zones nearly merging — still treatable; realistic expectations matter',
+        NW6:  'frontal and crown merged; lateral fringe only — advanced; FUE/FUT or SMP are options',
+        NW7:  'near-total scalp loss; horseshoe fringe only — transplant candidacy or acceptance discussion',
+        diffuse: 'diffuse thinning without classic recession — often women or TE; rule out nutritional/hormonal causes',
+        'n/a (female)': 'female pattern — Ludwig scale applies; hormonal workup and diffuse-specific treatments',
+      };
+
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
         'Tone: friendly, direct, evidence-based. Avoid medical disclaimers unless specifically asked.',
         'Constraints: never prescribe Rx drugs; recommend talking to a doctor for finasteride/dutasteride.',
         'Length: short, scannable. Use bullets when listing options.',
         '',
-        'User context (use when relevant, do not parrot back):',
-        ctx.scan ? `- Last scan: overall ${ctx.scan.overall}/100, hairline ${ctx.scan.hairline}, density ${ctx.scan.density}, crown ${ctx.scan.crown}, health ${ctx.scan.health}, potential ${ctx.scan.potential}.` : '- No scan yet.',
+        'User context (use when relevant, do not parrot back verbatim):',
+        ctx.scan
+          ? `- Last scan: overall ${ctx.scan.overall}/100, hairline ${ctx.scan.hairline}, density ${ctx.scan.density}, crown ${ctx.scan.crown}, health ${ctx.scan.health}, potential ${ctx.scan.potential}.`
+          : '- No scan yet.',
+        ctx.scan?.stage && NORWOOD_GUIDE[ctx.scan.stage]
+          ? `- Norwood stage: ${ctx.scan.stage} (${NORWOOD_GUIDE[ctx.scan.stage]}).`
+          : ctx.scan?.stage ? `- Norwood stage: ${ctx.scan.stage}.` : '',
+        ctx.scan?.headline ? `- AI scan headline: "${ctx.scan.headline}".` : '',
+        ctx.scan?.verdict  ? `- AI scan verdict: "${ctx.scan.verdict}".`  : '',
         ctx.weakestMetric?.label ? `- Current weakest metric: ${ctx.weakestMetric.label} (${ctx.weakestMetric.value}/100).` : '',
         ctx.routine.length ? `- Current routine: ${ctx.routine.join(', ')}.` : '- No routine logged yet.',
         ctx.routineDoneToday.length ? `- Routine tasks completed today: ${ctx.routineDoneToday.join(', ')}.` : '- No routine tasks completed today.',
         ctx.planProducts.length ? `- Saved plan products: ${ctx.planProducts.join(', ')}.` : '- No saved plan products yet.',
-        ctx.scanHistory.length ? `- Scan history count: ${ctx.scanHistory.length}. Latest first values: ${ctx.scanHistory.map((h) => h.overall || '?').join(', ')}.` : '- No scan history yet.',
+        ctx.scanHistory.length
+          ? `- Scan history (${ctx.scanHistory.length} scans): overall scores latest-first: ${ctx.scanHistory.map((h) => h.overall || '?').join(', ')}${ctx.scanHistory[0]?.stage ? `; latest stage: ${ctx.scanHistory[0].stage}` : ''}.`
+          : '- No scan history yet.',
         ctx.age ? `- Age: ${ctx.age}.` : '',
         ctx.sex ? `- Sex: ${ctx.sex}.` : '',
       ].filter(Boolean).join('\n');
