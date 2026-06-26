@@ -34,6 +34,8 @@ const PROGRESSION_CACHE = new Map();     // hash -> { result, at }
 const PROGRESSION_INFLIGHT = new Map();  // hash -> Promise<result>
 const MAP_CACHE = new Map();             // hash -> { result, at }
 const MAP_INFLIGHT = new Map();          // hash -> Promise<result>
+const SCAN_CACHE = new Map();            // hash -> { result, at }
+const SCAN_INFLIGHT = new Map();         // hash -> Promise<result>
 const CACHE_MAX = 50;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
@@ -758,6 +760,31 @@ const server = createServer(async (req, res) => {
       const { photoDataUrl, profile = {}, scoringInstruction = '' } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const { buffer: visionBuffer } = dataUrlToBuffer(photoDataUrl);
+
+      // Cache by (photo content + profile + scoringInstruction) to avoid re-billing
+      // the same scan on retries or double-taps. TTL is 24h (same as image cache).
+      const profileKey = JSON.stringify(profile);
+      const scanHash = cacheHashOf('scan', createHash('sha256').update(visionBuffer).digest('hex'), profileKey, scoringInstruction);
+
+      const scanCached = cacheRead(SCAN_CACHE, scanHash);
+      if (scanCached) {
+        console.log('[vision] CACHE HIT', { hash: scanHash.slice(0, 8) });
+        json(res, 200, { ...scanCached, cached: true, requestId: reqId });
+        return;
+      }
+
+      const scanInflight = SCAN_INFLIGHT.get(scanHash);
+      if (scanInflight) {
+        console.log('[vision] IN-FLIGHT JOIN', { hash: scanHash.slice(0, 8) });
+        const scanResult = await scanInflight;
+        if (scanResult.ok) {
+          json(res, 200, { ...scanResult.data, deduped: true, requestId: reqId });
+        } else {
+          json(res, scanResult.status || 502, { error: scanResult.error, requestId: reqId });
+        }
+        return;
+      }
+
       const startedAt = Date.now();
       console.log('[vision] start', { inputKb: Math.round(visionBuffer.length / 1024) });
 
@@ -821,41 +848,58 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
         max_tokens: 700,
       });
 
-      const { ok: scanOk, status: scanStatus, payload: scanPayload } = await withOpenAIRetry('analyze-scan', () =>
-        fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-          body: scanReqBody,
-        })
-      );
+      const scanPromise = (async () => {
+        const { ok: scanOk, status: scanStatus, payload: scanPayload } = await withOpenAIRetry('analyze-scan', () =>
+          fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+            body: scanReqBody,
+          })
+        );
 
-      if (!scanOk) {
-        console.error('[openai vision] error', scanStatus, scanPayload);
-        json(res, scanStatus, { ...normalizeOpenAIError('Vision request failed', scanStatus, scanPayload), requestId: reqId });
-        return;
+        if (!scanOk) {
+          console.error('[openai vision] error', scanStatus, scanPayload);
+          return { ok: false, status: scanStatus, error: normalizeOpenAIError('Vision request failed', scanStatus, scanPayload) };
+        }
+
+        let parsed;
+        try { parsed = JSON.parse(scanPayload.choices?.[0]?.message?.content || '{}'); }
+        catch (e) { return { ok: false, status: 502, error: { error: 'Vision returned non-JSON' } }; }
+
+        const clamp = (n) => Math.max(0, Math.min(100, Math.round(Number(n) || 0)));
+        const data = {
+          hairline:  clamp(parsed.hairline),
+          density:   clamp(parsed.density),
+          crown:     clamp(parsed.crown ?? parsed.density),
+          health:    clamp(parsed.health),
+          potential: clamp(parsed.potential),
+          stage:     parsed.stage || 'n/a',
+          headline:  String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
+          insights:  Array.isArray(parsed.insights) ? parsed.insights.slice(0, 3) : [],
+          verdict:   String(parsed.verdict || '').slice(0, 400),
+        };
+        // Include all 5 metrics in overall: hairline, density, crown, health, potential.
+        data.overall = Math.round((data.hairline + data.density + data.crown + data.health + data.potential) / 5);
+
+        const scanUsage = scanPayload.usage;
+        console.log('[vision] ok', { overall: data.overall, stage: data.stage, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null });
+        return { ok: true, data };
+      })();
+
+      SCAN_INFLIGHT.set(scanHash, scanPromise);
+      let scanOutcome;
+      try {
+        scanOutcome = await scanPromise;
+      } finally {
+        SCAN_INFLIGHT.delete(scanHash);
       }
 
-      let parsed;
-      try { parsed = JSON.parse(scanPayload.choices?.[0]?.message?.content || '{}'); }
-      catch (e) { json(res, 502, { error: 'Vision returned non-JSON', detail: scanPayload }); return; }
-
-      const clamp = (n) => Math.max(0, Math.min(100, Math.round(Number(n) || 0)));
-      const result = {
-        hairline:  clamp(parsed.hairline),
-        density:   clamp(parsed.density),
-        crown:     clamp(parsed.crown ?? parsed.density),
-        health:    clamp(parsed.health),
-        potential: clamp(parsed.potential),
-        stage:     parsed.stage || 'n/a',
-        headline:  String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
-        insights:  Array.isArray(parsed.insights) ? parsed.insights.slice(0, 3) : [],
-        verdict:   String(parsed.verdict || '').slice(0, 400),
-      };
-      result.overall = Math.round((result.hairline + result.density + result.health + result.potential) / 4);
-
-      const scanUsage = scanPayload.usage;
-      console.log('[vision] ok', { overall: result.overall, stage: result.stage, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null });
-      json(res, 200, { ...result, requestId: reqId });
+      if (!scanOutcome.ok) {
+        json(res, scanOutcome.status || 502, { ...scanOutcome.error, requestId: reqId });
+        return;
+      }
+      cacheWrite(SCAN_CACHE, scanHash, scanOutcome.data);
+      json(res, 200, { ...scanOutcome.data, requestId: reqId });
     } catch (err) {
       console.error('[server] analyze-scan error', err);
       json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
