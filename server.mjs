@@ -367,6 +367,13 @@ const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDel
 };
 
 const ALLOWED_IMAGE_MIMES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const VALID_INSIGHT_METRICS = new Set(['Hairline', 'Density', 'Crown', 'Health', 'Potential']);
+const DEFAULT_METRICS = ['Hairline', 'Density', 'Crown'];
+const normalizeInsight = (ins, i) => ({
+  title:  String(ins?.title  || '').slice(0, 60),
+  body:   String(ins?.body   || '').slice(0, 120),
+  metric: VALID_INSIGHT_METRICS.has(ins?.metric) ? ins.metric : (DEFAULT_METRICS[i] || 'Health'),
+});
 
 const dataUrlToBuffer = (dataUrl) => {
   const m = dataUrl.match(/^data:(image\/[a-z+.-]+);base64,(.+)$/i);
@@ -476,6 +483,8 @@ const server = createServer(async (req, res) => {
 
   const limited = rateLimit(req);
   if (limited) {
+    const retryAfterSec = Math.ceil((limited.body.retryAfterMs || 60_000) / 1000);
+    res.setHeader('Retry-After', String(retryAfterSec));
     json(res, limited.status, { ...limited.body, requestId: reqId });
     return;
   }
@@ -520,7 +529,7 @@ const server = createServer(async (req, res) => {
         if (result.ok) {
           json(res, 200, { afterPhoto: result.afterPhoto, deduped: true, requestId: reqId });
         } else {
-          json(res, result.status || 502, { error: result.error, requestId: reqId });
+          json(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         }
         return;
       }
@@ -857,7 +866,7 @@ const server = createServer(async (req, res) => {
         if (scanResult.ok) {
           json(res, 200, { ...scanResult.data, deduped: true, requestId: reqId });
         } else {
-          json(res, scanResult.status || 502, { error: scanResult.error, requestId: reqId });
+          json(res, scanResult.status || 502, { ...scanResult.error, requestId: reqId });
         }
         return;
       }
@@ -954,7 +963,7 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
           potential: clamp(parsed.potential),
           stage:     parsed.stage || 'n/a',
           headline:  String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
-          insights:  Array.isArray(parsed.insights) ? parsed.insights.slice(0, 3) : [],
+          insights:  (Array.isArray(parsed.insights) ? parsed.insights.slice(0, 3) : []).map(normalizeInsight),
           verdict:   String(parsed.verdict || '').slice(0, 400),
         };
         // Include all 5 metrics in overall: hairline, density, crown, health, potential.
