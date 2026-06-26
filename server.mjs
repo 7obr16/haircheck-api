@@ -17,6 +17,21 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execSync } from 'node:child_process';
 
+// ─── Norwood stage descriptions ─────────────────────────────────
+// Used in the scan response (stageLabel) and coach context.
+const NORWOOD_GUIDE = {
+  NW1:  'Full hairline, no visible loss — protective / maintenance phase',
+  NW2:  'Slight temple recession — very early; OTC topicals work best now',
+  NW3:  'Clear bilateral temple recession past mid-pupil — established AGA; strong treatment response window',
+  NW3v: 'NW3 temples + early crown thinning — dual-zone priority',
+  NW4:  'Significant frontal + crown loss — consistent multi-therapy protocol important',
+  NW5:  'Frontal and crown zones nearly merging — still treatable; realistic expectations matter',
+  NW6:  'Frontal and crown merged; lateral fringe only — advanced; FUE/FUT or SMP are options',
+  NW7:  'Near-total scalp loss; horseshoe fringe only — transplant candidacy or acceptance discussion',
+  diffuse: 'Diffuse thinning without classic recession — often women or TE; rule out nutritional/hormonal causes',
+  'n/a (female)': 'Female pattern — Ludwig scale applies; hormonal workup and diffuse-specific treatments',
+};
+
 // ─── In-memory cache for AFTER-photo generation ──────────────────
 // gpt-image-2 takes 2-3 minutes per call. Many client retries are the
 // same photo (e.g. Safari's 60s fetch timeout cancels client-side but
@@ -987,16 +1002,18 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
         while (rawInsights.length < 3) {
           rawInsights.push(FALLBACK_INSIGHTS[rawInsights.length]);
         }
+        const stage = parsed.stage || 'n/a';
         const data = {
-          hairline:  clamp(parsed.hairline),
-          density:   clamp(parsed.density),
-          crown:     clamp(parsed.crown ?? parsed.density),
-          health:    clamp(parsed.health),
-          potential: clamp(parsed.potential),
-          stage:     parsed.stage || 'n/a',
-          headline:  String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
-          insights:  rawInsights,
-          verdict:   String(parsed.verdict || '').slice(0, 400),
+          hairline:   clamp(parsed.hairline),
+          density:    clamp(parsed.density),
+          crown:      clamp(parsed.crown ?? parsed.density),
+          health:     clamp(parsed.health),
+          potential:  clamp(parsed.potential),
+          stage,
+          stageLabel: NORWOOD_GUIDE[stage] || null,
+          headline:   String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
+          insights:   rawInsights,
+          verdict:    String(parsed.verdict || '').slice(0, 400),
         };
         // Include all 5 metrics in overall: hairline, density, crown, health, potential.
         data.overall = Math.round((data.hairline + data.density + data.crown + data.health + data.potential) / 5);
@@ -1039,15 +1056,16 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
 
       const ctx = {
         scan: userContext.result ? {
-          overall:  userContext.result.overall,
-          hairline: userContext.result.hairline,
-          density:  userContext.result.density,
-          crown:    userContext.result.crown,
-          health:   userContext.result.health,
+          overall:   userContext.result.overall,
+          hairline:  userContext.result.hairline,
+          density:   userContext.result.density,
+          crown:     userContext.result.crown,
+          health:    userContext.result.health,
           potential: userContext.result.potential,
-          stage:    String(userContext.result.stage || '').slice(0, 20) || null,
-          headline: String(userContext.result.headline || '').slice(0, 120) || null,
-          verdict:  String(userContext.result.verdict || '').slice(0, 400) || null,
+          stage:     String(userContext.result.stage || '').slice(0, 20) || null,
+          headline:  String(userContext.result.headline || '').slice(0, 120) || null,
+          verdict:   String(userContext.result.verdict || '').slice(0, 400) || null,
+          insights:  Array.isArray(userContext.result.insights) ? userContext.result.insights.slice(0, 3) : [],
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -1075,20 +1093,6 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
         trendStr = `${delta >= 0 ? '+' : ''}${delta} over ${overallScores.length} scans (${direction})`;
       }
 
-      // Brief Norwood interpretation so the model can give stage-specific advice without
-      // going off-track. Only included when the user has a scan with a known stage.
-      const NORWOOD_GUIDE = {
-        NW1:  'full hairline, no visible loss — protective / maintenance phase',
-        NW2:  'slight temple recession — very early; OTC topicals work best now',
-        NW3:  'clear bilateral temple recession past mid-pupil — established AGA; strong treatment response window',
-        NW3v: 'NW3 temples + early crown thinning — dual-zone priority',
-        NW4:  'significant frontal + crown loss — consistent multi-therapy protocol important',
-        NW5:  'frontal and crown zones nearly merging — still treatable; realistic expectations matter',
-        NW6:  'frontal and crown merged; lateral fringe only — advanced; FUE/FUT or SMP are options',
-        NW7:  'near-total scalp loss; horseshoe fringe only — transplant candidacy or acceptance discussion',
-        diffuse: 'diffuse thinning without classic recession — often women or TE; rule out nutritional/hormonal causes',
-        'n/a (female)': 'female pattern — Ludwig scale applies; hormonal workup and diffuse-specific treatments',
-      };
 
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
@@ -1105,6 +1109,9 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
           : ctx.scan?.stage ? `- Norwood stage: ${ctx.scan.stage}.` : '',
         ctx.scan?.headline ? `- AI scan headline: "${ctx.scan.headline}".` : '',
         ctx.scan?.verdict  ? `- AI scan verdict: "${ctx.scan.verdict}".`  : '',
+        ctx.scan?.insights?.length
+          ? `- Scan insights: ${ctx.scan.insights.map((ins, i) => `${i + 1}) "${ins.title}" (${ins.metric}): ${ins.body}`).join('; ')}.`
+          : '',
         ctx.weakestMetric?.label ? `- Current weakest metric: ${ctx.weakestMetric.label} (${ctx.weakestMetric.value}/100).` : '',
         ctx.routine.length ? `- Current routine: ${ctx.routine.join(', ')}.` : '- No routine logged yet.',
         ctx.routineDoneToday.length ? `- Routine tasks completed today: ${ctx.routineDoneToday.join(', ')}.` : '- No routine tasks completed today.',
