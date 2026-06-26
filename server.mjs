@@ -110,6 +110,13 @@ const ALLOWED_ORIGINS = new Set([
     .filter(Boolean),
 ]);
 const rateBuckets = new Map();
+// Periodically evict expired rate buckets to prevent unbounded map growth.
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, bucket] of rateBuckets) {
+    if (now > bucket.resetAt) rateBuckets.delete(key);
+  }
+}, 60_000).unref();
 
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
@@ -379,10 +386,38 @@ const serveStatic = (req, res) => {
   return true;
 };
 
+// ─── Graceful shutdown ───────────────────────────────────────────
+// Railway sends SIGTERM on deploy/restart. Without a handler, Node exits
+// immediately and aborts in-flight image-generation requests. With this
+// handler the server stops accepting new connections and has 25 s to drain
+// before a forced exit (Railway's hard kill timeout is 30 s by default).
+let isShuttingDown = false;
+let openRequests = 0;
+
+const shutdown = (signal) => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+  console.log(`[shutdown] ${signal} received — open requests: ${openRequests}`);
+  server.close(() => {
+    console.log('[shutdown] server closed cleanly');
+    process.exit(0);
+  });
+  setTimeout(() => {
+    console.log('[shutdown] drain timeout — forcing exit');
+    process.exit(0);
+  }, 25_000).unref();
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
 // ─── server ─────────────────────────────────────────────────────
 const server = createServer(async (req, res) => {
   const reqId = requestId();
   const reqStart = Date.now();
+  openRequests++;
+  res.once('finish', () => { openRequests--; });
+
   res.setHeader('X-Request-Id', reqId);
   console.log(`[req] ${req.method} ${req.url} ${reqId}`);
   const origEnd = res.end.bind(res);
@@ -390,6 +425,14 @@ const server = createServer(async (req, res) => {
     console.log(`[res] ${req.method} ${req.url} ${reqId} ${res.statusCode} ${Date.now() - reqStart}ms`);
     return origEnd(...args);
   };
+
+  // Reject new non-health requests during graceful shutdown
+  if (isShuttingDown && req.url !== '/api/health') {
+    res.setHeader('Retry-After', '10');
+    json(res, 503, { error: 'Server is restarting. Please retry in a few seconds.', requestId: reqId });
+    return;
+  }
+
   const corsOk = cors(req, res);
 
   if (req.method === 'OPTIONS') {
