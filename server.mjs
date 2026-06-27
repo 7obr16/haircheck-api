@@ -1075,19 +1075,24 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const stage = parsed.stage || 'n/a';
         const VALID_PHOTO_QUALITIES = new Set(['good', 'acceptable', 'poor']);
         const photoQuality = VALID_PHOTO_QUALITIES.has(parsed.photoQuality) ? parsed.photoQuality : 'acceptable';
+        // confidenceScore is derived server-side from photoQuality — reflects how
+        // reliably the AI could assess the scan. The iOS app can use this to decide
+        // whether to show a "retake for better results" nudge.
+        const confidenceScore = photoQuality === 'good' ? 90 : photoQuality === 'poor' ? 50 : 70;
         const data = {
-          hairline:     clamp(parsed.hairline),
-          density:      clamp(parsed.density),
-          crown:        clamp(parsed.crown ?? parsed.density),
-          health:       clamp(parsed.health),
-          potential:    clamp(parsed.potential),
+          hairline:        clamp(parsed.hairline),
+          density:         clamp(parsed.density),
+          crown:           clamp(parsed.crown ?? parsed.density),
+          health:          clamp(parsed.health),
+          potential:       clamp(parsed.potential),
           stage,
-          stageLabel:   NORWOOD_GUIDE[stage] || null,
-          headline:     String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
-          insights:     rawInsights,
-          verdict:      String(parsed.verdict || '').slice(0, 400),
+          stageLabel:      NORWOOD_GUIDE[stage] || null,
+          headline:        String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
+          insights:        rawInsights,
+          verdict:         String(parsed.verdict || '').slice(0, 400),
           photoQuality,
-          photoNote:    String(parsed.photoNote || '').slice(0, 200),
+          photoNote:       String(parsed.photoNote || '').slice(0, 200),
+          confidenceScore,
         };
         // Include all 5 metrics in overall: hairline, density, crown, health, potential.
         data.overall = Math.round((data.hairline + data.density + data.crown + data.health + data.potential) / 5);
@@ -1215,7 +1220,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         { role: 'user', content: message.slice(0, 1500) },
       ];
 
-      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 500 });
+      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 700 });
       const { ok: coachOk, status: coachStatus, payload: coachPayload } = await withOpenAIRetry('coach', (signal) =>
         fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
