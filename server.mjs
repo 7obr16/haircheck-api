@@ -436,9 +436,11 @@ const SCAN_RESPONSE_SCHEMA = {
         additionalProperties: false,
       },
     },
-    verdict: { type: 'string' },
+    verdict:      { type: 'string' },
+    photoQuality: { type: 'string', enum: ['good', 'acceptable', 'poor'] },
+    photoNote:    { type: 'string' },
   },
-  required: ['hairline', 'density', 'crown', 'health', 'potential', 'stage', 'headline', 'insights', 'verdict'],
+  required: ['hairline', 'density', 'crown', 'health', 'potential', 'stage', 'headline', 'insights', 'verdict', 'photoQuality', 'photoNote'],
   additionalProperties: false,
 };
 
@@ -980,6 +982,13 @@ const server = createServer(async (req, res) => {
 - headline: 6-9 word punchy summary, confident tone
 - insights: exactly 3 items, each with a 5-word title, 12-22 word actionable body, and the relevant metric
 - verdict: 1-2 sentence verdict, slightly aspirational, no medical claims
+- photoQuality: 'good' | 'acceptable' | 'poor'
+- photoNote: brief sentence about quality issues, or empty string if quality is good
+
+PHOTO QUALITY ASSESSMENT:
+good — scalp clearly visible, well-lit, shot from above or ~45° angle, can see hairline + crown.
+acceptable — lighting or angle is suboptimal but loss pattern is still assessable.
+poor — too dark, heavily blurred, shot straight-on (forehead/face only, no scalp visible), or the image doesn't contain a person's hair/scalp at all. If poor, use a conservative uncertainty range (60-75) and note it in the verdict.
 
 Norwood staging visual guide — pick the stage whose description best matches what is visible in the photo:
 NW1: Hairline at or above the upper forehead crease; no perceptible recession; temples full.
@@ -993,7 +1002,15 @@ NW7: Minimal horseshoe-shaped fringe of hair along sides and back only; near-tot
 diffuse: Widespread diffuse thinning without a distinct recession pattern (typical in women, telogen effluvium, or diffuse androgenetic alopecia).
 n/a (female): Use for female-presenting patients where the classic Norwood scale does not apply — prefer Ludwig classification mentally but output "n/a (female)".
 
-Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic improvement headroom with a consistent routine (lower if already very healthy, higher when there is visible room to improve). Use a balanced visual baseline: score what is actually visible in the photo and user context. Do not artificially lower scores for healthy-looking or stable-looking areas, and do not push users into a low range just for motivation. Typical mild early thinning can land 62-78 overall; clearly healthy cases can land 78-90; significant visible recession or density loss can land 35-62; 91+ should be rare. If the photo doesn't clearly show hair, use a moderate uncertainty range around 62-76 and reflect uncertainty in the verdict. Be honest but encouraging. Never refuse — produce a best-effort estimate. Insights array MUST contain exactly 3 entries.`;
+Scoring guide (all scores 0-100 integers):
+- hairline: 100 = fully intact hairline, no recession. Deduct for temple recession depth/width, frontal loss. NW1→90-100, NW2→75-88, NW3→55-72, NW4→35-55, NW5+→15-40.
+- density: 100 = full terminal hair density with no scalp visible through hair. Deduct for mid-scalp see-through, diffuse thinning, miniaturization.
+- crown: 100 = full crown/vertex coverage. Deduct for vertex thinning, bald spot, widening part. If crown isn't visible in photo, estimate from stage and side view.
+- health: 100 = thick terminal hairs, healthy scalp, no inflammation. Deduct for visible miniaturization, scalp irritation/redness, dry/flaky scalp.
+- potential: realistic percentage improvement achievable with a consistent 6-12 month OTC protocol (minoxidil, scalp care, supplements). 100 = significant recovery likely (early NW2-3, young onset); 60-80 = meaningful gains possible; 30-55 = maintenance-focused, limited regrowth expected; under 30 = very advanced loss, medical/transplant is the realistic path. Potential is NOT the same as current health — a NW3 with good health can still have high potential (70-85) because early treatment is effective.
+- overall (computed server-side): do not output this field.
+
+Use a balanced visual baseline: score what is actually visible in the photo and user context. Do not artificially lower scores for healthy-looking or stable-looking areas, and do not push users into a low range just for motivation. Typical mild early thinning: 62-78 overall; clearly healthy cases: 78-90; significant recession or density loss: 35-62; 91+ is rare. If photoQuality is 'poor', use a conservative uncertainty range around 62-76 and reflect uncertainty in the verdict. Never refuse — produce a best-effort estimate. Insights array MUST contain exactly 3 entries.`;
 
       const scanReqBody = JSON.stringify({
         model: 'gpt-4o',
@@ -1050,23 +1067,27 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
           rawInsights.push(FALLBACK_INSIGHTS[rawInsights.length]);
         }
         const stage = parsed.stage || 'n/a';
+        const VALID_PHOTO_QUALITIES = new Set(['good', 'acceptable', 'poor']);
+        const photoQuality = VALID_PHOTO_QUALITIES.has(parsed.photoQuality) ? parsed.photoQuality : 'acceptable';
         const data = {
-          hairline:   clamp(parsed.hairline),
-          density:    clamp(parsed.density),
-          crown:      clamp(parsed.crown ?? parsed.density),
-          health:     clamp(parsed.health),
-          potential:  clamp(parsed.potential),
+          hairline:     clamp(parsed.hairline),
+          density:      clamp(parsed.density),
+          crown:        clamp(parsed.crown ?? parsed.density),
+          health:       clamp(parsed.health),
+          potential:    clamp(parsed.potential),
           stage,
-          stageLabel: NORWOOD_GUIDE[stage] || null,
-          headline:   String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
-          insights:   rawInsights,
-          verdict:    String(parsed.verdict || '').slice(0, 400),
+          stageLabel:   NORWOOD_GUIDE[stage] || null,
+          headline:     String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
+          insights:     rawInsights,
+          verdict:      String(parsed.verdict || '').slice(0, 400),
+          photoQuality,
+          photoNote:    String(parsed.photoNote || '').slice(0, 200),
         };
         // Include all 5 metrics in overall: hairline, density, crown, health, potential.
         data.overall = Math.round((data.hairline + data.density + data.crown + data.health + data.potential) / 5);
 
         const scanUsage = scanPayload.usage;
-        console.log('[vision] ok', { overall: data.overall, stage: data.stage, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null });
+        console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null });
         return { ok: true, data };
       })();
 
@@ -1103,16 +1124,18 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
 
       const ctx = {
         scan: userContext.result ? {
-          overall:   userContext.result.overall,
-          hairline:  userContext.result.hairline,
-          density:   userContext.result.density,
-          crown:     userContext.result.crown,
-          health:    userContext.result.health,
-          potential: userContext.result.potential,
-          stage:     String(userContext.result.stage || '').slice(0, 20) || null,
-          headline:  String(userContext.result.headline || '').slice(0, 120) || null,
-          verdict:   String(userContext.result.verdict || '').slice(0, 400) || null,
-          insights:  Array.isArray(userContext.result.insights) ? userContext.result.insights.slice(0, 3) : [],
+          overall:      userContext.result.overall,
+          hairline:     userContext.result.hairline,
+          density:      userContext.result.density,
+          crown:        userContext.result.crown,
+          health:       userContext.result.health,
+          potential:    userContext.result.potential,
+          stage:        String(userContext.result.stage || '').slice(0, 20) || null,
+          headline:     String(userContext.result.headline || '').slice(0, 120) || null,
+          verdict:      String(userContext.result.verdict || '').slice(0, 400) || null,
+          insights:     Array.isArray(userContext.result.insights) ? userContext.result.insights.slice(0, 3) : [],
+          photoQuality: userContext.result.photoQuality || null,
+          photoNote:    userContext.result.photoNote || null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -1156,6 +1179,9 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
           : ctx.scan?.stage ? `- Norwood stage: ${ctx.scan.stage}.` : '',
         ctx.scan?.headline ? `- AI scan headline: "${ctx.scan.headline}".` : '',
         ctx.scan?.verdict  ? `- AI scan verdict: "${ctx.scan.verdict}".`  : '',
+        ctx.scan?.photoQuality && ctx.scan.photoQuality !== 'good'
+          ? `- Photo quality: ${ctx.scan.photoQuality}${ctx.scan.photoNote ? ` (${ctx.scan.photoNote})` : ''} — scores may have lower confidence.`
+          : '',
         ctx.scan?.insights?.length
           ? `- Scan insights: ${ctx.scan.insights.map((ins, i) => `${i + 1}) "${ins.title}" (${ins.metric}): ${ins.body}`).join('; ')}.`
           : '',
