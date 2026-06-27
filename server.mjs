@@ -406,6 +406,42 @@ const FALLBACK_INSIGHTS = [
   { title: 'Protect your scalp', body: 'UV exposure and heat styling accelerate thinning — broad-spectrum SPF on the scalp helps.', metric: 'Crown' },
 ];
 
+// Structured output schema for analyze-scan (gpt-4o strict mode).
+// This guarantees valid JSON, correct enum values for stage/metric, and eliminates
+// parse failures from truncated responses. Strict mode requires all properties listed
+// in required and additionalProperties: false on every object.
+const SCAN_RESPONSE_SCHEMA = {
+  type: 'object',
+  properties: {
+    hairline:  { type: 'number' },
+    density:   { type: 'number' },
+    crown:     { type: 'number' },
+    health:    { type: 'number' },
+    potential: { type: 'number' },
+    stage: {
+      type: 'string',
+      enum: ['NW1', 'NW2', 'NW3', 'NW3v', 'NW4', 'NW5', 'NW6', 'NW7', 'diffuse', 'n/a (female)'],
+    },
+    headline: { type: 'string' },
+    insights: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          title:  { type: 'string' },
+          body:   { type: 'string' },
+          metric: { type: 'string', enum: ['Hairline', 'Density', 'Crown', 'Health', 'Potential'] },
+        },
+        required: ['title', 'body', 'metric'],
+        additionalProperties: false,
+      },
+    },
+    verdict: { type: 'string' },
+  },
+  required: ['hairline', 'density', 'crown', 'health', 'potential', 'stage', 'headline', 'insights', 'verdict'],
+  additionalProperties: false,
+};
+
 const dataUrlToBuffer = (dataUrl) => {
   const m = dataUrl.match(/^data:(image\/[a-z+.-]+);base64,(.+)$/i);
   if (!m) throw new Error('Expected data:image/...;base64,...');
@@ -938,21 +974,12 @@ const server = createServer(async (req, res) => {
         scoringInstruction ? `Scoring instruction: ${String(scoringInstruction).slice(0, 280)}` : '',
       ].join('\n');
 
-      const sys = `You are an aesthetic hair-analysis AI for a consumer hair-loss app. Look at the scalp photo and the user's profile context, then return ONLY valid JSON (no prose, no markdown). Required shape:
-
-{
-  "hairline":   0-100,
-  "density":    0-100,
-  "crown":      0-100,
-  "health":     0-100,
-  "potential":  0-100,
-  "stage":      "NW1" | "NW2" | "NW3" | "NW3v" | "NW4" | "NW5" | "NW6" | "NW7" | "diffuse" | "n/a (female)",
-  "headline":   "<6-9 word punchy summary, confident tone>",
-  "insights": [
-    { "title": "<5-word title>", "body": "<12-22 word actionable observation>", "metric": "Hairline" | "Density" | "Crown" | "Health" | "Potential" }
-  ],
-  "verdict":    "<1-2 sentence verdict, slightly aspirational, no medical claims>"
-}
+      const sys = `You are an aesthetic hair-analysis AI for a consumer hair-loss app. Analyze the scalp photo and user profile context, then output structured JSON with these fields:
+- hairline, density, crown, health, potential: 0-100 integer scores
+- stage: Norwood stage (pick from the enum)
+- headline: 6-9 word punchy summary, confident tone
+- insights: exactly 3 items, each with a 5-word title, 12-22 word actionable body, and the relevant metric
+- verdict: 1-2 sentence verdict, slightly aspirational, no medical claims
 
 Norwood staging visual guide — pick the stage whose description best matches what is visible in the photo:
 NW1: Hairline at or above the upper forehead crease; no perceptible recession; temples full.
@@ -970,7 +997,7 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
 
       const scanReqBody = JSON.stringify({
         model: 'gpt-4o',
-        response_format: { type: 'json_object' },
+        response_format: { type: 'json_schema', json_schema: { name: 'scan_result', strict: true, schema: SCAN_RESPONSE_SCHEMA } },
         messages: [
           { role: 'system', content: sys },
           {
