@@ -518,6 +518,7 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && req.url === '/api/health') {
+    const mem = process.memoryUsage();
     json(res, 200, {
       ok: true,
       model: 'gpt-image-2',
@@ -530,6 +531,11 @@ const server = createServer(async (req, res) => {
         progression: { size: PROGRESSION_CACHE.size,  inflight: PROGRESSION_INFLIGHT.size },
         map:         { size: MAP_CACHE.size,           inflight: MAP_INFLIGHT.size },
         adviceVisual:{ size: ADVICE_VISUAL_CACHE.size, inflight: ADVICE_VISUAL_INFLIGHT.size },
+      },
+      memoryMB: {
+        rss:      Math.round(mem.rss      / 1024 / 1024),
+        heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
+        heapTotal:Math.round(mem.heapTotal/ 1024 / 1024),
       },
       requestId: reqId,
     });
@@ -973,7 +979,7 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
           },
         ],
         temperature: 0.3,
-        max_tokens: 700,
+        max_tokens: 1000,
       });
 
       const scanPromise = (async () => {
@@ -992,9 +998,20 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
           return { ok: false, status: scanStatus, error: normalizeOpenAIError('Vision request failed', scanStatus, scanPayload) };
         }
 
+        const scanChoice = scanPayload.choices?.[0];
+        const finishReason = scanChoice?.finish_reason;
+        if (finishReason === 'length') {
+          console.warn('[vision] response truncated by max_tokens — JSON may be incomplete');
+        }
+
         let parsed;
-        try { parsed = JSON.parse(scanPayload.choices?.[0]?.message?.content || '{}'); }
-        catch (e) { return { ok: false, status: 502, error: { error: 'Vision returned non-JSON' } }; }
+        try { parsed = JSON.parse(scanChoice?.message?.content || '{}'); }
+        catch (e) {
+          const errMsg = finishReason === 'length'
+            ? 'Scan analysis was cut short — please try again.'
+            : 'Vision returned non-JSON';
+          return { ok: false, status: 502, error: { error: errMsg } };
+        }
 
         const clamp = (n) => Math.max(0, Math.min(100, Math.round(Number(n) || 0)));
         const rawInsights = (Array.isArray(parsed.insights) ? parsed.insights.slice(0, 3) : []).map(normalizeInsight);
@@ -1153,9 +1170,13 @@ Scoring guide: 100 = full healthy hair, 0 = severe loss. potential = realistic i
         return;
       }
 
-      const reply = coachPayload.choices?.[0]?.message?.content?.trim() || '';
+      const coachChoice = coachPayload.choices?.[0];
+      const coachFinishReason = coachChoice?.finish_reason;
+      if (coachFinishReason === 'length') console.warn('[coach] reply truncated by max_tokens');
+      const reply = coachChoice?.message?.content?.trim()
+        || "I didn't quite catch that — could you rephrase your question?";
       const coachUsage = coachPayload.usage;
-      if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens } });
+      if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason });
       json(res, 200, { reply, requestId: reqId });
     } catch (err) {
       console.error('[server] coach error', err);
