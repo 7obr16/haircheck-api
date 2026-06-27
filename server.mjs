@@ -360,15 +360,21 @@ const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDel
       r = await requestFactory(controller?.signal);
     } catch (err) {
       if (timer) clearTimeout(timer);
-      if (err.name === 'AbortError') {
-        const msg = `${label} timed out after ${timeoutMs}ms (attempt ${attempt}/${maxAttempts})`;
+      const isTimeout = err.name === 'AbortError';
+      // Node.js fetch (undici) throws TypeError with a .cause for network-level failures
+      // (ECONNRESET, ECONNREFUSED, DNS lookup failed, etc.). Retry those too.
+      const isNetworkError = !isTimeout && err instanceof TypeError && err.cause != null;
+      if (isTimeout || isNetworkError) {
+        const kind = isTimeout
+          ? `timeout after ${timeoutMs}ms`
+          : `network error (${err.cause?.code || err.message})`;
         if (attempt >= maxAttempts) {
-          const e = new Error(msg);
+          const e = new Error(`${label} ${kind}`);
           e.statusCode = 504;
           throw e;
         }
         const delay = baseDelayMs * Math.pow(2, attempt - 1) * (0.75 + Math.random() * 0.5);
-        console.log(`[openai retry] ${label} timeout attempt=${attempt}/${maxAttempts} delay=${Math.round(delay)}ms`);
+        console.log(`[openai retry] ${label} ${kind} attempt=${attempt}/${maxAttempts} delay=${Math.round(delay)}ms`);
         await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
       }
