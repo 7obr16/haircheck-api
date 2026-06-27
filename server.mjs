@@ -57,6 +57,16 @@ const SCAN_CACHE_MAX = 200;
 const IMAGE_CACHE_MAX = 20;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
+// Per-endpoint counters exposed via /api/health for production monitoring.
+const METRICS = {
+  scan:        { requests: 0, errors: 0 },
+  after:       { requests: 0, errors: 0 },
+  progression: { requests: 0, errors: 0 },
+  map:         { requests: 0, errors: 0 },
+  adviceVisual:{ requests: 0, errors: 0 },
+  coach:       { requests: 0, errors: 0 },
+};
+
 function cacheHashOf(prefix, ...parts) {
   return createHash('sha256').update(prefix + '\0' + parts.join('\0')).digest('hex');
 }
@@ -390,8 +400,14 @@ const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDel
     if (!retryable || attempt >= maxAttempts) {
       return { ok: false, status: r.status, payload };
     }
-    const delay = baseDelayMs * Math.pow(2, attempt - 1) * (0.75 + Math.random() * 0.5);
-    console.log(`[openai retry] ${label} status=${r.status} attempt=${attempt}/${maxAttempts} delay=${Math.round(delay)}ms`);
+    // Respect OpenAI's Retry-After header (seconds) when present; fall back to
+    // exponential backoff. Cap at 60s to avoid stalling too long on stale headers.
+    const retryAfterSec = parseFloat(r.headers.get('retry-after') || '0');
+    const serverDelay = Number.isFinite(retryAfterSec) && retryAfterSec > 0 ? retryAfterSec * 1000 : 0;
+    const delay = (serverDelay > 0 && serverDelay <= 60_000)
+      ? serverDelay
+      : baseDelayMs * Math.pow(2, attempt - 1) * (0.75 + Math.random() * 0.5);
+    console.log(`[openai retry] ${label} status=${r.status} attempt=${attempt}/${maxAttempts} delay=${Math.round(delay)}ms source=${serverDelay > 0 ? 'server' : 'backoff'}`);
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 };
@@ -584,6 +600,7 @@ const server = createServer(async (req, res) => {
         heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
         heapTotal:Math.round(mem.heapTotal/ 1024 / 1024),
       },
+      metrics: METRICS,
       requestId: reqId,
     });
     return;
@@ -596,6 +613,7 @@ const server = createServer(async (req, res) => {
 
   if (req.method === 'POST' && req.url === '/api/generate-after') {
     try {
+      METRICS.after.requests++;
       const { photoDataUrl, prompt, quality: qParam } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required (data:image/...;base64,...)');
 
@@ -674,6 +692,7 @@ const server = createServer(async (req, res) => {
       console.log('[openai] generate-after OK', { ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { afterPhoto: result.afterPhoto, requestId: reqId });
     } catch (err) {
+      METRICS.after.errors++;
       console.error('[server] handler error', err);
       json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
@@ -686,6 +705,7 @@ const server = createServer(async (req, res) => {
   // Cost: ~$0.05 per call. Caller should cache aggressively in localStorage.
   if (req.method === 'POST' && req.url === '/api/generate-progression') {
     try {
+      METRICS.progression.requests++;
       const { photoDataUrl, month, quality: qParam } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const m = Number(month);
@@ -760,6 +780,7 @@ const server = createServer(async (req, res) => {
       console.log('[progression] ok', { month: m, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { afterPhoto: progResult.afterPhoto, month: m, requestId: reqId });
     } catch (err) {
+      METRICS.progression.errors++;
       console.error('[server] generate-progression error', err);
       json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
@@ -771,6 +792,7 @@ const server = createServer(async (req, res) => {
   // Output: { analysisMap: 'data:image/png;base64,...', kind }
   if (req.method === 'POST' && req.url === '/api/generate-analysis-map') {
     try {
+      METRICS.map.requests++;
       const { photoDataUrl, kind = 'density', result: scanScores = {} } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const mapKind = String(kind).toLowerCase() === 'crown' ? 'crown' : 'density';
@@ -850,6 +872,7 @@ const server = createServer(async (req, res) => {
       console.log('[analysis-map] ok', { kind: mapKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, requestId: reqId });
     } catch (err) {
+      METRICS.map.errors++;
       console.error('[server] generate-analysis-map error', err);
       json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
@@ -861,6 +884,7 @@ const server = createServer(async (req, res) => {
   // Output: { adviceVisual: 'data:image/png;base64,...', kind }
   if (req.method === 'POST' && req.url === '/api/generate-advice-visual') {
     try {
+      METRICS.adviceVisual.requests++;
       const { kind, quality: qParam } = await readJsonBody(req);
       const visualKind = normalizeAdviceKind(kind);
       const quality = ['auto','high','medium','low'].includes(qParam) ? qParam : 'low';
@@ -926,6 +950,7 @@ const server = createServer(async (req, res) => {
       console.log('[advice-visual] ok', { kind: visualKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, requestId: reqId });
     } catch (err) {
+      METRICS.adviceVisual.errors++;
       console.error('[server] generate-advice-visual error', err);
       json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
@@ -938,6 +963,7 @@ const server = createServer(async (req, res) => {
   // Cost: ~$0.01 per call.
   if (req.method === 'POST' && req.url === '/api/analyze-scan') {
     try {
+      METRICS.scan.requests++;
       const { photoDataUrl, profile = {}, scoringInstruction = '' } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const { buffer: visionBuffer } = dataUrlToBuffer(photoDataUrl);
@@ -1117,6 +1143,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       cacheWrite(SCAN_CACHE, scanHash, scanOutcome.data);
       json(res, 200, { ...scanOutcome.data, requestId: reqId });
     } catch (err) {
+      METRICS.scan.errors++;
       console.error('[server] analyze-scan error', err);
       json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
@@ -1129,6 +1156,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
   // Cost: ~$0.005/message. History trimmed to last 10 turns to keep it cheap.
   if (req.method === 'POST' && req.url === '/api/coach') {
     try {
+      METRICS.coach.requests++;
       const { message, history = [], userContext = {} } = await readJsonBody(req);
       if (!message || typeof message !== 'string') throw new Error('message required');
       const startedAt = Date.now();
@@ -1246,6 +1274,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason });
       json(res, 200, { reply, requestId: reqId });
     } catch (err) {
+      METRICS.coach.errors++;
       console.error('[server] coach error', err);
       json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
