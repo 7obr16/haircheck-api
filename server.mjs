@@ -285,6 +285,14 @@ const json = (res, code, body) => {
   res.end(JSON.stringify(body));
 };
 
+// Use for OpenAI error responses — adds Retry-After hint on gateway errors.
+const jsonError = (res, code, body) => {
+  if (code === 502 || code === 503 || code === 504) {
+    if (!res.getHeader('Retry-After')) res.setHeader('Retry-After', '30');
+  }
+  json(res, code, body);
+};
+
 const readJsonBody = async (req) => {
   let body = '';
   let bytes = 0;
@@ -642,7 +650,8 @@ const server = createServer(async (req, res) => {
         if (result.ok) {
           json(res, 200, { afterPhoto: result.afterPhoto, deduped: true, requestId: reqId });
         } else {
-          json(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+          METRICS.after.errors++;
+          jsonError(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         }
         return;
       }
@@ -685,7 +694,8 @@ const server = createServer(async (req, res) => {
       }
 
       if (!result.ok) {
-        json(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+        METRICS.after.errors++;
+        jsonError(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         return;
       }
       cacheWrite(AFTER_CACHE, hash, result.afterPhoto, IMAGE_CACHE_MAX);
@@ -731,7 +741,8 @@ const server = createServer(async (req, res) => {
         if (progResult.ok) {
           json(res, 200, { afterPhoto: progResult.afterPhoto, month: m, deduped: true, requestId: reqId });
         } else {
-          json(res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
+          METRICS.progression.errors++;
+          jsonError(res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
         }
         return;
       }
@@ -773,7 +784,8 @@ const server = createServer(async (req, res) => {
       }
 
       if (!progResult.ok) {
-        json(res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
+        METRICS.progression.errors++;
+        jsonError(res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
         return;
       }
       cacheWrite(PROGRESSION_CACHE, hash, progResult.afterPhoto, IMAGE_CACHE_MAX);
@@ -822,7 +834,8 @@ const server = createServer(async (req, res) => {
         if (mapResult.ok) {
           json(res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, deduped: true, requestId: reqId });
         } else {
-          json(res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
+          METRICS.map.errors++;
+          jsonError(res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
         }
         return;
       }
@@ -865,7 +878,8 @@ const server = createServer(async (req, res) => {
       }
 
       if (!mapResult.ok) {
-        json(res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
+        METRICS.map.errors++;
+        jsonError(res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
         return;
       }
       cacheWrite(MAP_CACHE, hash, mapResult.analysisMap, IMAGE_CACHE_MAX);
@@ -905,7 +919,8 @@ const server = createServer(async (req, res) => {
         if (result.ok) {
           json(res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, deduped: true, requestId: reqId });
         } else {
-          json(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+          METRICS.adviceVisual.errors++;
+          jsonError(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         }
         return;
       }
@@ -943,7 +958,8 @@ const server = createServer(async (req, res) => {
       }
 
       if (!result.ok) {
-        json(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+        METRICS.adviceVisual.errors++;
+        jsonError(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         return;
       }
       cacheWrite(ADVICE_VISUAL_CACHE, hash, result.adviceVisual, IMAGE_CACHE_MAX);
@@ -987,7 +1003,8 @@ const server = createServer(async (req, res) => {
         if (scanResult.ok) {
           json(res, 200, { ...scanResult.data, deduped: true, requestId: reqId });
         } else {
-          json(res, scanResult.status || 502, { ...scanResult.error, requestId: reqId });
+          METRICS.scan.errors++;
+          jsonError(res, scanResult.status || 502, { ...scanResult.error, requestId: reqId });
         }
         return;
       }
@@ -1137,7 +1154,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       }
 
       if (!scanOutcome.ok) {
-        json(res, scanOutcome.status || 502, { ...scanOutcome.error, requestId: reqId });
+        METRICS.scan.errors++;
+        jsonError(res, scanOutcome.status || 502, { ...scanOutcome.error, requestId: reqId });
         return;
       }
       cacheWrite(SCAN_CACHE, scanHash, scanOutcome.data);
@@ -1260,8 +1278,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       );
 
       if (!coachOk) {
+        METRICS.coach.errors++;
         console.error('[coach] error', coachStatus, coachPayload);
-        json(res, coachStatus, { ...normalizeOpenAIError('Coach request failed', coachStatus, coachPayload), requestId: reqId });
+        jsonError(res, coachStatus, { ...normalizeOpenAIError('Coach request failed', coachStatus, coachPayload), requestId: reqId });
         return;
       }
 
