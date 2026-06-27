@@ -51,7 +51,10 @@ const MAP_CACHE = new Map();             // hash -> { result, at }
 const MAP_INFLIGHT = new Map();          // hash -> Promise<result>
 const SCAN_CACHE = new Map();            // hash -> { result, at }
 const SCAN_INFLIGHT = new Map();         // hash -> Promise<result>
-const CACHE_MAX = 50;
+// Scan results are tiny (~2KB each). Image caches store base64 PNGs which can
+// be 1-5MB each — keep those much smaller to avoid OOM on Railway's ~512MB RAM.
+const SCAN_CACHE_MAX = 200;
+const IMAGE_CACHE_MAX = 20;
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
 function cacheHashOf(prefix, ...parts) {
@@ -65,8 +68,8 @@ function cacheRead(map, key) {
   return entry.result;
 }
 
-function cacheWrite(map, key, result) {
-  if (map.size >= CACHE_MAX) {
+function cacheWrite(map, key, result, max = SCAN_CACHE_MAX) {
+  if (map.size >= max) {
     // FIFO eviction — drop the oldest entry
     const firstKey = map.keys().next().value;
     map.delete(firstKey);
@@ -526,11 +529,11 @@ const server = createServer(async (req, res) => {
       sha: GIT_SHA,
       uptimeSeconds: Math.floor((Date.now() - SERVER_START_MS) / 1000),
       cache: {
-        scan:        { size: SCAN_CACHE.size,         inflight: SCAN_INFLIGHT.size },
-        after:       { size: AFTER_CACHE.size,        inflight: AFTER_INFLIGHT.size },
-        progression: { size: PROGRESSION_CACHE.size,  inflight: PROGRESSION_INFLIGHT.size },
-        map:         { size: MAP_CACHE.size,           inflight: MAP_INFLIGHT.size },
-        adviceVisual:{ size: ADVICE_VISUAL_CACHE.size, inflight: ADVICE_VISUAL_INFLIGHT.size },
+        scan:        { size: SCAN_CACHE.size,         max: SCAN_CACHE_MAX,  inflight: SCAN_INFLIGHT.size },
+        after:       { size: AFTER_CACHE.size,        max: IMAGE_CACHE_MAX, inflight: AFTER_INFLIGHT.size },
+        progression: { size: PROGRESSION_CACHE.size,  max: IMAGE_CACHE_MAX, inflight: PROGRESSION_INFLIGHT.size },
+        map:         { size: MAP_CACHE.size,           max: IMAGE_CACHE_MAX, inflight: MAP_INFLIGHT.size },
+        adviceVisual:{ size: ADVICE_VISUAL_CACHE.size, max: IMAGE_CACHE_MAX, inflight: ADVICE_VISUAL_INFLIGHT.size },
       },
       memoryMB: {
         rss:      Math.round(mem.rss      / 1024 / 1024),
@@ -623,7 +626,7 @@ const server = createServer(async (req, res) => {
         json(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         return;
       }
-      cacheWrite(AFTER_CACHE, hash, result.afterPhoto);
+      cacheWrite(AFTER_CACHE, hash, result.afterPhoto, IMAGE_CACHE_MAX);
       console.log('[openai] generate-after OK', { ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { afterPhoto: result.afterPhoto, requestId: reqId });
     } catch (err) {
@@ -709,7 +712,7 @@ const server = createServer(async (req, res) => {
         json(res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
         return;
       }
-      cacheWrite(PROGRESSION_CACHE, hash, progResult.afterPhoto);
+      cacheWrite(PROGRESSION_CACHE, hash, progResult.afterPhoto, IMAGE_CACHE_MAX);
       console.log('[progression] ok', { month: m, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { afterPhoto: progResult.afterPhoto, month: m, requestId: reqId });
     } catch (err) {
@@ -799,7 +802,7 @@ const server = createServer(async (req, res) => {
         json(res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
         return;
       }
-      cacheWrite(MAP_CACHE, hash, mapResult.analysisMap);
+      cacheWrite(MAP_CACHE, hash, mapResult.analysisMap, IMAGE_CACHE_MAX);
       console.log('[analysis-map] ok', { kind: mapKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, requestId: reqId });
     } catch (err) {
@@ -875,7 +878,7 @@ const server = createServer(async (req, res) => {
         json(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         return;
       }
-      cacheWrite(ADVICE_VISUAL_CACHE, hash, result.adviceVisual);
+      cacheWrite(ADVICE_VISUAL_CACHE, hash, result.adviceVisual, IMAGE_CACHE_MAX);
       console.log('[advice-visual] ok', { kind: visualKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, requestId: reqId });
     } catch (err) {
