@@ -16,6 +16,7 @@ import { basename, dirname, extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execSync } from 'node:child_process';
+import { gzipSync } from 'node:zlib';
 
 // ─── Norwood stage descriptions ─────────────────────────────────
 // Used in the scan response (stageLabel) and coach context.
@@ -331,17 +332,29 @@ const cors = (req, res) => {
   return ok;
 };
 
-const json = (res, code, body) => {
-  res.writeHead(code, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(body));
+const json = (req, res, code, body) => {
+  const data = Buffer.from(JSON.stringify(body));
+  const acceptsGzip = data.length > 512 && /gzip/.test(req.headers['accept-encoding'] || '');
+  if (acceptsGzip) {
+    const existingVary = res.getHeader('Vary');
+    res.writeHead(code, {
+      'Content-Type': 'application/json',
+      'Content-Encoding': 'gzip',
+      'Vary': existingVary ? `${existingVary}, Accept-Encoding` : 'Accept-Encoding',
+    });
+    res.end(gzipSync(data));
+  } else {
+    res.writeHead(code, { 'Content-Type': 'application/json' });
+    res.end(data);
+  }
 };
 
 // Use for OpenAI error responses — adds Retry-After hint on gateway errors.
-const jsonError = (res, code, body) => {
+const jsonError = (req, res, code, body) => {
   if (code === 502 || code === 503 || code === 504) {
     if (!res.getHeader('Retry-After')) res.setHeader('Retry-After', '30');
   }
-  json(res, code, body);
+  json(req, res, code, body);
 };
 
 const readJsonBody = async (req) => {
@@ -646,7 +659,7 @@ const server = createServer(async (req, res) => {
   // Reject new non-health requests during graceful shutdown
   if (isShuttingDown && req.url !== '/api/health') {
     res.setHeader('Retry-After', '10');
-    json(res, 503, { error: 'Server is restarting. Please retry in a few seconds.', requestId: reqId });
+    json(req, res, 503, { error: 'Server is restarting. Please retry in a few seconds.', requestId: reqId });
     return;
   }
 
@@ -658,7 +671,7 @@ const server = createServer(async (req, res) => {
   }
 
   if (!corsOk) {
-    json(res, 403, { error: 'Origin not allowed', requestId: reqId });
+    json(req, res, 403, { error: 'Origin not allowed', requestId: reqId });
     return;
   }
 
@@ -666,13 +679,13 @@ const server = createServer(async (req, res) => {
   if (limited) {
     const retryAfterSec = Math.ceil((limited.body.retryAfterMs || 60_000) / 1000);
     res.setHeader('Retry-After', String(retryAfterSec));
-    json(res, limited.status, { ...limited.body, requestId: reqId });
+    json(req, res, limited.status, { ...limited.body, requestId: reqId });
     return;
   }
 
   if (req.method === 'GET' && req.url === '/api/health') {
     const mem = process.memoryUsage();
-    json(res, 200, {
+    json(req, res, 200, {
       ok: true,
       model: 'gpt-image-2',
       port: PORT,
@@ -700,7 +713,7 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && req.url === '/api/version') {
-    json(res, 200, { sha: GIT_SHA, requestId: reqId });
+    json(req, res, 200, { sha: GIT_SHA, requestId: reqId });
     return;
   }
 
@@ -729,7 +742,7 @@ const server = createServer(async (req, res) => {
       if (cached) {
         METRICS.after.cacheHits++;
         console.log('[openai] generate-after CACHE HIT', { hash: hash.slice(0, 8) });
-        json(res, 200, { afterPhoto: cached, cached: true, requestId: reqId });
+        json(req, res, 200, { afterPhoto: cached, cached: true, requestId: reqId });
         return;
       }
 
@@ -739,10 +752,10 @@ const server = createServer(async (req, res) => {
         console.log('[openai] generate-after IN-FLIGHT JOIN', { hash: hash.slice(0, 8) });
         const result = await inflight;
         if (result.ok) {
-          json(res, 200, { afterPhoto: result.afterPhoto, deduped: true, requestId: reqId });
+          json(req, res, 200, { afterPhoto: result.afterPhoto, deduped: true, requestId: reqId });
         } else {
           METRICS.after.errors++;
-          jsonError(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+          jsonError(req, res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         }
         return;
       }
@@ -786,17 +799,17 @@ const server = createServer(async (req, res) => {
 
       if (!result.ok) {
         METRICS.after.errors++;
-        jsonError(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+        jsonError(req, res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         return;
       }
       cacheWrite(AFTER_CACHE, hash, result.afterPhoto, IMAGE_CACHE_MAX);
       warnIfSlow('generate-after', startedAt, 'image');
       console.log('[openai] generate-after OK', { ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
-      json(res, 200, { afterPhoto: result.afterPhoto, requestId: reqId });
+      json(req, res, 200, { afterPhoto: result.afterPhoto, requestId: reqId });
     } catch (err) {
       METRICS.after.errors++;
       console.error('[server] handler error', err);
-      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+      json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
     return;
   }
@@ -827,7 +840,7 @@ const server = createServer(async (req, res) => {
       if (progCached) {
         METRICS.progression.cacheHits++;
         console.log('[progression] CACHE HIT', { month: m, hash: hash.slice(0, 8) });
-        json(res, 200, { afterPhoto: progCached, month: m, cached: true, requestId: reqId });
+        json(req, res, 200, { afterPhoto: progCached, month: m, cached: true, requestId: reqId });
         return;
       }
 
@@ -837,10 +850,10 @@ const server = createServer(async (req, res) => {
         console.log('[progression] IN-FLIGHT JOIN', { month: m, hash: hash.slice(0, 8) });
         const progResult = await progInflight;
         if (progResult.ok) {
-          json(res, 200, { afterPhoto: progResult.afterPhoto, month: m, deduped: true, requestId: reqId });
+          json(req, res, 200, { afterPhoto: progResult.afterPhoto, month: m, deduped: true, requestId: reqId });
         } else {
           METRICS.progression.errors++;
-          jsonError(res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
+          jsonError(req, res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
         }
         return;
       }
@@ -883,17 +896,17 @@ const server = createServer(async (req, res) => {
 
       if (!progResult.ok) {
         METRICS.progression.errors++;
-        jsonError(res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
+        jsonError(req, res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
         return;
       }
       cacheWrite(PROGRESSION_CACHE, hash, progResult.afterPhoto, IMAGE_CACHE_MAX);
       warnIfSlow('generate-progression', startedAt, 'image');
       console.log('[progression] ok', { month: m, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
-      json(res, 200, { afterPhoto: progResult.afterPhoto, month: m, requestId: reqId });
+      json(req, res, 200, { afterPhoto: progResult.afterPhoto, month: m, requestId: reqId });
     } catch (err) {
       METRICS.progression.errors++;
       console.error('[server] generate-progression error', err);
-      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+      json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
     return;
   }
@@ -927,7 +940,7 @@ const server = createServer(async (req, res) => {
       if (mapCached) {
         METRICS.map.cacheHits++;
         console.log('[analysis-map] CACHE HIT', { kind: mapKind, hash: hash.slice(0, 8) });
-        json(res, 200, { analysisMap: mapCached, kind: mapKind, cached: true, requestId: reqId });
+        json(req, res, 200, { analysisMap: mapCached, kind: mapKind, cached: true, requestId: reqId });
         return;
       }
 
@@ -937,10 +950,10 @@ const server = createServer(async (req, res) => {
         console.log('[analysis-map] IN-FLIGHT JOIN', { kind: mapKind, hash: hash.slice(0, 8) });
         const mapResult = await mapInflight;
         if (mapResult.ok) {
-          json(res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, deduped: true, requestId: reqId });
+          json(req, res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, deduped: true, requestId: reqId });
         } else {
           METRICS.map.errors++;
-          jsonError(res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
+          jsonError(req, res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
         }
         return;
       }
@@ -984,17 +997,17 @@ const server = createServer(async (req, res) => {
 
       if (!mapResult.ok) {
         METRICS.map.errors++;
-        jsonError(res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
+        jsonError(req, res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
         return;
       }
       cacheWrite(MAP_CACHE, hash, mapResult.analysisMap, IMAGE_CACHE_MAX);
       warnIfSlow('generate-analysis-map', startedAt, 'image');
       console.log('[analysis-map] ok', { kind: mapKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
-      json(res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, requestId: reqId });
+      json(req, res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, requestId: reqId });
     } catch (err) {
       METRICS.map.errors++;
       console.error('[server] generate-analysis-map error', err);
-      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+      json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
     return;
   }
@@ -1015,7 +1028,7 @@ const server = createServer(async (req, res) => {
       if (cached) {
         METRICS.adviceVisual.cacheHits++;
         console.log('[advice-visual] CACHE HIT', { kind: visualKind, hash: hash.slice(0, 8) });
-        json(res, 200, { adviceVisual: cached, kind: visualKind, cached: true, requestId: reqId });
+        json(req, res, 200, { adviceVisual: cached, kind: visualKind, cached: true, requestId: reqId });
         return;
       }
 
@@ -1024,10 +1037,10 @@ const server = createServer(async (req, res) => {
         console.log('[advice-visual] IN-FLIGHT JOIN', { kind: visualKind, hash: hash.slice(0, 8) });
         const result = await inflight;
         if (result.ok) {
-          json(res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, deduped: true, requestId: reqId });
+          json(req, res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, deduped: true, requestId: reqId });
         } else {
           METRICS.adviceVisual.errors++;
-          jsonError(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+          jsonError(req, res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         }
         return;
       }
@@ -1066,17 +1079,17 @@ const server = createServer(async (req, res) => {
 
       if (!result.ok) {
         METRICS.adviceVisual.errors++;
-        jsonError(res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+        jsonError(req, res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
         return;
       }
       cacheWrite(ADVICE_VISUAL_CACHE, hash, result.adviceVisual, IMAGE_CACHE_MAX);
       warnIfSlow('generate-advice-visual', startedAt, 'image');
       console.log('[advice-visual] ok', { kind: visualKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
-      json(res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, requestId: reqId });
+      json(req, res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, requestId: reqId });
     } catch (err) {
       METRICS.adviceVisual.errors++;
       console.error('[server] generate-advice-visual error', err);
-      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+      json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
     return;
   }
@@ -1106,7 +1119,7 @@ const server = createServer(async (req, res) => {
       if (scanCached) {
         METRICS.scan.cacheHits++;
         console.log('[vision] CACHE HIT', { hash: scanHash.slice(0, 8) });
-        json(res, 200, { ...scanCached, cached: true, requestId: reqId });
+        json(req, res, 200, { ...scanCached, cached: true, requestId: reqId });
         return;
       }
 
@@ -1115,10 +1128,10 @@ const server = createServer(async (req, res) => {
         console.log('[vision] IN-FLIGHT JOIN', { hash: scanHash.slice(0, 8) });
         const scanResult = await scanInflight;
         if (scanResult.ok) {
-          json(res, 200, { ...scanResult.data, deduped: true, requestId: reqId });
+          json(req, res, 200, { ...scanResult.data, deduped: true, requestId: reqId });
         } else {
           METRICS.scan.errors++;
-          jsonError(res, scanResult.status || 502, { ...scanResult.error, requestId: reqId });
+          jsonError(req, res, scanResult.status || 502, { ...scanResult.error, requestId: reqId });
         }
         return;
       }
@@ -1288,16 +1301,16 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
 
       if (!scanOutcome.ok) {
         METRICS.scan.errors++;
-        jsonError(res, scanOutcome.status || 502, { ...scanOutcome.error, requestId: reqId });
+        jsonError(req, res, scanOutcome.status || 502, { ...scanOutcome.error, requestId: reqId });
         return;
       }
       cacheWrite(SCAN_CACHE, scanHash, scanOutcome.data);
       warnIfSlow('analyze-scan', startedAt, 'scan');
-      json(res, 200, { ...scanOutcome.data, requestId: reqId });
+      json(req, res, 200, { ...scanOutcome.data, requestId: reqId });
     } catch (err) {
       METRICS.scan.errors++;
       console.error('[server] analyze-scan error', err);
-      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+      json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
     return;
   }
@@ -1422,7 +1435,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       if (!coachOk) {
         METRICS.coach.errors++;
         console.error('[coach] error', coachStatus, coachPayload);
-        jsonError(res, coachStatus, { ...normalizeOpenAIError('Coach request failed', coachStatus, coachPayload), requestId: reqId });
+        jsonError(req, res, coachStatus, { ...normalizeOpenAIError('Coach request failed', coachStatus, coachPayload), requestId: reqId });
         return;
       }
 
@@ -1434,18 +1447,18 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const coachUsage = coachPayload.usage;
       warnIfSlow('coach', startedAt, 'coach');
       if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason });
-      json(res, 200, { reply, requestId: reqId });
+      json(req, res, 200, { reply, requestId: reqId });
     } catch (err) {
       METRICS.coach.errors++;
       console.error('[server] coach error', err);
-      json(res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+      json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
     return;
   }
 
   if (serveStatic(req, res)) return;
 
-  json(res, 404, { error: 'Not found', requestId: reqId });
+  json(req, res, 404, { error: 'Not found', requestId: reqId });
 });
 
 server.listen(PORT, () => {
