@@ -67,6 +67,46 @@ const METRICS = {
   coach:       { requests: 0, errors: 0, cacheHits: 0 },
 };
 
+// Rolling latency samples (ms) per endpoint — last 100 POST requests each.
+// Exposed via /api/health so Railway dashboards and alerts can track p50/p95.
+const LATENCY_MAX_SAMPLES = 100;
+const LATENCY = {
+  scan:        [],
+  after:       [],
+  progression: [],
+  map:         [],
+  adviceVisual:[],
+  coach:       [],
+};
+
+const URL_TO_LATENCY_KEY = {
+  '/api/analyze-scan':          'scan',
+  '/api/generate-after':        'after',
+  '/api/generate-progression':  'progression',
+  '/api/generate-analysis-map': 'map',
+  '/api/generate-advice-visual':'adviceVisual',
+  '/api/coach':                 'coach',
+};
+
+function recordLatency(key, ms) {
+  const arr = LATENCY[key];
+  if (!arr) return;
+  if (arr.length >= LATENCY_MAX_SAMPLES) arr.shift();
+  arr.push(ms);
+}
+
+function latencyStats(arr) {
+  if (!arr.length) return { samples: 0, p50: null, p95: null, avg: null };
+  const sorted = [...arr].sort((a, b) => a - b);
+  const p = (pct) => sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * pct / 100))];
+  return {
+    samples: arr.length,
+    p50: p(50),
+    p95: p(95),
+    avg: Math.round(arr.reduce((s, v) => s + v, 0) / arr.length),
+  };
+}
+
 function cacheHashOf(prefix, ...parts) {
   return createHash('sha256').update(prefix + '\0' + parts.join('\0')).digest('hex');
 }
@@ -568,7 +608,12 @@ const server = createServer(async (req, res) => {
   console.log(`[req] ${req.method} ${req.url} ${reqId}`);
   const origEnd = res.end.bind(res);
   res.end = (...args) => {
-    console.log(`[res] ${req.method} ${req.url} ${reqId} ${res.statusCode} ${Date.now() - reqStart}ms`);
+    const ms = Date.now() - reqStart;
+    console.log(`[res] ${req.method} ${req.url} ${reqId} ${res.statusCode} ${ms}ms`);
+    if (req.method === 'POST') {
+      const latencyKey = URL_TO_LATENCY_KEY[req.url];
+      if (latencyKey) recordLatency(latencyKey, ms);
+    }
     return origEnd(...args);
   };
 
@@ -620,6 +665,9 @@ const server = createServer(async (req, res) => {
         heapTotal:Math.round(mem.heapTotal/ 1024 / 1024),
       },
       metrics: METRICS,
+      latency: Object.fromEntries(
+        Object.entries(LATENCY).map(([k, arr]) => [k, latencyStats(arr)])
+      ),
       requestId: reqId,
     });
     return;
