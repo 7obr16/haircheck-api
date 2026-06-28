@@ -1151,7 +1151,7 @@ const server = createServer(async (req, res) => {
 PHOTO QUALITY ASSESSMENT:
 good — scalp clearly visible, well-lit, shot from above or ~45° angle, can see hairline + crown.
 acceptable — lighting or angle is suboptimal but loss pattern is still assessable.
-poor — too dark, heavily blurred, shot straight-on (forehead/face only, no scalp visible), or the image doesn't contain a person's hair/scalp at all. If poor, use a conservative uncertainty range (60-75) and note it in the verdict.
+poor — too dark, heavily blurred, shot straight-on (forehead/face only, no scalp visible), or the image doesn't contain a person's hair/scalp at all. If poor, use a conservative uncertainty range (62-76) and note it in the verdict.
 
 Norwood staging visual guide — pick the stage whose description best matches what is visible in the photo:
 NW1: Hairline at or above the upper forehead crease; no perceptible recession; temples full.
@@ -1261,6 +1261,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           photoQuality,
           photoNote:       String(parsed.photoNote || '').slice(0, 200),
           confidenceScore,
+          scoredAt:        new Date().toISOString(),
         };
         // Include all 5 metrics in overall: hairline, density, crown, health, potential.
         data.overall = Math.round((data.hairline + data.density + data.crown + data.health + data.potential) / 5);
