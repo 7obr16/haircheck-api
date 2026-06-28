@@ -632,6 +632,11 @@ const server = createServer(async (req, res) => {
 
       const effectivePrompt = prompt || AFTER_PROMPT;
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
+      if (buffer.length < 3000) {
+        const err = new Error('Photo appears corrupted or too small. Please retake a clearer photo.');
+        err.statusCode = 422;
+        throw err;
+      }
       const hash = cacheHashOf('after', mime, buffer.length, createHash('sha256').update(buffer).digest('hex'), effectivePrompt, quality);
 
       // 1. Cache hit — return instantly
@@ -723,6 +728,11 @@ const server = createServer(async (req, res) => {
       const quality = ['auto', 'high', 'medium', 'low'].includes(qParam) ? qParam : 'high';
 
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
+      if (buffer.length < 3000) {
+        const err = new Error('Photo appears corrupted or too small. Please retake a clearer photo.');
+        err.statusCode = 422;
+        throw err;
+      }
       const hash = cacheHashOf('progression', mime, createHash('sha256').update(buffer).digest('hex'), String(m), quality);
 
       // 1. Cache hit — return instantly
@@ -810,6 +820,11 @@ const server = createServer(async (req, res) => {
       const mapKind = String(kind).toLowerCase() === 'crown' ? 'crown' : 'density';
 
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
+      if (buffer.length < 3000) {
+        const err = new Error('Photo appears corrupted or too small. Please retake a clearer photo.');
+        err.statusCode = 422;
+        throw err;
+      }
       // Include scores in cache key because buildAnalysisMapPrompt interpolates them
       const scoreKey = [
         Number.isFinite(Number(scanScores.density)) ? Math.round(Number(scanScores.density)) : 'x',
@@ -983,6 +998,11 @@ const server = createServer(async (req, res) => {
       const { photoDataUrl, profile = {}, scoringInstruction = '' } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const { buffer: visionBuffer } = dataUrlToBuffer(photoDataUrl);
+      if (visionBuffer.length < 3000) {
+        const err = new Error('Photo appears corrupted or too small. Please retake a clearer photo showing your scalp.');
+        err.statusCode = 422;
+        throw err;
+      }
 
       // Cache by (photo content + profile + scoringInstruction) to avoid re-billing
       // the same scan on retries or double-taps. TTL is 24h (same as image cache).
@@ -1220,6 +1240,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         trendStr = `${delta >= 0 ? '+' : ''}${delta} over ${overallScores.length} scans (${direction})`;
       }
 
+      // Compute Norwood stage progression from scan history (newest-first → reverse for chronological).
+      const stageSeq = ctx.scanHistory.map((h) => h.stage).filter(Boolean);
+      const stageTrendStr = stageSeq.length >= 2 ? [...stageSeq].reverse().join(' → ') : null;
+
 
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
@@ -1247,7 +1271,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.routineDoneToday.length ? `- Routine tasks completed today: ${ctx.routineDoneToday.join(', ')}.` : '- No routine tasks completed today.',
         ctx.planProducts.length ? `- Saved plan products: ${ctx.planProducts.join(', ')}.` : '- No saved plan products yet.',
         ctx.scanHistory.length
-          ? `- Scan history (${ctx.scanHistory.length} scans): overall scores latest-first: ${ctx.scanHistory.map((h) => h.overall || '?').join(', ')}${ctx.scanHistory[0]?.stage ? `; latest stage: ${ctx.scanHistory[0].stage}` : ''}.`
+          ? `- Scan history (${ctx.scanHistory.length} scans): overall scores latest-first: ${ctx.scanHistory.map((h) => h.overall || '?').join(', ')}${stageTrendStr ? `; stage progression: ${stageTrendStr}` : ctx.scanHistory[0]?.stage ? `; latest stage: ${ctx.scanHistory[0].stage}` : ''}.`
           : '- No scan history yet.',
         ctx.age ? `- Age: ${ctx.age}.` : '',
         ctx.sex ? `- Sex: ${ctx.sex}.` : '',
