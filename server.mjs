@@ -59,12 +59,12 @@ const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
 // Per-endpoint counters exposed via /api/health for production monitoring.
 const METRICS = {
-  scan:        { requests: 0, errors: 0 },
-  after:       { requests: 0, errors: 0 },
-  progression: { requests: 0, errors: 0 },
-  map:         { requests: 0, errors: 0 },
-  adviceVisual:{ requests: 0, errors: 0 },
-  coach:       { requests: 0, errors: 0 },
+  scan:        { requests: 0, errors: 0, cacheHits: 0 },
+  after:       { requests: 0, errors: 0, cacheHits: 0 },
+  progression: { requests: 0, errors: 0, cacheHits: 0 },
+  map:         { requests: 0, errors: 0, cacheHits: 0 },
+  adviceVisual:{ requests: 0, errors: 0, cacheHits: 0 },
+  coach:       { requests: 0, errors: 0, cacheHits: 0 },
 };
 
 function cacheHashOf(prefix, ...parts) {
@@ -251,6 +251,17 @@ const normalizeAdviceKind = (kind) => (
 
 // ─── helpers ────────────────────────────────────────────────────
 const requestId = () => `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+
+// Emit a warning when an endpoint is unexpectedly slow. Thresholds are
+// generous to avoid false alarms during cold Railway starts.
+const SLOW_THRESHOLDS_MS = { scan: 45_000, image: 180_000, coach: 30_000 };
+const warnIfSlow = (label, startedAt, kind = 'image') => {
+  const elapsed = Date.now() - startedAt;
+  const threshold = SLOW_THRESHOLDS_MS[kind] ?? SLOW_THRESHOLDS_MS.image;
+  if (elapsed > threshold) {
+    console.warn(`[perf] SLOW ${label} elapsed=${elapsed}ms threshold=${threshold}ms`);
+  }
+};
 
 const originAllowed = (origin) => {
   if (!origin) return true;
@@ -642,6 +653,7 @@ const server = createServer(async (req, res) => {
       // 1. Cache hit — return instantly
       const cached = cacheRead(AFTER_CACHE, hash);
       if (cached) {
+        METRICS.after.cacheHits++;
         console.log('[openai] generate-after CACHE HIT', { hash: hash.slice(0, 8) });
         json(res, 200, { afterPhoto: cached, cached: true, requestId: reqId });
         return;
@@ -704,6 +716,7 @@ const server = createServer(async (req, res) => {
         return;
       }
       cacheWrite(AFTER_CACHE, hash, result.afterPhoto, IMAGE_CACHE_MAX);
+      warnIfSlow('generate-after', startedAt, 'image');
       console.log('[openai] generate-after OK', { ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { afterPhoto: result.afterPhoto, requestId: reqId });
     } catch (err) {
@@ -738,6 +751,7 @@ const server = createServer(async (req, res) => {
       // 1. Cache hit — return instantly
       const progCached = cacheRead(PROGRESSION_CACHE, hash);
       if (progCached) {
+        METRICS.progression.cacheHits++;
         console.log('[progression] CACHE HIT', { month: m, hash: hash.slice(0, 8) });
         json(res, 200, { afterPhoto: progCached, month: m, cached: true, requestId: reqId });
         return;
@@ -799,6 +813,7 @@ const server = createServer(async (req, res) => {
         return;
       }
       cacheWrite(PROGRESSION_CACHE, hash, progResult.afterPhoto, IMAGE_CACHE_MAX);
+      warnIfSlow('generate-progression', startedAt, 'image');
       console.log('[progression] ok', { month: m, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { afterPhoto: progResult.afterPhoto, month: m, requestId: reqId });
     } catch (err) {
@@ -836,6 +851,7 @@ const server = createServer(async (req, res) => {
       // 1. Cache hit — return instantly
       const mapCached = cacheRead(MAP_CACHE, hash);
       if (mapCached) {
+        METRICS.map.cacheHits++;
         console.log('[analysis-map] CACHE HIT', { kind: mapKind, hash: hash.slice(0, 8) });
         json(res, 200, { analysisMap: mapCached, kind: mapKind, cached: true, requestId: reqId });
         return;
@@ -898,6 +914,7 @@ const server = createServer(async (req, res) => {
         return;
       }
       cacheWrite(MAP_CACHE, hash, mapResult.analysisMap, IMAGE_CACHE_MAX);
+      warnIfSlow('generate-analysis-map', startedAt, 'image');
       console.log('[analysis-map] ok', { kind: mapKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, requestId: reqId });
     } catch (err) {
@@ -922,6 +939,7 @@ const server = createServer(async (req, res) => {
 
       const cached = cacheRead(ADVICE_VISUAL_CACHE, hash);
       if (cached) {
+        METRICS.adviceVisual.cacheHits++;
         console.log('[advice-visual] CACHE HIT', { kind: visualKind, hash: hash.slice(0, 8) });
         json(res, 200, { adviceVisual: cached, kind: visualKind, cached: true, requestId: reqId });
         return;
@@ -978,6 +996,7 @@ const server = createServer(async (req, res) => {
         return;
       }
       cacheWrite(ADVICE_VISUAL_CACHE, hash, result.adviceVisual, IMAGE_CACHE_MAX);
+      warnIfSlow('generate-advice-visual', startedAt, 'image');
       console.log('[advice-visual] ok', { kind: visualKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, requestId: reqId });
     } catch (err) {
@@ -1011,6 +1030,7 @@ const server = createServer(async (req, res) => {
 
       const scanCached = cacheRead(SCAN_CACHE, scanHash);
       if (scanCached) {
+        METRICS.scan.cacheHits++;
         console.log('[vision] CACHE HIT', { hash: scanHash.slice(0, 8) });
         json(res, 200, { ...scanCached, cached: true, requestId: reqId });
         return;
@@ -1179,6 +1199,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         return;
       }
       cacheWrite(SCAN_CACHE, scanHash, scanOutcome.data);
+      warnIfSlow('analyze-scan', startedAt, 'scan');
       json(res, 200, { ...scanOutcome.data, requestId: reqId });
     } catch (err) {
       METRICS.scan.errors++;
@@ -1314,6 +1335,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const reply = coachChoice?.message?.content?.trim()
         || "I didn't quite catch that — could you rephrase your question?";
       const coachUsage = coachPayload.usage;
+      warnIfSlow('coach', startedAt, 'coach');
       if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason });
       json(res, 200, { reply, requestId: reqId });
     } catch (err) {
