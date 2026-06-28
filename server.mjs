@@ -1267,6 +1267,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         data.overall = Math.round((data.hairline + data.density + data.crown + data.health + data.potential) / 5);
         // treatmentUrgency is computed server-side from stage + profile age — not sent to GPT-4o.
         data.treatmentUrgency = computeTreatmentUrgency(stage, profile.age);
+        // weakestMetric: the lowest-scoring current-state metric (excludes potential, which is forward-looking).
+        // The iOS app can pass this directly to the coach endpoint as userContext.weakestMetric.
+        const _currentState = { Hairline: data.hairline, Density: data.density, Crown: data.crown, Health: data.health };
+        const [_weakLabel, _weakValue] = Object.entries(_currentState).sort((a, b) => a[1] - b[1])[0];
+        data.weakestMetric = { label: _weakLabel, value: _weakValue };
 
         const scanUsage = scanPayload.usage;
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null });
