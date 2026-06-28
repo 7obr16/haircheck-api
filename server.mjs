@@ -487,6 +487,32 @@ const FALLBACK_INSIGHTS = [
   { title: 'Protect your scalp', body: 'UV exposure and heat styling accelerate thinning — broad-spectrum SPF on the scalp helps.', metric: 'Crown' },
 ];
 
+// Compute how urgently treatment action should be taken, based on the AI-classified
+// Norwood stage and the user's age. Used by the iOS app to drive CTA wording.
+// 'high'     → act now; best treatment window; early/mid stage under 45
+// 'moderate' → worth treating but temper expectations; mid/late stage or older
+// 'low'      → OTC options unlikely to move the needle significantly
+const computeTreatmentUrgency = (stage, age) => {
+  const a = Number(age);
+  const isYoung  = Number.isFinite(a) && a < 40;
+  const isMid    = Number.isFinite(a) && a >= 40 && a < 55;
+  const isOlder  = Number.isFinite(a) && a >= 55;
+
+  switch (stage) {
+    case 'NW1':              return 'low';      // no action needed
+    case 'NW2':              return isOlder ? 'moderate' : 'high'; // preventive is very effective early
+    case 'NW3':
+    case 'NW3v':             return isYoung ? 'high' : isMid ? 'high' : 'moderate';
+    case 'NW4':              return isYoung ? 'high' : 'moderate';
+    case 'NW5':              return 'moderate'; // OTC slows but rarely reverses at this stage
+    case 'NW6':
+    case 'NW7':              return 'low';      // beyond meaningful OTC response
+    case 'diffuse':          return 'moderate'; // cause-dependent; often reversible
+    case 'n/a (female)':     return 'moderate'; // hormonal/nutritional work-up first
+    default:                 return 'moderate';
+  }
+};
+
 // Structured output schema for analyze-scan (gpt-4o strict mode).
 // This guarantees valid JSON, correct enum values for stage/metric, and eliminates
 // parse failures from truncated responses. Strict mode requires all properties listed
@@ -1144,7 +1170,18 @@ Scoring guide (all scores 0-100 integers):
 - density: 100 = full terminal hair density with no scalp visible through hair. Deduct for mid-scalp see-through, diffuse thinning, miniaturization.
 - crown: 100 = full crown/vertex coverage. Deduct for vertex thinning, bald spot, widening part. If crown isn't visible in photo, estimate from stage and side view.
 - health: 100 = thick terminal hairs, healthy scalp, no inflammation. Deduct for visible miniaturization, scalp irritation/redness, dry/flaky scalp.
-- potential: realistic percentage improvement achievable with a consistent 6-12 month OTC protocol (minoxidil, scalp care, supplements). 100 = significant recovery likely (early NW2-3, young onset); 60-80 = meaningful gains possible; 30-55 = maintenance-focused, limited regrowth expected; under 30 = very advanced loss, medical/transplant is the realistic path. Potential is NOT the same as current health — a NW3 with good health can still have high potential (70-85) because early treatment is effective.
+- potential: realistic percentage improvement achievable with a consistent 6-12 month OTC protocol (minoxidil, scalp care, supplements). Score what is ACHIEVABLE — not the current state. Use these stage×age guidelines:
+  • NW1-NW2, any age: 72-88 (early prevention window, follicles fully viable)
+  • NW3-NW3v, under 35: 68-82 (strong responders; significant regrowth expected)
+  • NW3-NW3v, age 35-54: 58-74 (good gains with consistency; moderately responsive)
+  • NW4, under 40: 55-70 (meaningful improvement still achievable)
+  • NW4, over 40: 42-58 (maintenance priority; modest regrowth in best cases)
+  • NW5, any age: 28-48 (OTC slows progression; realistic expectations needed)
+  • NW6-NW7, any age: 15-32 (very limited OTC benefit; transplant/SMP discussion)
+  • diffuse/female pattern: 55-78 (often nutritional or hormonal — responds well if cause found)
+  Upward adjustments (+5 to +8): age under 28, loss duration under 1 year, no family history of NW6+, already responding to current treatment.
+  Downward adjustments (−5 to −8): age over 60, family history of NW6+, loss for 10+ years untreated, visible miniaturization across entire top.
+  Potential is NOT the same as current health — a NW4 with good hair health can still score 55+ potential because the follicles are viable.
 - overall (computed server-side): do not output this field.
 
 Use a balanced visual baseline: score what is actually visible in the photo and user context. Do not artificially lower scores for healthy-looking or stable-looking areas, and do not push users into a low range just for motivation. Typical mild early thinning: 62-78 overall; clearly healthy cases: 78-90; significant recession or density loss: 35-62; 91+ is rare. If photoQuality is 'poor', use a conservative uncertainty range around 62-76 and reflect uncertainty in the verdict. Never refuse — produce a best-effort estimate. Insights array MUST contain exactly 3 entries.`;
@@ -1227,6 +1264,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         };
         // Include all 5 metrics in overall: hairline, density, crown, health, potential.
         data.overall = Math.round((data.hairline + data.density + data.crown + data.health + data.potential) / 5);
+        // treatmentUrgency is computed server-side from stage + profile age — not sent to GPT-4o.
+        data.treatmentUrgency = computeTreatmentUrgency(stage, profile.age);
 
         const scanUsage = scanPayload.usage;
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null });
@@ -1270,18 +1309,19 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
 
       const ctx = {
         scan: userContext.result ? {
-          overall:      userContext.result.overall,
-          hairline:     userContext.result.hairline,
-          density:      userContext.result.density,
-          crown:        userContext.result.crown,
-          health:       userContext.result.health,
-          potential:    userContext.result.potential,
-          stage:        String(userContext.result.stage || '').slice(0, 20) || null,
-          headline:     String(userContext.result.headline || '').slice(0, 120) || null,
-          verdict:      String(userContext.result.verdict || '').slice(0, 400) || null,
-          insights:     Array.isArray(userContext.result.insights) ? userContext.result.insights.slice(0, 3) : [],
-          photoQuality: userContext.result.photoQuality || null,
-          photoNote:    userContext.result.photoNote || null,
+          overall:           userContext.result.overall,
+          hairline:          userContext.result.hairline,
+          density:           userContext.result.density,
+          crown:             userContext.result.crown,
+          health:            userContext.result.health,
+          potential:         userContext.result.potential,
+          stage:             String(userContext.result.stage || '').slice(0, 20) || null,
+          headline:          String(userContext.result.headline || '').slice(0, 120) || null,
+          verdict:           String(userContext.result.verdict || '').slice(0, 400) || null,
+          insights:          Array.isArray(userContext.result.insights) ? userContext.result.insights.slice(0, 3) : [],
+          photoQuality:      userContext.result.photoQuality || null,
+          photoNote:         userContext.result.photoNote || null,
+          treatmentUrgency:  userContext.result.treatmentUrgency || null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -1329,6 +1369,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : ctx.scan?.stage ? `- Norwood stage: ${ctx.scan.stage}.` : '',
         ctx.scan?.headline ? `- AI scan headline: "${ctx.scan.headline}".` : '',
         ctx.scan?.verdict  ? `- AI scan verdict: "${ctx.scan.verdict}".`  : '',
+        ctx.scan?.treatmentUrgency
+          ? `- Treatment urgency: ${ctx.scan.treatmentUrgency} — calibrate your tone and CTA accordingly (high = motivate action now; moderate = steady progress; low = set realistic expectations).`
+          : '',
         ctx.scan?.photoQuality && ctx.scan.photoQuality !== 'good'
           ? `- Photo quality: ${ctx.scan.photoQuality}${ctx.scan.photoNote ? ` (${ctx.scan.photoNote})` : ''} — scores may have lower confidence.`
           : '',
