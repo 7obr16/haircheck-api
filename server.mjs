@@ -1286,6 +1286,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const [_weakLabel, _weakValue] = Object.entries(_currentState).sort((a, b) => a[1] - b[1])[0];
         data.weakestMetric = { label: _weakLabel, value: _weakValue };
 
+        // checkInIntervalDays: how many days until the next meaningful scan.
+        // Derived from treatmentUrgency so the iOS app can schedule a push reminder
+        // without extra logic. "high" urgency = active treatment phase (28 days);
+        // "low" urgency = stable or limited OTC response window (60 days).
+        const URGENCY_DAYS = { high: 28, moderate: 42, low: 60 };
+        data.checkInIntervalDays = URGENCY_DAYS[data.treatmentUrgency] || 42;
+        data.nextCheckIn = new Date(Date.now() + data.checkInIntervalDays * 24 * 60 * 60 * 1000)
+          .toISOString().split('T')[0]; // YYYY-MM-DD
+
         const scanUsage = scanPayload.usage;
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null });
         return { ok: true, data };
@@ -1341,6 +1350,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           photoQuality:      userContext.result.photoQuality || null,
           photoNote:         userContext.result.photoNote || null,
           treatmentUrgency:  userContext.result.treatmentUrgency || null,
+          checkInIntervalDays: typeof userContext.result.checkInIntervalDays === 'number' ? userContext.result.checkInIntervalDays : null,
+          nextCheckIn:       userContext.result.nextCheckIn || null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -1390,6 +1401,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.scan?.verdict  ? `- AI scan verdict: "${ctx.scan.verdict}".`  : '',
         ctx.scan?.treatmentUrgency
           ? `- Treatment urgency: ${ctx.scan.treatmentUrgency} — calibrate your tone and CTA accordingly (high = motivate action now; moderate = steady progress; low = set realistic expectations).`
+          : '',
+        ctx.scan?.nextCheckIn
+          ? `- Next recommended scan: ${ctx.scan.nextCheckIn} (in ${ctx.scan.checkInIntervalDays} days) — if the user asks when to check in again, use this date.`
           : '',
         ctx.scan?.photoQuality && ctx.scan.photoQuality !== 'good'
           ? `- Photo quality: ${ctx.scan.photoQuality}${ctx.scan.photoNote ? ` (${ctx.scan.photoNote})` : ''} — scores may have lower confidence.`
