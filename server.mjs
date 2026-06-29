@@ -60,12 +60,12 @@ const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
 // Per-endpoint counters exposed via /api/health for production monitoring.
 const METRICS = {
-  scan:        { requests: 0, errors: 0, cacheHits: 0 },
+  scan:        { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0 },
   after:       { requests: 0, errors: 0, cacheHits: 0 },
   progression: { requests: 0, errors: 0, cacheHits: 0 },
   map:         { requests: 0, errors: 0, cacheHits: 0 },
   adviceVisual:{ requests: 0, errors: 0, cacheHits: 0 },
-  coach:       { requests: 0, errors: 0, cacheHits: 0 },
+  coach:       { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0 },
 };
 
 // Rolling latency samples (ms) per endpoint — last 100 POST requests each.
@@ -1296,6 +1296,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           .toISOString().split('T')[0]; // YYYY-MM-DD
 
         const scanUsage = scanPayload.usage;
+        if (scanUsage) {
+          METRICS.scan.promptTokens     += scanUsage.prompt_tokens     || 0;
+          METRICS.scan.completionTokens += scanUsage.completion_tokens || 0;
+        }
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null });
         return { ok: true, data };
       })();
@@ -1385,12 +1389,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const stageTrendStr = stageSeq.length >= 2 ? [...stageSeq].reverse().join(' → ') : null;
 
 
+      const todayStr = new Date().toISOString().split('T')[0];
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
         'Tone: friendly, direct, evidence-based. Avoid medical disclaimers unless specifically asked.',
         'Constraints: never prescribe Rx drugs; recommend talking to a doctor for finasteride/dutasteride.',
         'Length: short, scannable. Use bullets when listing options.',
         '',
+        `Today's date: ${todayStr}.`,
         'User context (use when relevant, do not parrot back verbatim):',
         ctx.scan
           ? `- Last scan: overall ${ctx.scan.overall}/100, hairline ${ctx.scan.hairline}, density ${ctx.scan.density}, crown ${ctx.scan.crown}, health ${ctx.scan.health}, potential ${ctx.scan.potential}.`
@@ -1465,6 +1471,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const reply = coachChoice?.message?.content?.trim()
         || "I didn't quite catch that — could you rephrase your question?";
       const coachUsage = coachPayload.usage;
+      if (coachUsage) {
+        METRICS.coach.promptTokens     += coachUsage.prompt_tokens     || 0;
+        METRICS.coach.completionTokens += coachUsage.completion_tokens || 0;
+      }
       warnIfSlow('coach', startedAt, 'coach');
       if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason });
       json(req, res, 200, { reply, requestId: reqId });
