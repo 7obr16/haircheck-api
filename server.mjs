@@ -18,6 +18,23 @@ import { createHash } from 'node:crypto';
 import { execSync } from 'node:child_process';
 import { gzipSync } from 'node:zlib';
 
+// ─── Norwood stage severity index ────────────────────────────────
+// Numeric 1-7 (with 0.5 steps) mapping each stage to a severity value.
+// Exposed in the scan response so the iOS app can render severity bars,
+// sort scan history by progression, or compare stages without string logic.
+const STAGE_SEVERITY_INDEX = {
+  'NW1':          1,
+  'NW2':          2,
+  'NW3':          3,
+  'NW3v':         3.5,
+  'NW4':          4,
+  'NW5':          5,
+  'NW6':          6,
+  'NW7':          7,
+  'diffuse':      3,
+  'n/a (female)': 3,
+};
+
 // ─── Norwood stage descriptions ─────────────────────────────────
 // Used in the scan response (stageLabel) and coach context.
 const NORWOOD_GUIDE = {
@@ -1283,8 +1300,17 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // weakestMetric: the lowest-scoring current-state metric (excludes potential, which is forward-looking).
         // The iOS app can pass this directly to the coach endpoint as userContext.weakestMetric.
         const _currentState = { Hairline: data.hairline, Density: data.density, Crown: data.crown, Health: data.health };
-        const [_weakLabel, _weakValue] = Object.entries(_currentState).sort((a, b) => a[1] - b[1])[0];
-        data.weakestMetric = { label: _weakLabel, value: _weakValue };
+        const _sortedMetrics = Object.entries(_currentState).sort((a, b) => a[1] - b[1]);
+        const [_weakLabel, _weakValue] = _sortedMetrics[0];
+        const [_strongLabel, _strongValue] = _sortedMetrics[_sortedMetrics.length - 1];
+        data.weakestMetric   = { label: _weakLabel,   value: _weakValue };
+        data.strongestMetric = { label: _strongLabel, value: _strongValue };
+        // stageSeverityIndex: numeric 1-7 (with 0.5 steps for NW3v/diffuse/female).
+        // Lets the iOS app render a severity bar or compare stages without string logic.
+        data.stageSeverityIndex = STAGE_SEVERITY_INDEX[stage] ?? null;
+        // retakeRecommended: true when photo quality is too poor for reliable scoring.
+        // The iOS app can use this to show a "Retake for better results" CTA.
+        data.retakeRecommended = photoQuality === 'poor';
 
         // checkInIntervalDays: how many days until the next meaningful scan.
         // Derived from treatmentUrgency so the iOS app can schedule a push reminder
