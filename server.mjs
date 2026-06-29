@@ -395,7 +395,7 @@ const readJsonBody = async (req) => {
   }
 };
 
-const rateLimit = (req) => {
+const rateLimit = (req, res) => {
   if (req.method !== 'POST') return null;
   const now = Date.now();
   const forwardedFor = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
@@ -407,6 +407,9 @@ const rateLimit = (req) => {
   }
   bucket.count += 1;
   rateBuckets.set(key, bucket);
+  res.setHeader('X-RateLimit-Limit', String(RATE_LIMIT_MAX));
+  res.setHeader('X-RateLimit-Remaining', String(Math.max(0, RATE_LIMIT_MAX - bucket.count)));
+  res.setHeader('X-RateLimit-Reset', String(Math.ceil(bucket.resetAt / 1000)));
   if (bucket.count > RATE_LIMIT_MAX) {
     return {
       status: 429,
@@ -692,7 +695,7 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  const limited = rateLimit(req);
+  const limited = rateLimit(req, res);
   if (limited) {
     const retryAfterSec = Math.ceil((limited.body.retryAfterMs || 60_000) / 1000);
     res.setHeader('Retry-After', String(retryAfterSec));
@@ -1415,6 +1418,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           insights:          Array.isArray(userContext.result.insights) ? userContext.result.insights.slice(0, 3) : [],
           photoQuality:      userContext.result.photoQuality || null,
           photoNote:         userContext.result.photoNote || null,
+          retakeRecommended: userContext.result.retakeRecommended ?? false,
+          photoGuidance:     userContext.result.photoGuidance ? String(userContext.result.photoGuidance).slice(0, 200) : null,
           treatmentUrgency:  userContext.result.treatmentUrgency || null,
           checkInIntervalDays: typeof userContext.result.checkInIntervalDays === 'number' ? userContext.result.checkInIntervalDays : null,
           nextCheckIn:       userContext.result.nextCheckIn || null,
@@ -1478,6 +1483,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.scan?.scoredAt ? `- Last scan taken: ${ctx.scan.scoredAt.split('T')[0]} — use this when the user asks how long ago they scanned or how far away their next check-in is.` : '',
         ctx.scan?.photoQuality && ctx.scan.photoQuality !== 'good'
           ? `- Photo quality: ${ctx.scan.photoQuality}${ctx.scan.photoNote ? ` (${ctx.scan.photoNote})` : ''} — scores may have lower confidence.`
+          : '',
+        ctx.scan?.retakeRecommended && ctx.scan.photoGuidance
+          ? `- If the user asks about score reliability or why scores seem low, recommend a retake: ${ctx.scan.photoGuidance}`
           : '',
         ctx.scan?.insights?.length
           ? `- Scan insights: ${ctx.scan.insights.map((ins, i) => `${i + 1}) "${ins.title}" (${ins.metric}): ${ins.body}`).join('; ')}.`
