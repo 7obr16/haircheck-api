@@ -1173,7 +1173,7 @@ const server = createServer(async (req, res) => {
 - hairline, density, crown, health, potential: 0-100 integer scores
 - stage: Norwood stage (pick from the enum)
 - headline: 6-9 word punchy summary, confident tone
-- insights: exactly 3 items, each with a 5-word title, 12-22 word actionable body, and the relevant metric
+- insights: exactly 3 items, each with a 5-word title (≤5 words), a 12-22 word actionable body that is specific to THIS user's visible loss pattern, scores, stage, or profile — reference real values (stage, a score, a symptom) to make the insight personal; avoid generic advice. The metric must match: Hairline→temple/frontal recession, Density→mid-scalp thinning, Crown→vertex/crown thinning, Health→scalp condition or miniaturization, Potential→treatment response or growth timeline
 - verdict: 1-2 sentence verdict, slightly aspirational, no medical claims
 - photoQuality: 'good' | 'acceptable' | 'poor'
 - photoNote: brief sentence about quality issues, or empty string if quality is good
@@ -1295,6 +1295,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         };
         // Include all 5 metrics in overall: hairline, density, crown, health, potential.
         data.overall = Math.round((data.hairline + data.density + data.crown + data.health + data.potential) / 5);
+        // currentStateScore: average of the 4 present-tense metrics only (excludes potential,
+        // which is forward-looking). Use this when you want "where the user IS" vs "overall"
+        // which is optimistic because it blends in potential.
+        data.currentStateScore = Math.round((data.hairline + data.density + data.crown + data.health) / 4);
         // treatmentUrgency is computed server-side from stage + profile age — not sent to GPT-4o.
         data.treatmentUrgency = computeTreatmentUrgency(stage, profile.age);
         // weakestMetric: the lowest-scoring current-state metric (excludes potential, which is forward-looking).
@@ -1383,6 +1387,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           checkInIntervalDays: typeof userContext.result.checkInIntervalDays === 'number' ? userContext.result.checkInIntervalDays : null,
           nextCheckIn:       userContext.result.nextCheckIn || null,
           scoredAt:          userContext.result.scoredAt || null,
+          currentStateScore: typeof userContext.result.currentStateScore === 'number' ? userContext.result.currentStateScore : null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -1425,7 +1430,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         `Today's date: ${todayStr}.`,
         'User context (use when relevant, do not parrot back verbatim):',
         ctx.scan
-          ? `- Last scan: overall ${ctx.scan.overall}/100, hairline ${ctx.scan.hairline}, density ${ctx.scan.density}, crown ${ctx.scan.crown}, health ${ctx.scan.health}, potential ${ctx.scan.potential}.`
+          ? `- Last scan: overall ${ctx.scan.overall}/100 (current state ${ctx.scan.currentStateScore ?? ctx.scan.overall}/100 excl. potential), hairline ${ctx.scan.hairline}, density ${ctx.scan.density}, crown ${ctx.scan.crown}, health ${ctx.scan.health}, potential ${ctx.scan.potential}.`
           : '- No scan yet.',
         ctx.scan?.stage && NORWOOD_GUIDE[ctx.scan.stage]
           ? `- Norwood stage: ${ctx.scan.stage} (${NORWOOD_GUIDE[ctx.scan.stage]}).`
