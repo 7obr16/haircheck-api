@@ -1195,6 +1195,13 @@ NW7: Minimal horseshoe-shaped fringe of hair along sides and back only; near-tot
 diffuse: Widespread diffuse thinning without a distinct recession pattern (typical in women, telogen effluvium, or diffuse androgenetic alopecia).
 n/a (female): Use for female-presenting patients where the classic Norwood scale does not apply — prefer Ludwig classification mentally but output "n/a (female)".
 
+Staging discriminator — use when adjacent stages are ambiguous:
+- NW2 vs NW3: If temple recession extends PAST the mid-pupil vertical line, assign NW3. If it barely reaches or falls short of midpupil, assign NW2.
+- NW3 vs NW4: If a clear forelock mass still covers the central frontal scalp (even with deep temple recession), assign NW3 or NW3v. Once the frontal hairline itself has retreated past mid-scalp, assign NW4.
+- NW3 vs NW3v: Assign NW3v (not plain NW3) only when vertex/crown thinning is independently visible as a SEPARATE thinning zone distinct from the temple recession.
+- NW4 vs NW5: If the bridge of hair connecting the forelock to the sides is a visible full-width band, assign NW4. If that bridge is sparse, narrow, or nearly gone, assign NW5.
+- NW5 vs NW6: If even a sparse band of tissue still separates the frontal and crown bald zones, assign NW5. If the two zones have fully merged with no separation at all, assign NW6.
+
 Scoring guide (all scores 0-100 integers):
 - hairline: 100 = fully intact hairline, no recession. Deduct for temple recession depth/width, frontal loss. NW1→90-100, NW2→75-88, NW3→55-72, NW4→35-55, NW5+→15-40.
 - density: 100 = full terminal hair density with no scalp visible through hair. Deduct for mid-scalp see-through, diffuse thinning, miniaturization.
@@ -1324,6 +1331,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         data.checkInIntervalDays = URGENCY_DAYS[data.treatmentUrgency] || 42;
         data.nextCheckIn = new Date(Date.now() + data.checkInIntervalDays * 24 * 60 * 60 * 1000)
           .toISOString().split('T')[0]; // YYYY-MM-DD
+        // nextCheckInReason: human-readable explanation for the iOS app to display inline.
+        const URGENCY_REASONS = {
+          high:     'Active treatment window — check back in 4 weeks to measure early response',
+          moderate: 'Steady progress phase — check back in 6 weeks to track improvement',
+          low:      'Stable state — next scan in 2 months to monitor for changes',
+        };
+        data.nextCheckInReason = URGENCY_REASONS[data.treatmentUrgency] || 'Check back regularly to track progress';
 
         const scanUsage = scanPayload.usage;
         if (scanUsage) {
