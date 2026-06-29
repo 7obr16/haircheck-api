@@ -1237,7 +1237,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           },
         ],
         temperature: 0.3,
-        max_tokens: 1000,
+        max_tokens: 1500,
       });
 
       const scanPromise = (async () => {
@@ -1322,6 +1322,24 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // retakeRecommended: true when photo quality is too poor for reliable scoring.
         // The iOS app can use this to show a "Retake for better results" CTA.
         data.retakeRecommended = photoQuality === 'poor';
+
+        // photoGuidance: actionable retake tip shown when quality isn't ideal.
+        // Computed server-side so the iOS app can display it without extra logic.
+        data.photoGuidance = photoQuality === 'good' ? null
+          : photoQuality === 'poor'
+            ? 'For best results: hold your camera directly above your head with your arm fully extended. Use bright natural light (near a window or outdoors). Part your hair slightly so the scalp is visible, and make sure both your hairline and crown are in frame.'
+            : 'For a more accurate scan: try shooting from a slightly higher angle in brighter lighting. Part your hair so the scalp is visible through thinning areas.';
+
+        // weeklyFocus: highest-ROI weekly action based on the user's weakest metric.
+        // Gives the iOS app a ready-to-display nudge without needing the coach endpoint.
+        const WEEKLY_FOCUS_MAP = {
+          Hairline: 'Apply minoxidil directly to your recession zones every morning and night — temple consistency is the highest-leverage habit right now.',
+          Density:  'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.',
+          Crown:    'Begin a crown-focused topical routine and take an overhead comparison photo now to track your baseline.',
+          Health:   'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
+        };
+        data.weeklyFocus = WEEKLY_FOCUS_MAP[data.weakestMetric?.label]
+          || 'Stay consistent with your current routine — daily adherence is the single biggest driver of long-term results.';
 
         // checkInIntervalDays: how many days until the next meaningful scan.
         // Derived from treatmentUrgency so the iOS app can schedule a push reminder
