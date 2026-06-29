@@ -1425,6 +1425,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           nextCheckIn:       userContext.result.nextCheckIn || null,
           scoredAt:          userContext.result.scoredAt || null,
           currentStateScore: typeof userContext.result.currentStateScore === 'number' ? userContext.result.currentStateScore : null,
+          weeklyFocus:       userContext.result.weeklyFocus ? String(userContext.result.weeklyFocus).slice(0, 200) : null,
+          nextCheckInReason: userContext.result.nextCheckInReason ? String(userContext.result.nextCheckInReason).slice(0, 200) : null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -1479,6 +1481,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : '',
         ctx.scan?.nextCheckIn
           ? `- Next recommended scan: ${ctx.scan.nextCheckIn} (in ${ctx.scan.checkInIntervalDays} days) — if the user asks when to check in again, use this date.`
+          : '',
+        ctx.scan?.nextCheckInReason ? `- Reason for check-in timing: ${ctx.scan.nextCheckInReason}.` : '',
+        ctx.scan?.weeklyFocus
+          ? `- This week's priority action (from scan): "${ctx.scan.weeklyFocus}" — if the user asks what to focus on or what to do next, reinforce this specific habit; do not contradict it with a different suggestion.`
           : '',
         ctx.scan?.scoredAt ? `- Last scan taken: ${ctx.scan.scoredAt.split('T')[0]} — use this when the user asks how long ago they scanned or how far away their next check-in is.` : '',
         ctx.scan?.photoQuality && ctx.scan.photoQuality !== 'good'
