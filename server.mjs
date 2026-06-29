@@ -1352,6 +1352,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           treatmentUrgency:  userContext.result.treatmentUrgency || null,
           checkInIntervalDays: typeof userContext.result.checkInIntervalDays === 'number' ? userContext.result.checkInIntervalDays : null,
           nextCheckIn:       userContext.result.nextCheckIn || null,
+          scoredAt:          userContext.result.scoredAt || null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -1405,6 +1406,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.scan?.nextCheckIn
           ? `- Next recommended scan: ${ctx.scan.nextCheckIn} (in ${ctx.scan.checkInIntervalDays} days) — if the user asks when to check in again, use this date.`
           : '',
+        ctx.scan?.scoredAt ? `- Last scan taken: ${ctx.scan.scoredAt.split('T')[0]} — use this when the user asks how long ago they scanned or how far away their next check-in is.` : '',
         ctx.scan?.photoQuality && ctx.scan.photoQuality !== 'good'
           ? `- Photo quality: ${ctx.scan.photoQuality}${ctx.scan.photoNote ? ` (${ctx.scan.photoNote})` : ''} — scores may have lower confidence.`
           : '',
@@ -1416,7 +1418,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.routineDoneToday.length ? `- Routine tasks completed today: ${ctx.routineDoneToday.join(', ')}.` : '- No routine tasks completed today.',
         ctx.planProducts.length ? `- Saved plan products: ${ctx.planProducts.join(', ')}.` : '- No saved plan products yet.',
         ctx.scanHistory.length
-          ? `- Scan history (${ctx.scanHistory.length} scans): overall scores latest-first: ${ctx.scanHistory.map((h) => h.overall || '?').join(', ')}${stageTrendStr ? `; stage progression: ${stageTrendStr}` : ctx.scanHistory[0]?.stage ? `; latest stage: ${ctx.scanHistory[0].stage}` : ''}.`
+          ? `- Scan history (${ctx.scanHistory.length} scans, latest-first): ${ctx.scanHistory.map((h) => {
+              const date = h.scoredAt ? ` on ${h.scoredAt.split('T')[0]}` : '';
+              const stage = h.stage ? ` (${h.stage})` : '';
+              return `${h.overall ?? '?'}${date}${stage}`;
+            }).join(', ')}${stageTrendStr ? `; stage progression: ${stageTrendStr}` : ctx.scanHistory[0]?.stage ? `; latest stage: ${ctx.scanHistory[0].stage}` : ''}.`
           : '- No scan history yet.',
         ctx.age ? `- Age: ${ctx.age}.` : '',
         ctx.sex ? `- Sex: ${ctx.sex}.` : '',
