@@ -1517,6 +1517,23 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const stageSeq = ctx.scanHistory.map((h) => h.stage).filter(Boolean);
       const stageTrendStr = stageSeq.length >= 2 ? [...stageSeq].reverse().join(' → ') : null;
 
+      // Per-metric trend deltas across scan history (oldest → newest).
+      // scanHistory is newest-first, so index 0 is latest, last index is oldest.
+      const metricTrendParts = [];
+      if (ctx.scanHistory.length >= 2) {
+        const newest = ctx.scanHistory[0];
+        const oldest = ctx.scanHistory[ctx.scanHistory.length - 1];
+        for (const [label, key] of [['Hairline','hairline'],['Density','density'],['Crown','crown'],['Health','health'],['Potential','potential']]) {
+          const n = typeof newest[key] === 'number' ? newest[key] : null;
+          const o = typeof oldest[key] === 'number' ? oldest[key] : null;
+          if (n !== null && o !== null) {
+            const delta = n - o;
+            const dir = delta > 2 ? 'improving' : delta < -2 ? 'declining' : 'stable';
+            metricTrendParts.push(`${label} ${delta >= 0 ? '+' : ''}${delta} (${dir})`);
+          }
+        }
+      }
+      const metricTrendStr = metricTrendParts.length >= 2 ? metricTrendParts.join(', ') : null;
 
       const todayStr = new Date().toISOString().split('T')[0];
       const systemPrompt = [
@@ -1580,6 +1597,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.timeline ? `- Hair loss onset: ${ctx.timeline}.` : '',
         ctx.familyHistory.length ? `- Family history: ${ctx.familyHistory.join(', ')}.` : '',
         trendStr ? `- Overall score trend: ${trendStr}.` : '',
+        metricTrendStr ? `- Per-metric trends (first scan → latest, ${ctx.scanHistory.length} scans): ${metricTrendStr} — celebrate improving metrics; prioritize declining ones in your advice.` : '',
       ].filter(Boolean).join('\n');
 
       // Trim history to last 10 turns for cost control
