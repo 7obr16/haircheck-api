@@ -388,11 +388,12 @@ const json = (req, res, code, body) => {
     res.writeHead(code, {
       'Content-Type': 'application/json',
       'Content-Encoding': 'gzip',
+      'Cache-Control': 'no-store',
       'Vary': existingVary ? `${existingVary}, Accept-Encoding` : 'Accept-Encoding',
     });
     res.end(gzipSync(data));
   } else {
-    res.writeHead(code, { 'Content-Type': 'application/json' });
+    res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
     res.end(data);
   }
 };
@@ -742,7 +743,7 @@ const server = createServer(async (req, res) => {
     const mem = process.memoryUsage();
     json(req, res, 200, {
       ok: true,
-      model: 'gpt-image-2',
+      models: { scan: 'gpt-4o', coach: 'gpt-4o-mini', image: 'gpt-image-2' },
       port: PORT,
       sha: GIT_SHA,
       uptimeSeconds: Math.floor((Date.now() - SERVER_START_MS) / 1000),
@@ -1523,6 +1524,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         'Tone: friendly, direct, evidence-based. Avoid medical disclaimers unless specifically asked.',
         'Constraints: never prescribe Rx drugs; recommend talking to a doctor for finasteride/dutasteride.',
         'Length: short, scannable. Use bullets when listing options.',
+        'Response style: answer directly. Do NOT open with affirmations or filler ("Great!", "Absolutely!", "Of course!", "Sure thing!", "That\'s a great question!"). Start with the substance of your answer.',
         '',
         `Today's date: ${todayStr}.`,
         'User context (use when relevant, do not parrot back verbatim):',
