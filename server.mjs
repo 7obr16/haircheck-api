@@ -576,11 +576,15 @@ const SCAN_RESPONSE_SCHEMA = {
         additionalProperties: false,
       },
     },
-    verdict:      { type: 'string' },
-    photoQuality: { type: 'string', enum: ['good', 'acceptable', 'poor'] },
-    photoNote:    { type: 'string' },
+    verdict:        { type: 'string' },
+    photoQuality:   { type: 'string', enum: ['good', 'acceptable', 'poor'] },
+    photoNote:      { type: 'string' },
+    thinningPattern: {
+      type: 'string',
+      enum: ['minimal', 'bitemporal', 'crown', 'bitemporal+crown', 'frontal', 'diffuse', 'total'],
+    },
   },
-  required: ['hairline', 'density', 'crown', 'health', 'potential', 'stage', 'headline', 'insights', 'verdict', 'photoQuality', 'photoNote'],
+  required: ['hairline', 'density', 'crown', 'health', 'potential', 'stage', 'headline', 'insights', 'verdict', 'photoQuality', 'photoNote', 'thinningPattern'],
   additionalProperties: false,
 };
 
@@ -1180,6 +1184,14 @@ const server = createServer(async (req, res) => {
 - verdict: 1-2 sentence verdict, slightly aspirational, no medical claims
 - photoQuality: 'good' | 'acceptable' | 'poor'
 - photoNote: brief sentence about quality issues, or empty string if quality is good
+- thinningPattern: classify the PRIMARY visible loss pattern from this enum:
+  minimal=no significant loss visible (NW1 or very early)
+  bitemporal=temple/M-shape recession only, crown intact
+  crown=crown/vertex thinning only, temples intact
+  bitemporal+crown=both temple recession AND crown thinning (most common AGA)
+  frontal=diffuse frontal/hairline loss without sharp temple angles
+  diffuse=uniform thinning across entire scalp top without a localized pattern
+  total=severe multi-zone loss with large bald areas (NW6-NW7)
 
 PHOTO QUALITY ASSESSMENT:
 good — scalp clearly visible, well-lit, shot from above or ~45° angle, can see hairline + crown.
@@ -1283,6 +1295,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const stage = parsed.stage || 'n/a';
         const VALID_PHOTO_QUALITIES = new Set(['good', 'acceptable', 'poor']);
         const photoQuality = VALID_PHOTO_QUALITIES.has(parsed.photoQuality) ? parsed.photoQuality : 'acceptable';
+        const VALID_THINNING_PATTERNS = new Set(['minimal', 'bitemporal', 'crown', 'bitemporal+crown', 'frontal', 'diffuse', 'total']);
+        const thinningPattern = VALID_THINNING_PATTERNS.has(parsed.thinningPattern) ? parsed.thinningPattern : 'minimal';
         // confidenceScore is derived server-side from photoQuality — reflects how
         // reliably the AI could assess the scan. The iOS app can use this to decide
         // whether to show a "retake for better results" nudge.
@@ -1300,6 +1314,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           verdict:         String(parsed.verdict || '').slice(0, 400),
           photoQuality,
           photoNote:       String(parsed.photoNote || '').slice(0, 200),
+          thinningPattern,
           confidenceScore,
           scoredAt:        new Date().toISOString(),
         };
@@ -1427,12 +1442,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           currentStateScore: typeof userContext.result.currentStateScore === 'number' ? userContext.result.currentStateScore : null,
           weeklyFocus:       userContext.result.weeklyFocus ? String(userContext.result.weeklyFocus).slice(0, 200) : null,
           nextCheckInReason: userContext.result.nextCheckInReason ? String(userContext.result.nextCheckInReason).slice(0, 200) : null,
+          thinningPattern:   userContext.result.thinningPattern || null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
         planProducts: Array.isArray(userContext.planProducts) ? userContext.planProducts.slice(0, 8) : [],
         routineDoneToday: Array.isArray(userContext.routineDoneToday) ? userContext.routineDoneToday.slice(0, 12) : [],
-        weakestMetric: userContext.weakestMetric || null,
+        weakestMetric:   userContext.weakestMetric  || userContext.result?.weakestMetric  || null,
+        strongestMetric: userContext.strongestMetric || userContext.result?.strongestMetric || null,
         age: userContext.profile?.age || null,
         sex: userContext.profile?.sex || null,
         goals: Array.isArray(userContext.profile?.goals)
@@ -1496,7 +1513,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.scan?.insights?.length
           ? `- Scan insights: ${ctx.scan.insights.map((ins, i) => `${i + 1}) "${ins.title}" (${ins.metric}): ${ins.body}`).join('; ')}.`
           : '',
+        ctx.scan?.thinningPattern ? `- Thinning pattern: ${ctx.scan.thinningPattern} — use this to give targeted zone-specific advice.` : '',
         ctx.weakestMetric?.label ? `- Current weakest metric: ${ctx.weakestMetric.label} (${ctx.weakestMetric.value}/100).` : '',
+        ctx.strongestMetric?.label ? `- Current strongest metric: ${ctx.strongestMetric.label} (${ctx.strongestMetric.value}/100) — mention this as a positive when relevant.` : '',
         ctx.routine.length ? `- Current routine: ${ctx.routine.join(', ')}.` : '- No routine logged yet.',
         ctx.routineDoneToday.length ? `- Routine tasks completed today: ${ctx.routineDoneToday.join(', ')}.` : '- No routine tasks completed today.',
         ctx.planProducts.length ? `- Saved plan products: ${ctx.planProducts.join(', ')}.` : '- No saved plan products yet.',
