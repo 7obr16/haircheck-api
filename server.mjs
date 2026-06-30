@@ -90,12 +90,12 @@ const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
 // Per-endpoint counters exposed via /api/health for production monitoring.
 const METRICS = {
-  scan:        { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0 },
-  after:       { requests: 0, errors: 0, cacheHits: 0 },
-  progression: { requests: 0, errors: 0, cacheHits: 0 },
-  map:         { requests: 0, errors: 0, cacheHits: 0 },
-  adviceVisual:{ requests: 0, errors: 0, cacheHits: 0 },
-  coach:       { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0 },
+  scan:        { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null },
+  after:       { requests: 0, errors: 0, cacheHits: 0, lastError: null },
+  progression: { requests: 0, errors: 0, cacheHits: 0, lastError: null },
+  map:         { requests: 0, errors: 0, cacheHits: 0, lastError: null },
+  adviceVisual:{ requests: 0, errors: 0, cacheHits: 0, lastError: null },
+  coach:       { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null },
 };
 
 // Rolling latency samples (ms) per endpoint — last 100 POST requests each.
@@ -124,6 +124,11 @@ function recordLatency(key, ms) {
   if (!arr) return;
   if (arr.length >= LATENCY_MAX_SAMPLES) arr.shift();
   arr.push(ms);
+}
+
+function bumpError(m, httpStatus, msg) {
+  m.errors++;
+  m.lastError = { at: new Date().toISOString(), status: httpStatus || null, msg: String(msg || '').slice(0, 150) };
 }
 
 function latencyStats(arr) {
@@ -741,6 +746,7 @@ const server = createServer(async (req, res) => {
       port: PORT,
       sha: GIT_SHA,
       uptimeSeconds: Math.floor((Date.now() - SERVER_START_MS) / 1000),
+      openRequests,
       cache: {
         scan:        { size: SCAN_CACHE.size,         max: SCAN_CACHE_MAX,  inflight: SCAN_INFLIGHT.size },
         after:       { size: AFTER_CACHE.size,        max: IMAGE_CACHE_MAX, inflight: AFTER_INFLIGHT.size },
@@ -804,8 +810,9 @@ const server = createServer(async (req, res) => {
         if (result.ok) {
           json(req, res, 200, { afterPhoto: result.afterPhoto, deduped: true, requestId: reqId });
         } else {
-          METRICS.after.errors++;
-          jsonError(req, res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+          const aiErr = normalizeOpenAIError('OpenAI request failed', result.status, result.error);
+          bumpError(METRICS.after, result.status || 502, aiErr.error);
+          jsonError(req, res, result.status || 502, { ...aiErr, requestId: reqId });
         }
         return;
       }
@@ -848,8 +855,9 @@ const server = createServer(async (req, res) => {
       }
 
       if (!result.ok) {
-        METRICS.after.errors++;
-        jsonError(req, res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+        const aiErr = normalizeOpenAIError('OpenAI request failed', result.status, result.error);
+        bumpError(METRICS.after, result.status || 502, aiErr.error);
+        jsonError(req, res, result.status || 502, { ...aiErr, requestId: reqId });
         return;
       }
       cacheWrite(AFTER_CACHE, hash, result.afterPhoto, IMAGE_CACHE_MAX);
@@ -857,7 +865,7 @@ const server = createServer(async (req, res) => {
       console.log('[openai] generate-after OK', { ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(req, res, 200, { afterPhoto: result.afterPhoto, requestId: reqId });
     } catch (err) {
-      METRICS.after.errors++;
+      bumpError(METRICS.after, err.statusCode || 500, err.message);
       console.error('[server] handler error', err);
       json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
@@ -902,8 +910,9 @@ const server = createServer(async (req, res) => {
         if (progResult.ok) {
           json(req, res, 200, { afterPhoto: progResult.afterPhoto, month: m, deduped: true, requestId: reqId });
         } else {
-          METRICS.progression.errors++;
-          jsonError(req, res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
+          const aiErr = normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error);
+          bumpError(METRICS.progression, progResult.status || 502, aiErr.error);
+          jsonError(req, res, progResult.status || 502, { ...aiErr, requestId: reqId });
         }
         return;
       }
@@ -945,8 +954,9 @@ const server = createServer(async (req, res) => {
       }
 
       if (!progResult.ok) {
-        METRICS.progression.errors++;
-        jsonError(req, res, progResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error), requestId: reqId });
+        const aiErr = normalizeOpenAIError('OpenAI request failed', progResult.status, progResult.error);
+        bumpError(METRICS.progression, progResult.status || 502, aiErr.error);
+        jsonError(req, res, progResult.status || 502, { ...aiErr, requestId: reqId });
         return;
       }
       cacheWrite(PROGRESSION_CACHE, hash, progResult.afterPhoto, IMAGE_CACHE_MAX);
@@ -954,7 +964,7 @@ const server = createServer(async (req, res) => {
       console.log('[progression] ok', { month: m, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(req, res, 200, { afterPhoto: progResult.afterPhoto, month: m, requestId: reqId });
     } catch (err) {
-      METRICS.progression.errors++;
+      bumpError(METRICS.progression, err.statusCode || 500, err.message);
       console.error('[server] generate-progression error', err);
       json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
@@ -1002,8 +1012,9 @@ const server = createServer(async (req, res) => {
         if (mapResult.ok) {
           json(req, res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, deduped: true, requestId: reqId });
         } else {
-          METRICS.map.errors++;
-          jsonError(req, res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
+          const aiErr = normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error);
+          bumpError(METRICS.map, mapResult.status || 502, aiErr.error);
+          jsonError(req, res, mapResult.status || 502, { ...aiErr, requestId: reqId });
         }
         return;
       }
@@ -1046,8 +1057,9 @@ const server = createServer(async (req, res) => {
       }
 
       if (!mapResult.ok) {
-        METRICS.map.errors++;
-        jsonError(req, res, mapResult.status || 502, { ...normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error), requestId: reqId });
+        const aiErr = normalizeOpenAIError('OpenAI request failed', mapResult.status, mapResult.error);
+        bumpError(METRICS.map, mapResult.status || 502, aiErr.error);
+        jsonError(req, res, mapResult.status || 502, { ...aiErr, requestId: reqId });
         return;
       }
       cacheWrite(MAP_CACHE, hash, mapResult.analysisMap, IMAGE_CACHE_MAX);
@@ -1055,7 +1067,7 @@ const server = createServer(async (req, res) => {
       console.log('[analysis-map] ok', { kind: mapKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(req, res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, requestId: reqId });
     } catch (err) {
-      METRICS.map.errors++;
+      bumpError(METRICS.map, err.statusCode || 500, err.message);
       console.error('[server] generate-analysis-map error', err);
       json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
@@ -1089,8 +1101,9 @@ const server = createServer(async (req, res) => {
         if (result.ok) {
           json(req, res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, deduped: true, requestId: reqId });
         } else {
-          METRICS.adviceVisual.errors++;
-          jsonError(req, res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+          const aiErr = normalizeOpenAIError('OpenAI request failed', result.status, result.error);
+          bumpError(METRICS.adviceVisual, result.status || 502, aiErr.error);
+          jsonError(req, res, result.status || 502, { ...aiErr, requestId: reqId });
         }
         return;
       }
@@ -1128,8 +1141,9 @@ const server = createServer(async (req, res) => {
       }
 
       if (!result.ok) {
-        METRICS.adviceVisual.errors++;
-        jsonError(req, res, result.status || 502, { ...normalizeOpenAIError('OpenAI request failed', result.status, result.error), requestId: reqId });
+        const aiErr = normalizeOpenAIError('OpenAI request failed', result.status, result.error);
+        bumpError(METRICS.adviceVisual, result.status || 502, aiErr.error);
+        jsonError(req, res, result.status || 502, { ...aiErr, requestId: reqId });
         return;
       }
       cacheWrite(ADVICE_VISUAL_CACHE, hash, result.adviceVisual, IMAGE_CACHE_MAX);
@@ -1137,7 +1151,7 @@ const server = createServer(async (req, res) => {
       console.log('[advice-visual] ok', { kind: visualKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(req, res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, requestId: reqId });
     } catch (err) {
-      METRICS.adviceVisual.errors++;
+      bumpError(METRICS.adviceVisual, err.statusCode || 500, err.message);
       console.error('[server] generate-advice-visual error', err);
       json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
@@ -1180,7 +1194,7 @@ const server = createServer(async (req, res) => {
         if (scanResult.ok) {
           json(req, res, 200, { ...scanResult.data, deduped: true, requestId: reqId });
         } else {
-          METRICS.scan.errors++;
+          bumpError(METRICS.scan, scanResult.status || 502, scanResult.error?.error || 'scan failed');
           jsonError(req, res, scanResult.status || 502, { ...scanResult.error, requestId: reqId });
         }
         return;
@@ -1420,7 +1434,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       }
 
       if (!scanOutcome.ok) {
-        METRICS.scan.errors++;
+        bumpError(METRICS.scan, scanOutcome.status || 502, scanOutcome.error?.error || 'scan failed');
         jsonError(req, res, scanOutcome.status || 502, { ...scanOutcome.error, requestId: reqId });
         return;
       }
@@ -1428,7 +1442,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       warnIfSlow('analyze-scan', startedAt, 'scan');
       json(req, res, 200, { ...scanOutcome.data, requestId: reqId });
     } catch (err) {
-      METRICS.scan.errors++;
+      bumpError(METRICS.scan, err.statusCode || 500, err.message);
       console.error('[server] analyze-scan error', err);
       json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
@@ -1586,9 +1600,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       );
 
       if (!coachOk) {
-        METRICS.coach.errors++;
+        const aiErr = normalizeOpenAIError('Coach request failed', coachStatus, coachPayload);
+        bumpError(METRICS.coach, coachStatus, aiErr.error);
         console.error('[coach] error', coachStatus, coachPayload);
-        jsonError(req, res, coachStatus, { ...normalizeOpenAIError('Coach request failed', coachStatus, coachPayload), requestId: reqId });
+        jsonError(req, res, coachStatus, { ...aiErr, requestId: reqId });
         return;
       }
 
@@ -1606,7 +1621,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason });
       json(req, res, 200, { reply, requestId: reqId });
     } catch (err) {
-      METRICS.coach.errors++;
+      bumpError(METRICS.coach, err.statusCode || 500, err.message);
       console.error('[server] coach error', err);
       json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
