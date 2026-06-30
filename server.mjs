@@ -1523,7 +1523,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           ? `- Scan history (${ctx.scanHistory.length} scans, latest-first): ${ctx.scanHistory.map((h) => {
               const date = h.scoredAt ? ` on ${h.scoredAt.split('T')[0]}` : '';
               const stage = h.stage ? ` (${h.stage})` : '';
-              return `${h.overall ?? '?'}${date}${stage}`;
+              const metrics = [h.hairline, h.density, h.crown, h.health, h.potential].every((v) => typeof v === 'number')
+                ? ` [H:${h.hairline} D:${h.density} C:${h.crown} Hlth:${h.health} Pot:${h.potential}]` : '';
+              return `${h.overall ?? '?'}${date}${stage}${metrics}`;
             }).join(', ')}${stageTrendStr ? `; stage progression: ${stageTrendStr}` : ctx.scanHistory[0]?.stage ? `; latest stage: ${ctx.scanHistory[0].stage}` : ''}.`
           : '- No scan history yet.',
         ctx.age ? `- Age: ${ctx.age}.` : '',
