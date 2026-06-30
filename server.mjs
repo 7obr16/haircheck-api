@@ -50,6 +50,19 @@ const NORWOOD_GUIDE = {
   'n/a (female)': 'Female pattern — Ludwig scale applies; hormonal workup and diffuse-specific treatments',
 };
 
+// ─── Thinning pattern descriptions ──────────────────────────────
+// Used in the scan response (thinningPatternLabel) and coach context.
+// Mirrors the NORWOOD_GUIDE pattern for the thinningPattern enum.
+const THINNING_PATTERN_GUIDE = {
+  minimal:            'No significant loss visible — protective/maintenance phase',
+  bitemporal:         'Temple/M-shape recession; frontal and hairline zone priority',
+  crown:              'Crown/vertex thinning; back-of-head coverage focus',
+  'bitemporal+crown': 'Bitemporal recession plus crown thinning — dual-zone treatment approach',
+  frontal:            'Diffuse frontal hairline loss without sharp temple angles',
+  diffuse:            'Uniform thinning across entire scalp top; systemic or nutritional cause common',
+  total:              'Severe multi-zone loss — advanced stage; transplant or SMP are realistic options',
+};
+
 // ─── In-memory cache for AFTER-photo generation ──────────────────
 // gpt-image-2 takes 2-3 minutes per call. Many client retries are the
 // same photo (e.g. Safari's 60s fetch timeout cancels client-side but
@@ -1315,21 +1328,22 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // whether to show a "retake for better results" nudge.
         const confidenceScore = photoQuality === 'good' ? 90 : photoQuality === 'poor' ? 50 : 70;
         const data = {
-          hairline:        clamp(parsed.hairline),
-          density:         clamp(parsed.density),
-          crown:           clamp(parsed.crown ?? parsed.density),
-          health:          clamp(parsed.health),
-          potential:       clamp(parsed.potential),
+          hairline:            clamp(parsed.hairline),
+          density:             clamp(parsed.density),
+          crown:               clamp(parsed.crown ?? parsed.density),
+          health:              clamp(parsed.health),
+          potential:           clamp(parsed.potential),
           stage,
-          stageLabel:      NORWOOD_GUIDE[stage] || null,
-          headline:        String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
-          insights:        rawInsights,
-          verdict:         String(parsed.verdict || '').slice(0, 400),
+          stageLabel:          NORWOOD_GUIDE[stage] || null,
+          headline:            String(parsed.headline || 'Strong baseline. Real room to improve.').slice(0, 120),
+          insights:            rawInsights,
+          verdict:             String(parsed.verdict || '').slice(0, 400),
           photoQuality,
-          photoNote:       String(parsed.photoNote || '').slice(0, 200),
+          photoNote:           String(parsed.photoNote || '').slice(0, 200),
           thinningPattern,
+          thinningPatternLabel: THINNING_PATTERN_GUIDE[thinningPattern] || null,
           confidenceScore,
-          scoredAt:        new Date().toISOString(),
+          scoredAt:            new Date().toISOString(),
         };
         // Include all 5 metrics in overall: hairline, density, crown, health, potential.
         data.overall = Math.round((data.hairline + data.density + data.crown + data.health + data.potential) / 5);
@@ -1526,7 +1540,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.scan?.insights?.length
           ? `- Scan insights: ${ctx.scan.insights.map((ins, i) => `${i + 1}) "${ins.title}" (${ins.metric}): ${ins.body}`).join('; ')}.`
           : '',
-        ctx.scan?.thinningPattern ? `- Thinning pattern: ${ctx.scan.thinningPattern} — use this to give targeted zone-specific advice.` : '',
+        ctx.scan?.thinningPattern
+          ? `- Thinning pattern: ${ctx.scan.thinningPattern}${THINNING_PATTERN_GUIDE[ctx.scan.thinningPattern] ? ` (${THINNING_PATTERN_GUIDE[ctx.scan.thinningPattern]})` : ''} — use this to give targeted zone-specific advice.`
+          : '',
         ctx.weakestMetric?.label ? `- Current weakest metric: ${ctx.weakestMetric.label} (${ctx.weakestMetric.value}/100).` : '',
         ctx.strongestMetric?.label ? `- Current strongest metric: ${ctx.strongestMetric.label} (${ctx.strongestMetric.value}/100) — mention this as a positive when relevant.` : '',
         ctx.routine.length ? `- Current routine: ${ctx.routine.join(', ')}.` : '- No routine logged yet.',
