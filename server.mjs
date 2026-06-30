@@ -1245,9 +1245,9 @@ Staging discriminator — use when adjacent stages are ambiguous:
 
 Scoring guide (all scores 0-100 integers):
 - hairline: 100 = fully intact hairline, no recession. Deduct for temple recession depth/width, frontal loss. NW1→90-100, NW2→75-88, NW3→55-72, NW4→35-55, NW5+→15-40.
-- density: 100 = full terminal hair density with no scalp visible through hair. Deduct for mid-scalp see-through, diffuse thinning, miniaturization.
-- crown: 100 = full crown/vertex coverage. Deduct for vertex thinning, bald spot, widening part. If crown isn't visible in photo, estimate from stage and side view.
-- health: 100 = thick terminal hairs, healthy scalp, no inflammation. Deduct for visible miniaturization, scalp irritation/redness, dry/flaky scalp.
+- density: 100 = full terminal hair density with no scalp visible through hair. Deduct for mid-scalp see-through, diffuse thinning, miniaturization. Stage-correlated ranges: NW1→88-100, NW2→80-95, NW3→65-82 (reduce by 5-15 more if visible mid-scalp thinning alongside the recession), NW4→45-68, NW5→30-52, NW6+→15-38, diffuse→35-65 (depends on coverage uniformity). If the photo is a straight-on face shot where mid-scalp isn't visible, estimate from stage.
+- crown: 100 = full vertex/crown coverage from above. Stage-correlated ranges: NW1→90-100, NW2→87-100, NW3→82-97 (crown should be intact unless NW3v), NW3v→55-75 (early vertex thinning distinguishes this stage), NW4→35-58, NW5→18-40, NW6+→5-25. If crown IS visible in the photo, score directly from what you see. If not, use the stage estimate.
+- health: 100 = thick terminal hairs at normal caliber, healthy scalp, no miniaturization or inflammation. Deduct for: visible miniaturization (fine, short hairs at the thinning edge) −10 to −20; scalp inflammation or redness −5 to −15; visible flakiness or dandruff −5 to −10; widespread vellus hairs replacing terminal hairs −10 to −20. Health is NOT determined by hairline position — a NW4 with thick terminal hairs and healthy scalp can score 78-88 on health.
 - potential: realistic percentage improvement achievable with a consistent 6-12 month OTC protocol (minoxidil, scalp care, supplements). Score what is ACHIEVABLE — not the current state. Use these stage×age guidelines:
   • NW1-NW2, any age: 72-88 (early prevention window, follicles fully viable)
   • NW3-NW3v, under 35: 68-82 (strong responders; significant regrowth expected)
