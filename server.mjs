@@ -129,6 +129,19 @@ function cacheHashOf(prefix, ...parts) {
   return createHash('sha256').update(prefix + '\0' + parts.join('\0')).digest('hex');
 }
 
+// Produce a deterministic JSON string regardless of key insertion order.
+// Profile objects from the iOS Swift Codable layer may arrive with keys in
+// varying order depending on the iOS version and struct layout; without
+// sorting, JSON.stringify produces different strings for identical profiles
+// and the scan cache always misses on retries.
+function stableJSON(value) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return JSON.stringify(value);
+  }
+  const keys = Object.keys(value).sort();
+  return '{' + keys.map((k) => JSON.stringify(k) + ':' + stableJSON(value[k])).join(',') + '}';
+}
+
 function cacheRead(map, key) {
   const entry = map.get(key);
   if (!entry) return null;
@@ -509,7 +522,7 @@ const VALID_INSIGHT_METRICS = new Set(['Hairline', 'Density', 'Crown', 'Health',
 const DEFAULT_METRICS = ['Hairline', 'Density', 'Crown'];
 const normalizeInsight = (ins, i) => ({
   title:  String(ins?.title  || '').slice(0, 60),
-  body:   String(ins?.body   || '').slice(0, 120),
+  body:   String(ins?.body   || '').slice(0, 200),
   metric: VALID_INSIGHT_METRICS.has(ins?.metric) ? ins.metric : (DEFAULT_METRICS[i] || 'Health'),
 });
 
@@ -1136,7 +1149,7 @@ const server = createServer(async (req, res) => {
 
       // Cache by (photo content + profile + scoringInstruction) to avoid re-billing
       // the same scan on retries or double-taps. TTL is 24h (same as image cache).
-      const profileKey = JSON.stringify(profile);
+      const profileKey = stableJSON(profile);
       const scanHash = cacheHashOf('scan', createHash('sha256').update(visionBuffer).digest('hex'), profileKey, scoringInstruction);
 
       const scanCached = cacheRead(SCAN_CACHE, scanHash);
@@ -1180,7 +1193,7 @@ const server = createServer(async (req, res) => {
 - hairline, density, crown, health, potential: 0-100 integer scores
 - stage: Norwood stage (pick from the enum)
 - headline: 6-9 word punchy summary, confident tone
-- insights: exactly 3 items, each with a 5-word title (≤5 words), a 12-22 word actionable body that is specific to THIS user's visible loss pattern, scores, stage, or profile — reference real values (stage, a score, a symptom) to make the insight personal; avoid generic advice. The metric must match: Hairline→temple/frontal recession, Density→mid-scalp thinning, Crown→vertex/crown thinning, Health→scalp condition or miniaturization, Potential→treatment response or growth timeline
+- insights: exactly 3 items, each with a 5-word title (≤5 words), a 20-28 word actionable body that is specific to THIS user's visible loss pattern, scores, stage, or profile — name the actual stage or a score, specify a concrete action (e.g. "5% minoxidil on your recession zones", "DHT-blocking shampoo 3×/week"), and give a reason tied to their situation. Avoid generic advice. The metric must match: Hairline→temple/frontal recession, Density→mid-scalp thinning, Crown→vertex/crown thinning, Health→scalp condition or miniaturization, Potential→treatment response or growth timeline
 - verdict: 1-2 sentence verdict, slightly aspirational, no medical claims
 - photoQuality: 'good' | 'acceptable' | 'poor'
 - photoNote: brief sentence about quality issues, or empty string if quality is good
