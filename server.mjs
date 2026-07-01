@@ -772,21 +772,29 @@ const server = createServer(async (req, res) => {
   openRequests++;
   res.once('finish', () => { openRequests--; });
 
+  // Extract pathname without query string so routing works with ?foo=bar appended
+  let reqPath;
+  try { reqPath = new URL(req.url, 'http://localhost').pathname; }
+  catch (_) { reqPath = req.url.split('?')[0]; }
+
+  // Suppress health-check log spam — Railway probes every ~10s creating ~720 log lines/hr
+  const isHealthCheck = req.method === 'GET' && reqPath === '/api/health';
+
   res.setHeader('X-Request-Id', reqId);
-  console.log(`[req] ${req.method} ${req.url} ${reqId}`);
+  if (!isHealthCheck) console.log(`[req] ${req.method} ${req.url} ${reqId}`);
   const origEnd = res.end.bind(res);
   res.end = (...args) => {
     const ms = Date.now() - reqStart;
-    console.log(`[res] ${req.method} ${req.url} ${reqId} ${res.statusCode} ${ms}ms`);
+    if (!isHealthCheck) console.log(`[res] ${req.method} ${req.url} ${reqId} ${res.statusCode} ${ms}ms`);
     if (req.method === 'POST') {
-      const latencyKey = URL_TO_LATENCY_KEY[req.url];
+      const latencyKey = URL_TO_LATENCY_KEY[reqPath];
       if (latencyKey) recordLatency(latencyKey, ms);
     }
     return origEnd(...args);
   };
 
   // Reject new non-health requests during graceful shutdown
-  if (isShuttingDown && req.url !== '/api/health') {
+  if (isShuttingDown && reqPath !== '/api/health') {
     res.setHeader('Retry-After', '10');
     json(req, res, 503, { error: 'Server is restarting. Please retry in a few seconds.', requestId: reqId });
     return;
@@ -812,7 +820,7 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === 'GET' && req.url === '/api/health') {
+  if (req.method === 'GET' && reqPath === '/api/health') {
     const mem = process.memoryUsage();
     json(req, res, 200, {
       ok: true,
@@ -842,12 +850,12 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === 'GET' && req.url === '/api/version') {
+  if (req.method === 'GET' && reqPath === '/api/version') {
     json(req, res, 200, { sha: GIT_SHA, requestId: reqId });
     return;
   }
 
-  if (req.method === 'POST' && req.url === '/api/generate-after') {
+  if (req.method === 'POST' && reqPath === '/api/generate-after') {
     try {
       METRICS.after.requests++;
       const { photoDataUrl, prompt, quality: qParam, stage: stageParam } = await readJsonBody(req);
@@ -952,7 +960,7 @@ const server = createServer(async (req, res) => {
   // Input: { photoDataUrl, month: 3 | 6 | 12 }
   // Output: { afterPhoto: 'data:image/png;base64,...' }
   // Cost: ~$0.05 per call. Caller should cache aggressively in localStorage.
-  if (req.method === 'POST' && req.url === '/api/generate-progression') {
+  if (req.method === 'POST' && reqPath === '/api/generate-progression') {
     try {
       METRICS.progression.requests++;
       const { photoDataUrl, month, quality: qParam, stage: stageParam } = await readJsonBody(req);
@@ -1053,7 +1061,7 @@ const server = createServer(async (req, res) => {
   // ─── /api/generate-analysis-map — photo-locked GPT image edit overlay ─
   // Input: { photoDataUrl, kind: 'density' | 'crown', result? }
   // Output: { analysisMap: 'data:image/png;base64,...', kind }
-  if (req.method === 'POST' && req.url === '/api/generate-analysis-map') {
+  if (req.method === 'POST' && reqPath === '/api/generate-analysis-map') {
     try {
       METRICS.map.requests++;
       const { photoDataUrl, kind = 'density', result: scanScores = {} } = await readJsonBody(req);
@@ -1156,7 +1164,7 @@ const server = createServer(async (req, res) => {
   // ─── /api/generate-advice-visual — image-led protocol card art ─
   // Input: { kind: 'topical' | 'supplements' | 'massage' | 'shampoo', quality? }
   // Output: { adviceVisual: 'data:image/png;base64,...', kind }
-  if (req.method === 'POST' && req.url === '/api/generate-advice-visual') {
+  if (req.method === 'POST' && reqPath === '/api/generate-advice-visual') {
     try {
       METRICS.adviceVisual.requests++;
       const { kind, quality: qParam } = await readJsonBody(req);
@@ -1241,7 +1249,7 @@ const server = createServer(async (req, res) => {
   // Input: { photoDataUrl, profile? }
   // Output: full scan record with scores + Norwood + headline + 3 insights + verdict
   // Cost: ~$0.01 per call.
-  if (req.method === 'POST' && req.url === '/api/analyze-scan') {
+  if (req.method === 'POST' && reqPath === '/api/analyze-scan') {
     try {
       METRICS.scan.requests++;
       const { photoDataUrl, profile: rawProfile = {}, scoringInstruction = '' } = await readJsonBody(req);
@@ -1579,7 +1587,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
   // Input: { message, history, userContext: { result, routine, profile, history, planProducts, routineDoneToday, weakestMetric } }
   // Output: { reply }
   // Cost: ~$0.005/message. History trimmed to last 10 turns to keep it cheap.
-  if (req.method === 'POST' && req.url === '/api/coach') {
+  if (req.method === 'POST' && reqPath === '/api/coach') {
     try {
       METRICS.coach.requests++;
       const { message, history = [], userContext = {} } = await readJsonBody(req);
