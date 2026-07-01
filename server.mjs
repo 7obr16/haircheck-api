@@ -666,6 +666,29 @@ const SCAN_RESPONSE_SCHEMA = {
   additionalProperties: false,
 };
 
+// Clamp user-supplied profile fields to prevent prompt injection and token bloat.
+// All string fields are truncated; numeric fields are range-validated; arrays are
+// element-capped. Legitimate iOS app values fall well within all limits.
+const sanitizeProfile = (raw = {}) => {
+  const s = (v, max) => typeof v === 'string' ? v.slice(0, max) : '';
+  const n = (v, lo, hi) => { const x = Number(v); return (Number.isFinite(x) && x >= lo && x <= hi) ? x : null; };
+  const a = (v, itemMax, count) =>
+    Array.isArray(v) ? v.slice(0, count).map((item) => s(String(item ?? ''), itemMax)) : [];
+  return {
+    sex:      s(raw.sex,      30),
+    age:      n(raw.age,      1, 120),
+    concern:  a(raw.concern,  80, 6),
+    timeline: s(raw.timeline, 80),
+    family:   a(raw.family,   80, 6),
+    lifestyle: {
+      stress: n(raw.lifestyle?.stress, 0, 10),
+      sleep:  n(raw.lifestyle?.sleep,  0, 24),
+    },
+    routine:  a(raw.routine,  100, 12),
+    goals:    a(raw.goals,    100, 6),
+  };
+};
+
 const dataUrlToBuffer = (dataUrl) => {
   const m = dataUrl.match(/^data:(image\/[a-z+.-]+);base64,(.+)$/i);
   if (!m) throw new Error('Expected data:image/...;base64,...');
@@ -1217,7 +1240,8 @@ const server = createServer(async (req, res) => {
   if (req.method === 'POST' && req.url === '/api/analyze-scan') {
     try {
       METRICS.scan.requests++;
-      const { photoDataUrl, profile = {}, scoringInstruction = '' } = await readJsonBody(req);
+      const { photoDataUrl, profile: rawProfile = {}, scoringInstruction = '' } = await readJsonBody(req);
+      const profile = sanitizeProfile(rawProfile);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const { buffer: visionBuffer } = dataUrlToBuffer(photoDataUrl);
       if (visionBuffer.length < 3000) {
@@ -1551,6 +1575,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const { message, history = [], userContext = {} } = await readJsonBody(req);
       if (!message || typeof message !== 'string') throw new Error('message required');
       const startedAt = Date.now();
+      const coachProfile = sanitizeProfile(userContext.profile);
 
       const ctx = {
         scan: userContext.result ? {
@@ -1583,16 +1608,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         routineDoneToday: Array.isArray(userContext.routineDoneToday) ? userContext.routineDoneToday.slice(0, 12) : [],
         weakestMetric:   userContext.weakestMetric  || userContext.result?.weakestMetric  || null,
         strongestMetric: userContext.strongestMetric || userContext.result?.strongestMetric || null,
-        age: userContext.profile?.age || null,
-        sex: userContext.profile?.sex || null,
-        goals: Array.isArray(userContext.profile?.goals)
-          ? userContext.profile.goals
-          : (userContext.profile?.goals ? [String(userContext.profile.goals)] : []),
-        concerns: Array.isArray(userContext.profile?.concern)
-          ? userContext.profile.concern
-          : (userContext.profile?.concern ? [String(userContext.profile.concern)] : []),
-        timeline: userContext.profile?.timeline || null,
-        familyHistory: Array.isArray(userContext.profile?.family) ? userContext.profile.family : [],
+        age:           coachProfile.age,
+        sex:           coachProfile.sex || null,
+        goals:         coachProfile.goals,
+        concerns:      coachProfile.concern,
+        timeline:      coachProfile.timeline || null,
+        familyHistory: coachProfile.family,
       };
 
       // Compute overall trend if ≥2 scans are available (scanHistory is newest-first).
@@ -1699,7 +1720,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         { role: 'user', content: message.slice(0, 1500) },
       ];
 
-      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 700 });
+      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 900 });
       const { ok: coachOk, status: coachStatus, payload: coachPayload } = await withOpenAIRetry('coach', (signal) =>
         fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
