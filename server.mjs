@@ -260,6 +260,28 @@ Do NOT create a new hairstyle. Do NOT change the existing hair length, parting, 
 
 The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`;
 
+// Stage-specific zone hints appended to AFTER_PROMPT when the caller provides
+// a Norwood stage from a prior scan. Helps the model focus restoration on the
+// zones that matter most for that stage without over-restoring stable areas.
+const AFTER_STAGE_HINTS = {
+  NW2:  "This user is Norwood 2: slight symmetric temple recession. Focus only on the temple corners — fill the M-shape recession to a natural, slightly receded adult hairline. Crown and mid-scalp are intact; leave them unchanged.",
+  NW3:  "This user is Norwood 3: deep bilateral temple recession extending past mid-pupil. Prioritize filling both temple recession zones. Crown and mid-scalp should remain mostly unchanged unless thinning is clearly visible there.",
+  NW3v: "This user is Norwood 3v: deep temple recession PLUS early vertex/crown thinning. Address both zones equally — fill temple recession and add modest density to the crown.",
+  NW4:  "This user is Norwood 4: significant frontal hairline retreat and pronounced crown thinning. Restore density in both the frontal zone (to a credible age-appropriate hairline, not a teenager's) and the crown/vertex.",
+  NW5:  "This user is Norwood 5: frontal and crown zones nearly merging. Show realistic improvement across the entire top — reduce visible scalp throughout but keep the result 'clearly improved,' not 'fully restored.'",
+  NW6:  "This user is Norwood 6: frontal and crown merged with only a lateral fringe. Show meaningful density restoration across the full scalp top — the result should look noticeably better than the input, not perfect.",
+  NW7:  "This user is Norwood 7: near-total top loss. Reduce visible scalp uniformly across the entire top. Keep it realistic — the improvement should be substantial but believable for this degree of loss.",
+  diffuse: "This user has diffuse thinning: uniform loss across the entire scalp top without a distinct recession. Add uniform density increase across the whole top without shifting or changing the hairline position.",
+  'n/a (female)': "This user has female-pattern thinning: diffuse loss at the central part and crown. Focus improvement on the central parting and scalp top. Do not change the hairline position — female-pattern loss typically spares the frontal hairline.",
+};
+
+// Returns AFTER_PROMPT with an optional stage-specific zone hint appended.
+// Falls back to the base prompt when stage is absent or unrecognised.
+const buildAfterPrompt = (stage) => {
+  const hint = stage ? AFTER_STAGE_HINTS[stage] : null;
+  return hint ? `${AFTER_PROMPT}\n\nStage-specific focus: ${hint}` : AFTER_PROMPT;
+};
+
 // Per-month progression prompts. 3-month results in real life are subtle —
 // the model must NOT overshoot to "perfect" or it stops being credible.
 const PROGRESSION_PROMPTS = {
@@ -777,7 +799,7 @@ const server = createServer(async (req, res) => {
   if (req.method === 'POST' && req.url === '/api/generate-after') {
     try {
       METRICS.after.requests++;
-      const { photoDataUrl, prompt, quality: qParam } = await readJsonBody(req);
+      const { photoDataUrl, prompt, quality: qParam, stage: stageParam } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required (data:image/...;base64,...)');
 
       // Quality knob — gpt-image-2 supports: auto | high | medium | low.
@@ -785,7 +807,9 @@ const server = createServer(async (req, res) => {
       // Pass `"quality":"high"` from the client to force premium.
       const quality = ['auto','high','medium','low'].includes(qParam) ? qParam : 'low';
 
-      const effectivePrompt = prompt || AFTER_PROMPT;
+      // Accept an optional Norwood stage from a recent scan result.
+      // Used to append a zone-focus hint so the model restores the right areas.
+      const effectivePrompt = prompt || buildAfterPrompt(stageParam);
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
       if (buffer.length < 3000) {
         const err = new Error('Photo appears corrupted or too small. Please retake a clearer photo.');

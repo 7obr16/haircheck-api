@@ -16,10 +16,16 @@ assert(
   'after-photo prompt should preserve the original hairstyle and only fill visible thinning/bald areas'
 );
 assert(
-  source.includes('const effectivePrompt = prompt || AFTER_PROMPT;') &&
+  source.includes('const effectivePrompt = prompt ||') &&
     source.includes("cacheHashOf('after', mime, buffer.length, createHash('sha256').update(buffer).digest('hex'), effectivePrompt, quality)") &&
     source.includes("fd.append('prompt', effectivePrompt)"),
   'generate-after cache key should include the effective default prompt so prompt changes invalidate old cached images'
+);
+assert(
+  source.includes('buildAfterPrompt') &&
+    source.includes('AFTER_STAGE_HINTS') &&
+    source.includes('NW2') && source.includes('NW6') && source.includes("n/a (female)"),
+  'generate-after should accept a stage parameter and append stage-specific zone hints'
 );
 assert(
   source.includes('Use a balanced visual baseline') &&
