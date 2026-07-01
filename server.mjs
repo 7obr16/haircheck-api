@@ -1501,26 +1501,36 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             ? 'At NW7, the primary path is FUE/FUT transplant or SMP — book a trichologist consult this week to understand candidacy, donor supply, and realistic coverage outcomes.'
             : _isNW56
               ? 'Minoxidil can still slow further recession at your stage — keep applying it to the fringe and temples daily, and track whether a transplant consultation makes sense in the next 3-6 months.'
-              : _hasMinoxidil
-                ? 'Your minoxidil is active — maximize coverage across both recession zones twice daily and add a 3-minute scalp massage post-application to boost absorption.'
-                : 'Apply minoxidil directly to your recession zones every morning and night — temple consistency is the highest-leverage habit right now.',
+              : (_hasMinoxidil && _hasMassage)
+                ? 'Minoxidil and scalp massage are both active — maximize impact by parting your hair to expose receding temple zones before applying, ensuring full 1ml coverage per side, morning and night.'
+                : _hasMinoxidil
+                  ? 'Your minoxidil is active — maximize coverage across both recession zones twice daily and add a 3-minute scalp massage post-application to boost absorption.'
+                  : 'Apply minoxidil directly to your recession zones every morning and night — temple consistency is the highest-leverage habit right now.',
           Density: _isAdvancedStage
-            ? (_hasDHTShampoo
-                ? "Your DHT-blocking shampoo helps slow miniaturization — keep it up and add weekly microneedling to prime remaining follicles for maximum response."
-                : 'Add a DHT-blocking shampoo 3× this week — at your stage it helps stabilize existing density and slow further miniaturization.')
-            : (_hasDHTShampoo
-                ? "You're using a DHT-blocking shampoo — add a 5-minute scalp massage each wash session and consider microneedling once a week to prime follicle response."
-                : 'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.'),
+            ? (_hasDHTShampoo && _hasMassage
+                ? 'DHT-blocking shampoo and scalp stimulation are both active — leave shampoo on for 3-5 minutes before rinsing and do a focused microneedling session on the thinnest zones weekly for maximum response.'
+                : _hasDHTShampoo
+                  ? "Your DHT-blocking shampoo helps slow miniaturization — keep it up and add weekly microneedling to prime remaining follicles for maximum response."
+                  : 'Add a DHT-blocking shampoo 3× this week — at your stage it helps stabilize existing density and slow further miniaturization.')
+            : (_hasDHTShampoo && _hasMassage
+                ? 'DHT-blocking shampoo and scalp stimulation are both active — time them for best effect: microneedle on the thinning zones 24-48 hours before topical application to open absorption channels.'
+                : _hasDHTShampoo
+                  ? "You're using a DHT-blocking shampoo — add a 5-minute scalp massage each wash session and consider microneedling once a week to prime follicle response."
+                  : 'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.'),
           Crown: _isNW7
             ? 'Crown coverage at NW7 is best addressed through FUE/FUT or SMP — prioritize a specialist consultation to discuss vertex coverage goals and realistic outcomes.'
             : _isNW56
               ? 'Apply minoxidil directly to the crown/vertex (1ml) twice daily and add weekly microneedling — manage expectations and photograph from above every 6 weeks to track any change.'
-              : (_hasMassage
-                  ? 'Your massage habit is on — now add crown-targeted topical (minoxidil at vertex, 1ml) and take a weekly overhead photo to track baseline density.'
-                  : 'Begin a crown-focused topical routine and take an overhead comparison photo now to track your baseline.'),
-          Health: _hasSupplements
-            ? 'Continue your supplement routine — focus this week on scalp hygiene: reduce washing to 3-4× weekly, switch to a sulfate-free shampoo, and watch for scalp tension signs.'
-            : 'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
+              : (_hasMassage && _hasMinoxidil)
+                  ? 'Massage and topical are both in your routine — optimize by applying minoxidil to the vertex directly after massaging so freshly stimulated follicles absorb more. Track with monthly overhead photos.'
+                  : _hasMassage
+                    ? 'Your massage habit is on — now add crown-targeted topical (minoxidil at vertex, 1ml) and take a weekly overhead photo to track baseline density.'
+                    : 'Begin a crown-focused topical routine and take an overhead comparison photo now to track your baseline.',
+          Health: (_hasSupplements && _hasDHTShampoo)
+            ? 'Supplements and DHT-blocking shampoo are both active — target sleep quality this week: aim for 7-8 hours. Elevated cortisol from poor sleep accelerates miniaturization beyond what topicals can offset.'
+            : _hasSupplements
+              ? 'Continue your supplement routine — focus this week on scalp hygiene: reduce washing to 3-4× weekly, switch to a sulfate-free shampoo, and watch for scalp tension signs.'
+              : 'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
           Potential: _isNW7
             ? 'Your highest-ROI step is a transplant or SMP consultation — OTC treatments alone are unlikely to create meaningful change at NW7. Research experienced surgeons or SMP artists this week.'
             : _isNW56
