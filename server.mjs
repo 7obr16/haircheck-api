@@ -509,12 +509,16 @@ const normalizeOpenAIError = (fallback, status, payload) => {
   const contentPolicy = code === 'content_policy_violation'
     || code === 'moderation_blocked'
     || /safety system|content policy|violates our|not allowed|moderation/i.test(message || '');
+  // OpenAI 429s can be billing (quota) or pure rate-limit — distinguish them for a friendlier user message.
+  const rateLimited = status === 429 && !billing;
   return {
     error: billing
       ? 'OpenAI generation is temporarily paused because billing or quota is unavailable.'
-      : contentPolicy
-        ? 'This photo could not be processed. Please try a clearer, well-lit photo showing only your hair and scalp.'
-        : message,
+      : rateLimited
+        ? 'The service is momentarily busy — please wait a few seconds and try again.'
+        : contentPolicy
+          ? 'This photo could not be processed. Please try a clearer, well-lit photo showing only your hair and scalp.'
+          : message,
     code,
     retryable: billing || status === 429 || status >= 500,
     contentPolicy,
@@ -1289,7 +1293,7 @@ const server = createServer(async (req, res) => {
         `Sleep: ${profile.lifestyle?.sleep ?? '?'}h`,
         `Current routine: ${(profile.routine || []).join(', ') || 'none'}`,
         `Goals: ${(profile.goals || []).join(', ') || 'unspecified'}`,
-        scoringInstruction ? `Scoring instruction: ${String(scoringInstruction).slice(0, 280)}` : '',
+        scoringInstruction ? `Scoring instruction: ${String(scoringInstruction).replace(/[\r\n\t]+/g, ' ').slice(0, 280)}` : '',
       ].join('\n');
 
       const sys = `You are an aesthetic hair-analysis AI for a consumer hair-loss app. Analyze the scalp photo and user profile context, then output structured JSON with these fields:
@@ -1312,7 +1316,13 @@ const server = createServer(async (req, res) => {
 PHOTO QUALITY ASSESSMENT:
 good — scalp clearly visible, well-lit, shot from above or ~45° angle, can see hairline + crown.
 acceptable — lighting or angle is suboptimal but loss pattern is still assessable.
-poor — too dark, heavily blurred, shot straight-on (forehead/face only, no scalp visible), or the image doesn't contain a person's hair/scalp at all. If poor, use a conservative uncertainty range (62-76) and note it in the verdict.
+poor — too dark, heavily blurred, shot straight-on (forehead/face only, no scalp visible), or the image doesn't contain a person's hair/scalp at all.
+
+For poor-quality photos: acknowledge uncertainty in the verdict and photoNote. Score based on what IS actually visible — do NOT default everyone with a poor photo to the same range. Examples:
+- If hair looks clearly full/healthy in the photo despite bad lighting → hairline/density/crown/health in 75-90 range with appropriate uncertainty noted.
+- If meaningful thinning is clearly visible even in bad conditions → score it lower based on what you can see.
+- If the scalp is completely invisible (wrong subject, total darkness, forehead-only) → score all fields 62-70 and mark photoNote with the specific issue.
+The 62-76 midpoint is only for genuine uncertainty when the scalp state truly cannot be assessed.
 
 Norwood staging visual guide — pick the stage whose description best matches what is visible in the photo:
 NW1: Hairline at or above the upper forehead crease; no perceptible recession; temples full.
