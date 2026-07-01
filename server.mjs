@@ -282,6 +282,30 @@ const buildAfterPrompt = (stage) => {
   return hint ? `${AFTER_PROMPT}\n\nStage-specific focus: ${hint}` : AFTER_PROMPT;
 };
 
+// Stage-specific zone hints for progression photos — mirrors AFTER_STAGE_HINTS
+// but phrased to keep the focus on the correct zones at each Norwood level.
+// The progression prompt already specifies the degree of improvement per month;
+// these hints tell the model WHERE to apply that improvement.
+const PROGRESSION_STAGE_HINTS = {
+  NW2:  "This user is Norwood 2 (slight temple recession). Direct all visible improvement to the temple corners only — gradually fill the M-shape recession toward a natural adult hairline. Crown and mid-scalp are intact; leave them unchanged.",
+  NW3:  "This user is Norwood 3 (deep bilateral temple recession). Show improvement primarily in the temple recession zones. Crown and mid-scalp should remain mostly unchanged unless thinning is clearly visible there.",
+  NW3v: "This user is Norwood 3v (deep temple recession + early crown thinning). Show improvement in both zones equally — temple recession filling and modest crown density increase — proportional to the treatment month.",
+  NW4:  "This user is Norwood 4 (significant frontal hairline retreat + pronounced crown thinning). Show improvement across both the frontal zone (toward a credible age-appropriate hairline, not a teenager's) and the crown/vertex.",
+  NW5:  "This user is Norwood 5 (frontal and crown zones nearly merging). Show improvement across the entire scalp top — reduce visible scalp throughout. The sparse band between frontal and crown should look slightly wider and denser.",
+  NW6:  "This user is Norwood 6 (frontal and crown merged). Show meaningful density restoration across the full scalp top proportional to the treatment month. The result should be noticeably improved, not perfect.",
+  NW7:  "This user is Norwood 7 (near-total top loss). Show uniform density improvement across the entire top proportional to the treatment month. Keep it realistic — the improvement should be believable for this degree of loss.",
+  diffuse: "This user has diffuse thinning (uniform loss across the entire scalp top). Show uniform density increase across the whole top without shifting or changing the hairline position.",
+  'n/a (female)': "This user has female-pattern thinning (diffuse loss at the central part and crown). Focus improvement on the central parting and scalp top. Do not change the hairline position.",
+};
+
+// Build a progression prompt with an optional stage-specific zone hint.
+// Falls back to the base prompt when stage is absent or unrecognised.
+const buildProgressionPrompt = (month, stage) => {
+  const basePrompt = PROGRESSION_PROMPTS[month];
+  const hint = stage ? PROGRESSION_STAGE_HINTS[stage] : null;
+  return hint ? `${basePrompt}\n\nStage-specific focus: ${hint}` : basePrompt;
+};
+
 // Per-month progression prompts. 3-month results in real life are subtle —
 // the model must NOT overshoot to "perfect" or it stops being credible.
 const PROGRESSION_PROMPTS = {
@@ -904,7 +928,7 @@ const server = createServer(async (req, res) => {
   if (req.method === 'POST' && req.url === '/api/generate-progression') {
     try {
       METRICS.progression.requests++;
-      const { photoDataUrl, month, quality: qParam } = await readJsonBody(req);
+      const { photoDataUrl, month, quality: qParam, stage: stageParam } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const m = Number(month);
       if (!PROGRESSION_PROMPTS[m]) throw new Error('month must be 3, 6, or 12');
@@ -916,7 +940,9 @@ const server = createServer(async (req, res) => {
         err.statusCode = 422;
         throw err;
       }
-      const hash = cacheHashOf('progression', mime, createHash('sha256').update(buffer).digest('hex'), String(m), quality);
+      // Include stage in cache key because buildProgressionPrompt interpolates it.
+      // stageParam || '' ensures the key is stable when stage is omitted.
+      const hash = cacheHashOf('progression', mime, createHash('sha256').update(buffer).digest('hex'), String(m), quality, stageParam || '');
 
       // 1. Cache hit — return instantly
       const progCached = cacheRead(PROGRESSION_CACHE, hash);
@@ -943,14 +969,15 @@ const server = createServer(async (req, res) => {
       }
 
       const startedAt = Date.now();
-      console.log('[progression] start', { month: m, mime, inputKb: Math.round(buffer.length / 1024), quality });
+      const progressionPrompt = buildProgressionPrompt(m, stageParam);
+      console.log('[progression] start', { month: m, stage: stageParam || null, mime, inputKb: Math.round(buffer.length / 1024), quality });
 
       const progPromise = (async () => {
         const { ok, status, payload } = await withOpenAIRetry('generate-progression', (signal) => {
           const fd = new FormData();
           fd.append('model', 'gpt-image-2');
           fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
-          fd.append('prompt', PROGRESSION_PROMPTS[m]);
+          fd.append('prompt', progressionPrompt);
           fd.append('n', '1');
           fd.append('size', 'auto');
           fd.append('quality', quality);
@@ -1435,6 +1462,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           Health: _hasSupplements
             ? 'Continue your supplement routine — focus this week on scalp hygiene: reduce washing to 3-4× weekly, switch to a sulfate-free shampoo, and watch for scalp tension signs.'
             : 'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
+          Potential: _hasMinoxidil && _hasMassage
+            ? 'You have the key habits in place — stack them: apply minoxidil immediately after a 4-minute scalp massage so active ingredients penetrate freshly stimulated follicles.'
+            : _hasMinoxidil
+              ? 'Add a 4-minute scalp massage right before your morning minoxidil — stimulating blood flow first significantly improves topical absorption and follicle response.'
+              : 'To maximize your treatment window, start minoxidil on thinning zones and pair it with daily 4-minute scalp massage — this combination has the strongest OTC evidence for regrowth.',
         };
         data.weeklyFocus = WEEKLY_FOCUS_MAP[data.weakestMetric?.label]
           || 'Stay consistent with your current routine — daily adherence is the single biggest driver of long-term results.';
