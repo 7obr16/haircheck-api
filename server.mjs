@@ -1521,11 +1521,18 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             ? 'Crown coverage at NW7 is best addressed through FUE/FUT or SMP — prioritize a specialist consultation to discuss vertex coverage goals and realistic outcomes.'
             : _isNW56
               ? 'Apply minoxidil directly to the crown/vertex (1ml) twice daily and add weekly microneedling — manage expectations and photograph from above every 6 weeks to track any change.'
-              : (_hasMassage && _hasMinoxidil)
-                  ? 'Massage and topical are both in your routine — optimize by applying minoxidil to the vertex directly after massaging so freshly stimulated follicles absorb more. Track with monthly overhead photos.'
-                  : _hasMassage
-                    ? 'Your massage habit is on — now add crown-targeted topical (minoxidil at vertex, 1ml) and take a weekly overhead photo to track baseline density.'
-                    : 'Begin a crown-focused topical routine and take an overhead comparison photo now to track your baseline.',
+              : data.stage === 'NW3v'
+                // NW3v = early crown thinning just started — this is the highest-ROI intervention window
+                ? (_hasMinoxidil && _hasMassage)
+                    ? 'NW3v means your crown thinning just started — this is the highest-ROI window. You have minoxidil and massage active: apply 1ml directly to the vertex BEFORE massaging so stimulated follicles absorb it immediately; track with overhead photos every 3 weeks.'
+                    : _hasMinoxidil
+                      ? 'NW3v crown thinning is at the earliest detectable stage — apply 1ml minoxidil directly to the vertex twice daily and add a 3-minute post-application scalp massage now. Catching it here gives the strongest response.'
+                      : 'NW3v means your crown thinning has just started — the highest-ROI move is acting now: apply minoxidil directly to the vertex daily, add scalp massage, and take an overhead photo as your baseline today.'
+                : (_hasMassage && _hasMinoxidil)
+                    ? 'Massage and topical are both in your routine — optimize by applying minoxidil to the vertex directly after massaging so freshly stimulated follicles absorb more. Track with monthly overhead photos.'
+                    : _hasMassage
+                      ? 'Your massage habit is on — now add crown-targeted topical (minoxidil at vertex, 1ml) and take a weekly overhead photo to track baseline density.'
+                      : 'Begin a crown-focused topical routine and take an overhead comparison photo now to track your baseline.',
           Health: (_hasSupplements && _hasDHTShampoo)
             ? 'Supplements and DHT-blocking shampoo are both active — target sleep quality this week: aim for 7-8 hours. Elevated cortisol from poor sleep accelerates miniaturization beyond what topicals can offset.'
             : _hasSupplements
@@ -1535,11 +1542,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             ? 'Your highest-ROI step is a transplant or SMP consultation — OTC treatments alone are unlikely to create meaningful change at NW7. Research experienced surgeons or SMP artists this week.'
             : _isNW56
               ? 'At your stage, combining minoxidil with weekly microneedling and a DHT-blocking shampoo gives the best realistic shot at slowing progression — set a 3-month checkpoint to assess response.'
-              : (_hasMinoxidil && _hasMassage
-                  ? 'You have the key habits in place — stack them: apply minoxidil immediately after a 4-minute scalp massage so active ingredients penetrate freshly stimulated follicles.'
-                  : _hasMinoxidil
-                    ? 'Add a 4-minute scalp massage right before your morning minoxidil — stimulating blood flow first significantly improves topical absorption and follicle response.'
-                    : 'To maximize your treatment window, start minoxidil on thinning zones and pair it with daily 4-minute scalp massage — this combination has the strongest OTC evidence for regrowth.'),
+              : (_hasMinoxidil && _hasMassage && _hasDHTShampoo)
+                  ? 'You have the top three habits active (minoxidil, scalp massage, DHT-blocking shampoo) — optimize timing: massage first, then apply minoxidil immediately after, and leave DHT shampoo on 3-5 minutes before rinsing on wash days. Consistency beats adding products.'
+                  : (_hasMinoxidil && _hasMassage)
+                    ? 'You have the key habits in place — stack them: apply minoxidil immediately after a 4-minute scalp massage so active ingredients penetrate freshly stimulated follicles.'
+                    : _hasMinoxidil
+                      ? 'Add a 4-minute scalp massage right before your morning minoxidil — stimulating blood flow first significantly improves topical absorption and follicle response.'
+                      : 'To maximize your treatment window, start minoxidil on thinning zones and pair it with daily 4-minute scalp massage — this combination has the strongest OTC evidence for regrowth.',
         };
         data.weeklyFocus = WEEKLY_FOCUS_MAP[data.weakestMetric?.label]
           || 'Stay consistent with your current routine — daily adherence is the single biggest driver of long-term results.';
