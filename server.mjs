@@ -1570,11 +1570,21 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     : _hasMassage
                       ? 'Your massage habit is on — now add crown-targeted topical (minoxidil at vertex, 1ml) and take a weekly overhead photo to track baseline density.'
                       : 'Begin a crown-focused topical routine and take an overhead comparison photo now to track your baseline.',
-          Health: (_hasSupplements && _hasDHTShampoo)
-            ? 'Supplements and DHT-blocking shampoo are both active — target sleep quality this week: aim for 7-8 hours. Elevated cortisol from poor sleep accelerates miniaturization beyond what topicals can offset.'
-            : _hasSupplements
-              ? 'Continue your supplement routine — focus this week on scalp hygiene: reduce washing to 3-4× weekly, switch to a sulfate-free shampoo, and watch for scalp tension signs.'
-              : 'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
+          Health: _isNW7
+            ? 'At NW7, scalp health maintenance protects remaining hair — keep any active routine going, but the highest-ROI step this week is booking a trichologist or transplant consultation to evaluate donor supply and candidacy.'
+            : _isNW56
+              ? 'Protect remaining follicles: use a gentle sulfate-free shampoo 3× weekly, add biotin/zinc if not already in your routine, and consider a dermatologist visit to rule out any inflammatory or nutritional component slowing response.'
+              : data.stage === 'NW1'
+                ? (_hasSupplements && _hasDHTShampoo
+                    ? 'Your scalp is in strong preventive shape — target sleep quality this week (7-8 hrs). Cortisol from poor sleep accelerates miniaturization even before visible thinning begins.'
+                    : _hasSupplements
+                      ? 'Your supplement stack is active — add a DHT-blocking shampoo 3× weekly as a preventive layer. NW1 is the optimal window to build a protective routine before any thinning develops.'
+                      : 'Your hair is healthy — protect it now: switch to a gentle sulfate-free shampoo, stay well-hydrated, and start a basic supplement stack (biotin, zinc, vitamin D) to support follicle health proactively.')
+                : (_hasSupplements && _hasDHTShampoo)
+                    ? 'Supplements and DHT-blocking shampoo are both active — target sleep quality this week: aim for 7-8 hours. Elevated cortisol from poor sleep accelerates miniaturization beyond what topicals can offset.'
+                    : _hasSupplements
+                      ? 'Continue your supplement routine — focus this week on scalp hygiene: reduce washing to 3-4× weekly, switch to a sulfate-free shampoo, and watch for scalp tension signs.'
+                      : 'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
           Potential: _isNW7
             ? 'Your highest-ROI step is a transplant or SMP consultation — OTC treatments alone are unlikely to create meaningful change at NW7. Research experienced surgeons or SMP artists this week.'
             : _isNW56
