@@ -1684,6 +1684,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       }
       const metricTrendStr = metricTrendParts.length >= 2 ? metricTrendParts.join(', ') : null;
 
+      // Compute thinning pattern evolution from scan history (newest-first → reverse for chronological).
+      const patternSeq = ctx.scanHistory.map((h) => h.thinningPattern).filter(Boolean);
+      const patternTrendStr = patternSeq.length >= 2 ? [...patternSeq].reverse().join(' → ') : null;
+      const patternChanged = patternSeq.length >= 2 && patternSeq[0] !== patternSeq[patternSeq.length - 1];
+
       const todayStr = new Date().toISOString().split('T')[0];
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
@@ -1736,7 +1741,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               const stage = h.stage ? ` (${h.stage})` : '';
               const metrics = [h.hairline, h.density, h.crown, h.health, h.potential].every((v) => typeof v === 'number')
                 ? ` [H:${h.hairline} D:${h.density} C:${h.crown} Hlth:${h.health} Pot:${h.potential}]` : '';
-              return `${h.overall ?? '?'}${date}${stage}${metrics}`;
+              const pattern = h.thinningPattern ? ` pat:${h.thinningPattern}` : '';
+              return `${h.overall ?? '?'}${date}${stage}${metrics}${pattern}`;
             }).join(', ')}${stageTrendStr ? `; stage progression: ${stageTrendStr}` : ctx.scanHistory[0]?.stage ? `; latest stage: ${ctx.scanHistory[0].stage}` : ''}.`
           : '- No scan history yet.',
         ctx.age ? `- Age: ${ctx.age}.` : '',
@@ -1746,6 +1752,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.timeline ? `- Hair loss onset: ${ctx.timeline}.` : '',
         ctx.familyHistory.length ? `- Family history: ${ctx.familyHistory.join(', ')}.` : '',
         trendStr ? `- Overall score trend: ${trendStr}.` : '',
+        patternTrendStr
+          ? `- Thinning pattern evolution (first → latest): ${patternTrendStr}${patternChanged ? ' — pattern has changed; reference this progression when giving zone-specific advice (e.g. crown thinning has developed since first scan).' : ' — pattern stable across scans.'}`
+          : '',
         metricTrendStr ? `- Per-metric trends (first scan → latest, ${ctx.scanHistory.length} scans): ${metricTrendStr} — celebrate improving metrics; prioritize declining ones in your advice.` : '',
       ].filter(Boolean).join('\n');
 
