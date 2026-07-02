@@ -282,6 +282,21 @@ const buildAfterPrompt = (stage) => {
   return hint ? `${AFTER_PROMPT}\n\nStage-specific focus: ${hint}` : AFTER_PROMPT;
 };
 
+// Stage-specific zone hints for the analysis-map heatmap overlay.
+// Tells the model WHERE to place red/orange (low density) vs green (high density)
+// patches so the overlay matches the expected anatomy for each Norwood stage.
+const MAP_STAGE_HINTS = {
+  NW2:  'Show HIGH density (green/teal) at crown and mid-scalp. Place subtle LOW density (orange/yellow) patches only at the temple corners where the M-shape recession is visible.',
+  NW3:  'Show LOW density (red/orange) at both temple recession zones extending past mid-pupil. Crown and mid-scalp should be HIGH density (green). Do not add red to the crown.',
+  NW3v: 'Show LOW density (red/orange) at both temple recession zones AND a separate LOW density zone at the vertex/crown. Mid-scalp between these zones should be MEDIUM density (yellow/orange).',
+  NW4:  'Show LOW density (red/orange) at the frontal/hairline zone AND at the crown/vertex. A narrow MEDIUM density bridge (yellow) should appear between the two low-density zones. Sides are HIGH density (green).',
+  NW5:  'Show LOW density (red) at both the frontal and crown zones. Only a very narrow, sparse bridge separates them — show it as orange/yellow. Lateral fringe shows HIGH density (green).',
+  NW6:  'Show LOW density (red) across the entire scalp top — frontal and crown zones have merged. Only the lateral sides and nape should show HIGH density (green).',
+  NW7:  'Show LOW density (red) across the entire scalp top uniformly. Only a narrow horseshoe fringe at the sides and back should show HIGH density (green).',
+  diffuse: 'Show MEDIUM-to-LOW density (yellow/orange) distributed uniformly across the entire scalp top without any localized red zones. The hairline perimeter stays HIGH density (green).',
+  'n/a (female)': 'Show LOW density (red/orange) along the central parting line and crown. Hairline perimeter and sides should remain HIGH density (green).',
+};
+
 // Stage-specific zone hints for progression photos — mirrors AFTER_STAGE_HINTS
 // but phrased to keep the focus on the correct zones at each Norwood level.
 // The progression prompt already specifies the degree of improvement per month;
@@ -351,13 +366,20 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
   const density = Number.isFinite(Number(result.density)) ? Math.round(Number(result.density)) : 'unknown';
   const crown = Number.isFinite(Number(result.crown)) ? Math.round(Number(result.crown)) : 'unknown';
   const hairline = Number.isFinite(Number(result.hairline)) ? Math.round(Number(result.hairline)) : 'unknown';
+  const stage = String(result.stage || '').trim();
+  const stageHint = MAP_STAGE_HINTS[stage] || null;
+
   const focus = kind === 'crown'
     ? `Focus the overlay on crown and vertex thinning. Use crown score ${crown}/100, density score ${density}/100, and hairline score ${hairline}/100 as guidance.`
     : `Focus the overlay on visible scalp density across the top, mid-scalp, temples, and hairline. Use density score ${density}/100, crown score ${crown}/100, and hairline score ${hairline}/100 as guidance.`;
 
+  const stageSection = stageHint
+    ? `\n\nStage-specific placement guide (${stage}): ${stageHint}`
+    : '';
+
   return `Edit this input scan photo into a clear clinical hair-density heatmap of the user's actual head hair. Keep the original photograph underneath completely unchanged: same person, same face, same head position, same camera angle, same distance, same crop/framing, same lighting, same background, same hair style, same hair color, same skin tone, same clothing. Do not beautify, redraw, restore, move, rotate, zoom, or replace anything in the photo.
 
-Add only a visible translucent diagnostic heatmap overlay directly on the hair-bearing scalp region, like a premium trichology analysis screen. The heatmap must be obvious enough that the user immediately sees it is an AI-generated scalp map, not just their original photo. ${focus}
+Add only a visible translucent diagnostic heatmap overlay directly on the hair-bearing scalp region, like a premium trichology analysis screen. The heatmap must be obvious enough that the user immediately sees it is an AI-generated scalp map, not just their original photo. ${focus}${stageSection}
 
 Overlay rules:
 - Green/teal means high density.
@@ -1074,13 +1096,15 @@ const server = createServer(async (req, res) => {
         err.statusCode = 422;
         throw err;
       }
-      // Include scores in cache key because buildAnalysisMapPrompt interpolates them
+      // Include scores and stage in cache key because buildAnalysisMapPrompt interpolates them.
+      // Stage changes the zone-placement hints so a different stage must produce a fresh image.
       const scoreKey = [
         Number.isFinite(Number(scanScores.density)) ? Math.round(Number(scanScores.density)) : 'x',
         Number.isFinite(Number(scanScores.crown)) ? Math.round(Number(scanScores.crown)) : 'x',
         Number.isFinite(Number(scanScores.hairline)) ? Math.round(Number(scanScores.hairline)) : 'x',
       ].join(',');
-      const hash = cacheHashOf('map', mime, createHash('sha256').update(buffer).digest('hex'), mapKind, scoreKey);
+      const stageKey = String(scanScores.stage || '');
+      const hash = cacheHashOf('map', mime, createHash('sha256').update(buffer).digest('hex'), mapKind, scoreKey, stageKey);
 
       // 1. Cache hit — return instantly
       const mapCached = cacheRead(MAP_CACHE, hash);
@@ -1107,7 +1131,7 @@ const server = createServer(async (req, res) => {
       }
 
       const startedAt = Date.now();
-      console.log('[analysis-map] start', { kind: mapKind, mime, inputKb: Math.round(buffer.length / 1024) });
+      console.log('[analysis-map] start', { kind: mapKind, stage: stageKey || null, mime, inputKb: Math.round(buffer.length / 1024) });
 
       const mapPromptText = buildAnalysisMapPrompt(mapKind, scanScores);
       const mapPromise = (async () => {
