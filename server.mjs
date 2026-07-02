@@ -1345,6 +1345,7 @@ diffuse: Widespread diffuse thinning without a distinct recession pattern (typic
 n/a (female): Use for female-presenting patients where the classic Norwood scale does not apply — prefer Ludwig classification mentally but output "n/a (female)".
 
 Staging discriminator — use when adjacent stages are ambiguous:
+- NW1 vs NW2: Assign NW1 only when the hairline sits at or above the upper forehead crease with completely symmetric temples and no frontotemporal angle widening. Any visible M-shape deepening, angular notch at either temple, or even subtle asymmetry → NW2 minimum.
 - NW2 vs NW3: If temple recession extends PAST the mid-pupil vertical line, assign NW3. If it barely reaches or falls short of midpupil, assign NW2.
 - NW3 vs NW4: If a clear forelock mass still covers the central frontal scalp (even with deep temple recession), assign NW3 or NW3v. Once the frontal hairline itself has retreated past mid-scalp, assign NW4.
 - NW3 vs NW3v: Assign NW3v (not plain NW3) only when vertex/crown thinning is independently visible as a SEPARATE thinning zone distinct from the temple recession.
@@ -1689,6 +1690,18 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const patternTrendStr = patternSeq.length >= 2 ? [...patternSeq].reverse().join(' → ') : null;
       const patternChanged = patternSeq.length >= 2 && patternSeq[0] !== patternSeq[patternSeq.length - 1];
 
+      // Compute treatment journey duration from oldest scan in history (or current scan if history is empty).
+      // scanHistory is newest-first, so the last element is the oldest scan.
+      const firstEntry = ctx.scanHistory.length >= 1 ? ctx.scanHistory[ctx.scanHistory.length - 1] : ctx.scan;
+      const firstScanDateStr = firstEntry?.scoredAt?.split('T')[0] ?? null;
+      const daysSinceFirst = firstScanDateStr
+        ? Math.floor((Date.now() - new Date(firstScanDateStr).getTime()) / (24 * 60 * 60 * 1000))
+        : null;
+      const trackingDurationStr = daysSinceFirst === null ? null
+        : daysSinceFirst === 0 ? 'just started (first scan today)'
+        : daysSinceFirst < 7  ? `${daysSinceFirst} day${daysSinceFirst !== 1 ? 's' : ''}`
+        : `${Math.floor(daysSinceFirst / 7)} week${Math.floor(daysSinceFirst / 7) !== 1 ? 's' : ''}`;
+
       const todayStr = new Date().toISOString().split('T')[0];
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
@@ -1751,6 +1764,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.concerns.length ? `- Concerns: ${ctx.concerns.join(', ')}.` : '',
         ctx.timeline ? `- Hair loss onset: ${ctx.timeline}.` : '',
         ctx.familyHistory.length ? `- Family history: ${ctx.familyHistory.join(', ')}.` : '',
+        trackingDurationStr ? `- Treatment journey: ${trackingDurationStr} since first scan (${firstScanDateStr}) — when the user asks how long they've been tracking or when to expect results, reference this duration.` : '',
         trendStr ? `- Overall score trend: ${trendStr}.` : '',
         patternTrendStr
           ? `- Thinning pattern evolution (first → latest): ${patternTrendStr}${patternChanged ? ' — pattern has changed; reference this progression when giving zone-specific advice (e.g. crown thinning has developed since first scan).' : ' — pattern stable across scans.'}`
