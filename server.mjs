@@ -1345,6 +1345,15 @@ const server = createServer(async (req, res) => {
   diffuse=uniform thinning across entire scalp top without a localized pattern
   total=severe multi-zone loss with large bald areas (NW6-NW7)
 
+Thinning pattern discriminator — use when adjacent patterns are ambiguous:
+- minimal vs bitemporal: Assign minimal ONLY when the hairline shows no recession and both temples are fully intact. Any M-shape deepening, angular notch, or even subtle temple asymmetry → bitemporal minimum.
+- bitemporal vs bitemporal+crown: Assign bitemporal when ONLY the temple recession is visible and the crown is fully intact from above. If ANY independent thinning is visible at the vertex/crown — even subtle — assign bitemporal+crown.
+- crown vs bitemporal+crown: Assign crown ONLY when the temples are clearly intact with no M-shape recession. If any temple recession co-exists with crown thinning → bitemporal+crown.
+- frontal vs bitemporal: frontal = hairline retreating evenly across the full width without a distinct M-shape or sharp temple angles. bitemporal = clear bilateral angular recession at both temple corners. If the recession forms visible corner notches → bitemporal; if it's a uniform straight-line retreat → frontal.
+- frontal vs diffuse: frontal = hairline retreating at the front, mid-scalp and crown largely intact. diffuse = uniform thinning distributed across the entire scalp top with the hairline mostly preserved. If the top is uniformly thin AND the hairline has some frontal retreat, prefer diffuse.
+- diffuse vs total: total applies ONLY when multiple large consolidated bald areas are visible (equivalent to NW5+). diffuse means thinning throughout but no large bald patches. If large patches exist → total.
+- n/a (female): Use for female-presenting patients regardless of pattern — Ludwig classification applies mentally but output the Norwood thinningPattern enum value that best describes the visible zone (diffuse for Ludwig I-II, total for Ludwig III).
+
 PHOTO QUALITY ASSESSMENT:
 good — scalp clearly visible, well-lit, shot from above or ~45° angle, can see hairline + crown.
 acceptable — lighting or angle is suboptimal but loss pattern is still assessable.
