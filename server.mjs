@@ -1331,7 +1331,7 @@ const server = createServer(async (req, res) => {
       const sys = `You are an aesthetic hair-analysis AI for a consumer hair-loss app. Analyze the scalp photo and user profile context, then output structured JSON with these fields:
 - hairline, density, crown, health, potential: 0-100 integer scores
 - stage: Norwood stage (pick from the enum)
-- headline: 6-9 word punchy summary, confident tone
+- headline: 6-9 word punchy summary, confident tone. Calibrate energy to the stage: NW1-NW2 → protective/preventive urgency (this is the best window); NW3-NW3v → action-oriented, motivating, results-focused; NW4 → committed/realistic, acknowledge the work ahead; NW5+ → frank expectation-setting, specialist-aware; diffuse/female → cause-investigation framing. Avoid hedging words like "might", "could", or "some". Never start with "Your".
 - insights: exactly 3 items, each with a 5-word title (≤5 words), a 20-28 word actionable body that is specific to THIS user's visible loss pattern, scores, stage, or profile — name the actual stage or a score, specify a concrete action, and give a reason tied to their situation. CRITICAL routine rule: check "Current routine" in the user context above — if a treatment is already listed (e.g. minoxidil, DHT-blocking shampoo, supplements), do NOT suggest starting it. Instead, suggest how to optimize that treatment (e.g. proper application coverage, timing, frequency) or recommend a different complementary layer. Never repeat a recommendation for something the user already does. Avoid generic advice. The metric must match: Hairline→temple/frontal recession, Density→mid-scalp thinning, Crown→vertex/crown thinning, Health→scalp condition or miniaturization, Potential→treatment response or growth timeline
 - verdict: 1-2 sentence verdict, slightly aspirational, no medical claims
 - photoQuality: 'good' | 'acceptable' | 'poor'
@@ -1796,7 +1796,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         'User context (use when relevant, do not parrot back verbatim):',
         ctx.scan
           ? `- Last scan: overall ${ctx.scan.overall}/100 (current state ${ctx.scan.currentStateScore ?? ctx.scan.overall}/100 excl. potential), hairline ${ctx.scan.hairline}, density ${ctx.scan.density}, crown ${ctx.scan.crown}, health ${ctx.scan.health}, potential ${ctx.scan.potential}.`
-          : '- No scan yet.',
+          : '- No scan yet. Encourage the user to complete their first scalp scan (tap the Scan tab) to unlock personalized scores, Norwood stage, and targeted weekly focus. Until then, answer general hair health questions using the profile context below.',
         ctx.scan?.stage && NORWOOD_GUIDE[ctx.scan.stage]
           ? `- Norwood stage: ${ctx.scan.stage} (${NORWOOD_GUIDE[ctx.scan.stage]}).`
           : ctx.scan?.stage ? `- Norwood stage: ${ctx.scan.stage}.` : '',
