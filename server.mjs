@@ -1411,6 +1411,18 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (finishReason === 'length') {
           console.warn('[vision] response truncated by max_tokens — JSON may be incomplete');
         }
+        // Structured-output refusals land in message.refusal (not message.content); a
+        // content_filter finish_reason means the response was blocked entirely. Both
+        // produce null/empty content which, without this guard, JSON.parse('{}') silently
+        // turns into all-zero scores — a confusing result for the user.
+        if (scanChoice?.message?.refusal) {
+          console.warn('[vision] model refused (structured output refusal):', scanChoice.message.refusal);
+          return { ok: false, status: 422, error: { error: 'This photo could not be processed. Please try a clearer, well-lit photo showing only your hair and scalp.' } };
+        }
+        if (finishReason === 'content_filter') {
+          console.warn('[vision] response blocked by content_filter');
+          return { ok: false, status: 422, error: { error: 'This photo could not be processed due to content guidelines. Please try a different, well-lit scalp photo.' } };
+        }
 
         let parsed;
         try { parsed = JSON.parse(scanChoice?.message?.content || '{}'); }
@@ -1702,6 +1714,33 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         : daysSinceFirst < 7  ? `${daysSinceFirst} day${daysSinceFirst !== 1 ? 's' : ''}`
         : `${Math.floor(daysSinceFirst / 7)} week${Math.floor(daysSinceFirst / 7) !== 1 ? 's' : ''}`;
 
+      // Most-recent scan interval: delta from second-to-last scan to latest scan.
+      // Distinct from trendStr (oldest→newest). Lets the coach answer "is it working?"
+      // with the most recent change rather than the all-time average.
+      let recentIntervalStr = null;
+      if (ctx.scanHistory.length >= 2) {
+        const latest = ctx.scanHistory[0];
+        const prev   = ctx.scanHistory[1];
+        const recentDelta = typeof latest.overall === 'number' && typeof prev.overall === 'number'
+          ? latest.overall - prev.overall
+          : null;
+        if (recentDelta !== null) {
+          const direction  = recentDelta > 1 ? 'improving' : recentDelta < -1 ? 'declining' : 'stable';
+          const latestDate = latest.scoredAt ? latest.scoredAt.split('T')[0] : null;
+          const prevDate   = prev.scoredAt   ? prev.scoredAt.split('T')[0]   : null;
+          const dateRange  = latestDate && prevDate ? ` (${prevDate} → ${latestDate})` : '';
+          const recentMetricParts = [];
+          for (const [label, key] of [['Hairline','hairline'],['Density','density'],['Crown','crown'],['Health','health'],['Potential','potential']]) {
+            const n = typeof latest[key] === 'number' ? latest[key] : null;
+            const p = typeof prev[key]   === 'number' ? prev[key]   : null;
+            if (n !== null && p !== null && n !== p) {
+              recentMetricParts.push(`${label} ${n - p >= 0 ? '+' : ''}${n - p}`);
+            }
+          }
+          recentIntervalStr = `${recentDelta >= 0 ? '+' : ''}${recentDelta} overall${dateRange} (${direction})${recentMetricParts.length ? '; by metric: ' + recentMetricParts.join(', ') : ''}`;
+        }
+      }
+
       const todayStr = new Date().toISOString().split('T')[0];
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
@@ -1770,6 +1809,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           ? `- Thinning pattern evolution (first → latest): ${patternTrendStr}${patternChanged ? ' — pattern has changed; reference this progression when giving zone-specific advice (e.g. crown thinning has developed since first scan).' : ' — pattern stable across scans.'}`
           : '',
         metricTrendStr ? `- Per-metric trends (first scan → latest, ${ctx.scanHistory.length} scans): ${metricTrendStr} — celebrate improving metrics; prioritize declining ones in your advice.` : '',
+        recentIntervalStr ? `- Most recent scan interval (previous → latest): ${recentIntervalStr} — use this when the user asks "is it working?" or "did I improve since last time?" to give an accurate, specific answer rather than the all-time average.` : '',
       ].filter(Boolean).join('\n');
 
       // Trim history to last 10 turns for cost control
@@ -1802,6 +1842,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const coachChoice = coachPayload.choices?.[0];
       const coachFinishReason = coachChoice?.finish_reason;
       if (coachFinishReason === 'length') console.warn('[coach] reply truncated by max_tokens');
+      if (coachFinishReason === 'content_filter') {
+        console.warn('[coach] response blocked by content_filter');
+        json(req, res, 200, { reply: "I can't respond to that request. Please try rephrasing your question about hair health.", requestId: reqId });
+        return;
+      }
       const reply = coachChoice?.message?.content?.trim()
         || "I didn't quite catch that — could you rephrase your question?";
       const coachUsage = coachPayload.usage;
