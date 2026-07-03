@@ -1803,9 +1803,16 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       }
 
       const todayStr = new Date().toISOString().split('T')[0];
+      const todayMs = Date.now();
       const daysSinceLastScan = ctx.scan?.scoredAt
-        ? Math.floor((Date.now() - new Date(ctx.scan.scoredAt).getTime()) / (24 * 60 * 60 * 1000))
+        ? Math.floor((todayMs - new Date(ctx.scan.scoredAt).getTime()) / (24 * 60 * 60 * 1000))
         : null;
+      // Compute actual days remaining until nextCheckIn from TODAY, not from scan date.
+      // checkInIntervalDays is fixed at scan time (e.g. 28); after 60 days it's misleading
+      // to still say "in 28 days". This gives the coach an accurate countdown (or overdue flag).
+      const nextCheckInMs = ctx.scan?.nextCheckIn ? new Date(ctx.scan.nextCheckIn).getTime() : null;
+      const daysUntilNextScan = nextCheckInMs !== null ? Math.round((nextCheckInMs - todayMs) / (24 * 60 * 60 * 1000)) : null;
+      const scanIsOverdue = daysUntilNextScan !== null && daysUntilNextScan < 0;
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
         'Tone: friendly, direct, evidence-based. Avoid medical disclaimers unless specifically asked.',
@@ -1826,9 +1833,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.scan?.treatmentUrgency
           ? `- Treatment urgency: ${ctx.scan.treatmentUrgency} — calibrate your tone and CTA accordingly (high = motivate action now; moderate = steady progress; low = set realistic expectations).`
           : '',
-        ctx.scan?.nextCheckIn
-          ? `- Next recommended scan: ${ctx.scan.nextCheckIn} (in ${ctx.scan.checkInIntervalDays} days) — if the user asks when to check in again, use this date.`
-          : '',
+        ctx.scan?.nextCheckIn && daysUntilNextScan !== null
+          ? scanIsOverdue
+            ? `- Next recommended scan: ${ctx.scan.nextCheckIn} — OVERDUE by ${Math.abs(daysUntilNextScan)} day${Math.abs(daysUntilNextScan) !== 1 ? 's' : ''}. If the user asks when to check in again, or whether their scores are current, recommend they take a new scan now to get updated results.`
+            : `- Next recommended scan: ${ctx.scan.nextCheckIn} (in ${daysUntilNextScan} day${daysUntilNextScan !== 1 ? 's' : ''}) — if the user asks when to check in again, use this date.`
+          : ctx.scan?.nextCheckIn
+            ? `- Next recommended scan: ${ctx.scan.nextCheckIn} — if the user asks when to check in again, use this date.`
+            : '',
         ctx.scan?.nextCheckInReason ? `- Reason for check-in timing: ${ctx.scan.nextCheckInReason}.` : '',
         ctx.scan?.weeklyFocus
           ? `- This week's priority action (from scan): "${ctx.scan.weeklyFocus}" — if the user asks what to focus on or what to do next, reinforce this specific habit; do not contradict it with a different suggestion.`
