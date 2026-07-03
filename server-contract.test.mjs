@@ -34,4 +34,11 @@ assert(
   'analysis scoring prompt should stay truthful and balanced instead of pushing most users into pessimistic low ranges'
 );
 
+assert(
+  source.includes("!data.insights.some((ins) => ins.metric === _weakLabel)") &&
+    source.includes("_weakFallback") &&
+    source.includes("data.insights[2] = _weakFallback"),
+  'scan should guarantee the weakest metric is covered by at least one insight'
+);
+
 console.log('server contract passed');

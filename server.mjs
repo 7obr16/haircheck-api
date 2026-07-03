@@ -1534,6 +1534,19 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const [_strongLabel, _strongValue] = _sortedMetrics[_sortedMetrics.length - 1];
         data.weakestMetric   = { label: _weakLabel,   value: _weakValue };
         data.strongestMetric = { label: _strongLabel, value: _strongValue };
+        // Guarantee the weakest metric is covered by at least one insight.
+        // GPT-4o may return 3 insights that all miss the weakest area — replace
+        // insights[2] (lowest-priority slot) with a targeted server-side fallback.
+        if (!data.insights.some((ins) => ins.metric === _weakLabel)) {
+          const _weakFallback = {
+            Hairline: { title: 'Target recession zones',     body: `Apply minoxidil twice daily to both temple recession zones — at ${data.hairline}/100, hairline is your highest-ROI focus and the treatment response window is open.`,     metric: 'Hairline' },
+            Density:  { title: 'Build mid-scalp density',    body: `Add a DHT-blocking shampoo 3× weekly and a 5-minute scalp massage each wash — at ${data.density}/100 density, these are the most cost-effective OTC tools for coverage.`,  metric: 'Density'  },
+            Crown:    { title: 'Protect the vertex now',     body: `Apply minoxidil 1ml directly to the crown twice daily and track with monthly overhead photos — your crown at ${data.crown}/100 responds best to targeted topical coverage.`,  metric: 'Crown'    },
+            Health:   { title: 'Optimize scalp environment', body: `Switch to a gentle sulfate-free shampoo and add biotin and zinc — scalp health at ${data.health}/100 directly affects how well topicals absorb and follicles respond.`,     metric: 'Health'   },
+            Potential:{ title: 'Stack the right habits',     body: `Pairing minoxidil with scalp massage and a DHT-blocking shampoo gives the strongest 6-month OTC response — start the full stack now while the treatment window is open.`,  metric: 'Potential'},
+          }[_weakLabel];
+          if (_weakFallback) data.insights[2] = _weakFallback;
+        }
         // stageSeverityIndex: numeric 1-7 (with 0.5 steps for NW3v/diffuse/female).
         // Lets the iOS app render a severity bar or compare stages without string logic.
         data.stageSeverityIndex = STAGE_SEVERITY_INDEX[stage] ?? null;
