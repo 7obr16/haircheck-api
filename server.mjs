@@ -1565,11 +1565,18 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             ? 'At NW7, the primary path is FUE/FUT transplant or SMP — book a trichologist consult this week to understand candidacy, donor supply, and realistic coverage outcomes.'
             : _isNW56
               ? 'Minoxidil can still slow further recession at your stage — keep applying it to the fringe and temples daily, and track whether a transplant consultation makes sense in the next 3-6 months.'
-              : (_hasMinoxidil && _hasMassage)
-                ? 'Minoxidil and scalp massage are both active — maximize impact by parting your hair to expose receding temple zones before applying, ensuring full 1ml coverage per side, morning and night.'
-                : _hasMinoxidil
-                  ? 'Your minoxidil is active — maximize coverage across both recession zones twice daily and add a 3-minute scalp massage post-application to boost absorption.'
-                  : 'Apply minoxidil directly to your recession zones every morning and night — temple consistency is the highest-leverage habit right now.',
+              : data.stage === 'NW4'
+                // NW4 hairline loss extends across the entire frontal zone (not just temple corners) — advice must reflect the full frontal hairline, not just "recession zones"
+                ? (_hasMinoxidil && _hasMassage)
+                    ? 'At NW4, your full frontal hairline needs coverage — apply minoxidil along the entire hairline edge and both temples twice daily, right after your scalp massage. Pair with monthly front-facing photos to track response over the next 4 months.'
+                    : _hasMinoxidil
+                      ? 'At NW4, extend minoxidil to the entire frontal hairline (not just the temples) twice daily. Add a 3-minute scalp massage before each application to drive absorption along the hairline edge where follicles face the most DHT pressure.'
+                      : 'NW4 frontal recession responds best to minoxidil applied along the full hairline edge and both temples twice daily. Start this week — 3-4 months of consistent coverage is the minimum before evaluating response. Track with monthly front-facing photos.'
+                : (_hasMinoxidil && _hasMassage)
+                  ? 'Minoxidil and scalp massage are both active — maximize impact by parting your hair to expose receding temple zones before applying, ensuring full 1ml coverage per side, morning and night.'
+                  : _hasMinoxidil
+                    ? 'Your minoxidil is active — maximize coverage across both recession zones twice daily and add a 3-minute scalp massage post-application to boost absorption.'
+                    : 'Apply minoxidil directly to your recession zones every morning and night — temple consistency is the highest-leverage habit right now.',
           Density: _isAdvancedStage
             ? (_hasDHTShampoo && _hasMassage
                 ? 'DHT-blocking shampoo and scalp stimulation are both active — leave shampoo on for 3-5 minutes before rinsing and do a focused microneedling session on the thinnest zones weekly for maximum response.'
@@ -1585,7 +1592,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             ? 'Crown coverage at NW7 is best addressed through FUE/FUT or SMP — prioritize a specialist consultation to discuss vertex coverage goals and realistic outcomes.'
             : _isNW56
               ? 'Apply minoxidil directly to the crown/vertex (1ml) twice daily and add weekly microneedling — manage expectations and photograph from above every 6 weeks to track any change.'
-              : data.stage === 'NW3v'
+              : data.stage === 'NW4'
+                // NW4 crown thinning is significant and well-established; needs direct targeted topical + realistic timeline
+                ? (_hasMinoxidil && _hasMassage)
+                    ? 'NW4 crown thinning responds best when minoxidil reaches the vertex directly — apply 1ml to the crown right after your scalp massage so freshly stimulated follicles absorb it immediately. Take an overhead photo today as your baseline; meaningful density changes take 3-4 months to show.'
+                    : _hasMinoxidil
+                      ? 'At NW4, crown coverage requires targeted application — apply 1ml minoxidil directly to the vertex twice daily and add a 4-minute scalp massage before each application to prime absorption. Track with monthly overhead photos.'
+                      : 'NW4 crown thinning responds best to minoxidil applied directly to the vertex twice daily, paired with a 4-minute scalp massage. Together these are the highest-ROI OTC combination at this stage — start this week and take an overhead photo today as your baseline.'
+                : data.stage === 'NW3v'
                 // NW3v = early crown thinning just started — this is the highest-ROI intervention window
                 ? (_hasMinoxidil && _hasMassage)
                     ? 'NW3v means your crown thinning just started — this is the highest-ROI window. You have minoxidil and massage active: apply 1ml directly to the vertex BEFORE massaging so stimulated follicles absorb it immediately; track with overhead photos every 3 weeks.'
