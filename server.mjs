@@ -63,6 +63,19 @@ const THINNING_PATTERN_GUIDE = {
   total:              'Severe multi-zone loss — advanced stage; transplant or SMP are realistic options',
 };
 
+// ─── Thinning zones per pattern ──────────────────────────────────
+// Derived from thinningPattern; gives the iOS app a structured zone list
+// for rendering targeted highlights without string parsing on the client.
+const THINNING_ZONES_MAP = {
+  minimal:            [],
+  bitemporal:         ['temples'],
+  crown:              ['crown'],
+  'bitemporal+crown': ['temples', 'crown'],
+  frontal:            ['frontal'],
+  diffuse:            ['temples', 'frontal', 'mid-scalp', 'crown'],
+  total:              ['temples', 'frontal', 'mid-scalp', 'crown', 'vertex'],
+};
+
 // ─── In-memory cache for AFTER-photo generation ──────────────────
 // gpt-image-2 takes 2-3 minutes per call. Many client retries are the
 // same photo (e.g. Safari's 60s fetch timeout cancels client-side but
@@ -1496,6 +1509,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           photoNote:           String(parsed.photoNote || '').slice(0, 200),
           thinningPattern,
           thinningPatternLabel: THINNING_PATTERN_GUIDE[thinningPattern] || null,
+          thinningZones: THINNING_ZONES_MAP[thinningPattern] || [],
           confidenceScore,
           scoredAt:            new Date().toISOString(),
         };
@@ -1785,6 +1799,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       }
 
       const todayStr = new Date().toISOString().split('T')[0];
+      const daysSinceLastScan = ctx.scan?.scoredAt
+        ? Math.floor((Date.now() - new Date(ctx.scan.scoredAt).getTime()) / (24 * 60 * 60 * 1000))
+        : null;
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
         'Tone: friendly, direct, evidence-based. Avoid medical disclaimers unless specifically asked.',
@@ -1812,7 +1829,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.scan?.weeklyFocus
           ? `- This week's priority action (from scan): "${ctx.scan.weeklyFocus}" — if the user asks what to focus on or what to do next, reinforce this specific habit; do not contradict it with a different suggestion.`
           : '',
-        ctx.scan?.scoredAt ? `- Last scan taken: ${ctx.scan.scoredAt.split('T')[0]} — use this when the user asks how long ago they scanned or how far away their next check-in is.` : '',
+        ctx.scan?.scoredAt ? `- Last scan taken: ${ctx.scan.scoredAt.split('T')[0]}${daysSinceLastScan !== null ? ` (${daysSinceLastScan} day${daysSinceLastScan !== 1 ? 's' : ''} ago)` : ''} — use this when the user asks how long ago they scanned or how far away their next check-in is.` : '',
         ctx.scan?.photoQuality && ctx.scan.photoQuality !== 'good'
           ? `- Photo quality: ${ctx.scan.photoQuality}${ctx.scan.photoNote ? ` (${ctx.scan.photoNote})` : ''} — scores may have lower confidence.`
           : '',
