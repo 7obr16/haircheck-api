@@ -1401,6 +1401,7 @@ Staging discriminator — use when adjacent stages are ambiguous:
 - NW3 vs NW3v: Assign NW3v (not plain NW3) only when vertex/crown thinning is independently visible as a SEPARATE thinning zone distinct from the temple recession.
 - NW4 vs NW5: If the bridge of hair connecting the forelock to the sides is a visible full-width band, assign NW4. If that bridge is sparse, narrow, or nearly gone, assign NW5.
 - NW5 vs NW6: If even a sparse band of tissue still separates the frontal and crown bald zones, assign NW5. If the two zones have fully merged with no separation at all, assign NW6.
+- NW6 vs NW7: Assign NW7 only when the entire scalp top is essentially bare and only a narrow horseshoe-shaped fringe along the sides and nape remains — and even that fringe is thinning or sparse. If a meaningful lateral fringe still offers substantial coverage on both sides connecting to the back, assign NW6. NW7 means even the horseshoe fringe is compromised; the defining feature is that virtually no usable donor-zone width remains on top.
 
 Scoring guide (all scores 0-100 integers):
 - hairline: 100 = fully intact hairline, no recession. Deduct for temple recession depth/width, frontal loss. NW1→90-100, NW2→75-88, NW3→55-72, NW4→35-55, NW5+→15-40.
@@ -1602,11 +1603,21 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 : _hasDHTShampoo
                   ? "Your DHT-blocking shampoo helps slow miniaturization — keep it up and add weekly microneedling to prime remaining follicles for maximum response."
                   : 'Add a DHT-blocking shampoo 3× this week — at your stage it helps stabilize existing density and slow further miniaturization.')
-            : (_hasDHTShampoo && _hasMassage
-                ? 'DHT-blocking shampoo and scalp stimulation are both active — time them for best effect: microneedle on the thinning zones 24-48 hours before topical application to open absorption channels.'
-                : _hasDHTShampoo
-                  ? "You're using a DHT-blocking shampoo — add a 5-minute scalp massage each wash session and consider microneedling once a week to prime follicle response."
-                  : 'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.'),
+            : data.stage === 'NW2'
+              ? (_hasDHTShampoo
+                  ? 'Your DHT-blocking shampoo is already protecting your density — at NW2 your coverage is still strong. Keep using it 3× weekly and add a 5-minute scalp massage on wash days to maintain circulation and catch any early diffuse change.'
+                  : 'At NW2 your density is still strong — protect it now by adding a DHT-blocking shampoo 3× weekly. This is the highest-ROI prevention step at your stage: slowing miniaturization before it becomes visible is far easier than reversing it later.')
+              : (data.stage === 'NW3' || data.stage === 'NW3v')
+                ? (_hasDHTShampoo && _hasMassage
+                    ? 'DHT shampoo and scalp stimulation are both active — optimize for density by microneedling the thinning mid-scalp zone 24-48 hours before your topical application, so freshly primed follicles absorb more at the area that matters most.'
+                    : _hasDHTShampoo
+                      ? "Your DHT-blocking shampoo is active at a key stage — add weekly microneedling over the mid-scalp thinning zone and a 5-minute post-wash scalp massage to drive follicle response while coverage is still stabilizable."
+                      : 'Mid-scalp density at NW3 responds well to DHT-blocking shampoo 3× weekly plus scalp massage — start both this week while follicles are still viable and the density response window is open.')
+                : (_hasDHTShampoo && _hasMassage
+                    ? 'DHT-blocking shampoo and scalp stimulation are both active — time them for best effect: microneedle on the thinning zones 24-48 hours before topical application to open absorption channels.'
+                    : _hasDHTShampoo
+                      ? "You're using a DHT-blocking shampoo — add a 5-minute scalp massage each wash session and consider microneedling once a week to prime follicle response."
+                      : 'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.'),
           Crown: _isNW7
             ? 'Crown coverage at NW7 is best addressed through FUE/FUT or SMP — prioritize a specialist consultation to discuss vertex coverage goals and realistic outcomes.'
             : _isNW56
