@@ -267,9 +267,11 @@ const mimeTypes = {
 // Edit this string to tune the result.
 const AFTER_PROMPT = `Edit this photo. Keep every visual detail identical: same face, same expression, same camera angle, same distance to camera, same head position and tilt, same aspect ratio, same crop/framing, same lighting, same skin tone, same eyes, same ears, same clothing, same background. Do not change framing, pose, or any feature.
 
-Change only one thing: locally improve the visible hair-loss areas while preserving the person's current hairstyle. Only add plausible density inside the already visible thinning, receded, sparse, or bald spots. Fill those weak areas with short, natural hair that matches the existing surrounding hair color, curl/wave pattern, direction, texture, shine, thickness, and ethnicity.
+Change only one thing: locally improve the visible hair-loss areas while preserving the person's current hairstyle. Only add plausible density inside the already visible thinning, receded, sparse, or bald spots. Fill those weak areas with short, natural hair that exactly matches the existing surrounding hair.
 
-Do NOT create a new hairstyle. Do NOT change the existing hair length, parting, volume, silhouette, styling direction, forehead size, temples beyond the recession area, beard, eyebrows, skin, head shape, or background. Do NOT make the hair look freshly styled, longer, darker, wet, or like a different person. Keep the original hairline character and make it only moderately denser and more even.
+CRITICAL texture rule: preserve the hair's exact ethnic texture — do NOT straighten curly, coily, or wavy hair; do NOT lighten or darken the hair color; do NOT apply a smooth or silky European texture to Afro-textured, South Asian, East Asian, or any other non-European hair type. The added hair must be indistinguishable in coarseness, curl pattern, wave, thickness, direction, shine, and color from the hair immediately surrounding the thinning zone.
+
+Do NOT create a new hairstyle. Do NOT change the existing hair length, parting, volume, silhouette, styling direction, forehead size, temples beyond the recession area, beard, eyebrows, skin, head shape, or background. Do NOT make the hair look freshly styled, longer, lighter, darker, wet, straighter, or like a different person. Keep the original hairline character and make it only moderately denser and more even.
 
 The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`;
 
@@ -345,7 +347,7 @@ Make ONLY a small, realistic improvement that matches what a user would expect a
 - Vellus (peach-fuzz) hair starting to appear in receded zones, but NOT yet fully pigmented
 - Hairline shape unchanged — recession edges still visible, just slightly softer
 
-DO NOT regrow lost zones to completion. DO NOT change hair color or style. The user should think "subtle but real" — not "miracle." Most people wouldn't notice unless comparing photos side-by-side.
+DO NOT regrow lost zones to completion. DO NOT change hair color or style. CRITICAL: preserve the exact hair texture and ethnicity — do NOT straighten curly or coily hair, do NOT lighten dark hair, do NOT apply a European texture to any other hair type. The user should think "subtle but real" — not "miracle." Most people wouldn't notice unless comparing photos side-by-side.
 
 The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`,
 
@@ -357,7 +359,7 @@ Make a clearly visible but still realistic improvement that matches what a commi
 - Crown/vertex thinning area shows real coverage (not bald patch — nor full restoration)
 - Hair color, length, style, and texture exactly match the original
 
-DO NOT make it look like a completely full head of hair. There should still be some evidence of the original hair loss pattern, just clearly improved. The viewer should think "real progress" — not "different person."
+DO NOT make it look like a completely full head of hair. There should still be some evidence of the original hair loss pattern, just clearly improved. CRITICAL: preserve the exact hair texture and ethnicity — do NOT straighten curly or coily hair, do NOT lighten dark hair, do NOT apply a European texture to any other hair type. The viewer should think "real progress" — not "different person."
 
 The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`,
 
@@ -370,7 +372,7 @@ Make a substantial, realistic improvement matching what a fully-compliant user m
 - New hair matches the user's existing color, texture, and ethnicity exactly
 - A trace of the original recession may still be visible if it was severe — most real cases never reach 100% baseline
 
-DO NOT change hair color, style, length, or any other feature. The viewer should think "best realistic outcome" — clearly the same person with clearly more hair.
+DO NOT change hair color, style, length, or any other feature. CRITICAL: preserve the exact hair texture and ethnicity — do NOT straighten curly or coily hair, do NOT lighten or darken the hair color, do NOT apply a European or generic smooth texture to any non-European hair type. The viewer should think "best realistic outcome" — clearly the same person with clearly more hair.
 
 The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`,
 };
