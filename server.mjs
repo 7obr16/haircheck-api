@@ -1572,6 +1572,25 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     : _hasMinoxidil
                       ? 'At NW4, extend minoxidil to the entire frontal hairline (not just the temples) twice daily. Add a 3-minute scalp massage before each application to drive absorption along the hairline edge where follicles face the most DHT pressure.'
                       : 'NW4 frontal recession responds best to minoxidil applied along the full hairline edge and both temples twice daily. Start this week — 3-4 months of consistent coverage is the minimum before evaluating response. Track with monthly front-facing photos.'
+                : data.stage === 'NW3v'
+                // NW3v: dual-zone stage — temple recession AND early crown thinning — advice must address both zones simultaneously
+                ? (_hasMinoxidil && _hasMassage)
+                    ? 'NW3v means temple recession AND early crown thinning are both active — two zones need simultaneous coverage. Apply 1ml minoxidil to both temple recession zones AND directly to the vertex twice daily. You have massage active; do it before each application so both zones absorb better.'
+                    : _hasMinoxidil
+                      ? 'At NW3v, two zones are thinning: temples and early crown. Apply minoxidil to both — 1ml per temple zone PLUS 1ml directly to the vertex twice daily. Add a 3-minute scalp massage before each application to open follicles in both areas to absorption.'
+                      : 'NW3v is a dual-front stage: temples and crown are both starting to lose ground simultaneously. Start minoxidil on BOTH the temple recession zones AND the vertex now — dual coverage prevents both fronts from advancing independently, and acting at NW3v gives the strongest response window.'
+                : data.stage === 'NW3'
+                // NW3: deep bilateral temple recession past mid-pupil — established AGA; this is the strongest treatment response window
+                ? (_hasMinoxidil && _hasMassage)
+                    ? 'NW3 deep temple recession is established AGA — your minoxidil and massage are both active. Optimize by parting hair to expose both recession zones before applying and confirming full 1ml coverage per side morning and night. Precision in the recession zone matters more than adding products.'
+                    : _hasMinoxidil
+                      ? 'NW3 temple recession extends past mid-pupil — this is an active phase but still a strong response window. Apply 1ml to each temple recession zone twice daily and add a 4-minute scalp massage after each application to maximize absorption where DHT pressure is highest.'
+                      : 'NW3 deep temple recession responds well to action now — follicles at the recession edge are still viable and highly responsive. Start minoxidil on both temple zones twice daily, add a 4-minute scalp massage per application, and track with monthly front-facing photos from the same angle.'
+                : data.stage === 'NW2'
+                // NW2: earliest detectable stage — preventive window; best long-term outcome comes from acting here
+                ? (_hasMinoxidil)
+                    ? 'NW2 is the ideal preventive stage and your minoxidil is already on the temple corners — good call. Keep it consistent twice daily and add a DHT-blocking shampoo 3× weekly as a complementary prevention layer to slow the M-shape from deepening further.'
+                    : 'NW2 temple recession is the earliest warning sign — and the best treatment window. Start minoxidil directly on both temple corners twice daily this week. At NW2, follicles are fully viable and early intervention produces the strongest long-term results. Take a monthly front-facing photo to catch any further change early.'
                 : (_hasMinoxidil && _hasMassage)
                   ? 'Minoxidil and scalp massage are both active — maximize impact by parting your hair to expose receding temple zones before applying, ensuring full 1ml coverage per side, morning and night.'
                   : _hasMinoxidil
