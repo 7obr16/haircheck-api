@@ -1660,6 +1660,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 ? (_hasMinoxidil)
                     ? 'NW2 is the ideal preventive stage and your minoxidil is already on the temple corners — good call. Keep it consistent twice daily and add a DHT-blocking shampoo 3× weekly as a complementary prevention layer to slow the M-shape from deepening further.'
                     : 'NW2 temple recession is the earliest warning sign — and the best treatment window. Start minoxidil directly on both temple corners twice daily this week. At NW2, follicles are fully viable and early intervention produces the strongest long-term results. Take a monthly front-facing photo to catch any further change early.'
+                : data.stage === 'NW1'
+                // NW1: no recession exists — advice must be preventive, not treatment-focused
+                ? (_hasDHTShampoo
+                    ? 'Your hairline is fully intact at NW1 — keep it that way. Stay consistent with your DHT-blocking shampoo 3× weekly and take monthly front-facing photos; catching any early M-shape at NW1 gives the best possible intervention window if change ever begins.'
+                    : 'Your hairline is fully intact at NW1 — protect it before any recession starts. Add a DHT-blocking shampoo 3× weekly now. Prevention at this stage costs far less effort than treating established recession later.')
                 : (_hasMinoxidil && _hasMassage)
                   ? 'Minoxidil and scalp massage are both active — maximize impact by parting your hair to expose receding temple zones before applying, ensuring full 1ml coverage per side, morning and night.'
                   : _hasMinoxidil
@@ -1726,6 +1731,16 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     : _hasMinoxidil
                       ? 'NW3v crown thinning is at the earliest detectable stage — apply 1ml minoxidil directly to the vertex twice daily and add a 3-minute post-application scalp massage now. Catching it here gives the strongest response.'
                       : 'NW3v means your crown thinning has just started — the highest-ROI move is acting now: apply minoxidil directly to the vertex daily, add scalp massage, and take an overhead photo as your baseline today.'
+                : data.stage === 'NW1'
+                // NW1: crown is fully healthy — no targeted treatment needed; preventive messaging only
+                ? (_hasDHTShampoo
+                    ? 'Your crown is fully healthy at NW1. No targeted crown treatment needed yet — your DHT-blocking shampoo already provides preventive coverage. Take monthly overhead photos so any early vertex change is caught at the highest-ROI intervention window.'
+                    : 'Your crown is healthy at NW1. No crown treatment needed yet — add a DHT-blocking shampoo 3× weekly as a general prevention layer and take monthly overhead photos to catch any early vertex change before it requires aggressive treatment.')
+                : data.stage === 'NW2'
+                // NW2: crown is intact, temples are the active priority — redirect focus there
+                ? (_hasMinoxidil
+                    ? 'Your crown is intact at NW2 — the temple recession is the active priority right now. Keep your topical focused on both temple corners and take monthly overhead photos to catch any early vertex thinning as soon as it appears.'
+                    : 'Your crown is currently intact at NW2 — temples are the active zone. Focus treatment there first and track the crown monthly with overhead photos to catch any early vertex thinning before it needs aggressive intervention.')
                 : (_hasMassage && _hasMinoxidil)
                     ? 'Massage and topical are both in your routine — optimize by applying minoxidil to the vertex directly after massaging so freshly stimulated follicles absorb more. Track with monthly overhead photos.'
                     : _hasMassage
