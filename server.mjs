@@ -1596,6 +1596,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // stageSeverityIndex: numeric 1-7 (with 0.5 steps for NW3v/diffuse/female).
         // Lets the iOS app render a severity bar or compare stages without string logic.
         data.stageSeverityIndex = STAGE_SEVERITY_INDEX[stage] ?? null;
+        // stageSeverityLabel: human-readable categorical label for stageSeverityIndex.
+        // Four buckets: Early (1-2) → Moderate (3-3.5) → Advanced (4-5) → Severe (6-7).
+        // Use for badge text, color-coded pills, or summary lines without parsing stageLabel.
+        const _ssi = data.stageSeverityIndex;
+        data.stageSeverityLabel = _ssi === null ? null
+          : _ssi <= 2   ? 'Early'
+          : _ssi <= 3.5 ? 'Moderate'
+          : _ssi <= 5   ? 'Advanced'
+          : 'Severe';
         // retakeRecommended: true when photo quality is too poor for reliable scoring.
         // The iOS app can use this to show a "Retake for better results" CTA.
         data.retakeRecommended = photoQuality === 'poor';
@@ -1978,7 +1987,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : '',
         ctx.scan?.nextCheckIn && daysUntilNextScan !== null
           ? scanIsOverdue
-            ? `- Next recommended scan: ${ctx.scan.nextCheckIn} — OVERDUE by ${Math.abs(daysUntilNextScan)} day${Math.abs(daysUntilNextScan) !== 1 ? 's' : ''}. If the user asks when to check in again, or whether their scores are current, recommend they take a new scan now to get updated results.`
+            ? Math.abs(daysUntilNextScan) > 21
+              ? `- Next recommended scan: ${ctx.scan.nextCheckIn} — SIGNIFICANTLY OVERDUE by ${Math.abs(daysUntilNextScan)} day${Math.abs(daysUntilNextScan) !== 1 ? 's' : ''}. These scores (from ${ctx.scan.scoredAt?.split('T')[0] ?? 'an earlier date'}) may no longer reflect the user's current state — treat them as a rough historical baseline, not a current reading. Proactively suggest a new scan before interpreting detailed scores; if the user asks whether things are improving or what their current level is, acknowledge the data is stale and a fresh scan is needed for an accurate answer.`
+              : `- Next recommended scan: ${ctx.scan.nextCheckIn} — OVERDUE by ${Math.abs(daysUntilNextScan)} day${Math.abs(daysUntilNextScan) !== 1 ? 's' : ''}. If the user asks when to check in again, or whether their scores are current, recommend they take a new scan now to get updated results.`
             : `- Next recommended scan: ${ctx.scan.nextCheckIn} (in ${daysUntilNextScan} day${daysUntilNextScan !== 1 ? 's' : ''}) — if the user asks when to check in again, use this date.`
           : ctx.scan?.nextCheckIn
             ? `- Next recommended scan: ${ctx.scan.nextCheckIn} — if the user asks when to check in again, use this date.`
