@@ -1390,6 +1390,13 @@ Thinning pattern discriminator — use when adjacent patterns are ambiguous:
 - diffuse vs total: total applies ONLY when multiple large consolidated bald areas are visible (equivalent to NW5+). diffuse means thinning throughout but no large bald patches. If large patches exist → total.
 - n/a (female): Use for female-presenting patients regardless of pattern — Ludwig classification applies mentally but output the Norwood thinningPattern enum value that best describes the visible zone (diffuse for Ludwig I-II, total for Ludwig III).
 
+Stage-thinningPattern consistency — apply after assigning both stage and thinningPattern independently:
+- NW3v is defined by simultaneous temple recession AND early crown thinning — thinningPattern MUST be bitemporal+crown; if independent pattern assessment returned only bitemporal, re-examine the vertex and correct to bitemporal+crown.
+- NW4 has both frontal and pronounced crown thinning — thinningPattern should be bitemporal+crown (not bitemporal alone). If crown is somehow unaffected at NW4, double-check the stage assignment.
+- NW6 and NW7 have fully merged frontal and crown bald zones — thinningPattern MUST be total.
+- stage=diffuse → thinningPattern MUST be diffuse.
+- stage=n/a (female) → thinningPattern MUST be diffuse (Ludwig I-II) or total (Ludwig III severe).
+
 PHOTO QUALITY ASSESSMENT:
 good — scalp clearly visible, well-lit, shot from above or ~45° angle, can see hairline + crown.
 acceptable — lighting or angle is suboptimal but loss pattern is still assessable.
