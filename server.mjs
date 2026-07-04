@@ -103,12 +103,12 @@ const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
 // Per-endpoint counters exposed via /api/health for production monitoring.
 const METRICS = {
-  scan:        { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null },
-  after:       { requests: 0, errors: 0, cacheHits: 0, lastError: null },
-  progression: { requests: 0, errors: 0, cacheHits: 0, lastError: null },
-  map:         { requests: 0, errors: 0, cacheHits: 0, lastError: null },
-  adviceVisual:{ requests: 0, errors: 0, cacheHits: 0, lastError: null },
-  coach:       { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null },
+  scan:        { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
+  after:       { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
+  progression: { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
+  map:         { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
+  adviceVisual:{ requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
+  coach:       { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
 };
 
 // Rolling latency samples (ms) per endpoint — last 100 POST requests each.
@@ -142,6 +142,10 @@ function recordLatency(key, ms) {
 function bumpError(m, httpStatus, msg) {
   m.errors++;
   m.lastError = { at: new Date().toISOString(), status: httpStatus || null, msg: String(msg || '').slice(0, 150) };
+}
+
+function bumpSuccess(m) {
+  m.lastSuccess = new Date().toISOString();
 }
 
 function latencyStats(arr) {
@@ -995,6 +999,7 @@ const server = createServer(async (req, res) => {
         return;
       }
       cacheWrite(AFTER_CACHE, hash, result.afterPhoto, IMAGE_CACHE_MAX);
+      bumpSuccess(METRICS.after);
       warnIfSlow('generate-after', startedAt, 'image');
       console.log('[openai] generate-after OK', { ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(req, res, 200, { afterPhoto: result.afterPhoto, requestId: reqId });
@@ -1097,6 +1102,7 @@ const server = createServer(async (req, res) => {
         return;
       }
       cacheWrite(PROGRESSION_CACHE, hash, progResult.afterPhoto, IMAGE_CACHE_MAX);
+      bumpSuccess(METRICS.progression);
       warnIfSlow('generate-progression', startedAt, 'image');
       console.log('[progression] ok', { month: m, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(req, res, 200, { afterPhoto: progResult.afterPhoto, month: m, requestId: reqId });
@@ -1202,6 +1208,7 @@ const server = createServer(async (req, res) => {
         return;
       }
       cacheWrite(MAP_CACHE, hash, mapResult.analysisMap, IMAGE_CACHE_MAX);
+      bumpSuccess(METRICS.map);
       warnIfSlow('generate-analysis-map', startedAt, 'image');
       console.log('[analysis-map] ok', { kind: mapKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(req, res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, requestId: reqId });
@@ -1286,6 +1293,7 @@ const server = createServer(async (req, res) => {
         return;
       }
       cacheWrite(ADVICE_VISUAL_CACHE, hash, result.adviceVisual, IMAGE_CACHE_MAX);
+      bumpSuccess(METRICS.adviceVisual);
       warnIfSlow('generate-advice-visual', startedAt, 'image');
       console.log('[advice-visual] ok', { kind: visualKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
       json(req, res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, requestId: reqId });
@@ -1754,6 +1762,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         return;
       }
       cacheWrite(SCAN_CACHE, scanHash, scanOutcome.data);
+      bumpSuccess(METRICS.scan);
       warnIfSlow('analyze-scan', startedAt, 'scan');
       json(req, res, 200, { ...scanOutcome.data, requestId: reqId });
     } catch (err) {
@@ -2017,6 +2026,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         METRICS.coach.promptTokens     += coachUsage.prompt_tokens     || 0;
         METRICS.coach.completionTokens += coachUsage.completion_tokens || 0;
       }
+      bumpSuccess(METRICS.coach);
       warnIfSlow('coach', startedAt, 'coach');
       if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason });
       json(req, res, 200, { reply, requestId: reqId });
