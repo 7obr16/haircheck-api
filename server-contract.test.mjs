@@ -41,4 +41,12 @@ assert(
   'scan should guarantee the weakest metric is covered by at least one insight'
 );
 
+assert(
+  source.includes('STATIC_METRIC_FALLBACKS') &&
+    source.includes('Deduplicate insight metrics') &&
+    source.includes('_usedMetrics.size < rawInsights.length') &&
+    source.includes('CRITICAL diversity rule'),
+  'scan should deduplicate insight metrics so all 3 insights cover distinct metrics'
+);
+
 console.log('server contract passed');

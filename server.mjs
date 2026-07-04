@@ -641,6 +641,17 @@ const FALLBACK_INSIGHTS = [
   { title: 'Protect your scalp', body: 'UV exposure and heat styling accelerate thinning — broad-spectrum SPF on the scalp helps.', metric: 'Crown' },
 ];
 
+// Static per-metric fallbacks used when deduplicating insights (and as the weakest-metric
+// guarantee fallback). Text is generic — no live score values — so these can live at
+// module level and be referenced before `data` is populated.
+const STATIC_METRIC_FALLBACKS = {
+  Hairline: { title: 'Target recession zones',     body: 'Apply minoxidil to both temple recession zones twice daily — consistent topical coverage is the highest-ROI step for hairline improvement.',                             metric: 'Hairline' },
+  Density:  { title: 'Build mid-scalp density',    body: 'Add a DHT-blocking shampoo 3× weekly followed by a 5-minute scalp massage — together these are the most cost-effective OTC tools for mid-scalp coverage.',             metric: 'Density'  },
+  Crown:    { title: 'Protect the vertex now',     body: 'Apply minoxidil 1ml directly to the crown twice daily and track with monthly overhead photos — targeted coverage stabilizes vertex thinning before it advances.',         metric: 'Crown'    },
+  Health:   { title: 'Optimize scalp environment', body: 'Switch to a gentle sulfate-free shampoo and add biotin and zinc — scalp health directly affects how well topicals absorb and follicles respond to treatment.',            metric: 'Health'   },
+  Potential:{ title: 'Stack the right habits',     body: 'Pair minoxidil with scalp massage and a DHT-blocking shampoo — this full stack delivers the strongest 6-month OTC response while the treatment window is open.',         metric: 'Potential'},
+};
+
 // Compute how urgently treatment action should be taken, based on the AI-classified
 // Norwood stage and the user's age. Used by the iOS app to drive CTA wording.
 // 'high'     → act now; best treatment window; early/mid stage under 45
@@ -1349,7 +1360,7 @@ const server = createServer(async (req, res) => {
 - hairline, density, crown, health, potential: 0-100 integer scores
 - stage: Norwood stage (pick from the enum)
 - headline: 6-9 word punchy summary, confident tone. Calibrate energy to the stage: NW1-NW2 → protective/preventive urgency (this is the best window); NW3-NW3v → action-oriented, motivating, results-focused; NW4 → committed/realistic, acknowledge the work ahead; NW5+ → frank expectation-setting, specialist-aware; diffuse/female → cause-investigation framing. Avoid hedging words like "might", "could", or "some". Never start with "Your".
-- insights: exactly 3 items, each with a 5-word title (≤5 words), a 20-28 word actionable body that is specific to THIS user's visible loss pattern, scores, stage, or profile — name the actual stage or a score, specify a concrete action, and give a reason tied to their situation. CRITICAL routine rule: check "Current routine" in the user context above — if a treatment is already listed (e.g. minoxidil, DHT-blocking shampoo, supplements), do NOT suggest starting it. Instead, suggest how to optimize that treatment (e.g. proper application coverage, timing, frequency) or recommend a different complementary layer. Never repeat a recommendation for something the user already does. Avoid generic advice. The metric must match: Hairline→temple/frontal recession, Density→mid-scalp thinning, Crown→vertex/crown thinning, Health→scalp condition or miniaturization, Potential→treatment response or growth timeline
+- insights: exactly 3 items, each with a 5-word title (≤5 words), a 20-28 word actionable body that is specific to THIS user's visible loss pattern, scores, stage, or profile — name the actual stage or a score, specify a concrete action, and give a reason tied to their situation. CRITICAL routine rule: check "Current routine" in the user context above — if a treatment is already listed (e.g. minoxidil, DHT-blocking shampoo, supplements), do NOT suggest starting it. Instead, suggest how to optimize that treatment (e.g. proper application coverage, timing, frequency) or recommend a different complementary layer. Never repeat a recommendation for something the user already does. Avoid generic advice. CRITICAL diversity rule: every insight MUST target a DIFFERENT metric — never assign the same metric value to two insights; pick the 3 most clinically relevant distinct metrics from: Hairline, Density, Crown, Health, Potential. The metric must match: Hairline→temple/frontal recession, Density→mid-scalp thinning, Crown→vertex/crown thinning, Health→scalp condition or miniaturization, Potential→treatment response or growth timeline
 - verdict: 1-2 sentence verdict, slightly aspirational, no medical claims
 - photoQuality: 'good' | 'acceptable' | 'poor'
 - photoNote: brief sentence about quality issues, or empty string if quality is good
@@ -1489,6 +1500,26 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // GPT-4o must return exactly 3; pad with sensible defaults if it falls short.
         while (rawInsights.length < 3) {
           rawInsights.push(FALLBACK_INSIGHTS[rawInsights.length]);
+        }
+        // Deduplicate insight metrics: if two insights share the same metric, replace the
+        // lower-priority one (highest index = lowest priority) with a static fallback
+        // targeting an uncovered metric. Runs before the weakest-metric guarantee so
+        // both fixes operate on the same array without conflicting.
+        {
+          const _allMetrics = ['Hairline', 'Density', 'Crown', 'Health', 'Potential'];
+          const _usedMetrics = new Set(rawInsights.map((ins) => ins.metric));
+          if (_usedMetrics.size < rawInsights.length) {
+            const _uncovered = _allMetrics.filter((m) => !_usedMetrics.has(m));
+            let _uncovIdx = 0;
+            for (let _i = rawInsights.length - 1; _i >= 1 && _uncovIdx < _uncovered.length; _i--) {
+              const _isDup = rawInsights.slice(0, _i).some((ins) => ins.metric === rawInsights[_i].metric);
+              if (_isDup) {
+                const _tgt = _uncovered[_uncovIdx++];
+                rawInsights[_i] = STATIC_METRIC_FALLBACKS[_tgt] ?? rawInsights[_i];
+                _usedMetrics.add(_tgt);
+              }
+            }
+          }
         }
         const stage = parsed.stage || 'n/a';
         const VALID_PHOTO_QUALITIES = new Set(['good', 'acceptable', 'poor']);
