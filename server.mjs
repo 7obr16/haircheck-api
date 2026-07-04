@@ -1665,11 +1665,33 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     : _hasDHTShampoo
                       ? "Your DHT-blocking shampoo is active at a key stage — add weekly microneedling over the mid-scalp thinning zone and a 5-minute post-wash scalp massage to drive follicle response while coverage is still stabilizable."
                       : 'Mid-scalp density at NW3 responds well to DHT-blocking shampoo 3× weekly plus scalp massage — start both this week while follicles are still viable and the density response window is open.')
-                : (_hasDHTShampoo && _hasMassage
-                    ? 'DHT-blocking shampoo and scalp stimulation are both active — time them for best effect: microneedle on the thinning zones 24-48 hours before topical application to open absorption channels.'
-                    : _hasDHTShampoo
-                      ? "You're using a DHT-blocking shampoo — add a 5-minute scalp massage each wash session and consider microneedling once a week to prime follicle response."
-                      : 'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.'),
+                : data.stage === 'NW4'
+                  ? (_hasDHTShampoo && _hasMinoxidil && _hasMassage
+                      ? 'At NW4, mid-scalp density benefits from stacking all three layers — optimize timing: massage first, then apply minoxidil immediately after across the full top, and leave DHT shampoo on for 3-5 minutes on wash days. Consistency beats adding new products.'
+                      : _hasDHTShampoo && _hasMinoxidil
+                        ? 'At NW4, add scalp massage and weekly microneedling to your topical + shampoo stack — mechanical stimulation significantly improves absorption across the mid-scalp thinning zones at this stage.'
+                        : _hasMinoxidil
+                          ? 'At NW4, mid-scalp coverage needs a DHT-blocking shampoo as the second layer — use it 3× weekly with a 3-minute scalp massage to slow ongoing miniaturization alongside your existing topical.'
+                          : _hasDHTShampoo
+                            ? 'At NW4, add minoxidil across the full scalp top (temples + crown + mid-scalp) twice daily — your DHT shampoo slows miniaturization but minoxidil drives the active regrowth signal your follicles need.'
+                            : 'NW4 mid-scalp density responds best to the full OTC stack: minoxidil twice daily across the entire top plus DHT-blocking shampoo 3× weekly. Start both this week — density at this stage needs simultaneous DHT suppression and growth signal.')
+                  : (data.stage === 'diffuse' || data.stage === 'n/a (female)')
+                    ? (_hasMinoxidil && _hasDHTShampoo
+                        ? (data.stage === 'n/a (female)'
+                            ? "Female-pattern thinning responds well when minoxidil covers the full central parting and scalp top — confirm coverage is even rather than concentrated at the hairline. If you haven't already, check ferritin, vitamin D, and thyroid — these are the most common reversible causes in women."
+                            : 'Diffuse thinning spans the full scalp — your topical and DHT shampoo are the right tools. Add a 5-minute whole-scalp massage on wash days and consider a nutritional workup (ferritin, vitamin D, thyroid) to rule out a reversible cause.')
+                        : _hasMinoxidil
+                          ? (data.stage === 'n/a (female)'
+                              ? "Female-pattern thinning responds well to minoxidil applied across the central parting and scalp top — not just the hairline. Add a check of ferritin, vitamin D, and thyroid: these are the most common reversible causes and topicals alone won't fix them."
+                              : 'Diffuse thinning often has a nutritional or hormonal component — add a DHT-blocking shampoo 3× weekly and consider checking ferritin, vitamin D, and thyroid levels to find a reversible root cause.')
+                          : (data.stage === 'n/a (female)'
+                              ? "Female-pattern thinning responds best to minoxidil applied across the full scalp top (not just the hairline) twice daily — start this week. Also worth a ferritin, vitamin D, and thyroid check: these reversible causes are common in women and topicals alone won't address them."
+                              : 'Diffuse thinning covers the entire scalp top — start DHT-blocking shampoo 3× weekly and minoxidil across the full top twice daily. Also check ferritin, vitamin D, and thyroid — diffuse loss often has a treatable nutritional or hormonal component.'))
+                    : (_hasDHTShampoo && _hasMassage
+                        ? 'DHT-blocking shampoo and scalp stimulation are both active — time them for best effect: microneedle on the thinning zones 24-48 hours before topical application to open absorption channels.'
+                        : _hasDHTShampoo
+                          ? "You're using a DHT-blocking shampoo — add a 5-minute scalp massage each wash session and consider microneedling once a week to prime follicle response."
+                          : 'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.'),
           Crown: _isNW7
             ? 'Crown coverage at NW7 is best addressed through FUE/FUT or SMP — prioritize a specialist consultation to discuss vertex coverage goals and realistic outcomes.'
             : _isNW56
@@ -1722,6 +1744,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         };
         data.weeklyFocus = WEEKLY_FOCUS_MAP[data.weakestMetric?.label]
           || 'Stay consistent with your current routine — daily adherence is the single biggest driver of long-term results.';
+        // weeklyFocusMetric: which metric the weeklyFocus targets (equals weakestMetric.label).
+        // Lets the iOS app highlight the right metric card alongside the weeklyFocus text.
+        data.weeklyFocusMetric = data.weakestMetric?.label || null;
 
         // checkInIntervalDays: how many days until the next meaningful scan.
         // Derived from treatmentUrgency so the iOS app can schedule a push reminder
