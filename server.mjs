@@ -1763,11 +1763,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                           : (data.stage === 'n/a (female)'
                               ? "Female-pattern thinning responds best to minoxidil applied across the full scalp top (not just the hairline) twice daily — start this week. Also worth a ferritin, vitamin D, and thyroid check: these reversible causes are common in women and topicals alone won't address them."
                               : 'Diffuse thinning covers the entire scalp top — start DHT-blocking shampoo 3× weekly and minoxidil across the full top twice daily. Also check ferritin, vitamin D, and thyroid — diffuse loss often has a treatable nutritional or hormonal component.'))
-                    : (_hasDHTShampoo && _hasMassage
-                        ? 'DHT-blocking shampoo and scalp stimulation are both active — time them for best effect: microneedle on the thinning zones 24-48 hours before topical application to open absorption channels.'
-                        : _hasDHTShampoo
-                          ? "You're using a DHT-blocking shampoo — add a 5-minute scalp massage each wash session and consider microneedling once a week to prime follicle response."
-                          : 'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.'),
+                    : _hasFinasteride && _hasMassage
+                        ? 'Finasteride + scalp massage is a solid foundation — add weekly microneedling (0.5mm) over the thinning zones to prime follicle absorption and boost local circulation alongside the systemic DHT suppression you already have.'
+                        : _hasFinasteride
+                          ? 'Finasteride already provides systemic DHT suppression — add a 5-minute scalp massage each session and weekly microneedling to complement it. Mechanical stimulation is the highest-ROI addition alongside your existing Rx treatment.'
+                          : (_hasDHTShampoo && _hasMassage
+                              ? 'DHT-blocking shampoo and scalp stimulation are both active — time them for best effect: microneedle on the thinning zones 24-48 hours before topical application to open absorption channels.'
+                              : _hasDHTShampoo
+                                ? "You're using a DHT-blocking shampoo — add a 5-minute scalp massage each wash session and consider microneedling once a week to prime follicle response."
+                                : 'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.'),
           Crown: _isNW7
             ? 'Crown coverage at NW7 is best addressed through FUE/FUT or SMP — prioritize a specialist consultation to discuss vertex coverage goals and realistic outcomes.'
             : _isNW5only
@@ -1873,47 +1877,75 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                       ? 'Add a basic supplement stack (biotin, zinc, vitamin D) to complement your DHT-blocking shampoo — at NW1 your follicles are fully viable and this pairing forms the strongest long-term prevention layer before any visible loss starts.'
                       : 'Protect your potential now by starting a DHT-blocking shampoo 3× weekly and a supplement stack (biotin, zinc, vitamin D). At NW1 prevention is far more cost-effective than treatment later — follicles are fully viable and most responsive before visible loss begins.'
                 : data.stage === 'NW2'
-                  ? (_hasMinoxidil && _hasDHTShampoo)
-                      ? 'Minoxidil and DHT shampoo are both active at NW2 — your stack is right for this stage. Confirm twice-daily coverage on both temple corners and leave the DHT shampoo on 3-5 minutes before rinsing. Consistency beats adding new products at this early stage.'
-                      : _hasMinoxidil
-                        ? 'At NW2 minoxidil is well-timed — add a DHT-blocking shampoo 3× weekly as the second prevention layer. Together they attack AGA from two angles (topical growth signal + DHT suppression), which delivers the strongest long-term response at this early stage.'
-                        : _hasDHTShampoo
-                          ? 'At NW2 the treatment window is open and follicles are still fully viable — add minoxidil directly to both temple corners twice daily. Pairing it with your existing DHT-blocking shampoo gives the strongest dual-mechanism response before recession deepens.'
-                          : 'NW2 is the optimal window to act — start minoxidil on both temple corners and add a DHT-blocking shampoo 3× weekly. This dual approach (topical growth signal + DHT suppression) at the earliest detectable stage produces the strongest long-term ROI.'
+                  ? (_hasFinasteride && _hasMinoxidil)
+                      ? 'NW2 is the ideal preventive window and your finasteride + minoxidil combination is the strongest possible non-surgical stack at this stage — keep both consistent. Confirm twice-daily minoxidil coverage on both temple corners and take finasteride at the same time each day without gaps for maximum long-term protection.'
+                      : _hasFinasteride
+                        ? 'NW2 is the ideal window and your finasteride already suppresses DHT systemically — add minoxidil directly to both temple corners twice daily for the complementary topical growth signal. The finasteride + minoxidil combination at NW2 delivers the most impactful prevention before recession deepens.'
+                        : (_hasMinoxidil && _hasDHTShampoo)
+                            ? 'Minoxidil and DHT shampoo are both active at NW2 — your stack is right for this stage. Confirm twice-daily coverage on both temple corners and leave the DHT shampoo on 3-5 minutes before rinsing. Consistency beats adding new products at this early stage.'
+                            : _hasMinoxidil
+                              ? 'At NW2 minoxidil is well-timed — add a DHT-blocking shampoo 3× weekly as the second prevention layer. Together they attack AGA from two angles (topical growth signal + DHT suppression), which delivers the strongest long-term response at this early stage.'
+                              : _hasDHTShampoo
+                                ? 'At NW2 the treatment window is open and follicles are still fully viable — add minoxidil directly to both temple corners twice daily. Pairing it with your existing DHT-blocking shampoo gives the strongest dual-mechanism response before recession deepens.'
+                                : 'NW2 is the optimal window to act — start minoxidil on both temple corners and add a DHT-blocking shampoo 3× weekly. This dual approach (topical growth signal + DHT suppression) at the earliest detectable stage produces the strongest long-term ROI.'
                   : data.stage === 'NW3'
                     // NW3: strong treatment response window; deep recession is established but follicles at the edge are still highly responsive
-                    ? (_hasMinoxidil && _hasMassage && _hasDHTShampoo
-                        ? 'NW3 is still a strong response window — your treatment stack is well-timed. Apply minoxidil to both recession zones immediately after a 4-minute scalp massage on wash days, and leave DHT shampoo on 3-5 minutes. Consistent timing over the next 3-4 months is what converts the stack into measurable results.'
-                        : _hasMinoxidil && _hasMassage
-                          ? 'At NW3 you have minoxidil and massage in place — add a DHT-blocking shampoo 3× weekly as the third leg. The triple stack (topical + massage + DHT suppression) gives the strongest 6-month potential at this established stage.'
-                          : _hasMinoxidil
-                            ? 'NW3 has a strong treatment response window — pair your minoxidil with a 4-minute scalp massage before each application and a DHT-blocking shampoo 3× weekly. This triple approach is the OTC gold standard for maximizing potential at this stage.'
-                            : 'NW3 is a pivotal window: deep recession is established, but follicles at the edge are still highly responsive. Start the full stack — minoxidil twice daily on both recession zones, DHT-blocking shampoo 3× weekly, and a daily 4-minute scalp massage. Acting comprehensively now maximizes your 12-month potential.')
+                    ? (_hasFinasteride && _hasMinoxidil && _hasMassage
+                        ? 'NW3 is a strong response window and your finasteride + minoxidil + massage stack is fully deployed — apply minoxidil to both recession zones immediately after a 4-minute scalp massage, and take finasteride at the same time each day. Consistent timing over the next 3-4 months is what converts this complete stack into measurable results.'
+                        : _hasFinasteride && _hasMinoxidil
+                          ? 'NW3 is a strong response window and you have the two most powerful tools active (finasteride + minoxidil) — add a 4-minute scalp massage before each topical application to prime absorption. This finasteride + minoxidil + massage combination is the strongest evidence-based non-surgical approach at NW3.'
+                          : _hasFinasteride
+                            ? 'NW3 is a pivotal window and your finasteride is already blocking DHT systemically — add minoxidil twice daily to both recession zones for the topical growth signal, plus a daily 4-minute scalp massage. The finasteride + minoxidil + massage stack gives the strongest documented response at this established stage.'
+                            : _hasMinoxidil && _hasMassage && _hasDHTShampoo
+                                ? 'NW3 is still a strong response window — your treatment stack is well-timed. Apply minoxidil to both recession zones immediately after a 4-minute scalp massage on wash days, and leave DHT shampoo on 3-5 minutes. Consistent timing over the next 3-4 months is what converts the stack into measurable results.'
+                                : _hasMinoxidil && _hasMassage
+                                  ? 'At NW3 you have minoxidil and massage in place — add a DHT-blocking shampoo 3× weekly as the third leg. The triple stack (topical + massage + DHT suppression) gives the strongest 6-month potential at this established stage.'
+                                  : _hasMinoxidil
+                                    ? 'NW3 has a strong treatment response window — pair your minoxidil with a 4-minute scalp massage before each application and a DHT-blocking shampoo 3× weekly. This triple approach is the OTC gold standard for maximizing potential at this stage.'
+                                    : 'NW3 is a pivotal window: deep recession is established, but follicles at the edge are still highly responsive. Start the full stack — minoxidil twice daily on both recession zones, DHT-blocking shampoo 3× weekly, and a daily 4-minute scalp massage. Acting comprehensively now maximizes your 12-month potential.')
                     : data.stage === 'NW3v'
                       // NW3v: dual-zone active stage — both temples and early crown need simultaneous treatment to maximize potential
-                      ? (_hasMinoxidil && _hasMassage && _hasDHTShampoo
-                          ? 'NW3v is an active dual-zone stage — your full stack is in place. Confirm that minoxidil covers BOTH temple recession zones AND the vertex each session; dual-zone coverage twice daily is what converts your current stack into maximum potential across both active fronts.'
-                          : _hasMinoxidil && _hasDHTShampoo
-                            ? 'At NW3v two zones are active simultaneously — add scalp massage (4 min, covering temples AND vertex) before each minoxidil application. Priming both fronts together maximizes absorption where your dual-zone treatment potential is highest.'
-                            : _hasMinoxidil
-                              ? 'NW3v means both temples and early crown need treatment simultaneously — add a DHT-blocking shampoo 3× weekly and ensure minoxidil reaches BOTH recession zones AND the vertex twice daily. Dual-zone coverage now prevents each front from advancing independently.'
-                              : 'NW3v is a dual-zone stage — both temples and early crown are active at the same time. Start minoxidil on BOTH zones (1ml per temple + 1ml vertex twice daily), add a DHT-blocking shampoo 3× weekly, and daily scalp massage. Simultaneous dual-zone coverage now gives the strongest window before either front advances.')
+                      ? (_hasFinasteride && _hasMinoxidil && _hasMassage
+                          ? 'NW3v is a dual-zone active stage and your finasteride + minoxidil + massage stack is fully deployed — confirm minoxidil covers BOTH temple recession zones AND the vertex each session, and take finasteride at the same time daily. Dual-zone consistency is what converts this complete stack into maximum potential across both active fronts.'
+                          : _hasFinasteride && _hasMinoxidil
+                            ? 'At NW3v two zones are active and your finasteride + minoxidil foundation is in place — add scalp massage (4 min, covering temples AND vertex) before each topical application. This trio (systemic DHT block + topical + mechanical) is the strongest dual-zone approach at NW3v.'
+                            : _hasFinasteride
+                              ? 'NW3v is a dual-zone stage (temples AND early crown active simultaneously) — your finasteride suppresses systemic DHT. Add minoxidil to BOTH zones (1ml per temple + 1ml vertex twice daily) plus daily scalp massage for maximum dual-zone potential.'
+                              : _hasMinoxidil && _hasMassage && _hasDHTShampoo
+                                  ? 'NW3v is an active dual-zone stage — your full stack is in place. Confirm that minoxidil covers BOTH temple recession zones AND the vertex each session; dual-zone coverage twice daily is what converts your current stack into maximum potential across both active fronts.'
+                                  : _hasMinoxidil && _hasDHTShampoo
+                                    ? 'At NW3v two zones are active simultaneously — add scalp massage (4 min, covering temples AND vertex) before each minoxidil application. Priming both fronts together maximizes absorption where your dual-zone treatment potential is highest.'
+                                    : _hasMinoxidil
+                                      ? 'NW3v means both temples and early crown need treatment simultaneously — add a DHT-blocking shampoo 3× weekly and ensure minoxidil reaches BOTH recession zones AND the vertex twice daily. Dual-zone coverage now prevents each front from advancing independently.'
+                                      : 'NW3v is a dual-zone stage — both temples and early crown are active at the same time. Start minoxidil on BOTH zones (1ml per temple + 1ml vertex twice daily), add a DHT-blocking shampoo 3× weekly, and daily scalp massage. Simultaneous dual-zone coverage now gives the strongest window before either front advances.')
                       : data.stage === 'NW4'
                         // NW4: meaningful potential remains with the right protocol; realistic expectations and consistency are the keys
-                        ? (_hasMinoxidil && _hasMassage && _hasDHTShampoo
-                            ? 'At NW4 you have the right stack active — the outcome now depends on consistency and realistic expectations. Take front-facing and overhead photos today as your baseline, and set a 4-month checkpoint. Meaningful density change at NW4 typically takes 16+ weeks of uninterrupted coverage to show.'
-                            : _hasMinoxidil && _hasDHTShampoo
-                              ? 'At NW4 your topical and DHT shampoo are in place — add a 4-minute scalp massage before each minoxidil application. Mechanical stimulation improves absorption directly where miniaturization is most advanced and is the highest-ROI addition to an existing NW4 stack.'
-                              : _hasMinoxidil
-                                ? 'At NW4, pair your minoxidil with a DHT-blocking shampoo 3× weekly and a 4-minute scalp massage before each application. This triple approach — topical growth signal + DHT suppression + mechanical stimulation — is the strongest realistic OTC protocol at this stage.'
-                                : 'NW4 still has meaningful potential with the right protocol — start the full stack this week: minoxidil across the entire top twice daily, DHT-blocking shampoo 3× weekly (3-5 min contact time), and daily 4-minute scalp massage. Comprehensive, consistent coverage over 4+ months determines the outcome.')
-                        : (_hasMinoxidil && _hasMassage && _hasDHTShampoo)
-                            ? 'You have the top three habits active (minoxidil, scalp massage, DHT-blocking shampoo) — optimize timing: massage first, then apply minoxidil immediately after, and leave DHT shampoo on 3-5 minutes before rinsing on wash days. Consistency beats adding products.'
-                            : (_hasMinoxidil && _hasMassage)
-                              ? 'You have the key habits in place — stack them: apply minoxidil immediately after a 4-minute scalp massage so active ingredients penetrate freshly stimulated follicles.'
-                              : _hasMinoxidil
-                                ? 'Add a 4-minute scalp massage right before your morning minoxidil — stimulating blood flow first significantly improves topical absorption and follicle response.'
-                                : 'To maximize your treatment window, start minoxidil on thinning zones and pair it with daily 4-minute scalp massage — this combination has the strongest OTC evidence for regrowth.',
+                        ? (_hasFinasteride && _hasMinoxidil && _hasMassage
+                            ? 'At NW4 your finasteride + minoxidil + massage stack is the strongest non-surgical protocol available — set a 4-month checkpoint and take front-facing and overhead photos today as your baseline. Consistent uninterrupted coverage over 16+ weeks is what determines how much potential converts to visible density.'
+                            : _hasFinasteride && _hasMinoxidil
+                              ? 'At NW4 you have finasteride and minoxidil active — add a 4-minute scalp massage before each topical application to prime absorption. Mechanical stimulation is the highest-ROI addition to your existing finasteride + minoxidil stack at this stage.'
+                              : _hasFinasteride
+                                ? 'Finasteride gives NW4 users a meaningful potential advantage — add minoxidil across the entire top twice daily and daily scalp massage to complete the stack. Comprehensive, consistent coverage over 4+ months is what converts your finasteride foundation into visible results.'
+                                : _hasMinoxidil && _hasMassage && _hasDHTShampoo
+                                    ? 'At NW4 you have the right stack active — the outcome now depends on consistency and realistic expectations. Take front-facing and overhead photos today as your baseline, and set a 4-month checkpoint. Meaningful density change at NW4 typically takes 16+ weeks of uninterrupted coverage to show.'
+                                    : _hasMinoxidil && _hasDHTShampoo
+                                      ? 'At NW4 your topical and DHT shampoo are in place — add a 4-minute scalp massage before each minoxidil application. Mechanical stimulation improves absorption directly where miniaturization is most advanced and is the highest-ROI addition to an existing NW4 stack.'
+                                      : _hasMinoxidil
+                                        ? 'At NW4, pair your minoxidil with a DHT-blocking shampoo 3× weekly and a 4-minute scalp massage before each application. This triple approach — topical growth signal + DHT suppression + mechanical stimulation — is the strongest realistic OTC protocol at this stage.'
+                                        : 'NW4 still has meaningful potential with the right protocol — start the full stack this week: minoxidil across the entire top twice daily, DHT-blocking shampoo 3× weekly (3-5 min contact time), and daily 4-minute scalp massage. Comprehensive, consistent coverage over 4+ months determines the outcome.')
+                        : _hasFinasteride && _hasMinoxidil && _hasMassage
+                            ? 'Finasteride + minoxidil + scalp massage is the most evidence-backed non-surgical stack — optimize timing: massage 4 minutes first, apply minoxidil immediately after, and take finasteride at the same time each day without gaps. Consistency is the only variable left.'
+                            : _hasFinasteride && _hasMinoxidil
+                              ? 'Finasteride blocks systemic DHT and minoxidil drives the topical growth signal — add a 4-minute scalp massage before each application to prime absorption. This trio gives the strongest evidence-based response available without surgery.'
+                              : _hasFinasteride
+                                ? 'Finasteride is your strongest DHT suppressor — add minoxidil twice daily to the thinning zones for the complementary topical growth signal. The finasteride + minoxidil combination has the strongest non-surgical evidence base; adding scalp massage as the third layer maximizes potential.'
+                                : (_hasMinoxidil && _hasMassage && _hasDHTShampoo)
+                                    ? 'You have the top three habits active (minoxidil, scalp massage, DHT-blocking shampoo) — optimize timing: massage first, then apply minoxidil immediately after, and leave DHT shampoo on 3-5 minutes before rinsing on wash days. Consistency beats adding products.'
+                                    : (_hasMinoxidil && _hasMassage)
+                                      ? 'You have the key habits in place — stack them: apply minoxidil immediately after a 4-minute scalp massage so active ingredients penetrate freshly stimulated follicles.'
+                                      : _hasMinoxidil
+                                        ? 'Add a 4-minute scalp massage right before your morning minoxidil — stimulating blood flow first significantly improves topical absorption and follicle response.'
+                                        : 'To maximize your treatment window, start minoxidil on thinning zones and pair it with daily 4-minute scalp massage — this combination has the strongest OTC evidence for regrowth.',
         };
         data.weeklyFocus = WEEKLY_FOCUS_MAP[data.weakestMetric?.label]
           || 'Stay consistent with your current routine — daily adherence is the single biggest driver of long-term results.';
