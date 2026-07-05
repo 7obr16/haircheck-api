@@ -111,6 +111,15 @@ const METRICS = {
   coach:       { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
 };
 
+// OpenAI pricing constants (USD). Update as pricing changes on platform.openai.com/docs/pricing.
+const OPENAI_TOKEN_PRICING = {
+  scan:  { prompt: 2.50, completion: 10.00 },  // gpt-4o
+  coach: { prompt: 0.15, completion:  0.60 },  // gpt-4o-mini
+};
+// gpt-image-2 cost per edit/generation call by quality level.
+// Each image endpoint has its own default quality (see endpoint handlers).
+const IMAGE_COST_BY_QUALITY = { low: 0.02, medium: 0.07, high: 0.19, auto: 0.07 };
+
 // Rolling latency samples (ms) per endpoint — last 100 POST requests each.
 // Exposed via /api/health so Railway dashboards and alerts can track p50/p95.
 const LATENCY_MAX_SAMPLES = 100;
@@ -157,6 +166,35 @@ function latencyStats(arr) {
     p50: p(50),
     p95: p(95),
     avg: Math.round(arr.reduce((s, v) => s + v, 0) / arr.length),
+  };
+}
+
+// Compute estimated OpenAI API spend since server start.
+// Token costs come from METRICS (tracked per successful call).
+// Image costs use each endpoint's default quality level since quality
+// can be overridden by the client but isn't tracked per-call.
+function computeEstimatedCost() {
+  const scan  = METRICS.scan.promptTokens    / 1e6 * OPENAI_TOKEN_PRICING.scan.prompt
+              + METRICS.scan.completionTokens  / 1e6 * OPENAI_TOKEN_PRICING.scan.completion;
+  const coach = METRICS.coach.promptTokens   / 1e6 * OPENAI_TOKEN_PRICING.coach.prompt
+              + METRICS.coach.completionTokens / 1e6 * OPENAI_TOKEN_PRICING.coach.completion;
+  // Cached calls never reach OpenAI — subtract them from the billable count.
+  const billableAfter       = Math.max(0, METRICS.after.requests       - METRICS.after.cacheHits);
+  const billableProgression = Math.max(0, METRICS.progression.requests - METRICS.progression.cacheHits);
+  const billableMap         = Math.max(0, METRICS.map.requests         - METRICS.map.cacheHits);
+  const billableVisual      = Math.max(0, METRICS.adviceVisual.requests - METRICS.adviceVisual.cacheHits);
+  // Default qualities: after=low, progression=high, map=medium, adviceVisual=low.
+  const images = billableAfter       * IMAGE_COST_BY_QUALITY.low
+               + billableProgression * IMAGE_COST_BY_QUALITY.high
+               + billableMap         * IMAGE_COST_BY_QUALITY.medium
+               + billableVisual      * IMAGE_COST_BY_QUALITY.low;
+  const total = scan + coach + images;
+  return {
+    scan:   +scan.toFixed(4),
+    coach:  +coach.toFixed(4),
+    images: +images.toFixed(4),
+    total:  +total.toFixed(4),
+    note:   'Estimated since server start; image costs use per-endpoint default quality prices',
   };
 }
 
@@ -905,6 +943,7 @@ const server = createServer(async (req, res) => {
       latency: Object.fromEntries(
         Object.entries(LATENCY).map(([k, arr]) => [k, latencyStats(arr)])
       ),
+      estimatedCostUSD: computeEstimatedCost(),
       requestId: reqId,
     });
     return;
