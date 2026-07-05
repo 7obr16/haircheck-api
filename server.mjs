@@ -472,6 +472,11 @@ const cors = (req, res) => {
 const json = (req, res, code, body) => {
   const data = Buffer.from(JSON.stringify(body));
   const acceptsGzip = data.length > 512 && /gzip/.test(req.headers['accept-encoding'] || '');
+  const securityHeaders = {
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'Referrer-Policy': 'no-referrer',
+  };
   if (acceptsGzip) {
     const existingVary = res.getHeader('Vary');
     res.writeHead(code, {
@@ -479,10 +484,11 @@ const json = (req, res, code, body) => {
       'Content-Encoding': 'gzip',
       'Cache-Control': 'no-store',
       'Vary': existingVary ? `${existingVary}, Accept-Encoding` : 'Accept-Encoding',
+      ...securityHeaders,
     });
     res.end(gzipSync(data));
   } else {
-    res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+    res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...securityHeaders });
     res.end(data);
   }
 };
@@ -2064,7 +2070,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         { role: 'user', content: message.slice(0, 1500) },
       ];
 
-      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 900 });
+      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 1200 });
       const { ok: coachOk, status: coachStatus, payload: coachPayload } = await withOpenAIRetry('coach', (signal) =>
         fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -2101,7 +2107,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       bumpSuccess(METRICS.coach);
       warnIfSlow('coach', startedAt, 'coach');
       if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason });
-      json(req, res, 200, { reply, requestId: reqId });
+      const coachTruncated = coachFinishReason === 'length';
+      json(req, res, 200, { reply, truncated: coachTruncated, requestId: reqId });
     } catch (err) {
       bumpError(METRICS.coach, err.statusCode || 500, err.message);
       console.error('[server] coach error', err);
