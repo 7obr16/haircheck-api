@@ -321,6 +321,7 @@ The result must be photorealistic and pixel-aligned with the input so it can be 
 // a Norwood stage from a prior scan. Helps the model focus restoration on the
 // zones that matter most for that stage without over-restoring stable areas.
 const AFTER_STAGE_HINTS = {
+  NW1:  "This user is Norwood 1: fully intact hairline with no significant hair loss anywhere on the scalp. There are NO thinning, receding, or bald zones to restore. Make absolutely no changes to the hair — return an output that looks pixel-identical to the input. Do not add extra density, do not modify the hairline position, do not change any aspect of the hair. The result must be indistinguishable from the input photo.",
   NW2:  "This user is Norwood 2: slight symmetric temple recession. Focus only on the temple corners — fill the M-shape recession to a natural, slightly receded adult hairline. Crown and mid-scalp are intact; leave them unchanged.",
   NW3:  "This user is Norwood 3: deep bilateral temple recession extending past mid-pupil. Prioritize filling both temple recession zones. Crown and mid-scalp should remain mostly unchanged unless thinning is clearly visible there.",
   NW3v: "This user is Norwood 3v: deep temple recession PLUS early vertex/crown thinning. Address both zones equally — fill temple recession and add modest density to the crown.",
@@ -359,6 +360,7 @@ const MAP_STAGE_HINTS = {
 // The progression prompt already specifies the degree of improvement per month;
 // these hints tell the model WHERE to apply that improvement.
 const PROGRESSION_STAGE_HINTS = {
+  NW1:  "This user is Norwood 1 — fully intact hairline with no hair loss anywhere. There are no thinning zones to improve at any treatment month. Make no visible changes — the 3-month, 6-month, and 12-month results should all look identical to the input photo. Do not add extra density or modify the hairline in any way.",
   NW2:  "This user is Norwood 2 (slight temple recession). Direct all visible improvement to the temple corners only — gradually fill the M-shape recession toward a natural adult hairline. Crown and mid-scalp are intact; leave them unchanged.",
   NW3:  "This user is Norwood 3 (deep bilateral temple recession). Show improvement primarily in the temple recession zones. Crown and mid-scalp should remain mostly unchanged unless thinning is clearly visible there.",
   NW3v: "This user is Norwood 3v (deep temple recession + early crown thinning). Show improvement in both zones equally — temple recession filling and modest crown density increase — proportional to the treatment month.",
