@@ -1415,7 +1415,7 @@ const server = createServer(async (req, res) => {
 - hairline, density, crown, health, potential: 0-100 integer scores
 - stage: Norwood stage (pick from the enum)
 - headline: 6-9 word punchy summary, confident tone. Calibrate energy to the stage: NW1-NW2 → protective/preventive urgency (this is the best window); NW3-NW3v → action-oriented, motivating, results-focused; NW4 → committed/realistic, acknowledge the work ahead; NW5+ → frank expectation-setting, specialist-aware; diffuse/female → cause-investigation framing. Avoid hedging words like "might", "could", or "some". Never start with "Your".
-- insights: exactly 3 items, each with a 5-word title (≤5 words), a 20-28 word actionable body that is specific to THIS user's visible loss pattern, scores, stage, or profile — name the actual stage or a score, specify a concrete action, and give a reason tied to their situation. CRITICAL routine rule: check "Current routine" in the user context above — if a treatment is already listed (e.g. minoxidil, DHT-blocking shampoo, supplements), do NOT suggest starting it. Instead, suggest how to optimize that treatment (e.g. proper application coverage, timing, frequency) or recommend a different complementary layer. Never repeat a recommendation for something the user already does. Avoid generic advice. CRITICAL diversity rule: every insight MUST target a DIFFERENT metric — never assign the same metric value to two insights; pick the 3 most clinically relevant distinct metrics from: Hairline, Density, Crown, Health, Potential. The metric must match: Hairline→temple/frontal recession, Density→mid-scalp thinning, Crown→vertex/crown thinning, Health→scalp condition or miniaturization, Potential→treatment response or growth timeline
+- insights: exactly 3 items, each with a 5-word title (≤5 words), a 20-28 word actionable body that is specific to THIS user's visible loss pattern, scores, stage, or profile — name the actual stage or a score, specify a concrete action, and give a reason tied to their situation. CRITICAL routine rule: check "Current routine" in the user context above — if a treatment is already listed (e.g. minoxidil, finasteride, dutasteride, DHT-blocking shampoo, supplements), do NOT suggest starting it. Instead, suggest how to optimize that treatment (e.g. proper application coverage, timing, frequency) or recommend a different complementary layer. Never repeat a recommendation for something the user already does. Avoid generic advice. CRITICAL diversity rule: every insight MUST target a DIFFERENT metric — never assign the same metric value to two insights; pick the 3 most clinically relevant distinct metrics from: Hairline, Density, Crown, Health, Potential. The metric must match: Hairline→temple/frontal recession, Density→mid-scalp thinning, Crown→vertex/crown thinning, Health→scalp condition or miniaturization, Potential→treatment response or growth timeline
 - verdict: 1-2 sentence verdict, slightly aspirational, no medical claims
 - photoQuality: 'good' | 'acceptable' | 'poor'
 - photoNote: brief sentence about quality issues, or empty string if quality is good
@@ -1671,15 +1671,23 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const _hasDHTShampoo = _routineItems.some((r) => r.includes('dht') || r.includes('ketoconazole') || r.includes('nizoral') || r.includes('keto shampoo') || r.includes('caffeine shampoo'));
         const _hasMassage    = _routineItems.some((r) => r.includes('massage') || r.includes('dermaroller') || r.includes('microneedl'));
         const _hasSupplements= _routineItems.some((r) => r.includes('supplement') || r.includes('biotin') || r.includes('vitamin') || r.includes('zinc') || r.includes('saw palmetto'));
+        const _hasFinasteride = _routineItems.some((r) => r.includes('finasteride') || r.includes('propecia') || r.includes('dutasteride') || r.includes('avodart'));
         // Stage gates: at NW5 expectations shift; at NW6/NW7 OTC has very limited effect
         // and the primary path is specialist consultation / surgical options.
         const _isNW7          = data.stage === 'NW7';
+        const _isNW5only      = data.stage === 'NW5';
         const _isNW56         = data.stage === 'NW5' || data.stage === 'NW6';
         const _isAdvancedStage = _isNW7 || _isNW56;
         const WEEKLY_FOCUS_MAP = {
           Hairline: _isNW7
             ? 'At NW7, the primary path is FUE/FUT transplant or SMP — book a trichologist consult this week to understand candidacy, donor supply, and realistic coverage outcomes.'
-            : _isNW56
+            : _isNW5only
+              ? (_hasMinoxidil && _hasDHTShampoo
+                  ? 'NW5 frontal recession is severe with a narrow bridge still separating the forelock from the lateral fringe — apply minoxidil across the full frontal zone twice daily and leave your DHT-blocking shampoo on 3-5 minutes per wash to slow the merge. Take monthly front-facing photos; tracking how quickly the bridge narrows is the key signal at this stage.'
+                  : _hasMinoxidil
+                    ? 'NW5 frontal recession is extensive — the bridge between the forelock and lateral fringe is narrowing. Apply minoxidil across the full frontal zone and both temple edges twice daily, and add a DHT-blocking shampoo 3× weekly. Take monthly front-facing photos to monitor how quickly the bridge is closing.'
+                    : 'NW5 frontal recession is substantial and the bridge between the forelock and lateral fringe is narrowing — start minoxidil across the full frontal zone twice daily and add a DHT-blocking shampoo 3× weekly. OTC at this stage is about slowing the merge, not full reversal; take monthly photos to track the bridge.')
+              : _isNW56
               ? 'Minoxidil can still slow further recession at your stage — keep applying it to the fringe and temples daily, and track whether a transplant consultation makes sense in the next 3-6 months.'
               : data.stage === 'NW4'
                 // NW4 hairline loss extends across the entire frontal zone (not just temple corners) — advice must reflect the full frontal hairline, not just "recession zones"
@@ -1762,7 +1770,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                           : 'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.'),
           Crown: _isNW7
             ? 'Crown coverage at NW7 is best addressed through FUE/FUT or SMP — prioritize a specialist consultation to discuss vertex coverage goals and realistic outcomes.'
-            : _isNW56
+            : _isNW5only
+              ? (_hasMinoxidil && _hasMassage
+                  ? 'At NW5, your minoxidil and massage target the right zones — confirm 1ml reaches the vertex directly, not just the sides. Add weekly microneedling over the crown to prime follicle response and take overhead photos every 4 weeks to track how quickly the frontal and crown thinning zones are merging.'
+                  : _hasMinoxidil
+                    ? 'NW5 crown thinning is substantial — apply 1ml minoxidil directly to the vertex twice daily after a 4-minute scalp massage to maximize absorption, then add weekly microneedling. The goal is slowing how quickly the frontal and crown zones merge; photograph from above every 4 weeks to track the bridge.'
+                    : 'NW5 crown thinning is large and the frontal zone is nearly merging — start minoxidil (1ml) directly on the vertex twice daily paired with weekly microneedling. Stabilizing the bridge between the two thinning zones is the realistic near-term goal; take an overhead photo today as your baseline.')
+              : _isNW56
               ? 'Apply minoxidil directly to the crown/vertex (1ml) twice daily and add weekly microneedling — manage expectations and photograph from above every 6 weeks to track any change.'
               : data.stage === 'NW4'
                 // NW4 crown thinning is significant and well-established; needs direct targeted topical + realistic timeline
@@ -1842,7 +1856,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                               : 'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
           Potential: _isNW7
             ? 'Your highest-ROI step is a transplant or SMP consultation — OTC treatments alone are unlikely to create meaningful change at NW7. Research experienced surgeons or SMP artists this week.'
-            : _isNW56
+            : _isNW5only
+              ? (_hasMinoxidil && _hasMassage && _hasDHTShampoo
+                  ? 'At NW5, your OTC stack is fully deployed — realistic potential is 28-48%. Set a 3-month checkpoint with overhead and front-facing photos; if meaningful stabilization shows, continue the stack. In parallel, research transplant consultations: at NW5, combining OTC maintenance with surgical planning gives the most complete long-term strategy.'
+                  : _hasMinoxidil && _hasDHTShampoo
+                    ? 'At NW5, add weekly microneedling to your topical and DHT shampoo stack — it is the highest-ROI addition for maximizing response from remaining follicles. Set a 3-month checkpoint and consider booking a transplant consultation in parallel to plan your full strategy.'
+                    : _hasMinoxidil
+                      ? 'NW5 potential with OTC additions is still meaningful — pair your minoxidil with a DHT-blocking shampoo 3× weekly and weekly microneedling. This triple approach gives the strongest OTC response at this stage. Set a 3-month checkpoint, and consider booking a transplant consultation to evaluate surgical and OTC paths in parallel.'
+                      : 'NW5 still has potential (28-48%) with a consistent OTC protocol — start the full stack this week: minoxidil across the entire scalp top twice daily, DHT-blocking shampoo 3× weekly, and weekly microneedling. OTC slows progression and buys time; simultaneously, consider booking a transplant consultation to plan your full-picture strategy.')
+              : _isNW56
               ? 'At your stage, combining minoxidil with weekly microneedling and a DHT-blocking shampoo gives the best realistic shot at slowing progression — set a 3-month checkpoint to assess response.'
               : data.stage === 'NW1'
                 ? (_hasDHTShampoo && _hasSupplements)
