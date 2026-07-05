@@ -1803,11 +1803,43 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     : _hasSupplements
                       ? 'Your supplement stack is active — add a DHT-blocking shampoo 3× weekly as a preventive layer. NW1 is the optimal window to build a protective routine before any thinning develops.'
                       : 'Your hair is healthy — protect it now: switch to a gentle sulfate-free shampoo, stay well-hydrated, and start a basic supplement stack (biotin, zinc, vitamin D) to support follicle health proactively.')
-                : (_hasSupplements && _hasDHTShampoo)
-                    ? 'Supplements and DHT-blocking shampoo are both active — target sleep quality this week: aim for 7-8 hours. Elevated cortisol from poor sleep accelerates miniaturization beyond what topicals can offset.'
-                    : _hasSupplements
-                      ? 'Continue your supplement routine — focus this week on scalp hygiene: reduce washing to 3-4× weekly, switch to a sulfate-free shampoo, and watch for scalp tension signs.'
-                      : 'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
+                : data.stage === 'NW2'
+                  // NW2: earliest recession stage — scalp health is still strong, goal is protection and anti-miniaturization foundation
+                  ? (_hasSupplements && _hasDHTShampoo
+                      ? 'Supplements and DHT-blocking shampoo are building a strong preventive foundation at NW2 — maximize the DHT shampoo by leaving it on 3-5 minutes before rinsing. Contact time determines how much DHT suppression reaches the follicle level at the recession edge.'
+                      : _hasSupplements
+                        ? 'Your supplement stack is a good start — add a DHT-blocking shampoo 3× weekly at NW2. Used with 3-5 minutes of contact time before rinsing, it suppresses topical DHT at the recession edge where miniaturization is beginning.'
+                        : 'At NW2, scalp health is still excellent — protect it now with a gentle sulfate-free shampoo, a DHT-blocking shampoo 3× weekly, and a supplement stack (biotin, zinc, vitamin D). Building the anti-miniaturization foundation here costs far less than treating established recession later.')
+                  : data.stage === 'NW3'
+                    // NW3: established AGA — miniaturization is active at the recession edge; scalp health needs to support topical treatment
+                    ? (_hasSupplements && _hasDHTShampoo && _hasMassage
+                        ? 'Your scalp-health kit is well-stocked at NW3 — add a weekly dermaroller session (0.5-1mm) over the recession edges. Microneedling primes the follicle microenvironment and significantly improves topical absorption precisely where miniaturization is most active at this stage.'
+                        : _hasSupplements && _hasDHTShampoo
+                          ? 'At NW3, the recession edge is where miniaturization is most active — add weekly microneedling (0.5mm) to the recession zones. It enhances absorption and follicle response where your existing supplement and DHT shampoo routine needs the most backup.'
+                          : _hasSupplements
+                            ? 'At NW3, DHT-blocking shampoo is the key missing layer — use it 3× weekly with 3-5 minutes of contact time. Scalp inflammation at the recession edge accelerates miniaturization; suppressing topical DHT alongside your supplements is the strongest dual response at this stage.'
+                            : 'NW3 recession means miniaturization is actively progressing — switch to a sulfate-free shampoo, start a supplement stack (biotin, zinc, vitamin D), and add a DHT-blocking shampoo 3× weekly. Reducing inflammation at the recession edge reinforces every other treatment layer.')
+                    : data.stage === 'NW3v'
+                      // NW3v: dual-zone miniaturization active at temples AND early crown — scalp health must serve both fronts
+                      ? (_hasSupplements && _hasDHTShampoo
+                          ? 'At NW3v, two zones have active miniaturization — temples AND early crown. Add a weekly microneedling session (0.5mm) covering both zones to open absorption channels and stimulate blood flow to both active fronts. Use it 24-48 hours before topical application for maximum impact.'
+                          : _hasDHTShampoo
+                            ? 'DHT-blocking shampoo is a good start at NW3v — add a supplement stack (biotin, zinc, vitamin D) and weekly microneedling at both the recession edge AND the early crown zone. Two active miniaturization fronts need a full anti-inflammatory protocol, not just topicals.'
+                            : 'NW3v means two zones are simultaneously thinning — scalp health must serve both. Add a DHT-blocking shampoo 3× weekly plus a supplement stack (biotin, zinc, vitamin D), and start weekly microneedling across the recession edge and early crown. Two-front miniaturization needs a two-front health protocol.')
+                      : data.stage === 'NW4'
+                        // NW4: significant miniaturization likely at both frontal and crown edges — scalp environment is critical for topical effectiveness
+                        ? (_hasSupplements && _hasDHTShampoo && _hasMassage
+                            ? 'At NW4 the full scalp-health kit is active — focus on absorption quality this week: microneedle the thinnest zones (0.5mm) 48 hours before topical application, and leave DHT shampoo on 3-5 minutes per wash. Scalp preparation quality determines how much of your treatment actually reaches the follicle.'
+                            : _hasSupplements && _hasDHTShampoo
+                              ? 'At NW4, add scalp massage before each topical application and consider weekly microneedling (0.5mm) over the thinnest zones — mechanical stimulation significantly improves topical absorption where miniaturization is most advanced, and your supplement and DHT shampoo stack benefits directly from it.'
+                              : _hasDHTShampoo
+                                ? 'At NW4, your DHT shampoo is handling topical suppression — add a supplement stack (biotin, zinc, vitamin D) and a pre-application scalp massage. Advanced miniaturization at NW4 needs every anti-inflammatory layer working together to maintain follicle health.'
+                                : 'At NW4, scalp health needs the full anti-miniaturization stack: DHT-blocking shampoo 3× weekly (3-5 min contact time), a supplement stack (biotin, zinc, vitamin D), and weekly microneedling. Advanced miniaturization at this stage requires every layer to be active.')
+                        : (_hasSupplements && _hasDHTShampoo)
+                            ? 'Supplements and DHT-blocking shampoo are both active — target sleep quality this week: aim for 7-8 hours. Elevated cortisol from poor sleep accelerates miniaturization beyond what topicals can offset.'
+                            : _hasSupplements
+                              ? 'Continue your supplement routine — focus this week on scalp hygiene: reduce washing to 3-4× weekly, switch to a sulfate-free shampoo, and watch for scalp tension signs.'
+                              : 'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
           Potential: _isNW7
             ? 'Your highest-ROI step is a transplant or SMP consultation — OTC treatments alone are unlikely to create meaningful change at NW7. Research experienced surgeons or SMP artists this week.'
             : _isNW56
@@ -1826,13 +1858,40 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                         : _hasDHTShampoo
                           ? 'At NW2 the treatment window is open and follicles are still fully viable — add minoxidil directly to both temple corners twice daily. Pairing it with your existing DHT-blocking shampoo gives the strongest dual-mechanism response before recession deepens.'
                           : 'NW2 is the optimal window to act — start minoxidil on both temple corners and add a DHT-blocking shampoo 3× weekly. This dual approach (topical growth signal + DHT suppression) at the earliest detectable stage produces the strongest long-term ROI.'
-                  : (_hasMinoxidil && _hasMassage && _hasDHTShampoo)
-                      ? 'You have the top three habits active (minoxidil, scalp massage, DHT-blocking shampoo) — optimize timing: massage first, then apply minoxidil immediately after, and leave DHT shampoo on 3-5 minutes before rinsing on wash days. Consistency beats adding products.'
-                      : (_hasMinoxidil && _hasMassage)
-                        ? 'You have the key habits in place — stack them: apply minoxidil immediately after a 4-minute scalp massage so active ingredients penetrate freshly stimulated follicles.'
-                        : _hasMinoxidil
-                          ? 'Add a 4-minute scalp massage right before your morning minoxidil — stimulating blood flow first significantly improves topical absorption and follicle response.'
-                          : 'To maximize your treatment window, start minoxidil on thinning zones and pair it with daily 4-minute scalp massage — this combination has the strongest OTC evidence for regrowth.',
+                  : data.stage === 'NW3'
+                    // NW3: strong treatment response window; deep recession is established but follicles at the edge are still highly responsive
+                    ? (_hasMinoxidil && _hasMassage && _hasDHTShampoo
+                        ? 'NW3 is still a strong response window — your treatment stack is well-timed. Apply minoxidil to both recession zones immediately after a 4-minute scalp massage on wash days, and leave DHT shampoo on 3-5 minutes. Consistent timing over the next 3-4 months is what converts the stack into measurable results.'
+                        : _hasMinoxidil && _hasMassage
+                          ? 'At NW3 you have minoxidil and massage in place — add a DHT-blocking shampoo 3× weekly as the third leg. The triple stack (topical + massage + DHT suppression) gives the strongest 6-month potential at this established stage.'
+                          : _hasMinoxidil
+                            ? 'NW3 has a strong treatment response window — pair your minoxidil with a 4-minute scalp massage before each application and a DHT-blocking shampoo 3× weekly. This triple approach is the OTC gold standard for maximizing potential at this stage.'
+                            : 'NW3 is a pivotal window: deep recession is established, but follicles at the edge are still highly responsive. Start the full stack — minoxidil twice daily on both recession zones, DHT-blocking shampoo 3× weekly, and a daily 4-minute scalp massage. Acting comprehensively now maximizes your 12-month potential.')
+                    : data.stage === 'NW3v'
+                      // NW3v: dual-zone active stage — both temples and early crown need simultaneous treatment to maximize potential
+                      ? (_hasMinoxidil && _hasMassage && _hasDHTShampoo
+                          ? 'NW3v is an active dual-zone stage — your full stack is in place. Confirm that minoxidil covers BOTH temple recession zones AND the vertex each session; dual-zone coverage twice daily is what converts your current stack into maximum potential across both active fronts.'
+                          : _hasMinoxidil && _hasDHTShampoo
+                            ? 'At NW3v two zones are active simultaneously — add scalp massage (4 min, covering temples AND vertex) before each minoxidil application. Priming both fronts together maximizes absorption where your dual-zone treatment potential is highest.'
+                            : _hasMinoxidil
+                              ? 'NW3v means both temples and early crown need treatment simultaneously — add a DHT-blocking shampoo 3× weekly and ensure minoxidil reaches BOTH recession zones AND the vertex twice daily. Dual-zone coverage now prevents each front from advancing independently.'
+                              : 'NW3v is a dual-zone stage — both temples and early crown are active at the same time. Start minoxidil on BOTH zones (1ml per temple + 1ml vertex twice daily), add a DHT-blocking shampoo 3× weekly, and daily scalp massage. Simultaneous dual-zone coverage now gives the strongest window before either front advances.')
+                      : data.stage === 'NW4'
+                        // NW4: meaningful potential remains with the right protocol; realistic expectations and consistency are the keys
+                        ? (_hasMinoxidil && _hasMassage && _hasDHTShampoo
+                            ? 'At NW4 you have the right stack active — the outcome now depends on consistency and realistic expectations. Take front-facing and overhead photos today as your baseline, and set a 4-month checkpoint. Meaningful density change at NW4 typically takes 16+ weeks of uninterrupted coverage to show.'
+                            : _hasMinoxidil && _hasDHTShampoo
+                              ? 'At NW4 your topical and DHT shampoo are in place — add a 4-minute scalp massage before each minoxidil application. Mechanical stimulation improves absorption directly where miniaturization is most advanced and is the highest-ROI addition to an existing NW4 stack.'
+                              : _hasMinoxidil
+                                ? 'At NW4, pair your minoxidil with a DHT-blocking shampoo 3× weekly and a 4-minute scalp massage before each application. This triple approach — topical growth signal + DHT suppression + mechanical stimulation — is the strongest realistic OTC protocol at this stage.'
+                                : 'NW4 still has meaningful potential with the right protocol — start the full stack this week: minoxidil across the entire top twice daily, DHT-blocking shampoo 3× weekly (3-5 min contact time), and daily 4-minute scalp massage. Comprehensive, consistent coverage over 4+ months determines the outcome.')
+                        : (_hasMinoxidil && _hasMassage && _hasDHTShampoo)
+                            ? 'You have the top three habits active (minoxidil, scalp massage, DHT-blocking shampoo) — optimize timing: massage first, then apply minoxidil immediately after, and leave DHT shampoo on 3-5 minutes before rinsing on wash days. Consistency beats adding products.'
+                            : (_hasMinoxidil && _hasMassage)
+                              ? 'You have the key habits in place — stack them: apply minoxidil immediately after a 4-minute scalp massage so active ingredients penetrate freshly stimulated follicles.'
+                              : _hasMinoxidil
+                                ? 'Add a 4-minute scalp massage right before your morning minoxidil — stimulating blood flow first significantly improves topical absorption and follicle response.'
+                                : 'To maximize your treatment window, start minoxidil on thinning zones and pair it with daily 4-minute scalp massage — this combination has the strongest OTC evidence for regrowth.',
         };
         data.weeklyFocus = WEEKLY_FOCUS_MAP[data.weakestMetric?.label]
           || 'Stay consistent with your current routine — daily adherence is the single biggest driver of long-term results.';
