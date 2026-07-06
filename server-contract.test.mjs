@@ -49,4 +49,10 @@ assert(
   'scan should deduplicate insight metrics so all 3 insights cover distinct metrics'
 );
 
+assert(
+  source.includes("NW5:  'bitemporal+crown'") &&
+    source.includes("NW1:  'minimal'"),
+  'STAGE_THINNING_OVERRIDES should enforce NW1→minimal and NW5→bitemporal+crown to prevent inconsistent stage/pattern pairs'
+);
+
 console.log('server contract passed');

@@ -1594,8 +1594,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // Correct silently so the iOS app never receives an inconsistent pair.
         // Rules come directly from the stage-thinningPattern section of the scan prompt.
         const STAGE_THINNING_OVERRIDES = {
+          NW1:  'minimal',          // NW1 = no visible recession anywhere; no thinning pattern
           NW3v: 'bitemporal+crown', // NW3v = temple + early crown by definition
           NW4:  'bitemporal+crown', // NW4 has both frontal + pronounced crown thinning
+          NW5:  'bitemporal+crown', // NW5 frontal+crown nearly merging — NOT total (reserved for NW6/NW7)
           NW6:  'total',            // frontal and crown merged; only lateral fringe remains
           NW7:  'total',            // horseshoe fringe only; near-total scalp loss
           diffuse: 'diffuse',       // diffuse stage → diffuse pattern (always uniform)
