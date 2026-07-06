@@ -55,4 +55,10 @@ assert(
   'STAGE_THINNING_OVERRIDES should enforce NW1→minimal and NW5→bitemporal+crown to prevent inconsistent stage/pattern pairs'
 );
 
+assert(
+  source.includes("NW2:  'bitemporal'") &&
+    source.includes("NW3:  'bitemporal'"),
+  'STAGE_THINNING_OVERRIDES should enforce NW2→bitemporal and NW3→bitemporal to prevent minimal or bitemporal+crown from being returned for those stages'
+);
+
 console.log('server contract passed');

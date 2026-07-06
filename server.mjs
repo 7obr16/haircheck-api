@@ -1438,6 +1438,9 @@ Thinning pattern discriminator — use when adjacent patterns are ambiguous:
 - n/a (female): Use for female-presenting patients regardless of pattern — Ludwig classification applies mentally but output the Norwood thinningPattern enum value that best describes the visible zone (diffuse for Ludwig I-II, total for Ludwig III).
 
 Stage-thinningPattern consistency — apply after assigning both stage and thinningPattern independently:
+- NW1 has no recession and no thinning — thinningPattern MUST be minimal.
+- NW2 is defined by slight symmetric temple recession — thinningPattern MUST be bitemporal (not minimal; there IS visible recession at NW2 by definition, it just isn't deep yet).
+- NW3 is defined by deep bilateral temple recession without crown involvement — thinningPattern MUST be bitemporal. Crown is intact at NW3 (that is what distinguishes NW3 from NW3v); do NOT assign bitemporal+crown to NW3.
 - NW3v is defined by simultaneous temple recession AND early crown thinning — thinningPattern MUST be bitemporal+crown; if independent pattern assessment returned only bitemporal, re-examine the vertex and correct to bitemporal+crown.
 - NW4 has both frontal and pronounced crown thinning — thinningPattern should be bitemporal+crown (not bitemporal alone). If crown is somehow unaffected at NW4, double-check the stage assignment.
 - NW6 and NW7 have fully merged frontal and crown bald zones — thinningPattern MUST be total.
@@ -1595,6 +1598,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // Rules come directly from the stage-thinningPattern section of the scan prompt.
         const STAGE_THINNING_OVERRIDES = {
           NW1:  'minimal',          // NW1 = no visible recession anywhere; no thinning pattern
+          NW2:  'bitemporal',       // NW2 = slight symmetric temple recession by definition; never minimal
+          NW3:  'bitemporal',       // NW3 = deep bilateral temple recession, crown intact; NW3v covers crown
           NW3v: 'bitemporal+crown', // NW3v = temple + early crown by definition
           NW4:  'bitemporal+crown', // NW4 has both frontal + pronounced crown thinning
           NW5:  'bitemporal+crown', // NW5 frontal+crown nearly merging — NOT total (reserved for NW6/NW7)
