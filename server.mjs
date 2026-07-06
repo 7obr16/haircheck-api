@@ -2160,6 +2160,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           weeklyFocus:       userContext.result.weeklyFocus ? String(userContext.result.weeklyFocus).slice(0, 400) : null,
           nextCheckInReason: userContext.result.nextCheckInReason ? String(userContext.result.nextCheckInReason).slice(0, 200) : null,
           thinningPattern:   userContext.result.thinningPattern || null,
+          stageSeverityLabel: userContext.result.stageSeverityLabel ? String(userContext.result.stageSeverityLabel).slice(0, 20) : null,
+          weeklyFocusMetric:  userContext.result.weeklyFocusMetric  ? String(userContext.result.weeklyFocusMetric).slice(0, 20)  : null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -2307,6 +2309,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : '',
         ctx.scan?.thinningPattern
           ? `- Thinning pattern: ${ctx.scan.thinningPattern}${THINNING_PATTERN_GUIDE[ctx.scan.thinningPattern] ? ` (${THINNING_PATTERN_GUIDE[ctx.scan.thinningPattern]})` : ''} — use this to give targeted zone-specific advice.`
+          : '',
+        ctx.scan?.stageSeverityLabel
+          ? `- Stage severity category: ${ctx.scan.stageSeverityLabel} — use this plain-language label when users ask how serious their hair loss is (e.g. Early → "this is early-stage loss and the ideal prevention window"; Moderate → "established loss, strong response window"; Advanced → "significant loss, consistent multi-therapy is key"; Severe → "advanced loss, specialist options are realistic").`
+          : '',
+        ctx.scan?.weeklyFocusMetric
+          ? `- Weekly focus metric: ${ctx.scan.weeklyFocusMetric} — the specific metric the weekly focus action targets; when the user asks what to work on this week, reinforce both the metric name and the weekly focus text together rather than giving generic advice.`
           : '',
         ctx.weakestMetric?.label ? `- Current weakest metric: ${ctx.weakestMetric.label} (${ctx.weakestMetric.value}/100) — primary focus area.` : '',
         ctx.secondWeakestMetric?.label ? `- Second weakest metric: ${ctx.secondWeakestMetric.label} (${ctx.secondWeakestMetric.value}/100) — secondary priority worth mentioning when the user asks what else to work on.` : '',
