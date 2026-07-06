@@ -1826,11 +1826,23 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 ? (_hasMinoxidil
                     ? 'Your crown is intact at NW2 — the temple recession is the active priority right now. Keep your topical focused on both temple corners and take monthly overhead photos to catch any early vertex thinning as soon as it appears.'
                     : 'Your crown is currently intact at NW2 — temples are the active zone. Focus treatment there first and track the crown monthly with overhead photos to catch any early vertex thinning before it needs aggressive intervention.')
-                : (_hasMassage && _hasMinoxidil)
-                    ? 'Massage and topical are both in your routine — optimize by applying minoxidil to the vertex directly after massaging so freshly stimulated follicles absorb more. Track with monthly overhead photos.'
-                    : _hasMassage
-                      ? 'Your massage habit is on — now add crown-targeted topical (minoxidil at vertex, 1ml) and take a weekly overhead photo to track baseline density.'
-                      : 'Begin a crown-focused topical routine and take an overhead comparison photo now to track your baseline.',
+                : (data.stage === 'diffuse' || data.stage === 'n/a (female)')
+                  ? (_hasMinoxidil && _hasMassage
+                      ? (data.stage === 'n/a (female)'
+                          ? "Female-pattern crown thinning is along the central parting and scalp top — confirm your minoxidil covers the full central parting evenly, not just the hairline edge. Your massage is active: apply it across the central part and top before minoxidil for best absorption. Monthly part-line photos track response."
+                          : 'Diffuse thinning reaches the crown uniformly — your minoxidil and massage are both active. Confirm you apply minoxidil across the full scalp top (not just the vertex), and do the massage across the entire top twice daily. Take monthly overhead photos to track the full-scalp density baseline.')
+                      : _hasMinoxidil
+                        ? (data.stage === 'n/a (female)'
+                            ? "Female-pattern crown thinning focuses on the central parting and scalp top — apply minoxidil across the full crown top (not just the front hairline) twice daily. Add a 4-minute scalp massage before each application to improve absorption along the parting line where thinning is most visible."
+                            : 'Diffuse crown thinning responds best to uniform minoxidil coverage across the full scalp top (not just the vertex) twice daily. Add a 4-minute full-scalp massage before each application to drive even absorption. Track with monthly overhead photos.')
+                        : (data.stage === 'n/a (female)'
+                            ? "Female-pattern crown thinning is centered along the central parting and scalp top — start minoxidil applied across the full crown area twice daily. Take monthly central-part photos as your baseline; consistent coverage along the parting line is the single most impactful OTC step for female-pattern crown thinning."
+                            : 'Diffuse thinning affects the full crown uniformly — start minoxidil across the entire scalp top (not just the vertex) twice daily and pair it with a full-scalp massage. Monthly overhead photos track the baseline since diffuse crown improvement happens gradually.'))
+                  : (_hasMassage && _hasMinoxidil)
+                      ? 'Massage and topical are both in your routine — optimize by applying minoxidil to the vertex directly after massaging so freshly stimulated follicles absorb more. Track with monthly overhead photos.'
+                      : _hasMassage
+                        ? 'Your massage habit is on — now add crown-targeted topical (minoxidil at vertex, 1ml) and take a weekly overhead photo to track baseline density.'
+                        : 'Begin a crown-focused topical routine and take an overhead comparison photo now to track your baseline.',
           Health: _isNW7
             ? 'At NW7, scalp health maintenance protects remaining hair — keep any active routine going, but the highest-ROI step this week is booking a trichologist or transplant consultation to evaluate donor supply and candidacy.'
             : _isNW56
@@ -1873,11 +1885,23 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                               : _hasDHTShampoo
                                 ? 'At NW4, your DHT shampoo is handling topical suppression — add a supplement stack (biotin, zinc, vitamin D) and a pre-application scalp massage. Advanced miniaturization at NW4 needs every anti-inflammatory layer working together to maintain follicle health.'
                                 : 'At NW4, scalp health needs the full anti-miniaturization stack: DHT-blocking shampoo 3× weekly (3-5 min contact time), a supplement stack (biotin, zinc, vitamin D), and weekly microneedling. Advanced miniaturization at this stage requires every layer to be active.')
-                        : (_hasSupplements && _hasDHTShampoo)
-                            ? 'Supplements and DHT-blocking shampoo are both active — target sleep quality this week: aim for 7-8 hours. Elevated cortisol from poor sleep accelerates miniaturization beyond what topicals can offset.'
-                            : _hasSupplements
-                              ? 'Continue your supplement routine — focus this week on scalp hygiene: reduce washing to 3-4× weekly, switch to a sulfate-free shampoo, and watch for scalp tension signs.'
-                              : 'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
+                        : (data.stage === 'diffuse' || data.stage === 'n/a (female)')
+                          ? (_hasSupplements && _hasDHTShampoo
+                              ? (data.stage === 'n/a (female)'
+                                  ? "Female-pattern thinning with supplements and DHT shampoo in place is well-protected — the highest-ROI next step is a ferritin, thyroid, and hormone panel. These are the most common reversible causes in women and identifying one can reverse scalp-top thinning that topicals alone cannot fix."
+                                  : "Diffuse thinning with supplements and DHT shampoo in your routine is well-covered preventively — the highest-ROI next step is checking ferritin, vitamin D, and thyroid levels. A reversible nutritional or hormonal cause is common with diffuse loss, and topicals alone won't fix it.")
+                              : _hasSupplements
+                                ? (data.stage === 'n/a (female)'
+                                    ? "Female-pattern thinning responds well when nutritional causes are ruled out — add a DHT-blocking shampoo 3× weekly and prioritize a ferritin, thyroid, and hormone workup. Your supplement stack supports follicle health; finding a reversible root cause gives topicals the best environment to work."
+                                    : "Diffuse thinning often has a nutritional or hormonal root cause — add a DHT-blocking shampoo 3× weekly and consider a ferritin, vitamin D, and thyroid workup. Your supplement stack is a good start; targeting the underlying cause alongside it gives the strongest response.")
+                                : (data.stage === 'n/a (female)'
+                                    ? "Female-pattern scalp-top thinning is often nutritional or hormonal — switch to a gentle sulfate-free shampoo, start a supplement stack (biotin, zinc, vitamin D), and consider checking ferritin, thyroid, and hormones. Identifying and treating a reversible cause can reverse thinning that topicals alone can't fix."
+                                    : "Diffuse thinning has a higher chance of a reversible nutritional or hormonal cause — switch to a gentle sulfate-free shampoo, start a supplement stack (biotin, zinc, vitamin D), and consider checking ferritin, thyroid, and iron. Reducing scalp inflammation while investigating the cause is the highest-ROI step."))
+                          : (_hasSupplements && _hasDHTShampoo)
+                              ? 'Supplements and DHT-blocking shampoo are both active — target sleep quality this week: aim for 7-8 hours. Elevated cortisol from poor sleep accelerates miniaturization beyond what topicals can offset.'
+                              : _hasSupplements
+                                ? 'Continue your supplement routine — focus this week on scalp hygiene: reduce washing to 3-4× weekly, switch to a sulfate-free shampoo, and watch for scalp tension signs.'
+                                : 'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
           Potential: _isNW7
             ? 'Your highest-ROI step is a transplant or SMP consultation — OTC treatments alone are unlikely to create meaningful change at NW7. Research experienced surgeons or SMP artists this week.'
             : _isNW5only
@@ -1968,19 +1992,31 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                                       : _hasMinoxidil
                                         ? 'At NW4, pair your minoxidil with a DHT-blocking shampoo 3× weekly and a 4-minute scalp massage before each application. This triple approach — topical growth signal + DHT suppression + mechanical stimulation — is the strongest realistic OTC protocol at this stage.'
                                         : 'NW4 still has meaningful potential with the right protocol — start the full stack this week: minoxidil across the entire top twice daily, DHT-blocking shampoo 3× weekly (3-5 min contact time), and daily 4-minute scalp massage. Comprehensive, consistent coverage over 4+ months determines the outcome.')
-                        : _hasFinasteride && _hasMinoxidil && _hasMassage
-                            ? 'Finasteride + minoxidil + scalp massage is the most evidence-backed non-surgical stack — optimize timing: massage 4 minutes first, apply minoxidil immediately after, and take finasteride at the same time each day without gaps. Consistency is the only variable left.'
-                            : _hasFinasteride && _hasMinoxidil
-                              ? 'Finasteride blocks systemic DHT and minoxidil drives the topical growth signal — add a 4-minute scalp massage before each application to prime absorption. This trio gives the strongest evidence-based response available without surgery.'
-                              : _hasFinasteride
-                                ? 'Finasteride is your strongest DHT suppressor — add minoxidil twice daily to the thinning zones for the complementary topical growth signal. The finasteride + minoxidil combination has the strongest non-surgical evidence base; adding scalp massage as the third layer maximizes potential.'
-                                : (_hasMinoxidil && _hasMassage && _hasDHTShampoo)
-                                    ? 'You have the top three habits active (minoxidil, scalp massage, DHT-blocking shampoo) — optimize timing: massage first, then apply minoxidil immediately after, and leave DHT shampoo on 3-5 minutes before rinsing on wash days. Consistency beats adding products.'
-                                    : (_hasMinoxidil && _hasMassage)
-                                      ? 'You have the key habits in place — stack them: apply minoxidil immediately after a 4-minute scalp massage so active ingredients penetrate freshly stimulated follicles.'
-                                      : _hasMinoxidil
-                                        ? 'Add a 4-minute scalp massage right before your morning minoxidil — stimulating blood flow first significantly improves topical absorption and follicle response.'
-                                        : 'To maximize your treatment window, start minoxidil on thinning zones and pair it with daily 4-minute scalp massage — this combination has the strongest OTC evidence for regrowth.',
+                        : (data.stage === 'diffuse' || data.stage === 'n/a (female)')
+                          ? (_hasMinoxidil && _hasDHTShampoo
+                              ? (data.stage === 'n/a (female)'
+                                  ? "Female-pattern potential is 55-78% — your minoxidil and DHT shampoo are the right tools. Prioritize a ferritin, thyroid, and hormone panel this month: a reversible cause is more likely in women and when treated it can produce rapid, lasting improvement beyond what topicals achieve alone."
+                                  : "Diffuse thinning has high OTC potential (55-78%) especially if a reversible cause is found — your topical and DHT shampoo are the right tools. Prioritize a ferritin, vitamin D, and thyroid workup this month: fixing a nutritional root cause alongside consistent treatment can produce rapid and lasting improvement.")
+                              : _hasMinoxidil
+                                ? (data.stage === 'n/a (female)'
+                                    ? "Female-pattern potential is 55-78% — add a DHT-blocking shampoo 3× weekly to complement your minoxidil. Also check ferritin, thyroid, and hormones: these reversible causes are common in women and, when treated, produce improvements that topicals alone can't achieve."
+                                    : "Diffuse thinning potential is 55-78% with a consistent protocol — add a DHT-blocking shampoo 3× weekly to complement your minoxidil. Also investigate ferritin, vitamin D, and thyroid: a reversible nutritional or hormonal cause is common with diffuse loss and dramatically improves the outcome when treated.")
+                                : (data.stage === 'n/a (female)'
+                                    ? "Female-pattern thinning has meaningful potential (55-78%) especially if a reversible hormonal or nutritional cause is present — start minoxidil applied across the full scalp top twice daily. Also check ferritin, thyroid, and hormones this month; a reversible cause is common and treating it is the highest-ROI step for long-term improvement."
+                                    : "Diffuse thinning has high OTC potential (55-78%) because the cause is often reversible — start minoxidil across the full scalp top twice daily and a DHT-blocking shampoo 3× weekly. Also investigate ferritin, vitamin D, and thyroid: fixing a nutritional root cause can produce rapid improvement that topicals alone cannot achieve."))
+                          : _hasFinasteride && _hasMinoxidil && _hasMassage
+                              ? 'Finasteride + minoxidil + scalp massage is the most evidence-backed non-surgical stack — optimize timing: massage 4 minutes first, apply minoxidil immediately after, and take finasteride at the same time each day without gaps. Consistency is the only variable left.'
+                              : _hasFinasteride && _hasMinoxidil
+                                ? 'Finasteride blocks systemic DHT and minoxidil drives the topical growth signal — add a 4-minute scalp massage before each application to prime absorption. This trio gives the strongest evidence-based response available without surgery.'
+                                : _hasFinasteride
+                                  ? 'Finasteride is your strongest DHT suppressor — add minoxidil twice daily to the thinning zones for the complementary topical growth signal. The finasteride + minoxidil combination has the strongest non-surgical evidence base; adding scalp massage as the third layer maximizes potential.'
+                                  : (_hasMinoxidil && _hasMassage && _hasDHTShampoo)
+                                      ? 'You have the top three habits active (minoxidil, scalp massage, DHT-blocking shampoo) — optimize timing: massage first, then apply minoxidil immediately after, and leave DHT shampoo on 3-5 minutes before rinsing on wash days. Consistency beats adding products.'
+                                      : (_hasMinoxidil && _hasMassage)
+                                        ? 'You have the key habits in place — stack them: apply minoxidil immediately after a 4-minute scalp massage so active ingredients penetrate freshly stimulated follicles.'
+                                        : _hasMinoxidil
+                                          ? 'Add a 4-minute scalp massage right before your morning minoxidil — stimulating blood flow first significantly improves topical absorption and follicle response.'
+                                          : 'To maximize your treatment window, start minoxidil on thinning zones and pair it with daily 4-minute scalp massage — this combination has the strongest OTC evidence for regrowth.',
         };
         data.weeklyFocus = WEEKLY_FOCUS_MAP[data.weakestMetric?.label]
           || 'Stay consistent with your current routine — daily adherence is the single biggest driver of long-term results.';
