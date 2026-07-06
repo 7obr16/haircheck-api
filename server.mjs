@@ -1587,7 +1587,27 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const VALID_PHOTO_QUALITIES = new Set(['good', 'acceptable', 'poor']);
         const photoQuality = VALID_PHOTO_QUALITIES.has(parsed.photoQuality) ? parsed.photoQuality : 'acceptable';
         const VALID_THINNING_PATTERNS = new Set(['minimal', 'bitemporal', 'crown', 'bitemporal+crown', 'frontal', 'diffuse', 'total']);
-        const thinningPattern = VALID_THINNING_PATTERNS.has(parsed.thinningPattern) ? parsed.thinningPattern : 'minimal';
+        const thinningPatternRaw = VALID_THINNING_PATTERNS.has(parsed.thinningPattern) ? parsed.thinningPattern : 'minimal';
+        // Server-side stage/thinningPattern consistency enforcement.
+        // The scan prompt instructs GPT-4o to follow these rules, but models
+        // occasionally violate them (e.g., NW3v with thinningPattern='bitemporal').
+        // Correct silently so the iOS app never receives an inconsistent pair.
+        // Rules come directly from the stage-thinningPattern section of the scan prompt.
+        const STAGE_THINNING_OVERRIDES = {
+          NW3v: 'bitemporal+crown', // NW3v = temple + early crown by definition
+          NW4:  'bitemporal+crown', // NW4 has both frontal + pronounced crown thinning
+          NW6:  'total',            // frontal and crown merged; only lateral fringe remains
+          NW7:  'total',            // horseshoe fringe only; near-total scalp loss
+          diffuse: 'diffuse',       // diffuse stage → diffuse pattern (always uniform)
+        };
+        let thinningPattern = STAGE_THINNING_OVERRIDES[stage] != null
+          ? STAGE_THINNING_OVERRIDES[stage]
+          : stage === 'n/a (female)' && thinningPatternRaw !== 'diffuse' && thinningPatternRaw !== 'total'
+            ? 'diffuse'             // female-pattern defaults to diffuse unless Ludwig III severe
+            : thinningPatternRaw;
+        if (thinningPattern !== thinningPatternRaw) {
+          console.warn('[vision] stage-thinningPattern corrected', { stage, from: thinningPatternRaw, to: thinningPattern });
+        }
         // confidenceScore is derived server-side from photoQuality — reflects how
         // reliably the AI could assess the scan. The iOS app can use this to decide
         // whether to show a "retake for better results" nudge.
