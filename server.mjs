@@ -1736,25 +1736,43 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                       : 'At NW6 minoxidil applied to the fringe and temporal edges twice daily can still slow further recession — start this week alongside a DHT-blocking shampoo. Book a transplant consultation to evaluate surgical coverage options alongside your OTC protocol.')
               : data.stage === 'NW4'
                 // NW4 hairline loss extends across the entire frontal zone (not just temple corners) — advice must reflect the full frontal hairline, not just "recession zones"
-                ? (_hasMinoxidil && _hasMassage)
-                    ? 'At NW4, your full frontal hairline needs coverage — apply minoxidil along the entire hairline edge and both temples twice daily, right after your scalp massage. Pair with monthly front-facing photos to track response over the next 4 months.'
-                    : _hasMinoxidil
-                      ? 'At NW4, extend minoxidil to the entire frontal hairline (not just the temples) twice daily. Add a 3-minute scalp massage before each application to drive absorption along the hairline edge where follicles face the most DHT pressure.'
-                      : 'NW4 frontal recession responds best to minoxidil applied along the full hairline edge and both temples twice daily. Start this week — 3-4 months of consistent coverage is the minimum before evaluating response. Track with monthly front-facing photos.'
+                ? (_hasFinasteride && _hasMinoxidil && _hasMassage)
+                    ? 'NW4 frontal hairline with finasteride + minoxidil + massage is the most complete non-surgical protocol — apply minoxidil along the entire hairline edge immediately after each scalp massage, and take finasteride at the same time daily without gaps. Uninterrupted consistency over 4-6 months is what separates stabilization from further retreat. Track with monthly front-facing photos.'
+                    : (_hasFinasteride && _hasMinoxidil)
+                      ? 'At NW4, finasteride + minoxidil is the most evidence-backed non-surgical hairline combination — apply minoxidil across the entire frontal zone twice daily, not just the temples. Add a 4-minute scalp massage before each application to prime absorption along the hairline edge where DHT pressure is highest.'
+                      : _hasFinasteride
+                        ? 'Finasteride provides systemic DHT suppression at NW4 — add minoxidil applied along the entire frontal hairline twice daily as the topical growth signal. Finasteride + minoxidil at NW4 is the strongest non-surgical approach; together they give the best documented hairline response at this established stage.'
+                        : (_hasMinoxidil && _hasMassage)
+                          ? 'At NW4, your full frontal hairline needs coverage — apply minoxidil along the entire hairline edge and both temples twice daily, right after your scalp massage. If progress stalls, a doctor consult about finasteride adds systemic DHT suppression that significantly improves outcomes at this stage. Track with monthly front-facing photos.'
+                          : _hasMinoxidil
+                            ? 'At NW4, extend minoxidil to the entire frontal hairline (not just the temples) twice daily. Add a 3-minute scalp massage before each application to drive absorption. For stronger long-term results, consider a doctor consult about finasteride — systemic DHT suppression at NW4 meaningfully improves the hairline trajectory.'
+                            : 'NW4 frontal recession responds best to minoxidil applied along the full hairline edge and both temples twice daily. Also consider talking to a doctor about finasteride — at NW4, finasteride + minoxidil gives the strongest evidence-based response for slowing recession. Start this week and track with monthly front-facing photos.'
                 : data.stage === 'NW3v'
                 // NW3v: dual-zone stage — temple recession AND early crown thinning — advice must address both zones simultaneously
-                ? (_hasMinoxidil && _hasMassage)
-                    ? 'NW3v means temple recession AND early crown thinning are both active — two zones need simultaneous coverage. Apply 1ml minoxidil to both temple recession zones AND directly to the vertex twice daily. You have massage active; do it before each application so both zones absorb better.'
-                    : _hasMinoxidil
-                      ? 'At NW3v, two zones are thinning: temples and early crown. Apply minoxidil to both — 1ml per temple zone PLUS 1ml directly to the vertex twice daily. Add a 3-minute scalp massage before each application to open follicles in both areas to absorption.'
-                      : 'NW3v is a dual-front stage: temples and crown are both starting to lose ground simultaneously. Start minoxidil on BOTH the temple recession zones AND the vertex now — dual coverage prevents both fronts from advancing independently, and acting at NW3v gives the strongest response window.'
+                ? (_hasFinasteride && _hasMinoxidil && _hasMassage)
+                    ? 'NW3v has two active zones and your finasteride + minoxidil + massage protocol is fully deployed — confirm 1ml minoxidil covers BOTH temple recession zones AND the vertex each session, applied right after your scalp massage. Take finasteride at the same time daily; dual-zone consistency over 3-4 months converts this complete stack into visible results.'
+                    : (_hasFinasteride && _hasMinoxidil)
+                      ? 'At NW3v two zones are thinning simultaneously and your finasteride + minoxidil is the right foundation — add a 4-minute scalp massage before each topical application, covering temples AND vertex. Mechanical stimulation is the highest-ROI addition to your finasteride + minoxidil stack at this dual-zone stage.'
+                      : _hasFinasteride
+                        ? 'Finasteride addresses the systemic DHT driving both active zones at NW3v — add minoxidil to BOTH the temple recession zones AND the vertex twice daily for targeted topical coverage. Dual-zone minoxidil alongside finasteride gives the strongest non-surgical response for this simultaneous two-front stage.'
+                        : (_hasMinoxidil && _hasMassage)
+                          ? 'NW3v means temple recession AND early crown thinning are both active — two zones need simultaneous coverage. Apply 1ml minoxidil to both temple recession zones AND directly to the vertex twice daily. You have massage active; do it before each application so both zones absorb better.'
+                          : _hasMinoxidil
+                            ? 'At NW3v, two zones are thinning: temples and early crown. Apply minoxidil to both — 1ml per temple zone PLUS 1ml directly to the vertex twice daily. Add a 3-minute scalp massage before each application to open follicles in both areas to absorption.'
+                            : 'NW3v is a dual-front stage: temples and crown are both starting to lose ground simultaneously. Start minoxidil on BOTH the temple recession zones AND the vertex now — dual coverage prevents both fronts from advancing independently, and acting at NW3v gives the strongest response window.'
                 : data.stage === 'NW3'
                 // NW3: deep bilateral temple recession past mid-pupil — established AGA; this is the strongest treatment response window
-                ? (_hasMinoxidil && _hasMassage)
-                    ? 'NW3 deep temple recession is established AGA — your minoxidil and massage are both active. Optimize by parting hair to expose both recession zones before applying and confirming full 1ml coverage per side morning and night. Precision in the recession zone matters more than adding products.'
-                    : _hasMinoxidil
-                      ? 'NW3 temple recession extends past mid-pupil — this is an active phase but still a strong response window. Apply 1ml to each temple recession zone twice daily and add a 4-minute scalp massage after each application to maximize absorption where DHT pressure is highest.'
-                      : 'NW3 deep temple recession responds well to action now — follicles at the recession edge are still viable and highly responsive. Start minoxidil on both temple zones twice daily, add a 4-minute scalp massage per application, and track with monthly front-facing photos from the same angle.'
+                ? (_hasFinasteride && _hasMinoxidil && _hasMassage)
+                    ? 'NW3 deep temple recession with finasteride + minoxidil + massage is the most complete non-surgical stack at this pivotal window — apply 1ml to each recession zone right after a 4-minute scalp massage and take finasteride at the same time daily. This combination produces the best documented long-term results at NW3.'
+                    : (_hasFinasteride && _hasMinoxidil)
+                      ? 'NW3 is a strong response window and your finasteride + minoxidil is the most evidence-backed combination — add a 4-minute scalp massage before each topical application to prime absorption at the recession edge. Confirm full 1ml coverage per side, morning and night.'
+                      : _hasFinasteride
+                        ? 'Finasteride suppresses systemic DHT at NW3 — add minoxidil to both temple recession zones twice daily for the topical growth signal. NW3 is the strongest treatment window; finasteride + minoxidil together produce the best documented non-surgical results at this stage.'
+                        : (_hasMinoxidil && _hasMassage)
+                          ? 'NW3 deep temple recession is established AGA — your minoxidil and massage are both active. Optimize by parting hair to expose both recession zones before applying and confirming full 1ml coverage per side morning and night. Precision in the recession zone matters more than adding products.'
+                          : _hasMinoxidil
+                            ? 'NW3 temple recession extends past mid-pupil — this is an active phase but still a strong response window. Apply 1ml to each temple recession zone twice daily and add a 4-minute scalp massage after each application to maximize absorption where DHT pressure is highest.'
+                            : 'NW3 deep temple recession responds well to action now — follicles at the recession edge are still viable and highly responsive. Start minoxidil on both temple zones twice daily, add a 4-minute scalp massage per application, and track with monthly front-facing photos from the same angle.'
                 : data.stage === 'NW2'
                 // NW2: earliest detectable stage — preventive window; best long-term outcome comes from acting here
                 ? (_hasMinoxidil)
