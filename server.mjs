@@ -1416,7 +1416,7 @@ const server = createServer(async (req, res) => {
 - stage: Norwood stage (pick from the enum)
 - headline: 6-9 word punchy summary, confident tone. Calibrate energy to the stage: NW1-NW2 → protective/preventive urgency (this is the best window); NW3-NW3v → action-oriented, motivating, results-focused; NW4 → committed/realistic, acknowledge the work ahead; NW5+ → frank expectation-setting, specialist-aware; diffuse/female → cause-investigation framing. Avoid hedging words like "might", "could", or "some". Never start with "Your".
 - insights: exactly 3 items, each with a 5-word title (≤5 words), a 20-28 word actionable body that is specific to THIS user's visible loss pattern, scores, stage, or profile — name the actual stage or a score, specify a concrete action, and give a reason tied to their situation. CRITICAL routine rule: check "Current routine" in the user context above — if a treatment is already listed (e.g. minoxidil, finasteride, dutasteride, DHT-blocking shampoo, supplements), do NOT suggest starting it. Instead, suggest how to optimize that treatment (e.g. proper application coverage, timing, frequency) or recommend a different complementary layer. Never repeat a recommendation for something the user already does. Avoid generic advice. CRITICAL diversity rule: every insight MUST target a DIFFERENT metric — never assign the same metric value to two insights; pick the 3 most clinically relevant distinct metrics from: Hairline, Density, Crown, Health, Potential. The metric must match: Hairline→temple/frontal recession, Density→mid-scalp thinning, Crown→vertex/crown thinning, Health→scalp condition or miniaturization, Potential→treatment response or growth timeline
-- verdict: 1-2 sentence verdict, slightly aspirational, no medical claims
+- verdict: 1-2 sentence verdict, no medical claims. Calibrate tone to stage: NW1-NW2 → protective and preventive opportunity (e.g. "Your follicles are fully intact — this is the best window to build the habits that keep them that way."); NW3-NW3v → motivating and results-focused (e.g. "Deep recession at this stage responds strongly to a consistent topical + DHT approach — the response window is genuinely open."); NW4 → realistic but forward-looking (e.g. "Significant loss has progressed, but consistent multi-therapy still produces real, measurable gains at this stage."); NW5 → frank with a concrete path (e.g. "OTC treatment can meaningfully slow further loss — pairing it with a transplant consultation now gives the most complete long-term strategy."); NW6-NW7 → specialist-aware and candid (e.g. "Surgical options — FUE/FUT or SMP — are the most realistic path to meaningful coverage at this stage."); diffuse/female → cause-investigation-first (e.g. "Identifying and addressing the underlying cause is the highest-impact step — topicals work best once the root driver is managed."). Never start with "Your". Slightly aspirational where the stage allows it.
 - photoQuality: 'good' | 'acceptable' | 'poor'
 - photoNote: brief sentence about quality issues, or empty string if quality is good
 - thinningPattern: classify the PRIMARY visible loss pattern from this enum:
@@ -1649,6 +1649,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const [_strongLabel, _strongValue] = _sortedMetrics[_sortedMetrics.length - 1];
         data.weakestMetric   = { label: _weakLabel,   value: _weakValue };
         data.strongestMetric = { label: _strongLabel, value: _strongValue };
+        // Second-weakest metric (by current-state score). Gives the iOS app a #2 priority
+        // without extra client-side sorting logic, and surfaces it in the coach context.
+        data.secondWeakestMetric = _sortedMetrics.length >= 2
+          ? { label: _sortedMetrics[1][0], value: _sortedMetrics[1][1] }
+          : null;
         // Guarantee the weakest metric is covered by at least one insight.
         // GPT-4o may return 3 insights that all miss the weakest area — replace
         // insights[2] (lowest-priority slot) with a targeted server-side fallback.
@@ -2137,8 +2142,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
         planProducts: Array.isArray(userContext.planProducts) ? userContext.planProducts.slice(0, 8) : [],
         routineDoneToday: Array.isArray(userContext.routineDoneToday) ? userContext.routineDoneToday.slice(0, 12) : [],
-        weakestMetric:   userContext.weakestMetric  || userContext.result?.weakestMetric  || null,
-        strongestMetric: userContext.strongestMetric || userContext.result?.strongestMetric || null,
+        weakestMetric:        userContext.weakestMetric        || userContext.result?.weakestMetric        || null,
+        secondWeakestMetric:  userContext.secondWeakestMetric  || userContext.result?.secondWeakestMetric  || null,
+        strongestMetric:      userContext.strongestMetric      || userContext.result?.strongestMetric      || null,
         age:           coachProfile.age,
         sex:           coachProfile.sex || null,
         goals:         coachProfile.goals,
@@ -2279,7 +2285,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.scan?.thinningPattern
           ? `- Thinning pattern: ${ctx.scan.thinningPattern}${THINNING_PATTERN_GUIDE[ctx.scan.thinningPattern] ? ` (${THINNING_PATTERN_GUIDE[ctx.scan.thinningPattern]})` : ''} — use this to give targeted zone-specific advice.`
           : '',
-        ctx.weakestMetric?.label ? `- Current weakest metric: ${ctx.weakestMetric.label} (${ctx.weakestMetric.value}/100).` : '',
+        ctx.weakestMetric?.label ? `- Current weakest metric: ${ctx.weakestMetric.label} (${ctx.weakestMetric.value}/100) — primary focus area.` : '',
+        ctx.secondWeakestMetric?.label ? `- Second weakest metric: ${ctx.secondWeakestMetric.label} (${ctx.secondWeakestMetric.value}/100) — secondary priority worth mentioning when the user asks what else to work on.` : '',
         ctx.strongestMetric?.label ? `- Current strongest metric: ${ctx.strongestMetric.label} (${ctx.strongestMetric.value}/100) — mention this as a positive when relevant.` : '',
         ctx.routine.length ? `- Current routine: ${ctx.routine.join(', ')}.` : '- No routine logged yet.',
         ctx.routineDoneToday.length ? `- Routine tasks completed today: ${ctx.routineDoneToday.join(', ')}.` : '- No routine tasks completed today.',
