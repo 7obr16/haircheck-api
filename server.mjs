@@ -1481,7 +1481,7 @@ Scoring guide (all scores 0-100 integers):
 - density: 100 = full terminal hair density with no scalp visible through hair. Deduct for mid-scalp see-through, diffuse thinning, miniaturization. Stage-correlated ranges: NW1→88-100, NW2→80-95, NW3→65-82 (reduce by 5-15 more if visible mid-scalp thinning alongside the recession), NW4→45-68, NW5→30-52, NW6+→15-38, diffuse→35-65 (depends on coverage uniformity). If the photo is a straight-on face shot where mid-scalp isn't visible, estimate from stage.
 - crown: 100 = full vertex/crown coverage from above. Stage-correlated ranges: NW1→90-100, NW2→87-100, NW3→82-97 (crown should be intact unless NW3v), NW3v→55-75 (early vertex thinning distinguishes this stage), NW4→35-58, NW5→18-40, NW6+→5-25. If crown IS visible in the photo, score directly from what you see. If not, use the stage estimate.
 - health: 100 = thick terminal hairs at normal caliber, healthy scalp, no miniaturization or inflammation. Deduct for: visible miniaturization (fine, short hairs at the thinning edge) −10 to −20; scalp inflammation or redness −5 to −15; visible flakiness or dandruff −5 to −10; widespread vellus hairs replacing terminal hairs −10 to −20. Health is NOT determined by hairline position — a NW4 with thick terminal hairs and healthy scalp can score 78-88 on health.
-- potential: realistic percentage improvement achievable with a consistent 6-12 month OTC protocol (minoxidil, scalp care, supplements). Score what is ACHIEVABLE — not the current state. Use these stage×age guidelines:
+- potential: realistic percentage improvement achievable with a consistent 6-12 month treatment protocol (OTC or Rx already in the user's "Current routine"). Score what is ACHIEVABLE — not the current state. If "Current routine" contains finasteride or dutasteride, these Rx DHT blockers substantially improve outcomes at every stage — treat their presence as meaningful upward pressure on potential. Use these stage×age guidelines:
   • NW1-NW2, any age: 72-88 (early prevention window, follicles fully viable)
   • NW3-NW3v, under 35: 68-82 (strong responders; significant regrowth expected)
   • NW3-NW3v, age 35-54: 58-74 (good gains with consistency; moderately responsive)
@@ -1490,7 +1490,7 @@ Scoring guide (all scores 0-100 integers):
   • NW5, any age: 28-48 (OTC slows progression; realistic expectations needed)
   • NW6-NW7, any age: 15-32 (very limited OTC benefit; transplant/SMP discussion)
   • diffuse/female pattern: 55-78 (often nutritional or hormonal — responds well if cause found)
-  Upward adjustments (+5 to +8): age under 28, loss duration under 1 year, no family history of NW6+, already responding to current treatment.
+  Upward adjustments (+5 to +10): age under 28, loss duration under 1 year, no family history of NW6+, already responding to current treatment, currently on finasteride or dutasteride (+6 to +10 on top of stage baseline — Rx DHT blockers meaningfully shift outcomes even at NW5-NW6; use the high end of this range for users who have been on them consistently for 6+ months).
   Downward adjustments (−5 to −8): age over 60, family history of NW6+, loss for 10+ years untreated, visible miniaturization across entire top.
   Potential is NOT the same as current health — a NW4 with good hair health can still score 55+ potential because the follicles are viable.
 - overall (computed server-side): do not output this field.
@@ -2272,7 +2272,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           ? `- If the user asks about score reliability or why scores seem low, recommend a retake: ${ctx.scan.photoGuidance}`
           : '',
         ctx.scan?.insights?.length
-          ? `- Scan insights: ${ctx.scan.insights.map((ins, i) => `${i + 1}) "${ins.title}" (${ins.metric}): ${ins.body}`).join('; ')}.`
+          ? `- Scan insights:\n${ctx.scan.insights.map((ins, i) => `  ${i + 1}) [${ins.metric}] ${ins.title}: ${ins.body}`).join('\n')}`
           : '',
         ctx.scan?.thinningPattern
           ? `- Thinning pattern: ${ctx.scan.thinningPattern}${THINNING_PATTERN_GUIDE[ctx.scan.thinningPattern] ? ` (${THINNING_PATTERN_GUIDE[ctx.scan.thinningPattern]})` : ''} — use this to give targeted zone-specific advice.`
