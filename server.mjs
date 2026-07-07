@@ -1644,7 +1644,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           },
         ],
         temperature: 0.3,
-        max_tokens: 1500,
+        max_tokens: 2000,
       });
 
       const scanPromise = (async () => {
@@ -1918,13 +1918,25 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                   : _hasMinoxidil
                     ? 'Your minoxidil is active — maximize coverage across both recession zones twice daily and add a 3-minute scalp massage post-application to boost absorption.'
                     : 'Apply minoxidil directly to your recession zones every morning and night — temple consistency is the highest-leverage habit right now.',
-          Density: _isAdvancedStage
-            ? (_hasDHTShampoo && _hasMassage
-                ? 'DHT-blocking shampoo and scalp stimulation are both active — leave shampoo on for 3-5 minutes before rinsing and do a focused microneedling session on the thinnest zones weekly for maximum response.'
-                : _hasDHTShampoo
-                  ? "Your DHT-blocking shampoo helps slow miniaturization — keep it up and add weekly microneedling to prime remaining follicles for maximum response."
-                  : 'Add a DHT-blocking shampoo 3× this week — at your stage it helps stabilize existing density and slow further miniaturization.')
-            : data.stage === 'NW2'
+          Density: _isNW7
+            ? 'At NW7, density restoration is best addressed through surgical options — keep any active OTC routine consistent and prioritize a trichologist or transplant consultation to evaluate FUE/FUT or SMP coverage for the thinning zones.'
+            : _isNW5only
+              ? (_hasDHTShampoo && _hasMinoxidil && _hasMassage
+                  ? 'At NW5, density loss spans both frontal and crown zones and your three-layer stack is the right approach — optimize by leaving DHT shampoo on 3-5 minutes before rinsing and applying minoxidil immediately after the scalp massage. Add weekly microneedling over the thinnest zones to prime follicle absorption and get the most from your existing protocol.'
+                  : _hasDHTShampoo && _hasMinoxidil
+                    ? 'At NW5, density spans both frontal and crown zones — add a 4-minute scalp massage before each minoxidil application and weekly microneedling to maximize absorption. Mechanical stimulation significantly improves topical penetration where follicles are most compromised; leave your DHT shampoo on 3-5 minutes per wash for maximum local DHT suppression.'
+                    : _hasDHTShampoo
+                      ? 'NW5 density loss covers the full scalp top — add minoxidil across the entire top twice daily alongside your DHT-blocking shampoo. Combining topical growth signal (minoxidil) with local DHT suppression (shampoo) gives the strongest dual-mechanism OTC approach for slowing further density loss at this stage.'
+                      : _hasMinoxidil
+                        ? 'At NW5, add a DHT-blocking shampoo 3× weekly to your minoxidil — leave it on 3-5 minutes before rinsing and follow with a scalp massage. At this stage, stacking topical growth signal + DHT suppression + mechanical stimulation gives the strongest realistic density response; add weekly microneedling to prime follicle absorption.'
+                        : 'NW5 density loss spans both frontal and crown zones — start the full density stack this week: minoxidil across the entire scalp top twice daily, DHT-blocking shampoo 3× weekly (3-5 min contact time), and daily scalp massage. All three layers together give the strongest OTC density response at this stage; track with monthly overhead photos.')
+              : _isNW56
+              ? (_hasDHTShampoo && _hasMassage
+                  ? 'DHT-blocking shampoo and scalp stimulation are both active — leave shampoo on for 3-5 minutes before rinsing and do a focused microneedling session on the thinnest zones weekly for maximum response.'
+                  : _hasDHTShampoo
+                    ? "Your DHT-blocking shampoo helps slow miniaturization — keep it up and add weekly microneedling to prime remaining follicles for maximum response."
+                    : 'Add a DHT-blocking shampoo 3× this week — at your stage it helps stabilize existing density and slow further miniaturization.')
+              : data.stage === 'NW2'
               ? (_hasDHTShampoo
                   ? 'Your DHT-blocking shampoo is already protecting your density — at NW2 your coverage is still strong. Keep using it 3× weekly and add a 5-minute scalp massage on wash days to maintain circulation and catch any early diffuse change.'
                   : 'At NW2 your density is still strong — protect it now by adding a DHT-blocking shampoo 3× weekly. This is the highest-ROI prevention step at your stage: slowing miniaturization before it becomes visible is far easier than reversing it later.')

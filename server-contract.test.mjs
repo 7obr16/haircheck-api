@@ -67,4 +67,15 @@ assert(
   'server should expose /api/generate-progression-batch that runs all months in parallel'
 );
 
+assert(
+  source.includes('_isNW5only') &&
+    source.includes('NW5 density loss spans both frontal and crown zones'),
+  'WEEKLY_FOCUS_MAP.Density should have NW5-specific advice distinct from the NW6/NW7 fallback'
+);
+
+assert(
+  source.includes('max_tokens: 2000'),
+  'scan should use max_tokens: 2000 to reduce truncation risk for structured output'
+);
+
 console.log('server contract passed');
