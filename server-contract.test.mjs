@@ -61,4 +61,10 @@ assert(
   'STAGE_THINNING_OVERRIDES should enforce NW2→bitemporal and NW3→bitemporal to prevent minimal or bitemporal+crown from being returned for those stages'
 );
 
+assert(
+  source.includes('/api/generate-progression-batch') &&
+    source.includes('Promise.all(months.map'),
+  'server should expose /api/generate-progression-batch that runs all months in parallel'
+);
+
 console.log('server contract passed');

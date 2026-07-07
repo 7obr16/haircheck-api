@@ -103,12 +103,13 @@ const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
 // Per-endpoint counters exposed via /api/health for production monitoring.
 const METRICS = {
-  scan:        { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
-  after:       { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
-  progression: { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
-  map:         { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
-  adviceVisual:{ requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
-  coach:       { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
+  scan:             { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
+  after:            { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
+  progression:      { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
+  progressionBatch: { requests: 0, errors: 0, lastError: null, lastSuccess: null },
+  map:              { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
+  adviceVisual:     { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
+  coach:            { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
 };
 
 // OpenAI pricing constants (USD). Update as pricing changes on platform.openai.com/docs/pricing.
@@ -124,21 +125,23 @@ const IMAGE_COST_BY_QUALITY = { low: 0.02, medium: 0.07, high: 0.19, auto: 0.07 
 // Exposed via /api/health so Railway dashboards and alerts can track p50/p95.
 const LATENCY_MAX_SAMPLES = 100;
 const LATENCY = {
-  scan:        [],
-  after:       [],
-  progression: [],
-  map:         [],
-  adviceVisual:[],
-  coach:       [],
+  scan:             [],
+  after:            [],
+  progression:      [],
+  progressionBatch: [],
+  map:              [],
+  adviceVisual:     [],
+  coach:            [],
 };
 
 const URL_TO_LATENCY_KEY = {
-  '/api/analyze-scan':          'scan',
-  '/api/generate-after':        'after',
-  '/api/generate-progression':  'progression',
-  '/api/generate-analysis-map': 'map',
-  '/api/generate-advice-visual':'adviceVisual',
-  '/api/coach':                 'coach',
+  '/api/analyze-scan':                'scan',
+  '/api/generate-after':              'after',
+  '/api/generate-progression':        'progression',
+  '/api/generate-progression-batch':  'progressionBatch',
+  '/api/generate-analysis-map':       'map',
+  '/api/generate-advice-visual':      'adviceVisual',
+  '/api/coach':                       'coach',
 };
 
 function recordLatency(key, ms) {
@@ -1156,6 +1159,133 @@ const server = createServer(async (req, res) => {
     } catch (err) {
       bumpError(METRICS.progression, err.statusCode || 500, err.message);
       console.error('[server] generate-progression error', err);
+      json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
+    }
+    return;
+  }
+
+  // ─── /api/generate-progression-batch — all N months in one parallel call ─
+  // Input: { photoDataUrl, months?: (3|6|12)[], quality?, stage? }
+  // Output: { results: { '3': dataUrl, '6': dataUrl, '12': dataUrl }, requestId }
+  // Default months = [3, 6, 12]. Runs all months in parallel → 3× faster than three sequential
+  // single-month calls. Cache and in-flight dedup are shared with /api/generate-progression so a
+  // batch call and a single-month call for the same photo never duplicate OpenAI work.
+  if (req.method === 'POST' && reqPath === '/api/generate-progression-batch') {
+    try {
+      METRICS.progressionBatch.requests++;
+      const { photoDataUrl, months: monthsParam = [3, 6, 12], quality: qParam, stage: stageParam } = await readJsonBody(req);
+      if (!photoDataUrl) throw new Error('photoDataUrl required');
+
+      const rawMonths = Array.isArray(monthsParam) ? monthsParam : [monthsParam];
+      const months = [...new Set(rawMonths.map(Number).filter((m) => PROGRESSION_PROMPTS[m]))];
+      if (!months.length) throw new Error('months must include one or more of: 3, 6, 12');
+
+      const quality = ['auto', 'high', 'medium', 'low'].includes(qParam) ? qParam : 'high';
+      const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
+      if (buffer.length < 3000) {
+        const err = new Error('Photo appears corrupted or too small. Please retake a clearer photo.');
+        err.statusCode = 422;
+        throw err;
+      }
+
+      const photoHash = createHash('sha256').update(buffer).digest('hex');
+      const startedAt = Date.now();
+      console.log('[progression-batch] start', { months, stage: stageParam || null, mime, inputKb: Math.round(buffer.length / 1024), quality });
+
+      // Run all requested months in parallel. PROGRESSION_CACHE and PROGRESSION_INFLIGHT are shared
+      // with the single-month handler so concurrent calls for the same photo never hit OpenAI twice.
+      const monthResults = await Promise.all(months.map(async (m) => {
+        METRICS.progression.requests++;
+        const hash = cacheHashOf('progression', mime, photoHash, String(m), quality, stageParam || '');
+
+        const progCached = cacheRead(PROGRESSION_CACHE, hash);
+        if (progCached) {
+          METRICS.progression.cacheHits++;
+          console.log('[progression-batch] CACHE HIT', { month: m, hash: hash.slice(0, 8) });
+          return { month: m, ok: true, afterPhoto: progCached, cached: true };
+        }
+
+        let progInflight = PROGRESSION_INFLIGHT.get(hash);
+        if (progInflight) {
+          console.log('[progression-batch] IN-FLIGHT JOIN', { month: m, hash: hash.slice(0, 8) });
+          const r = await progInflight;
+          return { month: m, ...r };
+        }
+
+        const progressionPrompt = buildProgressionPrompt(m, stageParam);
+        console.log('[progression-batch] generating', { month: m, hash: hash.slice(0, 8) });
+
+        const progPromise = (async () => {
+          const { ok, status, payload } = await withOpenAIRetry(`generate-progression-${m}`, (signal) => {
+            const fd = new FormData();
+            fd.append('model', 'gpt-image-2');
+            fd.append('image', new Blob([buffer], { type: mime }), 'selfie.png');
+            fd.append('prompt', progressionPrompt);
+            fd.append('n', '1');
+            fd.append('size', 'auto');
+            fd.append('quality', quality);
+            return fetch('https://api.openai.com/v1/images/edits', {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+              body: fd,
+              signal,
+            });
+          }, { maxAttempts: 2, timeoutMs: 300_000 });
+          if (!ok) {
+            console.error('[progression-batch] month error', { month: m, status, payload });
+            return { ok: false, status, error: payload };
+          }
+          const b64 = payload?.data?.[0]?.b64_json;
+          if (!b64) return { ok: false, status: 502, error: 'No image returned' };
+          return { ok: true, afterPhoto: `data:image/png;base64,${b64}` };
+        })();
+
+        PROGRESSION_INFLIGHT.set(hash, progPromise);
+        let progResult;
+        try {
+          progResult = await progPromise;
+        } finally {
+          PROGRESSION_INFLIGHT.delete(hash);
+        }
+
+        if (progResult.ok) {
+          cacheWrite(PROGRESSION_CACHE, hash, progResult.afterPhoto, IMAGE_CACHE_MAX);
+          bumpSuccess(METRICS.progression);
+          console.log('[progression-batch] month ok', { month: m, ms: Date.now() - startedAt });
+        } else {
+          bumpError(METRICS.progression, progResult.status || 502, progResult.error?.error || 'failed');
+        }
+        return { month: m, ...progResult };
+      }));
+
+      const results = {};
+      const errors = {};
+      for (const r of monthResults) {
+        if (r.ok) {
+          results[String(r.month)] = r.afterPhoto;
+        } else {
+          errors[String(r.month)] = normalizeOpenAIError('Generation failed', r.status, r.error);
+        }
+      }
+
+      if (!Object.keys(results).length) {
+        const firstErr = Object.values(errors)[0] || { error: 'All months failed' };
+        bumpError(METRICS.progressionBatch, 502, 'all months failed');
+        jsonError(req, res, 502, { ...firstErr, errors, requestId: reqId });
+        return;
+      }
+
+      bumpSuccess(METRICS.progressionBatch);
+      warnIfSlow('generate-progression-batch', startedAt, 'image');
+      console.log('[progression-batch] done', { months, ms: Date.now() - startedAt, succeeded: Object.keys(results).length, failed: Object.keys(errors).length });
+      json(req, res, 200, {
+        results,
+        ...(Object.keys(errors).length ? { errors } : {}),
+        requestId: reqId,
+      });
+    } catch (err) {
+      bumpError(METRICS.progressionBatch, err.statusCode || 500, err.message);
+      console.error('[server] generate-progression-batch error', err);
       json(req, res, err.statusCode || 500, { error: err.message || String(err), requestId: reqId });
     }
     return;
@@ -2411,6 +2541,8 @@ server.listen(PORT, () => {
   console.log(`\n[hairlinecheck api] running on http://localhost:${PORT} sha=${GIT_SHA}`);
   if (SERVE_STATIC) console.log(`[hairlinecheck api] serving static app from ${staticRoot}`);
   console.log(`[hairlinecheck api] POST /api/generate-after { photoDataUrl }`);
+  console.log(`[hairlinecheck api] POST /api/generate-progression { photoDataUrl, month }`);
+  console.log(`[hairlinecheck api] POST /api/generate-progression-batch { photoDataUrl, months? } (parallel)`);
   console.log(`[hairlinecheck api] POST /api/generate-analysis-map { photoDataUrl, kind }`);
   console.log(`[hairlinecheck api] POST /api/generate-advice-visual { kind }`);
   console.log(`[hairlinecheck api] POST /api/analyze-scan   { photoDataUrl }`);
