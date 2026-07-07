@@ -2020,18 +2020,30 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                       : 'Apply minoxidil directly to the crown/vertex (1ml) twice daily and add weekly microneedling — manage expectations and photograph from above every 6 weeks to track any change.')
               : data.stage === 'NW4'
                 // NW4 crown thinning is significant and well-established; needs direct targeted topical + realistic timeline
-                ? (_hasMinoxidil && _hasMassage)
-                    ? 'NW4 crown thinning responds best when minoxidil reaches the vertex directly — apply 1ml to the crown right after your scalp massage so freshly stimulated follicles absorb it immediately. Take an overhead photo today as your baseline; meaningful density changes take 3-4 months to show.'
-                    : _hasMinoxidil
-                      ? 'At NW4, crown coverage requires targeted application — apply 1ml minoxidil directly to the vertex twice daily and add a 4-minute scalp massage before each application to prime absorption. Track with monthly overhead photos.'
-                      : 'NW4 crown thinning responds best to minoxidil applied directly to the vertex twice daily, paired with a 4-minute scalp massage. Together these are the highest-ROI OTC combination at this stage — start this week and take an overhead photo today as your baseline.'
+                ? (_hasFinasteride && _hasMinoxidil && _hasMassage)
+                    ? 'NW4 crown with finasteride + minoxidil + massage is the most complete non-surgical crown protocol — apply 1ml minoxidil to the vertex immediately after a 4-minute scalp massage, and take finasteride at the same time each day. Consistent dual-mechanism coverage over 4-6 months is what produces visible crown density change at this stage. Track with monthly overhead photos.'
+                    : (_hasFinasteride && _hasMinoxidil)
+                      ? 'At NW4, finasteride + minoxidil is the strongest non-surgical crown combination — apply 1ml minoxidil directly to the vertex twice daily and take finasteride at the same time each day. Add a 4-minute scalp massage before each topical application to prime vertex follicle absorption and improve the response from your existing stack.'
+                      : _hasFinasteride
+                        ? 'Finasteride is suppressing DHT at NW4 — add minoxidil (1ml) applied directly to the vertex twice daily as the topical growth signal. Finasteride + minoxidil is the strongest non-surgical combination for NW4 crown coverage; pair each application with a 4-minute scalp massage and track with monthly overhead photos.'
+                        : (_hasMinoxidil && _hasMassage)
+                          ? 'NW4 crown thinning responds best when minoxidil reaches the vertex directly — apply 1ml to the crown right after your scalp massage so freshly stimulated follicles absorb it immediately. Take an overhead photo today as your baseline; meaningful density changes take 3-4 months to show.'
+                          : _hasMinoxidil
+                            ? 'At NW4, crown coverage requires targeted application — apply 1ml minoxidil directly to the vertex twice daily and add a 4-minute scalp massage before each application to prime absorption. Track with monthly overhead photos.'
+                            : 'NW4 crown thinning responds best to minoxidil applied directly to the vertex twice daily, paired with a 4-minute scalp massage. Together these are the highest-ROI OTC combination at this stage — start this week and take an overhead photo today as your baseline.'
                 : data.stage === 'NW3v'
                 // NW3v = early crown thinning just started — this is the highest-ROI intervention window
-                ? (_hasMinoxidil && _hasMassage)
-                    ? 'NW3v means your crown thinning just started — this is the highest-ROI window. You have minoxidil and massage active: apply 1ml directly to the vertex BEFORE massaging so stimulated follicles absorb it immediately; track with overhead photos every 3 weeks.'
-                    : _hasMinoxidil
-                      ? 'NW3v crown thinning is at the earliest detectable stage — apply 1ml minoxidil directly to the vertex twice daily and add a 3-minute post-application scalp massage now. Catching it here gives the strongest response.'
-                      : 'NW3v means your crown thinning has just started — the highest-ROI move is acting now: apply minoxidil directly to the vertex daily, add scalp massage, and take an overhead photo as your baseline today.'
+                ? (_hasFinasteride && _hasMinoxidil && _hasMassage)
+                    ? 'NW3v crown thinning has just started and your finasteride + minoxidil + massage stack is fully deployed — apply 1ml to the vertex immediately after your scalp massage so freshly primed follicles absorb it. Take finasteride at the same time daily. NW3v is the highest-ROI crown intervention window; this complete stack now produces the strongest long-term response.'
+                    : (_hasFinasteride && _hasMinoxidil)
+                      ? 'NW3v early crown thinning with finasteride + minoxidil is the strongest available intervention at this window — apply 1ml minoxidil directly to the vertex twice daily and add a 3-minute scalp massage before each application to maximize vertex absorption. Catching crown thinning at NW3v gives the best long-term response.'
+                      : _hasFinasteride
+                        ? 'NW3v means early crown thinning has just started — your finasteride is suppressing DHT systemically. Add minoxidil (1ml) directly to the vertex twice daily to target the crown zone directly. NW3v is the highest-ROI crown intervention window; finasteride + minoxidil here produces the strongest documented response before the vertex advances further.'
+                        : (_hasMinoxidil && _hasMassage)
+                          ? 'NW3v means your crown thinning just started — this is the highest-ROI window. You have minoxidil and massage active: apply 1ml directly to the vertex BEFORE massaging so stimulated follicles absorb it immediately; track with overhead photos every 3 weeks.'
+                          : _hasMinoxidil
+                            ? 'NW3v crown thinning is at the earliest detectable stage — apply 1ml minoxidil directly to the vertex twice daily and add a 3-minute post-application scalp massage now. Catching it here gives the strongest response.'
+                            : 'NW3v means your crown thinning has just started — the highest-ROI move is acting now: apply minoxidil directly to the vertex daily, add scalp massage, and take an overhead photo as your baseline today.'
                 : data.stage === 'NW1'
                 // NW1: crown is fully healthy — no targeted treatment needed; preventive messaging only
                 ? (_hasDHTShampoo
@@ -2061,7 +2073,16 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                         : 'Begin a crown-focused topical routine and take an overhead comparison photo now to track your baseline.',
           Health: _isNW7
             ? 'At NW7, scalp health maintenance protects remaining hair — keep any active routine going, but the highest-ROI step this week is booking a trichologist or transplant consultation to evaluate donor supply and candidacy.'
-            : _isNW56
+            : _isNW5only
+              ? (_hasSupplements && _hasDHTShampoo && _hasMassage
+                  ? 'At NW5, miniaturization spans the full scalp top — your supplement stack, DHT shampoo, and stimulation routine are all active. Optimize with weekly microneedling (0.5mm) over the thinnest zones 24-48 hours before topical application to maximize absorption. Track scalp condition monthly; if inflammation or visible scaling appears, a dermatologist check can rule out any treatable scalp condition layered on top of AGA.'
+                  : _hasSupplements && _hasDHTShampoo
+                    ? 'At NW5, scalp health needs mechanical stimulation added to your supplement and DHT shampoo stack — start weekly microneedling (0.5mm) over the thinnest zones and a 4-minute scalp massage before each topical application. Mechanical priming is the highest-ROI addition for improving how much your existing health protocol benefits the compromised follicles at this stage.'
+                    : _hasSupplements
+                      ? 'Your supplement stack is a good foundation at NW5 — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) and weekly microneedling to prime follicle response. Three layers together (supplementation + DHT suppression + mechanical stimulation) give the strongest scalp-health support where miniaturization is most widespread.'
+                      : 'At NW5, scalp health across the full top needs the full anti-miniaturization protocol: switch to a gentle sulfate-free shampoo, start a supplement stack (biotin, zinc, vitamin D), add a DHT-blocking shampoo 3× weekly (3-5 min contact time), and consider weekly microneedling. A dermatologist visit can also rule out any inflammatory layer that topicals alone cannot address.')
+              : _isNW56
+              // only NW6 reaches here — NW5 is handled by _isNW5only above
               ? 'Protect remaining follicles: use a gentle sulfate-free shampoo 3× weekly, add biotin/zinc if not already in your routine, and consider a dermatologist visit to rule out any inflammatory or nutritional component slowing response.'
               : data.stage === 'NW1'
                 ? (_hasSupplements && _hasDHTShampoo
