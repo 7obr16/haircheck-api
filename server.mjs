@@ -473,6 +473,27 @@ const normalizeAdviceKind = (kind) => (
 // ─── helpers ────────────────────────────────────────────────────
 const requestId = () => `req_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 
+// Valid Norwood stages accepted by this API.
+const VALID_STAGES = new Set(['NW1', 'NW2', 'NW3', 'NW3v', 'NW4', 'NW5', 'NW6', 'NW7', 'diffuse', 'n/a (female)']);
+
+// Compute stage-change metadata from the current scan result versus the
+// caller-supplied previous stage. Returns null values when previousStage is
+// absent — the iOS app only passes it after a prior scan exists.
+// Computed server-side so the result never gets cached (staleChange would be
+// wrong for a different caller's previousStage hitting the same cache entry).
+const computeStageChange = (currentStage, previousStage) => {
+  if (!previousStage || !VALID_STAGES.has(previousStage)) {
+    return { stageChanged: null, stageDirection: null };
+  }
+  const prev = STAGE_SEVERITY_INDEX[previousStage] ?? null;
+  const curr = STAGE_SEVERITY_INDEX[currentStage] ?? null;
+  const changed = currentStage !== previousStage;
+  const direction = (prev !== null && curr !== null)
+    ? curr > prev ? 'progressed' : curr < prev ? 'improved' : 'stable'
+    : null;
+  return { stageChanged: changed, stageDirection: direction };
+};
+
 // Emit a warning when an endpoint is unexpectedly slow. Thresholds are
 // generous to avoid false alarms during cold Railway starts.
 const SLOW_THRESHOLDS_MS = { scan: 45_000, image: 180_000, coach: 30_000 };
@@ -1489,7 +1510,11 @@ const server = createServer(async (req, res) => {
   if (req.method === 'POST' && reqPath === '/api/analyze-scan') {
     try {
       METRICS.scan.requests++;
-      const { photoDataUrl, profile: rawProfile = {}, scoringInstruction = '' } = await readJsonBody(req);
+      const { photoDataUrl, profile: rawProfile = {}, scoringInstruction = '', previousStage: prevStageRaw = null } = await readJsonBody(req);
+      // previousStage: optional Norwood stage from the user's most recent prior scan.
+      // Used server-side only to annotate stageChanged/stageDirection on the response.
+      // Never included in the cache key or GPT prompt so the cache stays valid.
+      const previousStage = prevStageRaw && VALID_STAGES.has(String(prevStageRaw)) ? String(prevStageRaw) : null;
       const profile = sanitizeProfile(rawProfile);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const { buffer: visionBuffer } = dataUrlToBuffer(photoDataUrl);
@@ -1508,7 +1533,7 @@ const server = createServer(async (req, res) => {
       if (scanCached) {
         METRICS.scan.cacheHits++;
         console.log('[vision] CACHE HIT', { hash: scanHash.slice(0, 8) });
-        json(req, res, 200, { ...scanCached, cached: true, requestId: reqId });
+        json(req, res, 200, { ...scanCached, ...computeStageChange(scanCached.stage, previousStage), cached: true, requestId: reqId });
         return;
       }
 
@@ -1517,7 +1542,7 @@ const server = createServer(async (req, res) => {
         console.log('[vision] IN-FLIGHT JOIN', { hash: scanHash.slice(0, 8) });
         const scanResult = await scanInflight;
         if (scanResult.ok) {
-          json(req, res, 200, { ...scanResult.data, deduped: true, requestId: reqId });
+          json(req, res, 200, { ...scanResult.data, ...computeStageChange(scanResult.data.stage, previousStage), deduped: true, requestId: reqId });
         } else {
           bumpError(METRICS.scan, scanResult.status || 502, scanResult.error?.error || 'scan failed');
           jsonError(req, res, scanResult.status || 502, { ...scanResult.error, requestId: reqId });
@@ -2256,7 +2281,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       cacheWrite(SCAN_CACHE, scanHash, scanOutcome.data);
       bumpSuccess(METRICS.scan);
       warnIfSlow('analyze-scan', startedAt, 'scan');
-      json(req, res, 200, { ...scanOutcome.data, requestId: reqId });
+      // stageChanged/stageDirection are computed here (not cached) because they
+      // depend on the caller's previousStage which varies between requests.
+      json(req, res, 200, { ...scanOutcome.data, ...computeStageChange(scanOutcome.data.stage, previousStage), requestId: reqId });
     } catch (err) {
       bumpError(METRICS.scan, err.statusCode || 500, err.message);
       console.error('[server] analyze-scan error', err);
