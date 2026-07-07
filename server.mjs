@@ -1643,7 +1643,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             ],
           },
         ],
-        temperature: 0.3,
+        temperature: 0.15,
         max_tokens: 2000,
       });
 
@@ -1839,7 +1839,6 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const _isNW7          = data.stage === 'NW7';
         const _isNW5only      = data.stage === 'NW5';
         const _isNW56         = data.stage === 'NW5' || data.stage === 'NW6';
-        const _isAdvancedStage = _isNW7 || _isNW56;
         const WEEKLY_FOCUS_MAP = {
           Hairline: _isNW7
             ? 'At NW7, the primary path is FUE/FUT transplant or SMP — book a trichologist consult this week to understand candidacy, donor supply, and realistic coverage outcomes.'
