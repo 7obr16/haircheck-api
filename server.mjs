@@ -2006,6 +2006,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 ? (_hasDHTShampoo
                     ? 'Your hairline is fully intact at NW1 — keep it that way. Stay consistent with your DHT-blocking shampoo 3× weekly and take monthly front-facing photos; catching any early M-shape at NW1 gives the best possible intervention window if change ever begins.'
                     : 'Your hairline is fully intact at NW1 — protect it before any recession starts. Add a DHT-blocking shampoo 3× weekly now. Prevention at this stage costs far less effort than treating established recession later.')
+                : data.stage === 'n/a (female)'
+                // n/a (female): female-pattern loss typically spares the frontal hairline; a lower hairline score here indicates Ludwig III frontal type with diffuse thinning behind the hairline edge — temple recession advice does not apply
+                ? (_hasMinoxidil
+                    ? "Female-pattern thinning rarely recedes the hairline like male AGA — your minoxidil is the right tool. Spread coverage evenly across the frontal hair band behind the hairline edge (not the temples) twice daily and take monthly front-facing photos to track any change along the parting line."
+                    : "Female-pattern thinning at the frontal hair band responds best to minoxidil applied evenly across the frontal scalp — not the temples. Start twice daily and check ferritin, thyroid, and hormones; a reversible nutritional or hormonal cause is common and fixing it produces improvements topicals alone cannot achieve.")
                 : (_hasMinoxidil && _hasMassage)
                   ? 'Minoxidil and scalp massage are both active — maximize impact by parting your hair to expose receding temple zones before applying, ensuring full 1ml coverage per side, morning and night.'
                   : _hasMinoxidil

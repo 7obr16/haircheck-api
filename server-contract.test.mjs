@@ -87,4 +87,11 @@ assert(
   'scan should include specialistRecommended boolean and specialistReason for stages where OTC alone is insufficient or a workup is needed'
 );
 
+assert(
+  source.includes("data.stage === 'n/a (female)'") &&
+    source.includes('Female-pattern thinning rarely recedes the hairline like male AGA') &&
+    source.includes('not the temples'),
+  'WEEKLY_FOCUS_MAP.Hairline should have a n/a (female) branch so female-pattern users never receive temple-recession advice'
+);
+
 console.log('server contract passed');
