@@ -383,6 +383,32 @@ const buildProgressionPrompt = (month, stage) => {
   return hint ? `${basePrompt}\n\nStage-specific focus: ${hint}` : basePrompt;
 };
 
+// Build stage- and sex-aware photo guidance text.
+// Female-pattern users need central-parting guidance, not generic overhead/hairline advice.
+// Advanced AGA stages (NW5+) benefit from a reminder to capture both thinning zones in one shot.
+const buildPhotoGuidance = (quality, stage, sex) => {
+  if (quality === 'good') return null;
+  const isFemale = stage === 'n/a (female)' || sex === 'female' || sex === 'f';
+  const isAdvanced = stage === 'NW5' || stage === 'NW6' || stage === 'NW7';
+  if (quality === 'poor') {
+    if (isFemale) {
+      return 'For best results: part your hair down the center and hold your camera directly above your head in bright natural light near a window — the parting line and scalp top are the most diagnostically important zones for female-pattern thinning.';
+    }
+    if (isAdvanced) {
+      return 'For best results: hold your camera directly above your head with your arm fully extended in bright natural light. At your stage, capturing both your hairline and crown in the same overhead shot gives the clearest picture of both thinning zones.';
+    }
+    return 'For best results: hold your camera directly above your head with your arm fully extended. Use bright natural light (near a window or outdoors). Part your hair slightly so the scalp is visible, and make sure both your hairline and crown are in frame.';
+  }
+  // acceptable quality
+  if (isFemale) {
+    return 'For a more accurate scan: part your hair down the center and shoot from directly above in bright lighting — the parting line is where female-pattern thinning is most visible and measurable.';
+  }
+  if (isAdvanced) {
+    return 'For a more accurate scan: try shooting from directly overhead in bright lighting with both your hairline and crown in frame — capturing the full scalp top gives the most accurate view of both thinning zones at your stage.';
+  }
+  return 'For a more accurate scan: try shooting from a slightly higher angle in brighter lighting. Part your hair so the scalp is visible through thinning areas.';
+};
+
 // Per-month progression prompts. 3-month results in real life are subtle —
 // the model must NOT overshoot to "perfect" or it stops being credible.
 const PROGRESSION_PROMPTS = {
@@ -1914,10 +1940,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
 
         // photoGuidance: actionable retake tip shown when quality isn't ideal.
         // Computed server-side so the iOS app can display it without extra logic.
-        data.photoGuidance = photoQuality === 'good' ? null
-          : photoQuality === 'poor'
-            ? 'For best results: hold your camera directly above your head with your arm fully extended. Use bright natural light (near a window or outdoors). Part your hair slightly so the scalp is visible, and make sure both your hairline and crown are in frame.'
-            : 'For a more accurate scan: try shooting from a slightly higher angle in brighter lighting. Part your hair so the scalp is visible through thinning areas.';
+        // Stage- and sex-aware: female users get central-parting guidance; NW5+ users
+        // are reminded to capture both thinning zones in one overhead shot.
+        data.photoGuidance = buildPhotoGuidance(photoQuality, stage, profile.sex);
 
         // weeklyFocus: highest-ROI weekly action based on the user's weakest metric.
         // Routine-aware: if the primary suggestion is already in their routine, recommend

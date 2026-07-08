@@ -94,4 +94,12 @@ assert(
   'WEEKLY_FOCUS_MAP.Hairline should have a n/a (female) branch so female-pattern users never receive temple-recession advice'
 );
 
+assert(
+  source.includes('buildPhotoGuidance') &&
+    source.includes('parting line and scalp top are the most diagnostically important zones for female-pattern thinning') &&
+    source.includes('part your hair down the center') &&
+    source.includes('capturing both your hairline and crown in the same overhead shot'),
+  'buildPhotoGuidance should return female-specific central-parting guidance for n/a (female) users and advanced-stage guidance for NW5+ users'
+);
+
 console.log('server contract passed');
