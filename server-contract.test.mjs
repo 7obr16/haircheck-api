@@ -78,4 +78,13 @@ assert(
   'scan should use max_tokens: 2000 to reduce truncation risk for structured output'
 );
 
+assert(
+  source.includes('specialistRecommended') &&
+    source.includes('SPECIALIST_STAGES') &&
+    source.includes('specialistReason') &&
+    source.includes('NW5') && source.includes('NW6') && source.includes('NW7') &&
+    source.includes('diffuse') && source.includes("'n/a (female)'"),
+  'scan should include specialistRecommended boolean and specialistReason for stages where OTC alone is insufficient or a workup is needed'
+);
+
 console.log('server contract passed');

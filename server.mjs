@@ -1891,6 +1891,27 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // The iOS app can use this to show a "Retake for better results" CTA.
         data.retakeRecommended = photoQuality === 'poor';
 
+        // specialistRecommended: true when a trichologist, dermatologist, or
+        // transplant consultation is the highest-ROI next step — either because OTC
+        // alone is unlikely to produce meaningful results (NW5+), or because the stage
+        // requires a professional workup to identify a reversible root cause
+        // (diffuse / female pattern). The iOS app can use this flag to show a
+        // "Book a Specialist" CTA without parsing the verdict or weeklyFocus text.
+        const SPECIALIST_STAGES = new Set(['NW5', 'NW6', 'NW7', 'diffuse', 'n/a (female)']);
+        data.specialistRecommended = SPECIALIST_STAGES.has(stage) || data.currentStateScore < 40;
+        const _SPECIALIST_REASONS = {
+          NW5: 'At NW5, a transplant consultation is worth planning alongside your OTC protocol — a specialist can outline surgical options and realistic coverage goals while OTC treatment continues.',
+          NW6: 'At NW6, FUE/FUT or SMP are the most realistic paths to meaningful coverage — a trichologist or transplant consultation now is the highest-ROI next step.',
+          NW7: 'At NW7, surgical options (FUE/FUT or SMP) are the primary path — a transplant consultation this quarter will clarify donor supply, coverage options, and realistic outcomes.',
+          diffuse: 'Diffuse thinning often has a reversible nutritional or hormonal cause — a dermatologist or trichologist workup (ferritin, thyroid, hormones) is the highest-ROI next step.',
+          'n/a (female)': 'Female-pattern thinning responds best when the hormonal root cause is identified — a dermatologist or gynecologist workup (hormone panel, ferritin, thyroid) is the highest-ROI next step.',
+        };
+        data.specialistReason = SPECIALIST_STAGES.has(stage)
+          ? (_SPECIALIST_REASONS[stage] || 'A specialist consultation can clarify your treatment options and realistic outcomes.')
+          : data.currentStateScore < 40
+            ? 'Your hair loss score indicates significant thinning — a trichologist or dermatologist can evaluate whether surgical or medical options are right for you.'
+            : null;
+
         // photoGuidance: actionable retake tip shown when quality isn't ideal.
         // Computed server-side so the iOS app can display it without extra logic.
         data.photoGuidance = photoQuality === 'good' ? null
@@ -2434,6 +2455,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           weeklyFocusMetric:  userContext.result.weeklyFocusMetric  ? String(userContext.result.weeklyFocusMetric).slice(0, 20)  : null,
           weeklyFocusSecondary: userContext.result.weeklyFocusSecondary ? String(userContext.result.weeklyFocusSecondary).slice(0, 400) : null,
           weeklyFocusSecondaryMetric: userContext.result.weeklyFocusSecondaryMetric ? String(userContext.result.weeklyFocusSecondaryMetric).slice(0, 20) : null,
+          specialistRecommended: userContext.result.specialistRecommended ?? false,
+          specialistReason: userContext.result.specialistReason ? String(userContext.result.specialistReason).slice(0, 300) : null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -2576,6 +2599,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : '',
         ctx.scan?.retakeRecommended && ctx.scan.photoGuidance
           ? `- If the user asks about score reliability or why scores seem low, recommend a retake: ${ctx.scan.photoGuidance}`
+          : '',
+        ctx.scan?.specialistRecommended && ctx.scan.specialistReason
+          ? `- Specialist consultation recommended: ${ctx.scan.specialistReason} — if the user asks what their next step is, whether they should see a doctor, or how to get the best outcome at their stage, include this as a concrete CTA alongside any OTC advice.`
           : '',
         ctx.scan?.insights?.length
           ? `- Scan insights:\n${ctx.scan.insights.map((ins, i) => `  ${i + 1}) [${ins.metric}] ${ins.title}: ${ins.body}`).join('\n')}`
