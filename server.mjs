@@ -494,6 +494,50 @@ const computeStageChange = (currentStage, previousStage) => {
   return { stageChanged: changed, stageDirection: direction };
 };
 
+// Compute per-metric score deltas from the current scan versus the caller-supplied
+// previousScores object. Returns null for each delta when previousScores is absent
+// or the corresponding previous value is not a finite number.
+// Computed server-side (not cached) because it depends on the caller's prior scores
+// which vary between requests (same photo, different user).
+// deltaDirection: 'improved' when delta > 0 (higher score = better hair state),
+//                'declined'  when delta < 0,
+//                'stable'    when delta is 0.
+const computeScoreDeltas = (currentData, previousScores) => {
+  if (!previousScores || typeof previousScores !== 'object') {
+    return {
+      hairlineDelta: null, hairlineDeltaDirection: null,
+      densityDelta:  null, densityDeltaDirection:  null,
+      crownDelta:    null, crownDeltaDirection:    null,
+      healthDelta:   null, healthDeltaDirection:   null,
+      potentialDelta:null, potentialDeltaDirection:null,
+      overallDelta:  null, overallDeltaDirection:  null,
+      currentStateScoreDelta: null, currentStateScoreDeltaDirection: null,
+    };
+  }
+  const direction = (delta) => delta > 0 ? 'improved' : delta < 0 ? 'declined' : 'stable';
+  const delta = (curr, prevKey) => {
+    const prev = Number(previousScores[prevKey]);
+    if (!Number.isFinite(prev) || !Number.isFinite(curr)) return null;
+    return Math.round(curr - prev);
+  };
+  const hd  = delta(currentData.hairline,          'hairline');
+  const dd  = delta(currentData.density,           'density');
+  const cd  = delta(currentData.crown,             'crown');
+  const hld = delta(currentData.health,            'health');
+  const pd  = delta(currentData.potential,         'potential');
+  const od  = delta(currentData.overall,           'overall');
+  const csd = delta(currentData.currentStateScore, 'currentStateScore');
+  return {
+    hairlineDelta:              hd,  hairlineDeltaDirection:              hd  !== null ? direction(hd)  : null,
+    densityDelta:               dd,  densityDeltaDirection:               dd  !== null ? direction(dd)  : null,
+    crownDelta:                 cd,  crownDeltaDirection:                 cd  !== null ? direction(cd)  : null,
+    healthDelta:                hld, healthDeltaDirection:                hld !== null ? direction(hld) : null,
+    potentialDelta:             pd,  potentialDeltaDirection:             pd  !== null ? direction(pd)  : null,
+    overallDelta:               od,  overallDeltaDirection:               od  !== null ? direction(od)  : null,
+    currentStateScoreDelta:     csd, currentStateScoreDeltaDirection:     csd !== null ? direction(csd) : null,
+  };
+};
+
 // Emit a warning when an endpoint is unexpectedly slow. Thresholds are
 // generous to avoid false alarms during cold Railway starts.
 const SLOW_THRESHOLDS_MS = { scan: 45_000, image: 180_000, coach: 30_000 };
@@ -1510,11 +1554,15 @@ const server = createServer(async (req, res) => {
   if (req.method === 'POST' && reqPath === '/api/analyze-scan') {
     try {
       METRICS.scan.requests++;
-      const { photoDataUrl, profile: rawProfile = {}, scoringInstruction = '', previousStage: prevStageRaw = null } = await readJsonBody(req);
+      const { photoDataUrl, profile: rawProfile = {}, scoringInstruction = '', previousStage: prevStageRaw = null, previousScores: prevScoresRaw = null } = await readJsonBody(req);
       // previousStage: optional Norwood stage from the user's most recent prior scan.
       // Used server-side only to annotate stageChanged/stageDirection on the response.
       // Never included in the cache key or GPT prompt so the cache stays valid.
       const previousStage = prevStageRaw && VALID_STAGES.has(String(prevStageRaw)) ? String(prevStageRaw) : null;
+      // previousScores: optional score snapshot from the user's most recent prior scan.
+      // Shape: { hairline, density, crown, health, potential, overall, currentStateScore }
+      // Used server-side only to compute per-metric deltas; not included in the cache key.
+      const previousScores = prevScoresRaw && typeof prevScoresRaw === 'object' ? prevScoresRaw : null;
       const profile = sanitizeProfile(rawProfile);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const { buffer: visionBuffer } = dataUrlToBuffer(photoDataUrl);
@@ -1533,7 +1581,7 @@ const server = createServer(async (req, res) => {
       if (scanCached) {
         METRICS.scan.cacheHits++;
         console.log('[vision] CACHE HIT', { hash: scanHash.slice(0, 8) });
-        json(req, res, 200, { ...scanCached, ...computeStageChange(scanCached.stage, previousStage), cached: true, requestId: reqId });
+        json(req, res, 200, { ...scanCached, ...computeStageChange(scanCached.stage, previousStage), ...computeScoreDeltas(scanCached, previousScores), cached: true, requestId: reqId });
         return;
       }
 
@@ -1542,7 +1590,7 @@ const server = createServer(async (req, res) => {
         console.log('[vision] IN-FLIGHT JOIN', { hash: scanHash.slice(0, 8) });
         const scanResult = await scanInflight;
         if (scanResult.ok) {
-          json(req, res, 200, { ...scanResult.data, ...computeStageChange(scanResult.data.stage, previousStage), deduped: true, requestId: reqId });
+          json(req, res, 200, { ...scanResult.data, ...computeStageChange(scanResult.data.stage, previousStage), ...computeScoreDeltas(scanResult.data, previousScores), deduped: true, requestId: reqId });
         } else {
           bumpError(METRICS.scan, scanResult.status || 502, scanResult.error?.error || 'scan failed');
           jsonError(req, res, scanResult.status || 502, { ...scanResult.error, requestId: reqId });
@@ -2334,9 +2382,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       cacheWrite(SCAN_CACHE, scanHash, scanOutcome.data);
       bumpSuccess(METRICS.scan);
       warnIfSlow('analyze-scan', startedAt, 'scan');
-      // stageChanged/stageDirection are computed here (not cached) because they
-      // depend on the caller's previousStage which varies between requests.
-      json(req, res, 200, { ...scanOutcome.data, ...computeStageChange(scanOutcome.data.stage, previousStage), requestId: reqId });
+      // stageChanged/stageDirection and score deltas are computed here (not cached)
+      // because they depend on the caller's previousStage/previousScores which vary
+      // between requests for the same cached scan result.
+      json(req, res, 200, { ...scanOutcome.data, ...computeStageChange(scanOutcome.data.stage, previousStage), ...computeScoreDeltas(scanOutcome.data, previousScores), requestId: reqId });
     } catch (err) {
       bumpError(METRICS.scan, err.statusCode || 500, err.message);
       console.error('[server] analyze-scan error', err);
