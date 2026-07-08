@@ -2285,6 +2285,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // weeklyFocusMetric: which metric the weeklyFocus targets (equals weakestMetric.label).
         // Lets the iOS app highlight the right metric card alongside the weeklyFocus text.
         data.weeklyFocusMetric = data.weakestMetric?.label || null;
+        // Secondary focus: pre-built action text for the second-weakest metric.
+        // Reuses WEEKLY_FOCUS_MAP (same stage/treatment logic) so the iOS app and
+        // coach get ready-to-use advice for the #2 priority without extra client logic.
+        data.weeklyFocusSecondary = data.secondWeakestMetric?.label
+          ? (WEEKLY_FOCUS_MAP[data.secondWeakestMetric.label] || null)
+          : null;
+        data.weeklyFocusSecondaryMetric = data.secondWeakestMetric?.label || null;
 
         // checkInIntervalDays: how many days until the next meaningful scan.
         // Derived from treatmentUrgency so the iOS app can schedule a push reminder
@@ -2376,6 +2383,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           thinningPattern:   userContext.result.thinningPattern || null,
           stageSeverityLabel: userContext.result.stageSeverityLabel ? String(userContext.result.stageSeverityLabel).slice(0, 20) : null,
           weeklyFocusMetric:  userContext.result.weeklyFocusMetric  ? String(userContext.result.weeklyFocusMetric).slice(0, 20)  : null,
+          weeklyFocusSecondary: userContext.result.weeklyFocusSecondary ? String(userContext.result.weeklyFocusSecondary).slice(0, 400) : null,
+          weeklyFocusSecondaryMetric: userContext.result.weeklyFocusSecondaryMetric ? String(userContext.result.weeklyFocusSecondaryMetric).slice(0, 20) : null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -2530,6 +2539,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : '',
         ctx.scan?.weeklyFocusMetric
           ? `- Weekly focus metric: ${ctx.scan.weeklyFocusMetric} — the specific metric the weekly focus action targets; when the user asks what to work on this week, reinforce both the metric name and the weekly focus text together rather than giving generic advice.`
+          : '',
+        ctx.scan?.weeklyFocusSecondary
+          ? `- Secondary priority action (${ctx.scan.weeklyFocusSecondaryMetric || 'secondary metric'}): "${ctx.scan.weeklyFocusSecondary}" — use this when the user asks what else to work on, wants a second priority, or has already started their primary weekly focus.`
           : '',
         ctx.weakestMetric?.label ? `- Current weakest metric: ${ctx.weakestMetric.label} (${ctx.weakestMetric.value}/100) — primary focus area.` : '',
         ctx.secondWeakestMetric?.label ? `- Second weakest metric: ${ctx.secondWeakestMetric.label} (${ctx.secondWeakestMetric.value}/100) — secondary priority worth mentioning when the user asks what else to work on.` : '',
