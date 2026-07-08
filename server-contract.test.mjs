@@ -102,4 +102,10 @@ assert(
   'buildPhotoGuidance should return female-specific central-parting guidance for n/a (female) users and advanced-stage guidance for NW5+ users'
 );
 
+assert(
+  source.includes("NW1:  'Show HIGH density (green/teal) uniformly across the entire scalp top") &&
+    source.includes('do NOT place any red, orange, or yellow patches anywhere'),
+  'MAP_STAGE_HINTS should include NW1 so analysis maps for fully-healthy scalps show uniform high-density overlay, not misleading thinning indicators'
+);
+
 console.log('server contract passed');

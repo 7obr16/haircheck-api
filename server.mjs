@@ -347,6 +347,7 @@ const buildAfterPrompt = (stage) => {
 // Tells the model WHERE to place red/orange (low density) vs green (high density)
 // patches so the overlay matches the expected anatomy for each Norwood stage.
 const MAP_STAGE_HINTS = {
+  NW1:  'Show HIGH density (green/teal) uniformly across the entire scalp top. This user has NO thinning or recession anywhere — do NOT place any red, orange, or yellow patches anywhere on the scalp. The entire hair-bearing area should show consistent green/teal indicating complete, healthy coverage with no localized low-density zones.',
   NW2:  'Show HIGH density (green/teal) at crown and mid-scalp. Place subtle LOW density (orange/yellow) patches only at the temple corners where the M-shape recession is visible.',
   NW3:  'Show LOW density (red/orange) at both temple recession zones extending past mid-pupil. Crown and mid-scalp should be HIGH density (green). Do not add red to the crown.',
   NW3v: 'Show LOW density (red/orange) at both temple recession zones AND a separate LOW density zone at the vertex/crown. Mid-scalp between these zones should be MEDIUM density (yellow/orange).',
