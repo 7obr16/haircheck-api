@@ -2026,9 +2026,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                             : 'NW3 deep temple recession responds well to action now — follicles at the recession edge are still viable and highly responsive. Start minoxidil on both temple zones twice daily, add a 4-minute scalp massage per application, and track with monthly front-facing photos from the same angle.'
                 : data.stage === 'NW2'
                 // NW2: earliest detectable stage — preventive window; best long-term outcome comes from acting here
-                ? (_hasMinoxidil)
+                ? (_hasFinasteride && _hasMinoxidil
+                    ? 'NW2 temple recession with finasteride + minoxidil is the strongest dual-mechanism approach at the ideal preventive stage — keep both consistent. Add a DHT-blocking shampoo 3× weekly as the topical DHT suppression layer, and take monthly front-facing photos to catch any further M-shape deepening early.'
+                    : _hasFinasteride
+                    ? 'Finasteride is already suppressing systemic DHT at NW2 — add minoxidil directly to both temple corners twice daily for the topical growth signal. Finasteride + minoxidil at the earliest detectable stage gives the strongest long-term protection before the M-shape deepens further.'
+                    : _hasMinoxidil
                     ? 'NW2 is the ideal preventive stage and your minoxidil is already on the temple corners — good call. Keep it consistent twice daily and add a DHT-blocking shampoo 3× weekly as a complementary prevention layer to slow the M-shape from deepening further.'
-                    : 'NW2 temple recession is the earliest warning sign — and the best treatment window. Start minoxidil directly on both temple corners twice daily this week. At NW2, follicles are fully viable and early intervention produces the strongest long-term results. Take a monthly front-facing photo to catch any further change early.'
+                    : 'NW2 temple recession is the earliest warning sign — and the best treatment window. Start minoxidil directly on both temple corners twice daily this week. At NW2, follicles are fully viable and early intervention produces the strongest long-term results. Take a monthly front-facing photo to catch any further change early.')
                 : data.stage === 'NW1'
                 // NW1: no recession exists — advice must be preventive, not treatment-focused
                 ? (_hasDHTShampoo
@@ -2063,7 +2067,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     ? "Your DHT-blocking shampoo helps slow miniaturization — keep it up and add weekly microneedling to prime remaining follicles for maximum response."
                     : 'Add a DHT-blocking shampoo 3× this week — at your stage it helps stabilize existing density and slow further miniaturization.')
               : data.stage === 'NW2'
-              ? (_hasDHTShampoo
+              ? (_hasFinasteride && _hasDHTShampoo
+                  ? 'NW2 density is protected by finasteride (systemic DHT suppression) and your DHT-blocking shampoo (topical DHT control) — dual-level coverage at this early stage gives the strongest long-term density protection. Leave the DHT shampoo on 3-5 minutes before rinsing and add a 5-minute scalp massage on wash days to maximize the benefit of both layers.'
+                  : _hasFinasteride
+                  ? 'Finasteride is already blocking systemic DHT at NW2 — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the topical complement. Dual-level DHT suppression at this early stage gives the strongest protection before any mid-scalp miniaturization develops.'
+                  : _hasDHTShampoo
                   ? 'Your DHT-blocking shampoo is already protecting your density — at NW2 your coverage is still strong. Keep using it 3× weekly and add a 5-minute scalp massage on wash days to maintain circulation and catch any early diffuse change.'
                   : 'At NW2 your density is still strong — protect it now by adding a DHT-blocking shampoo 3× weekly. This is the highest-ROI prevention step at your stage: slowing miniaturization before it becomes visible is far easier than reversing it later.')
               : (data.stage === 'NW3' || data.stage === 'NW3v')
@@ -2179,7 +2187,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     : 'Your crown is healthy at NW1. No crown treatment needed yet — add a DHT-blocking shampoo 3× weekly as a general prevention layer and take monthly overhead photos to catch any early vertex change before it requires aggressive treatment.')
                 : data.stage === 'NW2'
                 // NW2: crown is intact, temples are the active priority — redirect focus there
-                ? (_hasMinoxidil
+                ? (_hasFinasteride
+                    ? 'Finasteride at NW2 is already protecting the crown through systemic DHT suppression — the temple recession is the active priority. Keep taking finasteride consistently and track the crown monthly with overhead photos; if vertex thinning appears, that marks NW3v — the highest-ROI window to add direct crown coverage.'
+                    : _hasMinoxidil
                     ? 'Your crown is intact at NW2 — the temple recession is the active priority right now. Keep your topical focused on both temple corners and take monthly overhead photos to catch any early vertex thinning as soon as it appears.'
                     : 'Your crown is currently intact at NW2 — temples are the active zone. Focus treatment there first and track the crown monthly with overhead photos to catch any early vertex thinning before it needs aggressive intervention.')
                 : data.stage === 'NW3'
@@ -2245,11 +2255,17 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                       : 'Your hair is healthy — protect it now: switch to a gentle sulfate-free shampoo, stay well-hydrated, and start a basic supplement stack (biotin, zinc, vitamin D) to support follicle health proactively.')
                 : data.stage === 'NW2'
                   // NW2: earliest recession stage — scalp health is still strong, goal is protection and anti-miniaturization foundation
-                  ? (_hasSupplements && _hasDHTShampoo
-                      ? 'Supplements and DHT-blocking shampoo are building a strong preventive foundation at NW2 — maximize the DHT shampoo by leaving it on 3-5 minutes before rinsing. Contact time determines how much DHT suppression reaches the follicle level at the recession edge.'
-                      : _hasSupplements
-                        ? 'Your supplement stack is a good start — add a DHT-blocking shampoo 3× weekly at NW2. Used with 3-5 minutes of contact time before rinsing, it suppresses topical DHT at the recession edge where miniaturization is beginning.'
-                        : 'At NW2, scalp health is still excellent — protect it now with a gentle sulfate-free shampoo, a DHT-blocking shampoo 3× weekly, and a supplement stack (biotin, zinc, vitamin D). Building the anti-miniaturization foundation here costs far less than treating established recession later.')
+                  ? (_hasFinasteride && _hasSupplements && _hasDHTShampoo
+                      ? 'At NW2, finasteride + supplements + DHT shampoo delivers systemic DHT suppression, nutritional support, and topical DHT control — the most complete scalp-health foundation at this early stage. Leave the DHT shampoo on 3-5 minutes before rinsing for maximum contact time at the temple recession edge where miniaturization is just beginning.'
+                      : _hasFinasteride && _hasSupplements
+                        ? 'Finasteride + supplements is a strong NW2 health foundation — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the topical DHT layer. Systemic finasteride handles the hormonal root cause; the DHT shampoo adds topical suppression at the early recession edge where miniaturization is beginning.'
+                        : _hasFinasteride
+                          ? 'Finasteride suppresses systemic DHT at NW2 where miniaturization is just beginning — build the local scalp-health layer with a supplement stack (biotin, zinc, vitamin D) and a DHT-blocking shampoo 3× weekly. All three layers together create the strongest anti-miniaturization foundation at the ideal preventive window.'
+                          : _hasSupplements && _hasDHTShampoo
+                            ? 'Supplements and DHT-blocking shampoo are building a strong preventive foundation at NW2 — maximize the DHT shampoo by leaving it on 3-5 minutes before rinsing. Contact time determines how much DHT suppression reaches the follicle level at the recession edge.'
+                            : _hasSupplements
+                              ? 'Your supplement stack is a good start — add a DHT-blocking shampoo 3× weekly at NW2. Used with 3-5 minutes of contact time before rinsing, it suppresses topical DHT at the recession edge where miniaturization is beginning.'
+                              : 'At NW2, scalp health is still excellent — protect it now with a gentle sulfate-free shampoo, a DHT-blocking shampoo 3× weekly, and a supplement stack (biotin, zinc, vitamin D). Building the anti-miniaturization foundation here costs far less than treating established recession later.')
                   : data.stage === 'NW3'
                     // NW3: established AGA — miniaturization is active at the recession edge; scalp health needs to support topical treatment
                     ? (_hasFinasteride && _hasSupplements && _hasDHTShampoo && _hasMassage
