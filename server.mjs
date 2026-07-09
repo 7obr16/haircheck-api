@@ -2232,29 +2232,51 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                         : 'At NW2, scalp health is still excellent — protect it now with a gentle sulfate-free shampoo, a DHT-blocking shampoo 3× weekly, and a supplement stack (biotin, zinc, vitamin D). Building the anti-miniaturization foundation here costs far less than treating established recession later.')
                   : data.stage === 'NW3'
                     // NW3: established AGA — miniaturization is active at the recession edge; scalp health needs to support topical treatment
-                    ? (_hasSupplements && _hasDHTShampoo && _hasMassage
-                        ? 'Your scalp-health kit is well-stocked at NW3 — add a weekly dermaroller session (0.5-1mm) over the recession edges. Microneedling primes the follicle microenvironment and significantly improves topical absorption precisely where miniaturization is most active at this stage.'
-                        : _hasSupplements && _hasDHTShampoo
-                          ? 'At NW3, the recession edge is where miniaturization is most active — add weekly microneedling (0.5mm) to the recession zones. It enhances absorption and follicle response where your existing supplement and DHT shampoo routine needs the most backup.'
-                          : _hasSupplements
-                            ? 'At NW3, DHT-blocking shampoo is the key missing layer — use it 3× weekly with 3-5 minutes of contact time. Scalp inflammation at the recession edge accelerates miniaturization; suppressing topical DHT alongside your supplements is the strongest dual response at this stage.'
-                            : 'NW3 recession means miniaturization is actively progressing — switch to a sulfate-free shampoo, start a supplement stack (biotin, zinc, vitamin D), and add a DHT-blocking shampoo 3× weekly. Reducing inflammation at the recession edge reinforces every other treatment layer.')
+                    ? (_hasFinasteride && _hasSupplements && _hasDHTShampoo && _hasMassage
+                        ? 'NW3 scalp health with finasteride + supplements + DHT shampoo + massage is the most complete anti-miniaturization protocol — add weekly microneedling (0.5mm) over the recession edges. Microneedling primes the follicle microenvironment where DHT-driven miniaturization is most active, amplifying the impact of every layer already in place.'
+                        : _hasFinasteride && _hasSupplements && _hasDHTShampoo
+                          ? 'At NW3, finasteride + supplements + DHT shampoo delivers systemic and topical DHT suppression alongside nutritional support — add weekly microneedling (0.5mm) to the recession edges and a 4-minute scalp massage. Mechanical stimulation is the highest-ROI addition when the anti-miniaturization protocol is already this complete.'
+                          : _hasFinasteride && _hasSupplements
+                            ? 'Finasteride + supplements is a solid NW3 foundation — add a DHT-blocking shampoo 3× weekly with 3-5 minutes of contact time at the recession edge. Combined with your finasteride, it delivers both systemic and topical DHT suppression where miniaturization is most active.'
+                            : _hasFinasteride
+                              ? 'Finasteride is suppressing systemic DHT at NW3 — build the local scalp-health layer with a supplement stack (biotin, zinc, vitamin D) and a DHT-blocking shampoo 3× weekly. Systemic and topical DHT suppression together target miniaturization at both levels; add weekly microneedling to prime follicle absorption at the recession edge.'
+                              : _hasSupplements && _hasDHTShampoo && _hasMassage
+                                  ? 'Your scalp-health kit is well-stocked at NW3 — add a weekly dermaroller session (0.5-1mm) over the recession edges. Microneedling primes the follicle microenvironment and significantly improves topical absorption precisely where miniaturization is most active at this stage.'
+                                  : _hasSupplements && _hasDHTShampoo
+                                    ? 'At NW3, the recession edge is where miniaturization is most active — add weekly microneedling (0.5mm) to the recession zones. It enhances absorption and follicle response where your existing supplement and DHT shampoo routine needs the most backup.'
+                                    : _hasSupplements
+                                      ? 'At NW3, DHT-blocking shampoo is the key missing layer — use it 3× weekly with 3-5 minutes of contact time. Scalp inflammation at the recession edge accelerates miniaturization; suppressing topical DHT alongside your supplements is the strongest dual response at this stage.'
+                                      : 'NW3 recession means miniaturization is actively progressing — switch to a sulfate-free shampoo, start a supplement stack (biotin, zinc, vitamin D), and add a DHT-blocking shampoo 3× weekly. Reducing inflammation at the recession edge reinforces every other treatment layer.')
                     : data.stage === 'NW3v'
                       // NW3v: dual-zone miniaturization active at temples AND early crown — scalp health must serve both fronts
-                      ? (_hasSupplements && _hasDHTShampoo
-                          ? 'At NW3v, two zones have active miniaturization — temples AND early crown. Add a weekly microneedling session (0.5mm) covering both zones to open absorption channels and stimulate blood flow to both active fronts. Use it 24-48 hours before topical application for maximum impact.'
-                          : _hasDHTShampoo
-                            ? 'DHT-blocking shampoo is a good start at NW3v — add a supplement stack (biotin, zinc, vitamin D) and weekly microneedling at both the recession edge AND the early crown zone. Two active miniaturization fronts need a full anti-inflammatory protocol, not just topicals.'
-                            : 'NW3v means two zones are simultaneously thinning — scalp health must serve both. Add a DHT-blocking shampoo 3× weekly plus a supplement stack (biotin, zinc, vitamin D), and start weekly microneedling across the recession edge and early crown. Two-front miniaturization needs a two-front health protocol.')
+                      ? (_hasFinasteride && _hasSupplements && _hasDHTShampoo
+                          ? 'At NW3v, finasteride + supplements + DHT shampoo is providing systemic and topical DHT suppression across both active miniaturization fronts — add weekly microneedling (0.5mm) covering the recession edge AND the early crown zone 24-48 hours before topical application. Two-front miniaturization needs every anti-inflammatory layer; mechanical stimulation is the highest-ROI addition to your current three-layer protocol.'
+                          : _hasFinasteride && _hasSupplements
+                            ? 'NW3v with finasteride + supplements addressing two simultaneous miniaturization zones — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) and weekly microneedling across both the recession edge and early crown. Topical DHT suppression alongside your systemic finasteride creates dual-level coverage for both active fronts.'
+                            : _hasFinasteride
+                              ? 'Finasteride provides systemic DHT suppression at NW3v where temples and early crown are simultaneously active — build the local scalp-health layer with a supplement stack (biotin, zinc, vitamin D), a DHT-blocking shampoo 3× weekly, and weekly microneedling across both active zones. Two-front miniaturization needs every anti-inflammatory layer working in parallel.'
+                              : _hasSupplements && _hasDHTShampoo
+                                  ? 'At NW3v, two zones have active miniaturization — temples AND early crown. Add a weekly microneedling session (0.5mm) covering both zones to open absorption channels and stimulate blood flow to both active fronts. Use it 24-48 hours before topical application for maximum impact.'
+                                  : _hasDHTShampoo
+                                    ? 'DHT-blocking shampoo is a good start at NW3v — add a supplement stack (biotin, zinc, vitamin D) and weekly microneedling at both the recession edge AND the early crown zone. Two active miniaturization fronts need a full anti-inflammatory protocol, not just topicals.'
+                                    : 'NW3v means two zones are simultaneously thinning — scalp health must serve both. Add a DHT-blocking shampoo 3× weekly plus a supplement stack (biotin, zinc, vitamin D), and start weekly microneedling across the recession edge and early crown. Two-front miniaturization needs a two-front health protocol.')
                       : data.stage === 'NW4'
                         // NW4: significant miniaturization likely at both frontal and crown edges — scalp environment is critical for topical effectiveness
-                        ? (_hasSupplements && _hasDHTShampoo && _hasMassage
-                            ? 'At NW4 the full scalp-health kit is active — focus on absorption quality this week: microneedle the thinnest zones (0.5mm) 48 hours before topical application, and leave DHT shampoo on 3-5 minutes per wash. Scalp preparation quality determines how much of your treatment actually reaches the follicle.'
-                            : _hasSupplements && _hasDHTShampoo
-                              ? 'At NW4, add scalp massage before each topical application and consider weekly microneedling (0.5mm) over the thinnest zones — mechanical stimulation significantly improves topical absorption where miniaturization is most advanced, and your supplement and DHT shampoo stack benefits directly from it.'
-                              : _hasDHTShampoo
-                                ? 'At NW4, your DHT shampoo is handling topical suppression — add a supplement stack (biotin, zinc, vitamin D) and a pre-application scalp massage. Advanced miniaturization at NW4 needs every anti-inflammatory layer working together to maintain follicle health.'
-                                : 'At NW4, scalp health needs the full anti-miniaturization stack: DHT-blocking shampoo 3× weekly (3-5 min contact time), a supplement stack (biotin, zinc, vitamin D), and weekly microneedling. Advanced miniaturization at this stage requires every layer to be active.')
+                        ? (_hasFinasteride && _hasSupplements && _hasDHTShampoo && _hasMassage
+                            ? 'NW4 scalp health with finasteride + supplements + DHT shampoo + massage is the most complete anti-miniaturization protocol — optimize by timing microneedling (0.5mm) 24-48 hours before topical application across the frontal and crown zones. Absorption quality determines how much your finasteride-backed protocol converts to follicle-level impact where miniaturization is most advanced.'
+                            : _hasFinasteride && _hasSupplements && _hasDHTShampoo
+                              ? 'At NW4, finasteride + supplements + DHT shampoo delivers systemic and topical DHT suppression with nutritional support — add scalp massage before each topical application and weekly microneedling over the thinnest zones. Mechanical stimulation is the highest-ROI addition to your existing three-layer anti-miniaturization protocol at NW4.'
+                              : _hasFinasteride && _hasSupplements
+                                ? 'Finasteride + supplements addresses the systemic and nutritional dimensions of miniaturization at NW4 — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the topical DHT layer. Systemic finasteride + topical DHT shampoo creates dual-level coverage where miniaturization spans both the frontal and crown zones.'
+                                : _hasFinasteride
+                                  ? 'Finasteride is blocking systemic DHT at NW4 where miniaturization spans both the frontal and crown zones — build the local scalp-health layer: add a supplement stack (biotin, zinc, vitamin D), a DHT-blocking shampoo 3× weekly, and weekly microneedling. Systemic DHT suppression handles the root cause; these layers optimize the scalp environment for follicles under dual-zone miniaturization pressure.'
+                                  : _hasSupplements && _hasDHTShampoo && _hasMassage
+                                      ? 'At NW4 the full scalp-health kit is active — focus on absorption quality this week: microneedle the thinnest zones (0.5mm) 48 hours before topical application, and leave DHT shampoo on 3-5 minutes per wash. Scalp preparation quality determines how much of your treatment actually reaches the follicle.'
+                                      : _hasSupplements && _hasDHTShampoo
+                                        ? 'At NW4, add scalp massage before each topical application and consider weekly microneedling (0.5mm) over the thinnest zones — mechanical stimulation significantly improves topical absorption where miniaturization is most advanced, and your supplement and DHT shampoo stack benefits directly from it.'
+                                        : _hasDHTShampoo
+                                          ? 'At NW4, your DHT shampoo is handling topical suppression — add a supplement stack (biotin, zinc, vitamin D) and a pre-application scalp massage. Advanced miniaturization at NW4 needs every anti-inflammatory layer working together to maintain follicle health.'
+                                          : 'At NW4, scalp health needs the full anti-miniaturization stack: DHT-blocking shampoo 3× weekly (3-5 min contact time), a supplement stack (biotin, zinc, vitamin D), and weekly microneedling. Advanced miniaturization at this stage requires every layer to be active.')
                         : (data.stage === 'diffuse' || data.stage === 'n/a (female)')
                           ? (_hasSupplements && _hasDHTShampoo
                               ? (data.stage === 'n/a (female)'
