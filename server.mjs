@@ -2567,6 +2567,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           weeklyFocusSecondaryMetric: userContext.result.weeklyFocusSecondaryMetric ? String(userContext.result.weeklyFocusSecondaryMetric).slice(0, 20) : null,
           specialistRecommended: userContext.result.specialistRecommended ?? false,
           specialistReason: userContext.result.specialistReason ? String(userContext.result.specialistReason).slice(0, 300) : null,
+          protocolCoverage: userContext.result.protocolCoverage
+            ? {
+                topical:     !!userContext.result.protocolCoverage.topical,
+                rx:          !!userContext.result.protocolCoverage.rx,
+                dhtShampoo:  !!userContext.result.protocolCoverage.dhtShampoo,
+                mechanical:  !!userContext.result.protocolCoverage.mechanical,
+                supplements: !!userContext.result.protocolCoverage.supplements,
+              }
+            : null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -2669,6 +2678,20 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const nextCheckInMs = ctx.scan?.nextCheckIn ? new Date(ctx.scan.nextCheckIn).getTime() : null;
       const daysUntilNextScan = nextCheckInMs !== null ? Math.round((nextCheckInMs - todayMs) / (24 * 60 * 60 * 1000)) : null;
       const scanIsOverdue = daysUntilNextScan !== null && daysUntilNextScan < 0;
+      // Build a structured protocol-layer status line for the coach system prompt.
+      // Avoids asking gpt-4o-mini to infer what layers are active/missing from raw routine text.
+      const protocolStatusLine = (() => {
+        const pc = ctx.scan?.protocolCoverage;
+        if (!pc) return '';
+        const active = [];
+        const missing = [];
+        if (pc.topical)     active.push('minoxidil');                                     else missing.push('minoxidil');
+        if (pc.rx)          active.push('Rx DHT blocker (finasteride/dutasteride)');      else missing.push('Rx DHT blocker');
+        if (pc.dhtShampoo)  active.push('DHT-blocking shampoo');                          else missing.push('DHT-blocking shampoo');
+        if (pc.mechanical)  active.push('mechanical stimulation (massage/microneedling)'); else missing.push('scalp massage/microneedling');
+        if (pc.supplements) active.push('supplements (biotin/zinc/vitamin D)');            else missing.push('supplements');
+        return `- Protocol layers — ACTIVE: ${active.join(', ') || 'none'}; NOT STARTED: ${missing.join(', ') || 'none'} — when the user asks what to add next, which layer is missing, or how complete their protocol is, use this structured breakdown; never re-suggest an ACTIVE layer.`;
+      })();
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
         'Tone: friendly, direct, evidence-based. Avoid medical disclaimers unless specifically asked.',
@@ -2732,6 +2755,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.secondWeakestMetric?.label ? `- Second weakest metric: ${ctx.secondWeakestMetric.label} (${ctx.secondWeakestMetric.value}/100) — secondary priority worth mentioning when the user asks what else to work on.` : '',
         ctx.strongestMetric?.label ? `- Current strongest metric: ${ctx.strongestMetric.label} (${ctx.strongestMetric.value}/100) — mention this as a positive when relevant.` : '',
         ctx.routine.length ? `- Current routine: ${ctx.routine.join(', ')}.` : '- No routine logged yet.',
+        protocolStatusLine,
         ctx.routineDoneToday.length ? `- Routine tasks completed today: ${ctx.routineDoneToday.join(', ')}.` : '- No routine tasks completed today.',
         ctx.planProducts.length ? `- Saved plan products: ${ctx.planProducts.join(', ')}.` : '- No saved plan products yet.',
         ctx.scanHistory.length
