@@ -2106,11 +2106,17 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           Crown: _isNW7
             ? 'Crown coverage at NW7 is best addressed through FUE/FUT or SMP — prioritize a specialist consultation to discuss vertex coverage goals and realistic outcomes.'
             : _isNW5only
-              ? (_hasMinoxidil && _hasMassage
-                  ? 'At NW5, your minoxidil and massage target the right zones — confirm 1ml reaches the vertex directly, not just the sides. Add weekly microneedling over the crown to prime follicle response and take overhead photos every 4 weeks to track how quickly the frontal and crown thinning zones are merging.'
-                  : _hasMinoxidil
-                    ? 'NW5 crown thinning is substantial — apply 1ml minoxidil directly to the vertex twice daily after a 4-minute scalp massage to maximize absorption, then add weekly microneedling. The goal is slowing how quickly the frontal and crown zones merge; photograph from above every 4 weeks to track the bridge.'
-                    : 'NW5 crown thinning is large and the frontal zone is nearly merging — start minoxidil (1ml) directly on the vertex twice daily paired with weekly microneedling. Stabilizing the bridge between the two thinning zones is the realistic near-term goal; take an overhead photo today as your baseline.')
+              ? (_hasFinasteride && _hasMinoxidil && _hasMassage
+                  ? 'NW5 crown thinning with finasteride + minoxidil + massage is the most complete non-surgical vertex protocol — confirm 1ml minoxidil reaches the vertex directly after each scalp massage, and take finasteride at the same time each day. Track with overhead photos every 4 weeks to monitor how quickly the frontal and crown zones are merging. A transplant consultation in parallel is worth prioritizing this quarter for full vertex coverage planning.'
+                  : _hasFinasteride && _hasMinoxidil
+                    ? 'At NW5, finasteride + minoxidil is the most evidence-backed non-surgical crown protocol — apply 1ml minoxidil directly to the vertex twice daily and take finasteride at the same time each day. Add a 4-minute scalp massage before each topical application to prime vertex absorption where the frontal and crown zones are closest to merging. Track with monthly overhead photos.'
+                    : _hasFinasteride
+                      ? 'Finasteride is suppressing systemic DHT at the NW5 crown zone — add minoxidil (1ml) directly to the vertex twice daily for the topical growth signal. Finasteride + minoxidil is the most effective non-surgical combination for NW5 crown coverage; pair each application with a 4-minute scalp massage and track with monthly overhead photos.'
+                      : _hasMinoxidil && _hasMassage
+                          ? 'At NW5, your minoxidil and massage target the right zones — confirm 1ml reaches the vertex directly, not just the sides. Add weekly microneedling over the crown to prime follicle response and take overhead photos every 4 weeks to track how quickly the frontal and crown thinning zones are merging.'
+                          : _hasMinoxidil
+                            ? 'NW5 crown thinning is substantial — apply 1ml minoxidil directly to the vertex twice daily after a 4-minute scalp massage to maximize absorption, then add weekly microneedling. The goal is slowing how quickly the frontal and crown zones merge; photograph from above every 4 weeks to track the bridge.'
+                            : 'NW5 crown thinning is large and the frontal zone is nearly merging — start minoxidil (1ml) directly on the vertex twice daily paired with weekly microneedling. Stabilizing the bridge between the two thinning zones is the realistic near-term goal; take an overhead photo today as your baseline.')
               : _isNW56
               // only NW6 reaches here — NW5 is handled by _isNW5only above
               ? (_hasFinasteride && _hasMinoxidil
@@ -2690,7 +2696,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         { role: 'user', content: message.slice(0, 1500) },
       ];
 
-      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 1200 });
+      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 1500 });
       const { ok: coachOk, status: coachStatus, payload: coachPayload } = await withOpenAIRetry('coach', (signal) =>
         fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
