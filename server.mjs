@@ -2067,11 +2067,23 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                   ? 'Your DHT-blocking shampoo is already protecting your density — at NW2 your coverage is still strong. Keep using it 3× weekly and add a 5-minute scalp massage on wash days to maintain circulation and catch any early diffuse change.'
                   : 'At NW2 your density is still strong — protect it now by adding a DHT-blocking shampoo 3× weekly. This is the highest-ROI prevention step at your stage: slowing miniaturization before it becomes visible is far easier than reversing it later.')
               : (data.stage === 'NW3' || data.stage === 'NW3v')
-                ? (_hasDHTShampoo && _hasMassage
-                    ? 'DHT shampoo and scalp stimulation are both active — optimize for density by microneedling the thinning mid-scalp zone 24-48 hours before your topical application, so freshly primed follicles absorb more at the area that matters most.'
-                    : _hasDHTShampoo
-                      ? "Your DHT-blocking shampoo is active at a key stage — add weekly microneedling over the mid-scalp thinning zone and a 5-minute post-wash scalp massage to drive follicle response while coverage is still stabilizable."
-                      : 'Mid-scalp density at NW3 responds well to DHT-blocking shampoo 3× weekly plus scalp massage — start both this week while follicles are still viable and the density response window is open.')
+                ? (_hasFinasteride && _hasDHTShampoo && _hasMassage
+                    ? data.stage === 'NW3v'
+                        ? 'NW3v density spans mid-scalp and early crown — your finasteride + DHT shampoo + scalp massage covers all three anti-miniaturization layers. Add weekly microneedling (0.5mm) across BOTH the mid-scalp and early crown zone 24-48 hours before topical application; finasteride handles systemic DHT while microneedling primes follicle absorption across both active fronts.'
+                        : 'NW3 mid-scalp density with finasteride + DHT shampoo + scalp massage covers the key anti-miniaturization layers — add weekly microneedling (0.5mm) over the thinning mid-scalp zone 24-48 hours before topical application. Finasteride handles systemic DHT; microneedling primes follicle absorption where density loss is progressing at the recession edge.'
+                    : _hasFinasteride && _hasDHTShampoo
+                        ? data.stage === 'NW3v'
+                            ? 'At NW3v, finasteride + DHT shampoo delivers systemic and topical DHT suppression across mid-scalp and early crown — add weekly microneedling covering both zones and a 4-minute scalp massage before each topical application. Mechanical stimulation is the highest-ROI addition when dual-zone DHT suppression is already in place.'
+                            : 'At NW3, finasteride + DHT shampoo delivers both systemic and topical DHT suppression at the mid-scalp — add weekly microneedling (0.5mm) and a 5-minute scalp massage before each application. Mechanical stimulation is the highest-ROI addition when DHT is already covered at both levels.'
+                        : _hasFinasteride
+                            ? data.stage === 'NW3v'
+                                ? 'Finasteride suppresses systemic DHT at NW3v where density is declining across mid-scalp and early crown — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for topical-level DHT control across both zones, plus weekly microneedling. Systemic + topical DHT suppression together give the strongest two-front density response at this stage.'
+                                : 'Finasteride suppresses systemic DHT at NW3 — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for topical-level DHT control at the mid-scalp, plus weekly microneedling (0.5mm) and a scalp massage before each application. Systemic and topical DHT suppression together give the strongest density response at this stage.'
+                            : _hasDHTShampoo && _hasMassage
+                                ? 'DHT shampoo and scalp stimulation are both active — optimize for density by microneedling the thinning mid-scalp zone 24-48 hours before your topical application, so freshly primed follicles absorb more at the area that matters most.'
+                                : _hasDHTShampoo
+                                    ? "Your DHT-blocking shampoo is active at a key stage — add weekly microneedling over the mid-scalp thinning zone and a 5-minute post-wash scalp massage to drive follicle response while coverage is still stabilizable."
+                                    : 'Mid-scalp density at NW3 responds well to DHT-blocking shampoo 3× weekly plus scalp massage — start both this week while follicles are still viable and the density response window is open.')
                 : data.stage === 'NW4'
                   ? (_hasDHTShampoo && _hasMinoxidil && _hasMassage
                       ? 'At NW4, mid-scalp density benefits from stacking all three layers — optimize timing: massage first, then apply minoxidil immediately after across the full top, and leave DHT shampoo on for 3-5 minutes on wash days. Consistency beats adding new products.'
