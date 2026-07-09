@@ -2423,6 +2423,19 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : null;
         data.weeklyFocusSecondaryMetric = data.secondWeakestMetric?.label || null;
 
+        // protocolCoverage: structured breakdown of which treatment categories are active
+        // in the user's current routine. Derived server-side from the same parsed routine
+        // flags used to build weeklyFocus — no additional client-side string parsing needed.
+        // The iOS app can use this to render a protocol-completeness indicator, surface
+        // prompts for missing layers, or log adherence without re-implementing the detection.
+        data.protocolCoverage = {
+          topical:     _hasMinoxidil,    // minoxidil / rogaine
+          rx:          _hasFinasteride,  // finasteride / dutasteride (Rx DHT blocker)
+          dhtShampoo:  _hasDHTShampoo,   // ketoconazole / DHT-blocking shampoo
+          mechanical:  _hasMassage,      // scalp massage / dermaroller / microneedling
+          supplements: _hasSupplements,  // biotin / zinc / vitamins / saw palmetto
+        };
+
         // checkInIntervalDays: how many days until the next meaningful scan.
         // Derived from treatmentUrgency so the iOS app can schedule a push reminder
         // without extra logic. "high" urgency = active treatment phase (28 days);
