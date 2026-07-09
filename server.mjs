@@ -316,6 +316,8 @@ Change only one thing: locally improve the visible hair-loss areas while preserv
 
 CRITICAL texture rule: preserve the hair's exact ethnic texture — do NOT straighten curly, coily, or wavy hair; do NOT lighten or darken the hair color; do NOT apply a smooth or silky European texture to Afro-textured, South Asian, East Asian, or any other non-European hair type. The added hair must be indistinguishable in coarseness, curl pattern, wave, thickness, direction, shine, and color from the hair immediately surrounding the thinning zone.
 
+CRITICAL grey/white hair rule: if the person's hair is grey, white, silver, or salt-and-pepper, the restored hair MUST match that exact grey or white shade — do NOT restore grey or white hair to a darker, younger-looking color. Restoring density does NOT mean restoring youth; the added hair must be the same grey, white, or mixed grey-and-dark shade as the hair it connects to. Adding dark hair where grey hair exists is wrong.
+
 Do NOT create a new hairstyle. Do NOT change the existing hair length, parting, volume, silhouette, styling direction, forehead size, temples beyond the recession area, beard, eyebrows, skin, head shape, or background. Do NOT make the hair look freshly styled, longer, lighter, darker, wet, straighter, or like a different person. Keep the original hairline character and make it only moderately denser and more even.
 
 The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`;
@@ -421,7 +423,7 @@ Make ONLY a small, realistic improvement that matches what a user would expect a
 - Vellus (peach-fuzz) hair starting to appear in receded zones, but NOT yet fully pigmented
 - Hairline shape unchanged — recession edges still visible, just slightly softer
 
-DO NOT regrow lost zones to completion. DO NOT change hair color or style. CRITICAL: preserve the exact hair texture and ethnicity — do NOT straighten curly or coily hair, do NOT lighten dark hair, do NOT apply a European texture to any other hair type. The user should think "subtle but real" — not "miracle." Most people wouldn't notice unless comparing photos side-by-side.
+DO NOT regrow lost zones to completion. DO NOT change hair color or style. CRITICAL: preserve the exact hair texture and ethnicity — do NOT straighten curly or coily hair, do NOT lighten dark hair, do NOT apply a European texture to any other hair type. CRITICAL grey/white hair: if the hair is grey, white, silver, or salt-and-pepper, the restored hair MUST match that exact shade — do NOT restore grey or white hair to a darker color. The user should think "subtle but real" — not "miracle." Most people wouldn't notice unless comparing photos side-by-side.
 
 The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`,
 
@@ -433,7 +435,7 @@ Make a clearly visible but still realistic improvement that matches what a commi
 - Crown/vertex thinning area shows real coverage (not bald patch — nor full restoration)
 - Hair color, length, style, and texture exactly match the original
 
-DO NOT make it look like a completely full head of hair. There should still be some evidence of the original hair loss pattern, just clearly improved. CRITICAL: preserve the exact hair texture and ethnicity — do NOT straighten curly or coily hair, do NOT lighten dark hair, do NOT apply a European texture to any other hair type. The viewer should think "real progress" — not "different person."
+DO NOT make it look like a completely full head of hair. There should still be some evidence of the original hair loss pattern, just clearly improved. CRITICAL: preserve the exact hair texture and ethnicity — do NOT straighten curly or coily hair, do NOT lighten dark hair, do NOT apply a European texture to any other hair type. CRITICAL grey/white hair: if the hair is grey, white, silver, or salt-and-pepper, the restored hair MUST match that exact shade — do NOT restore grey or white hair to a darker color. The viewer should think "real progress" — not "different person."
 
 The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`,
 
@@ -446,7 +448,7 @@ Make a substantial, realistic improvement matching what a fully-compliant user m
 - New hair matches the user's existing color, texture, and ethnicity exactly
 - A trace of the original recession may still be visible if it was severe — most real cases never reach 100% baseline
 
-DO NOT change hair color, style, length, or any other feature. CRITICAL: preserve the exact hair texture and ethnicity — do NOT straighten curly or coily hair, do NOT lighten or darken the hair color, do NOT apply a European or generic smooth texture to any non-European hair type. The viewer should think "best realistic outcome" — clearly the same person with clearly more hair.
+DO NOT change hair color, style, length, or any other feature. CRITICAL: preserve the exact hair texture and ethnicity — do NOT straighten curly or coily hair, do NOT lighten or darken the hair color, do NOT apply a European or generic smooth texture to any non-European hair type. CRITICAL grey/white hair: if the hair is grey, white, silver, or salt-and-pepper, the restored hair MUST match that exact shade — do NOT restore grey or white hair to a darker color; this is a 12-month treatment result, not a youth reversal. The viewer should think "best realistic outcome" — clearly the same person with clearly more hair.
 
 The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`,
 };
@@ -2596,7 +2598,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         'Constraints: never prescribe Rx drugs; recommend talking to a doctor for finasteride/dutasteride.',
         'Length: short, scannable. Use bullets when listing options.',
         'ROUTINE RULE: Always check "Current routine" below before recommending any treatment or product. If something is already listed (e.g. minoxidil, finasteride, DHT shampoo, supplements), do NOT suggest starting it — acknowledge it is active and instead suggest how to optimize it (application technique, timing, coverage area, contact time) or recommend a complementary next step they have not yet tried.',
-        'Response style: answer directly. Do NOT open with affirmations or filler ("Great!", "Absolutely!", "Of course!", "Sure thing!", "That\'s a great question!"). Start with the substance of your answer.',
+        'Response style: answer directly. Do NOT open with affirmations or filler ("Great!", "Absolutely!", "Of course!", "Sure thing!", "That\'s a great question!"). Start with the substance of your answer. Do NOT close with generic motivational CTAs or marketing phrases ("Start your journey today!", "Take the first step!", "You\'ve got this!", "Begin your transformation!") — end with the most specific actionable point.',
         '',
         `Today's date: ${todayStr}.`,
         'User context (use when relevant, do not parrot back verbatim):',
