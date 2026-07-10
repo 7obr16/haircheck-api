@@ -116,4 +116,12 @@ assert(
   'thinningZones for n/a (female) should exclude temples since female-pattern AGA spares the temporal hairline'
 );
 
+assert(
+  source.includes('Finasteride is already blocking DHT systemically at NW1') &&
+    source.includes('finasteride + DHT-blocking shampoo gives you the strongest dual-level prevention') &&
+    source.includes("Your NW1 prevention protocol is as complete as it gets") &&
+    source.includes('finasteride + supplements + DHT-blocking shampoo'),
+  'WEEKLY_FOCUS_MAP NW1 entries (Hairline, Crown, Health, Potential) should be finasteride-aware so preventive Rx users see relevant guidance'
+);
+
 console.log('server contract passed');

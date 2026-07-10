@@ -2047,9 +2047,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     : 'NW2 temple recession is the earliest warning sign — and the best treatment window. Start minoxidil directly on both temple corners twice daily this week. At NW2, follicles are fully viable and early intervention produces the strongest long-term results. Take a monthly front-facing photo to catch any further change early.')
                 : data.stage === 'NW1'
                 // NW1: no recession exists — advice must be preventive, not treatment-focused
-                ? (_hasDHTShampoo
-                    ? 'Your hairline is fully intact at NW1 — keep it that way. Stay consistent with your DHT-blocking shampoo 3× weekly and take monthly front-facing photos; catching any early M-shape at NW1 gives the best possible intervention window if change ever begins.'
-                    : 'Your hairline is fully intact at NW1 — protect it before any recession starts. Add a DHT-blocking shampoo 3× weekly now. Prevention at this stage costs far less effort than treating established recession later.')
+                ? (_hasFinasteride && _hasDHTShampoo
+                    ? 'Your hairline is fully intact at NW1 and finasteride + DHT-blocking shampoo gives you the strongest dual-level prevention stack — take monthly front-facing photos so any early M-shape at either temple is caught the moment it begins. That NW1→NW2 transition window is the highest-ROI time to intensify coverage if change ever starts.'
+                    : _hasFinasteride
+                      ? 'Finasteride is already blocking DHT systemically at NW1 — add a DHT-blocking shampoo 3× weekly for the complementary topical-level prevention layer. Together they form the most complete non-surgical hairline protection at this early stage; take monthly front-facing photos to catch any early M-shape deepening.'
+                      : _hasDHTShampoo
+                        ? 'Your hairline is fully intact at NW1 — keep it that way. Stay consistent with your DHT-blocking shampoo 3× weekly and take monthly front-facing photos; catching any early M-shape at NW1 gives the best possible intervention window if change ever begins.'
+                        : 'Your hairline is fully intact at NW1 — protect it before any recession starts. Add a DHT-blocking shampoo 3× weekly now. Prevention at this stage costs far less effort than treating established recession later.')
                 : data.stage === 'n/a (female)'
                 // n/a (female): female-pattern loss typically spares the frontal hairline; a lower hairline score here indicates Ludwig III frontal type with diffuse thinning behind the hairline edge — temple recession advice does not apply
                 ? (_hasMinoxidil
@@ -2201,9 +2205,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                             : 'NW3v means your crown thinning has just started — the highest-ROI move is acting now: apply minoxidil directly to the vertex daily, add scalp massage, and take an overhead photo as your baseline today.'
                 : data.stage === 'NW1'
                 // NW1: crown is fully healthy — no targeted treatment needed; preventive messaging only
-                ? (_hasDHTShampoo
-                    ? 'Your crown is fully healthy at NW1. No targeted crown treatment needed yet — your DHT-blocking shampoo already provides preventive coverage. Take monthly overhead photos so any early vertex change is caught at the highest-ROI intervention window.'
-                    : 'Your crown is healthy at NW1. No crown treatment needed yet — add a DHT-blocking shampoo 3× weekly as a general prevention layer and take monthly overhead photos to catch any early vertex change before it requires aggressive treatment.')
+                ? (_hasFinasteride && _hasDHTShampoo
+                    ? 'Your crown is fully healthy at NW1 and finasteride + DHT-blocking shampoo covers both systemic and topical DHT suppression — no targeted crown treatment needed. Take monthly overhead photos so any early vertex change is caught the moment it begins, which is the highest-ROI intervention window.'
+                    : _hasFinasteride
+                      ? 'Finasteride is providing systemic DHT protection at NW1 where your crown is fully healthy — no targeted treatment needed. Add a DHT-blocking shampoo 3× weekly as the topical-level complement and take monthly overhead photos to catch any early vertex thinning the moment it appears.'
+                      : _hasDHTShampoo
+                        ? 'Your crown is fully healthy at NW1. No targeted crown treatment needed yet — your DHT-blocking shampoo already provides preventive coverage. Take monthly overhead photos so any early vertex change is caught at the highest-ROI intervention window.'
+                        : 'Your crown is healthy at NW1. No crown treatment needed yet — add a DHT-blocking shampoo 3× weekly as a general prevention layer and take monthly overhead photos to catch any early vertex change before it requires aggressive treatment.')
                 : data.stage === 'NW2'
                 // NW2: crown is intact, temples are the active priority — redirect focus there
                 ? (_hasFinasteride
@@ -2267,11 +2275,17 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                         ? 'Your supplement and DHT-blocking shampoo routine is protecting remaining follicles at NW6 — keep DHT shampoo on 3-5 minutes per wash and add weekly microneedling over the fringe zones to prime follicle response. A dermatologist check can rule out any inflammatory component that your current protocol cannot address alone.'
                         : 'Protect remaining follicles: use a gentle sulfate-free shampoo 3× weekly, add biotin/zinc if not already in your routine, and consider a dermatologist visit to rule out any inflammatory or nutritional component slowing response.')
               : data.stage === 'NW1'
-                ? (_hasSupplements && _hasDHTShampoo
-                    ? 'Your scalp is in strong preventive shape — target sleep quality this week (7-8 hrs). Cortisol from poor sleep accelerates miniaturization even before visible thinning begins.'
-                    : _hasSupplements
-                      ? 'Your supplement stack is active — add a DHT-blocking shampoo 3× weekly as a preventive layer. NW1 is the optimal window to build a protective routine before any thinning develops.'
-                      : 'Your hair is healthy — protect it now: switch to a gentle sulfate-free shampoo, stay well-hydrated, and start a basic supplement stack (biotin, zinc, vitamin D) to support follicle health proactively.')
+                ? (_hasFinasteride && _hasSupplements && _hasDHTShampoo
+                    ? 'Your scalp health is fully protected at NW1 with finasteride + supplements + DHT-blocking shampoo — the most complete preventive protocol. Target sleep quality this week (7-8 hrs); cortisol from poor sleep accelerates miniaturization even before visible thinning begins.'
+                    : _hasFinasteride && _hasSupplements
+                      ? 'Finasteride + supplement stack is a strong NW1 health foundation — add a DHT-blocking shampoo 3× weekly with 3-5 minutes of contact time for the topical-level DHT-suppression layer alongside your systemic finasteride coverage.'
+                      : _hasFinasteride
+                        ? 'Finasteride provides systemic DHT protection at NW1 — build the local layer with a supplement stack (biotin, zinc, vitamin D) and a DHT-blocking shampoo 3× weekly. All three together form the most complete anti-miniaturization protocol before any visible thinning begins.'
+                        : _hasSupplements && _hasDHTShampoo
+                          ? 'Your scalp is in strong preventive shape — target sleep quality this week (7-8 hrs). Cortisol from poor sleep accelerates miniaturization even before visible thinning begins.'
+                          : _hasSupplements
+                            ? 'Your supplement stack is active — add a DHT-blocking shampoo 3× weekly as a preventive layer. NW1 is the optimal window to build a protective routine before any thinning develops.'
+                            : 'Your hair is healthy — protect it now: switch to a gentle sulfate-free shampoo, stay well-hydrated, and start a basic supplement stack (biotin, zinc, vitamin D) to support follicle health proactively.')
                 : data.stage === 'NW2'
                   // NW2: earliest recession stage — scalp health is still strong, goal is protection and anti-miniaturization foundation
                   ? (_hasFinasteride && _hasSupplements && _hasDHTShampoo
@@ -2377,11 +2391,17 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                       ? 'At NW6, add weekly microneedling and a DHT-blocking shampoo to your minoxidil to give the best realistic shot at slowing progression (15-32% potential). Set a 3-month checkpoint and consider booking a transplant consultation this quarter — combining OTC maintenance with surgical planning is the most complete long-term strategy.'
                       : 'At your stage, combining minoxidil with weekly microneedling and a DHT-blocking shampoo gives the best realistic shot at slowing progression — set a 3-month checkpoint to assess response.')
               : data.stage === 'NW1'
-                ? (_hasDHTShampoo && _hasSupplements)
-                    ? 'Your preventive stack is solid — the highest-ROI next step is lifestyle: prioritize 7-8 hours of sleep and reduce chronic stress this week. Elevated cortisol accelerates follicle miniaturization even before visible thinning begins, and no supplement can offset poor recovery.'
-                    : _hasDHTShampoo
-                      ? 'Add a basic supplement stack (biotin, zinc, vitamin D) to complement your DHT-blocking shampoo — at NW1 your follicles are fully viable and this pairing forms the strongest long-term prevention layer before any visible loss starts.'
-                      : 'Protect your potential now by starting a DHT-blocking shampoo 3× weekly and a supplement stack (biotin, zinc, vitamin D). At NW1 prevention is far more cost-effective than treatment later — follicles are fully viable and most responsive before visible loss begins.'
+                ? (_hasFinasteride && _hasDHTShampoo && _hasSupplements
+                    ? 'Your NW1 prevention protocol is as complete as it gets — finasteride + DHT shampoo + supplements covers all three anti-miniaturization layers. Maximize long-term potential through lifestyle: prioritize 7-8 hours of sleep and manage chronic stress. Cortisol accelerates miniaturization even before visible thinning begins, and no supplement can offset poor recovery.'
+                    : _hasFinasteride && _hasDHTShampoo
+                      ? 'Finasteride + DHT-blocking shampoo gives dual-level DHT prevention at NW1 — add a supplement stack (biotin, zinc, vitamin D) to complete the protocol. All three together form the most comprehensive NW1 potential protection available.'
+                      : _hasFinasteride
+                        ? 'Finasteride is your strongest potential protection at NW1 — add a DHT-blocking shampoo 3× weekly and a supplement stack (biotin, zinc, vitamin D). This complete three-layer protocol maximizes long-term follicle viability while your hairline is fully intact.'
+                        : _hasDHTShampoo && _hasSupplements
+                          ? 'Your preventive stack is solid — the highest-ROI next step is lifestyle: prioritize 7-8 hours of sleep and reduce chronic stress this week. Elevated cortisol accelerates follicle miniaturization even before visible thinning begins, and no supplement can offset poor recovery.'
+                          : _hasDHTShampoo
+                            ? 'Add a basic supplement stack (biotin, zinc, vitamin D) to complement your DHT-blocking shampoo — at NW1 your follicles are fully viable and this pairing forms the strongest long-term prevention layer before any visible loss starts.'
+                            : 'Protect your potential now by starting a DHT-blocking shampoo 3× weekly and a supplement stack (biotin, zinc, vitamin D). At NW1 prevention is far more cost-effective than treatment later — follicles are fully viable and most responsive before visible loss begins.')
                 : data.stage === 'NW2'
                   ? (_hasFinasteride && _hasMinoxidil)
                       ? 'NW2 is the ideal preventive window and your finasteride + minoxidil combination is the strongest possible non-surgical stack at this stage — keep both consistent. Confirm twice-daily minoxidil coverage on both temple corners and take finasteride at the same time each day without gaps for maximum long-term protection.'
