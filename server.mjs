@@ -2680,8 +2680,20 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const scanIsOverdue = daysUntilNextScan !== null && daysUntilNextScan < 0;
       // Build a structured protocol-layer status line for the coach system prompt.
       // Avoids asking gpt-4o-mini to infer what layers are active/missing from raw routine text.
+      // Falls back to deriving coverage from ctx.routine when protocolCoverage isn't available
+      // (pre-scan users or older iOS clients that don't include it in the scan result).
       const protocolStatusLine = (() => {
-        const pc = ctx.scan?.protocolCoverage;
+        let pc = ctx.scan?.protocolCoverage ?? null;
+        if (!pc && ctx.routine.length > 0) {
+          const r = ctx.routine.map((s) => String(s).toLowerCase());
+          pc = {
+            topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine')),
+            rx:          r.some((s) => s.includes('finasteride') || s.includes('propecia') || s.includes('dutasteride') || s.includes('avodart')),
+            dhtShampoo:  r.some((s) => s.includes('dht') || s.includes('ketoconazole') || s.includes('nizoral') || s.includes('keto shampoo') || s.includes('caffeine shampoo')),
+            mechanical:  r.some((s) => s.includes('massage') || s.includes('dermaroller') || s.includes('microneedl')),
+            supplements: r.some((s) => s.includes('supplement') || s.includes('biotin') || s.includes('vitamin') || s.includes('zinc') || s.includes('saw palmetto')),
+          };
+        }
         if (!pc) return '';
         const active = [];
         const missing = [];
