@@ -2084,11 +2084,18 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                         ? 'At NW5, add a DHT-blocking shampoo 3× weekly to your minoxidil — leave it on 3-5 minutes before rinsing and follow with a scalp massage. At this stage, stacking topical growth signal + DHT suppression + mechanical stimulation gives the strongest realistic density response; add weekly microneedling to prime follicle absorption.'
                         : 'NW5 density loss spans both frontal and crown zones — start the full density stack this week: minoxidil across the entire scalp top twice daily, DHT-blocking shampoo 3× weekly (3-5 min contact time), and daily scalp massage. All three layers together give the strongest OTC density response at this stage; track with monthly overhead photos.')
               : _isNW56
-              ? (_hasDHTShampoo && _hasMassage
-                  ? 'DHT-blocking shampoo and scalp stimulation are both active — leave shampoo on for 3-5 minutes before rinsing and do a focused microneedling session on the thinnest zones weekly for maximum response.'
-                  : _hasDHTShampoo
-                    ? "Your DHT-blocking shampoo helps slow miniaturization — keep it up and add weekly microneedling to prime remaining follicles for maximum response."
-                    : 'Add a DHT-blocking shampoo 3× this week — at your stage it helps stabilize existing density and slow further miniaturization.')
+              // only NW6 reaches here — NW5 is handled by _isNW5only above
+              ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
+                  ? 'At NW6, finasteride + minoxidil + DHT shampoo delivers systemic and topical DHT suppression alongside the topical growth signal — apply minoxidil across the remaining fringe and lateral hair twice daily and leave the DHT shampoo on 3-5 minutes per wash. Add weekly microneedling over the fringe zones to prime remaining follicle response. The realistic goal is stabilizing existing coverage; track with monthly overhead photos.'
+                  : _hasFinasteride && _hasMinoxidil
+                    ? 'At NW6, finasteride + minoxidil is the strongest non-surgical density combination — apply minoxidil across the fringe and lateral hair twice daily and add a DHT-blocking shampoo 3× weekly as the topical DHT-suppression layer. Together these slow further fringe miniaturization; realistic expectation is stabilization rather than density restoration. Track with monthly overhead photos.'
+                    : _hasFinasteride
+                      ? 'Finasteride is blocking systemic DHT at NW6 where density is mostly lost across the scalp top — add minoxidil to the remaining fringe and lateral edges twice daily and a DHT-blocking shampoo 3× weekly. Finasteride + minoxidil + DHT shampoo is the strongest non-surgical density maintenance protocol at this stage; the realistic goal is slowing further fringe loss.'
+                      : _hasDHTShampoo && _hasMassage
+                        ? 'At NW6, DHT-blocking shampoo and scalp stimulation are both active — leave shampoo on for 3-5 minutes before rinsing and do weekly microneedling over the fringe zones for maximum response. Adding minoxidil to the fringe and lateral edges twice daily is worth considering for an additional topical growth signal at this stage.'
+                        : _hasDHTShampoo
+                          ? "Your DHT-blocking shampoo helps slow miniaturization at NW6 — keep it up and add weekly microneedling to prime remaining follicles. Consider adding minoxidil to the fringe and lateral edges twice daily for the complementary topical growth signal alongside DHT suppression."
+                          : 'At NW6, add a DHT-blocking shampoo 3× weekly to slow further miniaturization of remaining fringe coverage. Combine with minoxidil on the fringe and lateral edges twice daily — the realistic goal at this stage is stabilizing what remains rather than restoring full density.')
               : data.stage === 'NW2'
               ? (_hasFinasteride && _hasDHTShampoo
                   ? 'NW2 density is protected by finasteride (systemic DHT suppression) and your DHT-blocking shampoo (topical DHT control) — dual-level coverage at this early stage gives the strongest long-term density protection. Leave the DHT shampoo on 3-5 minutes before rinsing and add a 5-minute scalp massage on wash days to maximize the benefit of both layers.'

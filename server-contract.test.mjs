@@ -74,6 +74,13 @@ assert(
 );
 
 assert(
+  source.includes('// only NW6 reaches here — NW5 is handled by _isNW5only above') &&
+    source.includes('Finasteride is blocking systemic DHT at NW6 where density is mostly lost') &&
+    source.includes('finasteride + minoxidil is the strongest non-surgical density combination'),
+  'WEEKLY_FOCUS_MAP.Density NW6 branch should be finasteride-aware so Rx users at NW6 get relevant density advice'
+);
+
+assert(
   source.includes('max_tokens: 2000'),
   'scan should use max_tokens: 2000 to reduce truncation risk for structured output'
 );
