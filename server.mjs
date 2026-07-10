@@ -2043,6 +2043,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 ? (_hasMinoxidil
                     ? "Female-pattern thinning rarely recedes the hairline like male AGA — your minoxidil is the right tool. Spread coverage evenly across the frontal hair band behind the hairline edge (not the temples) twice daily and take monthly front-facing photos to track any change along the parting line."
                     : "Female-pattern thinning at the frontal hair band responds best to minoxidil applied evenly across the frontal scalp — not the temples. Start twice daily and check ferritin, thyroid, and hormones; a reversible nutritional or hormonal cause is common and fixing it produces improvements topicals alone cannot achieve.")
+                : data.stage === 'diffuse'
+                // diffuse: uniform thinning WITHOUT temple recession — hairline is typically preserved; a lower hairline score means frontal scalp-top thinning (not classic M-shape recession), so temple-specific advice is wrong here
+                ? (_hasMinoxidil && _hasDHTShampoo
+                    ? "Diffuse thinning typically spares the hairline — a lower hairline score here reflects frontal scalp-top thinning rather than classic temple recession. Your minoxidil and DHT shampoo are the right tools; ensure minoxidil covers the full frontal scalp (not just the temples) twice daily and leave the DHT shampoo on 3-5 minutes before rinsing. A ferritin, thyroid, and vitamin D workup can rule out a reversible cause that topicals alone won't fix."
+                    : _hasMinoxidil
+                      ? "Diffuse thinning typically preserves the hairline — if your hairline score is lower, it reflects frontal scalp-top thinning rather than temple recession. Apply minoxidil across the full frontal scalp twice daily, not just the temple corners. Add a DHT-blocking shampoo 3× weekly and consider a ferritin, thyroid, and vitamin D workup to check for a reversible root cause."
+                      : "Diffuse thinning typically spares the frontal hairline — a lower hairline score here reflects frontal scalp-top thinning, not classic temple recession. Start minoxidil applied across the full frontal scalp twice daily, add a DHT-blocking shampoo 3× weekly, and investigate ferritin, thyroid, and vitamin D; identifying and treating a reversible cause improves topical response significantly.")
                 : (_hasMinoxidil && _hasMassage)
                   ? 'Minoxidil and scalp massage are both active — maximize impact by parting your hair to expose receding temple zones before applying, ensuring full 1ml coverage per side, morning and night.'
                   : _hasMinoxidil
