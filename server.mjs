@@ -76,6 +76,16 @@ const THINNING_ZONES_MAP = {
   total:              ['temples', 'frontal', 'mid-scalp', 'crown', 'vertex'],
 };
 
+// Female-pattern AGA (Ludwig scale) spares the temporal hairline by definition —
+// the standard THINNING_ZONES_MAP 'diffuse' and 'total' entries include 'temples'
+// which would incorrectly highlight them for n/a (female) users.
+// Ludwig I-II → 'diffuse' pattern: central parting, mid-scalp, crown only.
+// Ludwig III  → 'total'   pattern: same zones plus vertex, still no temples.
+const FEMALE_THINNING_ZONES_MAP = {
+  diffuse: ['frontal', 'mid-scalp', 'crown'],
+  total:   ['frontal', 'mid-scalp', 'crown', 'vertex'],
+};
+
 // ─── In-memory cache for AFTER-photo generation ──────────────────
 // gpt-image-2 takes 2-3 minutes per call. Many client retries are the
 // same photo (e.g. Safari's 60s fetch timeout cancels client-side but
@@ -1866,7 +1876,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           photoNote:           String(parsed.photoNote || '').slice(0, 200),
           thinningPattern,
           thinningPatternLabel: THINNING_PATTERN_GUIDE[thinningPattern] || null,
-          thinningZones: THINNING_ZONES_MAP[thinningPattern] || [],
+          thinningZones: stage === 'n/a (female)'
+            ? (FEMALE_THINNING_ZONES_MAP[thinningPattern] || THINNING_ZONES_MAP[thinningPattern] || [])
+            : (THINNING_ZONES_MAP[thinningPattern] || []),
           confidenceScore,
           scoredAt:            new Date().toISOString(),
         };

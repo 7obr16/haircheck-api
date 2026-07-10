@@ -108,4 +108,12 @@ assert(
   'MAP_STAGE_HINTS should include NW1 so analysis maps for fully-healthy scalps show uniform high-density overlay, not misleading thinning indicators'
 );
 
+assert(
+  source.includes('FEMALE_THINNING_ZONES_MAP') &&
+    source.includes("diffuse: ['frontal', 'mid-scalp', 'crown']") &&
+    source.includes("total:   ['frontal', 'mid-scalp', 'crown', 'vertex']") &&
+    source.includes("stage === 'n/a (female)'\n            ? (FEMALE_THINNING_ZONES_MAP"),
+  'thinningZones for n/a (female) should exclude temples since female-pattern AGA spares the temporal hairline'
+);
+
 console.log('server contract passed');
