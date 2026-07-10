@@ -2152,6 +2152,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                           : (data.stage === 'n/a (female)'
                               ? "Female-pattern thinning responds best to minoxidil applied across the full scalp top (not just the hairline) twice daily — start this week. Also worth a ferritin, vitamin D, and thyroid check: these reversible causes are common in women and topicals alone won't address them."
                               : 'Diffuse thinning covers the entire scalp top — start DHT-blocking shampoo 3× weekly and minoxidil across the full top twice daily. Also check ferritin, vitamin D, and thyroid — diffuse loss often has a treatable nutritional or hormonal component.'))
+                    : data.stage === 'NW1'
+                    // NW1: density is completely intact — preventive messaging only; no thinning zones exist
+                    ? (_hasFinasteride && _hasDHTShampoo
+                        ? 'Your density is fully intact at NW1 and finasteride + DHT-blocking shampoo delivers dual-level DHT suppression — the strongest preventive stack at this stage. Leave the DHT shampoo on 3-5 minutes before rinsing and take monthly overhead photos to catch any early mid-scalp change the moment it begins.'
+                        : _hasFinasteride
+                          ? 'Finasteride is suppressing systemic DHT at NW1 where density is completely intact — add a DHT-blocking shampoo 3× weekly as the topical prevention complement. Together they form the most complete dual-level DHT protection before any mid-scalp miniaturization begins.'
+                          : _hasDHTShampoo
+                            ? 'Your density is strong at NW1 — keep your DHT-blocking shampoo 3× weekly with 3-5 minutes of contact time. This is the highest-ROI density prevention habit at your stage; take monthly overhead photos so any early mid-scalp thinning is caught the moment it starts.'
+                            : 'Your density is strong at NW1 — protect it now before any miniaturization begins. Add a DHT-blocking shampoo 3× weekly with 3-5 minutes of contact time; prevention here costs far less effort than treating mid-scalp thinning later.')
                     : _hasFinasteride && _hasMassage
                         ? 'Finasteride + scalp massage is a solid foundation — add weekly microneedling (0.5mm) over the thinning zones to prime follicle absorption and boost local circulation alongside the systemic DHT suppression you already have.'
                         : _hasFinasteride
