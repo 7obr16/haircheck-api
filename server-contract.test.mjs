@@ -131,4 +131,36 @@ assert(
   'WEEKLY_FOCUS_MAP NW1 entries (Hairline, Crown, Health, Potential) should be finasteride-aware so preventive Rx users see relevant guidance'
 );
 
+assert(
+  source.includes("data.stage === 'diffuse'") &&
+    source.includes('Diffuse thinning typically spares the hairline') &&
+    source.includes('frontal scalp-top thinning rather than classic temple recession') &&
+    source.includes('not just the temples'),
+  'WEEKLY_FOCUS_MAP.Hairline should have a diffuse stage branch so diffuse-thinning users never receive temple-recession advice (a lower hairline score for diffuse reflects frontal scalp-top thinning, not M-shape recession)'
+);
+
+assert(
+  source.includes('NW2 density is protected by finasteride (systemic DHT suppression) and your DHT-blocking shampoo') &&
+    source.includes('Finasteride is already blocking systemic DHT at NW2 — add a DHT-blocking shampoo'),
+  'WEEKLY_FOCUS_MAP.Density NW2 branch should be finasteride-aware so Rx users at the earliest detectable stage receive relevant density-protection advice'
+);
+
+assert(
+  source.includes('NW3 scalp health with finasteride + supplements + DHT shampoo + massage is the most complete anti-miniaturization protocol') &&
+    source.includes('Finasteride is suppressing systemic DHT at NW3 — build the local scalp-health layer'),
+  'WEEKLY_FOCUS_MAP.Health NW3 branch should be finasteride-aware so Rx users at the established-recession stage get targeted scalp-health guidance'
+);
+
+assert(
+  source.includes('At NW4, finasteride + minoxidil + DHT shampoo + scalp massage is the most complete non-surgical density protocol') &&
+    source.includes('Finasteride is suppressing systemic DHT at NW4 where mid-scalp density is declining'),
+  'WEEKLY_FOCUS_MAP.Density NW4 branch should be finasteride-aware so Rx users at the significant-loss stage get the most relevant density advice'
+);
+
+assert(
+  source.includes('ctx.scan?.protocolCoverage ?? null') &&
+    source.includes('!pc && ctx.routine.length > 0'),
+  'coach should derive protocolCoverage from routine items when scan result lacks it, so protocol-layer status lines are available even before the first scan'
+);
+
 console.log('server contract passed');
