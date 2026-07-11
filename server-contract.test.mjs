@@ -295,4 +295,46 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential NW6 branch should be finasteride-aware so Rx users at the advanced stage receive potential guidance that accounts for their systemic DHT coverage and frames realistic expectations alongside surgical planning'
 );
 
+assert(
+  source.includes('NW3v crown thinning has just started and your finasteride + minoxidil + massage stack is fully deployed') &&
+    source.includes('NW3v early crown thinning with finasteride + minoxidil is the strongest available intervention') &&
+    source.includes('NW3v means early crown thinning has just started — your finasteride is suppressing DHT systemically'),
+  'WEEKLY_FOCUS_MAP.Crown NW3v branch should be finasteride-aware so Rx users at the dual-zone early-crown stage get vertex advice that builds on their systemic DHT suppression'
+);
+
+assert(
+  source.includes('Your crown is still intact at NW3 — the deep temple recession is the active priority. Your finasteride + minoxidil stack targets the recession zones directly') &&
+    source.includes('Your crown is intact at NW3 — temple recession is the current focus and your finasteride is already blocking systemic DHT'),
+  'WEEKLY_FOCUS_MAP.Crown NW3 branch should be finasteride-aware so Rx users at the established-recession stage get crown advice that acknowledges their systemic DHT coverage while redirecting focus to the active temple recession zones'
+);
+
+assert(
+  source.includes('Finasteride at NW2 is already protecting the crown through systemic DHT suppression — the temple recession is the active priority'),
+  'WEEKLY_FOCUS_MAP.Crown NW2 branch should be finasteride-aware so Rx users at the earliest-recession stage get crown advice that acknowledges their systemic DHT coverage while redirecting focus to the active temple recession'
+);
+
+assert(
+  source.includes('NW2 temple recession with finasteride + minoxidil is the strongest dual-mechanism approach at the ideal preventive stage') &&
+    source.includes('Finasteride is already suppressing systemic DHT at NW2 — add minoxidil directly to both temple corners twice daily'),
+  'WEEKLY_FOCUS_MAP.Hairline NW2 branch should be finasteride-aware so Rx users at the earliest-recession stage get hairline advice calibrated to their systemic DHT suppression'
+);
+
+assert(
+  source.includes('At NW2, finasteride + supplements + DHT shampoo delivers systemic DHT suppression, nutritional support, and topical DHT control — the most complete scalp-health foundation at this early stage') &&
+    source.includes('Finasteride suppresses systemic DHT at NW2 where miniaturization is just beginning'),
+  'WEEKLY_FOCUS_MAP.Health NW2 branch should be finasteride-aware so Rx users at the earliest-recession stage get scalp-health guidance that builds on their systemic DHT suppression'
+);
+
+assert(
+  source.includes('NW2 is the ideal preventive window and your finasteride + minoxidil combination is the strongest possible non-surgical stack at this stage') &&
+    source.includes('NW2 is the ideal window and your finasteride already suppresses DHT systemically'),
+  'WEEKLY_FOCUS_MAP.Potential NW2 branch should be finasteride-aware so Rx users at the earliest-recession stage get potential guidance that reflects their systemic DHT advantage'
+);
+
+assert(
+  source.includes('Your density is fully intact at NW1 and finasteride + DHT-blocking shampoo delivers dual-level DHT suppression') &&
+    source.includes('Finasteride is suppressing systemic DHT at NW1 where density is completely intact'),
+  'WEEKLY_FOCUS_MAP.Density NW1 branch should be finasteride-aware so preventive Rx users at the fully-intact stage see relevant density-protection guidance'
+);
+
 console.log('server contract passed');
