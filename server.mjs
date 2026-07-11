@@ -428,7 +428,14 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       topical ? 'How do I apply minoxidil for maximum coverage at NW5?' : 'Should I add minoxidil to my protocol at NW5?',
     ];
   }
-  if (stage === 'n/a (female)' || stage === 'diffuse') {
+  if (stage === 'n/a (female)') {
+    return [
+      'What hormone and blood tests should I ask my doctor about for female hair loss?',
+      topical ? 'Am I applying minoxidil correctly for female pattern hair loss?' : 'Is minoxidil effective for female pattern hair loss?',
+      rx ? 'What results should I expect from my current treatment for female pattern loss?' : 'Can female pattern hair loss be stopped or reversed?',
+    ];
+  }
+  if (stage === 'diffuse') {
     return [
       'What blood tests should I ask my doctor about for diffuse thinning?',
       topical ? 'Am I applying minoxidil correctly for diffuse thinning?' : 'What topical treatment works best for diffuse thinning?',

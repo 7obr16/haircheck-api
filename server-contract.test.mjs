@@ -337,4 +337,13 @@ assert(
   'WEEKLY_FOCUS_MAP.Density NW1 branch should be finasteride-aware so preventive Rx users at the fully-intact stage see relevant density-protection guidance'
 );
 
+assert(
+  source.includes("'What hormone and blood tests should I ask my doctor about for female hair loss?'") &&
+    source.includes("'Is minoxidil effective for female pattern hair loss?'") &&
+    source.includes("'Can female pattern hair loss be stopped or reversed?'") &&
+    source.includes("stage === 'n/a (female)'") &&
+    !source.includes("stage === 'n/a (female)' || stage === 'diffuse'"),
+  "buildSuggestedQuestions should give female-specific questions for n/a (female) stage (hormone panel, female-specific minoxidil, reversibility), distinct from diffuse-AGA questions — these are separate branches, not combined"
+);
+
 console.log('server contract passed');
