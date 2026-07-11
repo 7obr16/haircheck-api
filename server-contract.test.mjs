@@ -186,6 +186,12 @@ assert(
 );
 
 assert(
+  source.includes('finasteride + minoxidil + DHT shampoo + massage is the most complete non-surgical density protocol — finasteride handles systemic DHT suppression across both frontal and crown loss zones') &&
+    source.includes('Finasteride is suppressing systemic DHT at NW5 where density has declined across both frontal and crown zones'),
+  'WEEKLY_FOCUS_MAP.Density NW5 branch should be finasteride-aware so Rx users at this advanced-dual-zone stage receive density guidance calibrated to their systemic DHT coverage'
+);
+
+assert(
   source.includes('At NW3v, finasteride + supplements + DHT shampoo is providing systemic and topical DHT suppression across both active miniaturization fronts') &&
     source.includes('Finasteride provides systemic DHT suppression at NW3v where temples and early crown are simultaneously active'),
   'WEEKLY_FOCUS_MAP.Health NW3v branch should be finasteride-aware so Rx users at the dual-zone stage get scalp-health advice that builds on systemic DHT suppression'
