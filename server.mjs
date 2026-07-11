@@ -461,20 +461,26 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
     return [
       `What's the best first step for someone at ${stage}?`,
       'How long does minoxidil take to show results?',
-      'What does a complete treatment stack look like for my stage?',
+      specialistRecommended
+        ? 'My scan flagged a trichologist visit — should I see a specialist before starting treatment?'
+        : 'What does a complete treatment stack look like for my stage?',
     ];
   }
   if (!rx) {
     return [
       stage === 'NW4' ? 'Should I add finasteride at NW4?' : `Is finasteride worth adding at ${stage}?`,
       topical ? 'How do I know if my minoxidil is working?' : 'Should I add minoxidil to my current routine?',
-      'What is a realistic outcome with my current protocol?',
+      specialistRecommended
+        ? 'My scan flagged a specialist visit — what should I bring up with a trichologist?'
+        : 'What is a realistic outcome with my current protocol?',
     ];
   }
   // Has Rx and some OTC
   return [
     !mechanical ? 'Does scalp massage actually make a difference?' : 'How should I time scalp massage with my minoxidil?',
-    'How long before my current protocol shows visible results?',
+    specialistRecommended
+      ? 'My scan recommended a specialist visit — what questions should I ask a trichologist?'
+      : 'How long before my current protocol shows visible results?',
     'How do I track whether my treatment is working?',
   ];
 };

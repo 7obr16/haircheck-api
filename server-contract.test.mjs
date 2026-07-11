@@ -346,4 +346,13 @@ assert(
   "buildSuggestedQuestions should give female-specific questions for n/a (female) stage (hormone panel, female-specific minoxidil, reversibility), distinct from diffuse-AGA questions — these are separate branches, not combined"
 );
 
+assert(
+  source.includes("'My scan flagged a trichologist visit — should I see a specialist before starting treatment?'") &&
+    source.includes("'My scan flagged a specialist visit — what should I bring up with a trichologist?'") &&
+    source.includes("'My scan recommended a specialist visit — what questions should I ask a trichologist?'") &&
+    source.includes('specialistRecommended') &&
+    /buildSuggestedQuestions[\s\S]{0,3000}specialistRecommended\s*\?/.test(source),
+  "buildSuggestedQuestions should use the specialistRecommended parameter to surface specialist-visit questions for NW3/NW3v/NW4 users flagged for a trichologist — the parameter must not be accepted but silently ignored"
+);
+
 console.log('server contract passed');
