@@ -163,4 +163,18 @@ assert(
   'coach should derive protocolCoverage from routine items when scan result lacks it, so protocol-layer status lines are available even before the first scan'
 );
 
+assert(
+  source.includes('buildSuggestedQuestions') &&
+    source.includes('coachSuggestedQuestions') &&
+    source.includes('data.coachSuggestedQuestions = buildSuggestedQuestions(stage, data.protocolCoverage, data.specialistRecommended)'),
+  'scan should include coachSuggestedQuestions: 3 context-aware coach conversation starters derived from stage and protocolCoverage'
+);
+
+assert(
+  source.includes("'What are my realistic options at NW7?'") &&
+    source.includes("'Should I book a hair transplant consultation now?'") &&
+    source.includes("'What blood tests should I ask my doctor about for diffuse thinning?'"),
+  'buildSuggestedQuestions should include specialist-aware questions for NW6/NW7 and cause-investigation questions for diffuse/female'
+);
+
 console.log('server contract passed');

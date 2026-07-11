@@ -396,6 +396,82 @@ const buildProgressionPrompt = (month, stage) => {
   return hint ? `${basePrompt}\n\nStage-specific focus: ${hint}` : basePrompt;
 };
 
+// Build 3 context-aware suggested questions for the coach tab.
+// Returned as coachSuggestedQuestions in the scan response so the iOS app can surface
+// them as suggestion chips — zero API cost, pure server-side rule logic.
+// Questions are routine-aware (don't suggest starting something already active) and
+// stage-aware (specialist framing for NW5+, cause-finding for diffuse/female).
+const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended) => {
+  const { topical = false, rx = false, dhtShampoo = false, mechanical = false } = protocolCoverage || {};
+  const hasAnyOTC = topical || dhtShampoo || mechanical;
+
+  if (stage === 'NW7') {
+    return [
+      'What are my realistic options at NW7?',
+      'How do I find a good hair transplant surgeon?',
+      'Can scalp massage help protect my remaining hair?',
+    ];
+  }
+  if (stage === 'NW6') {
+    return [
+      rx && topical
+        ? 'How do I get the most from my finasteride and minoxidil at NW6?'
+        : 'What OTC steps still make sense at NW6?',
+      'Should I book a hair transplant consultation now?',
+      'How do I protect the hair I still have?',
+    ];
+  }
+  if (stage === 'NW5') {
+    return [
+      rx ? 'How long before finasteride shows results at NW5?' : 'Is it worth starting finasteride at NW5?',
+      'At NW5, when should I start thinking about a transplant?',
+      topical ? 'How do I apply minoxidil for maximum coverage at NW5?' : 'Should I add minoxidil to my protocol at NW5?',
+    ];
+  }
+  if (stage === 'n/a (female)' || stage === 'diffuse') {
+    return [
+      'What blood tests should I ask my doctor about for diffuse thinning?',
+      topical ? 'Am I applying minoxidil correctly for diffuse thinning?' : 'What topical treatment works best for diffuse thinning?',
+      'How is diffuse thinning different from male pattern hair loss?',
+    ];
+  }
+  if (stage === 'NW1') {
+    return [
+      rx ? 'Is finasteride enough on its own for NW1 prevention?' : 'Is it worth starting any treatment at NW1?',
+      dhtShampoo ? 'How long should I leave DHT shampoo on for best results?' : 'Is DHT-blocking shampoo worth it at NW1?',
+      'How will I know if my prevention is actually working?',
+    ];
+  }
+  if (stage === 'NW2') {
+    return [
+      !topical ? 'Should I start minoxidil for early temple recession?' : 'Am I applying minoxidil to the right areas?',
+      !rx ? 'Is finasteride worth considering at NW2?' : 'How do I know if finasteride is slowing my recession?',
+      'How quickly can NW2 progress without treatment?',
+    ];
+  }
+  // NW3, NW3v, NW4 — most common active-treatment stages
+  if (!hasAnyOTC && !rx) {
+    return [
+      `What's the best first step for someone at ${stage}?`,
+      'How long does minoxidil take to show results?',
+      'What does a complete treatment stack look like for my stage?',
+    ];
+  }
+  if (!rx) {
+    return [
+      stage === 'NW4' ? 'Should I add finasteride at NW4?' : `Is finasteride worth adding at ${stage}?`,
+      topical ? 'How do I know if my minoxidil is working?' : 'Should I add minoxidil to my current routine?',
+      'What is a realistic outcome with my current protocol?',
+    ];
+  }
+  // Has Rx and some OTC
+  return [
+    !mechanical ? 'Does scalp massage actually make a difference?' : 'How should I time scalp massage with my minoxidil?',
+    'How long before my current protocol shows visible results?',
+    'How do I track whether my treatment is working?',
+  ];
+};
+
 // Build stage- and sex-aware photo guidance text.
 // Female-pattern users need central-parting guidance, not generic overhead/hairline advice.
 // Advanced AGA stages (NW5+) benefit from a reminder to capture both thinning zones in one shot.
@@ -2526,6 +2602,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           mechanical:  _hasMassage,      // scalp massage / dermaroller / microneedling
           supplements: _hasSupplements,  // biotin / zinc / vitamins / saw palmetto
         };
+
+        // coachSuggestedQuestions: 3 context-aware conversation starters for the coach tab.
+        // Computed server-side from stage + protocolCoverage so the iOS app can surface them
+        // as suggestion chips without any extra API calls or client-side logic.
+        data.coachSuggestedQuestions = buildSuggestedQuestions(stage, data.protocolCoverage, data.specialistRecommended);
 
         // checkInIntervalDays: how many days until the next meaningful scan.
         // Derived from treatmentUrgency so the iOS app can schedule a push reminder
