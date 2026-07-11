@@ -177,4 +177,24 @@ assert(
   'buildSuggestedQuestions should include specialist-aware questions for NW6/NW7 and cause-investigation questions for diffuse/female'
 );
 
+assert(
+  source.includes('NW3 mid-scalp density with finasteride + DHT shampoo + scalp massage covers the key anti-miniaturization layers') &&
+    source.includes('Finasteride suppresses systemic DHT at NW3 — add a DHT-blocking shampoo 3× weekly') &&
+    source.includes('NW3v density spans mid-scalp and early crown — your finasteride + DHT shampoo + scalp massage covers all three anti-miniaturization layers') &&
+    source.includes('Finasteride suppresses systemic DHT at NW3v where density is declining across mid-scalp and early crown'),
+  'WEEKLY_FOCUS_MAP.Density NW3/NW3v branch should be finasteride-aware so Rx users at the established-recession stage get density advice that accounts for systemic DHT suppression'
+);
+
+assert(
+  source.includes('At NW3v, finasteride + supplements + DHT shampoo is providing systemic and topical DHT suppression across both active miniaturization fronts') &&
+    source.includes('Finasteride provides systemic DHT suppression at NW3v where temples and early crown are simultaneously active'),
+  'WEEKLY_FOCUS_MAP.Health NW3v branch should be finasteride-aware so Rx users at the dual-zone stage get scalp-health advice that builds on systemic DHT suppression'
+);
+
+assert(
+  source.includes('NW4 scalp health with finasteride + supplements + DHT shampoo + massage is the most complete anti-miniaturization protocol') &&
+    source.includes('Finasteride is blocking systemic DHT at NW4 where miniaturization spans both the frontal and crown zones'),
+  'WEEKLY_FOCUS_MAP.Health NW4 branch should be finasteride-aware so Rx users at the significant-loss stage get scalp-health guidance calibrated to their systemic DHT coverage'
+);
+
 console.log('server contract passed');
