@@ -3000,7 +3000,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       warnIfSlow('coach', startedAt, 'coach');
       if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason });
       const coachTruncated = coachFinishReason === 'length';
-      json(req, res, 200, { reply, truncated: coachTruncated, requestId: reqId });
+      // suggestedFollowUps: fresh context-aware chips for the iOS coach tab.
+      // Reuses scan-time logic so chips stay aligned with stage and protocol without
+      // requiring a fresh scan — returned on every coach response at zero API cost.
+      const suggestedFollowUps = ctx.scan?.stage
+        ? buildSuggestedQuestions(ctx.scan.stage, ctx.scan.protocolCoverage, ctx.scan.specialistRecommended)
+        : null;
+      json(req, res, 200, { reply, truncated: coachTruncated, suggestedFollowUps, requestId: reqId });
     } catch (err) {
       bumpError(METRICS.coach, err.statusCode || 500, err.message);
       console.error('[server] coach error', err);

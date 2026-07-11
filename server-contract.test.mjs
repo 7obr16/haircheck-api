@@ -355,4 +355,12 @@ assert(
   "buildSuggestedQuestions should use the specialistRecommended parameter to surface specialist-visit questions for NW3/NW3v/NW4 users flagged for a trichologist — the parameter must not be accepted but silently ignored"
 );
 
+assert(
+  source.includes('suggestedFollowUps') &&
+    source.includes('buildSuggestedQuestions(ctx.scan.stage, ctx.scan.protocolCoverage, ctx.scan.specialistRecommended)') &&
+    source.includes('ctx.scan?.stage') &&
+    source.includes("{ reply, truncated: coachTruncated, suggestedFollowUps, requestId: reqId }"),
+  'coach response should include suggestedFollowUps: context-aware chips derived from scan stage and protocolCoverage, returned at zero API cost on every reply'
+);
+
 console.log('server contract passed');
