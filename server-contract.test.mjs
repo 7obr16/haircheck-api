@@ -217,4 +217,82 @@ assert(
   'WEEKLY_FOCUS_MAP.Hairline NW3v branch should be finasteride-aware so Rx users at the dual-zone stage get hairline advice that accounts for the systemic DHT suppression already in place'
 );
 
+assert(
+  source.includes('NW4 frontal hairline with finasteride + minoxidil + massage is the most complete non-surgical protocol') &&
+    source.includes('Finasteride provides systemic DHT suppression at NW4 — add minoxidil applied along the entire frontal hairline twice daily'),
+  'WEEKLY_FOCUS_MAP.Hairline NW4 branch should be finasteride-aware so Rx users at the significant-recession stage get hairline advice calibrated to their systemic DHT suppression'
+);
+
+assert(
+  source.includes('NW5 frontal recession with finasteride providing systemic DHT suppression is a strong foundation') &&
+    source.includes('NW5 frontal recession with finasteride + minoxidil + DHT shampoo is the strongest non-surgical protocol'),
+  'WEEKLY_FOCUS_MAP.Hairline NW5 branch should be finasteride-aware so Rx users at the advanced-recession stage get hairline advice that builds on systemic DHT suppression'
+);
+
+assert(
+  source.includes('At NW6, finasteride + minoxidil is your strongest non-surgical defense for the remaining fringe and temporal hair') &&
+    source.includes('Finasteride is blocking systemic DHT at NW6 — add minoxidil to the fringe and temporal edges twice daily'),
+  'WEEKLY_FOCUS_MAP.Hairline NW6 branch should be finasteride-aware so Rx users at the advanced merged-loss stage receive guidance that accounts for their systemic DHT coverage'
+);
+
+assert(
+  source.includes('NW4 crown with finasteride + minoxidil + massage is the most complete non-surgical crown protocol') &&
+    source.includes('Finasteride is suppressing DHT at NW4 — add minoxidil (1ml) applied directly to the vertex twice daily'),
+  'WEEKLY_FOCUS_MAP.Crown NW4 branch should be finasteride-aware so Rx users at the significant-loss stage get vertex advice that builds on their systemic DHT suppression'
+);
+
+assert(
+  source.includes('NW5 crown thinning with finasteride + minoxidil + massage is the most complete non-surgical vertex protocol') &&
+    source.includes('Finasteride is suppressing systemic DHT at the NW5 crown zone'),
+  'WEEKLY_FOCUS_MAP.Crown NW5 branch should be finasteride-aware so Rx users at the nearly-merging stage receive crown advice calibrated to their systemic DHT coverage'
+);
+
+assert(
+  source.includes('At NW6, finasteride + minoxidil applied to the vertex twice daily is the most complete non-surgical protocol for crown coverage') &&
+    source.includes('Finasteride is suppressing systemic DHT at NW6 — add minoxidil (1ml) directly to the vertex twice daily for the topical growth signal'),
+  'WEEKLY_FOCUS_MAP.Crown NW6 branch should be finasteride-aware so Rx users at the advanced stage get crown advice that accounts for their systemic DHT suppression'
+);
+
+assert(
+  source.includes('At NW5, your finasteride + supplement stack + DHT shampoo + stimulation protocol is the most complete scalp-health combination') &&
+    source.includes('Finasteride is suppressing systemic DHT at NW5 — build on that foundation with a supplement stack (biotin, zinc, vitamin D)'),
+  'WEEKLY_FOCUS_MAP.Health NW5 branch should be finasteride-aware so Rx users at this advanced dual-zone stage receive scalp-health guidance that builds on systemic DHT suppression'
+);
+
+assert(
+  source.includes('At NW6, finasteride handles systemic DHT suppression for the remaining fringe — your supplement stack and DHT-blocking shampoo complete the anti-miniaturization protocol') &&
+    source.includes('Finasteride is protecting remaining fringe follicles at NW6 through systemic DHT suppression'),
+  'WEEKLY_FOCUS_MAP.Health NW6 branch should be finasteride-aware so Rx users at the advanced merged-loss stage get scalp-health advice that acknowledges their systemic DHT coverage'
+);
+
+assert(
+  source.includes('NW3 is a strong response window and your finasteride + minoxidil + massage stack is fully deployed') &&
+    source.includes('NW3 is a pivotal window and your finasteride is already blocking DHT systemically'),
+  'WEEKLY_FOCUS_MAP.Potential NW3 branch should be finasteride-aware so Rx users at the pivotal treatment window get potential guidance that reflects their systemic DHT advantage'
+);
+
+assert(
+  source.includes('NW3v is a dual-zone active stage and your finasteride + minoxidil + massage stack is fully deployed') &&
+    source.includes('NW3v is a dual-zone stage (temples AND early crown active simultaneously) — your finasteride suppresses systemic DHT'),
+  'WEEKLY_FOCUS_MAP.Potential NW3v branch should be finasteride-aware so Rx users at the dual-zone stage get potential guidance that reflects simultaneous two-front systemic DHT suppression'
+);
+
+assert(
+  source.includes('At NW4 your finasteride + minoxidil + massage stack is the strongest non-surgical protocol available') &&
+    source.includes('Finasteride gives NW4 users a meaningful potential advantage'),
+  'WEEKLY_FOCUS_MAP.Potential NW4 branch should be finasteride-aware so Rx users at the established-loss stage get potential guidance calibrated to their systemic DHT suppression'
+);
+
+assert(
+  source.includes('NW5 with finasteride + minoxidil + DHT shampoo + massage is the most complete non-surgical protocol') &&
+    source.includes('NW5 with finasteride providing systemic DHT suppression has a meaningful head start'),
+  'WEEKLY_FOCUS_MAP.Potential NW5 branch should be finasteride-aware so Rx users at this advanced stage receive potential guidance that reflects the systemic DHT advantage they already have'
+);
+
+assert(
+  source.includes('At NW6 with finasteride + minoxidil, your protocol is well-optimized for non-surgical potential') &&
+    source.includes('Finasteride provides a systemic DHT advantage at NW6'),
+  'WEEKLY_FOCUS_MAP.Potential NW6 branch should be finasteride-aware so Rx users at the advanced stage receive potential guidance that accounts for their systemic DHT coverage and frames realistic expectations alongside surgical planning'
+);
+
 console.log('server contract passed');
