@@ -203,4 +203,18 @@ assert(
   'WEEKLY_FOCUS_MAP.Health NW4 branch should be finasteride-aware so Rx users at the significant-loss stage get scalp-health guidance calibrated to their systemic DHT coverage'
 );
 
+assert(
+  source.includes('NW3 deep temple recession with finasteride + minoxidil + massage is the most complete non-surgical stack at this pivotal window') &&
+    source.includes('NW3 is a strong response window and your finasteride + minoxidil is the most evidence-backed combination') &&
+    source.includes('Finasteride suppresses systemic DHT at NW3 — add minoxidil to both temple recession zones twice daily'),
+  'WEEKLY_FOCUS_MAP.Hairline NW3 branch should be finasteride-aware so Rx users at the deep-recession established-AGA stage get hairline advice calibrated to their systemic DHT suppression'
+);
+
+assert(
+  source.includes('NW3v has two active zones and your finasteride + minoxidil + massage protocol is fully deployed') &&
+    source.includes('At NW3v two zones are thinning simultaneously and your finasteride + minoxidil is the right foundation') &&
+    source.includes('Finasteride addresses the systemic DHT driving both active zones at NW3v'),
+  'WEEKLY_FOCUS_MAP.Hairline NW3v branch should be finasteride-aware so Rx users at the dual-zone stage get hairline advice that accounts for the systemic DHT suppression already in place'
+);
+
 console.log('server contract passed');
