@@ -432,4 +432,14 @@ assert(
   'buildSuggestedQuestions NW6/NW7 branches should be routine-aware so Rx and OTC users at advanced stages get questions about integrating their treatment with surgical options'
 );
 
+assert(
+  source.includes("stage === 'NW3v'") &&
+    source.includes("'At NW3v, should I treat my temples and crown at the same time?'") &&
+    source.includes("'Does finasteride help protect both my temples and crown at NW3v?'") &&
+    source.includes("'Am I applying minoxidil to both my temple and crown zones at NW3v?'") &&
+    source.includes("'Does scalp massage help both my temple and crown zones at NW3v?'") &&
+    source.includes("'How do I track whether both my temples and crown are responding to treatment?'"),
+  'buildSuggestedQuestions should have a dedicated NW3v branch with dual-zone-aware questions (temples AND crown) distinct from the generic NW3/NW4 fallback — NW3v users have two simultaneous active zones and need questions that reflect that'
+);
+
 console.log('server contract passed');

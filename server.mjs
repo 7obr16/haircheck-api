@@ -464,7 +464,42 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       'How quickly can NW2 progress without treatment?',
     ];
   }
-  // NW3, NW3v, NW4 — most common active-treatment stages
+  // NW3v — dual-zone stage (temples AND early crown active simultaneously)
+  // Needs its own branch because both zones require treatment and the key
+  // questions differ from NW3 (temples only) and the generic NW4 fallback.
+  if (stage === 'NW3v') {
+    if (!hasAnyOTC && !rx) {
+      return [
+        'At NW3v, should I treat my temples and crown at the same time?',
+        'How long does minoxidil take to show results on both the temples and crown?',
+        specialistRecommended
+          ? 'My scan flagged a trichologist visit — should I see a specialist before starting NW3v treatment?'
+          : "What's the best treatment stack for NW3v dual-zone loss?",
+      ];
+    }
+    if (!rx) {
+      return [
+        'Does finasteride help protect both my temples and crown at NW3v?',
+        topical
+          ? 'Am I applying minoxidil to both my temple and crown zones at NW3v?'
+          : 'Should I add minoxidil to both my temples and crown at NW3v?',
+        specialistRecommended
+          ? 'My scan flagged a specialist visit — what should I bring up about my NW3v dual-zone loss?'
+          : 'How long before I see improvement in both active zones at NW3v?',
+      ];
+    }
+    // Has Rx and some OTC
+    return [
+      !mechanical
+        ? 'Does scalp massage help both my temple and crown zones at NW3v?'
+        : 'How should I time scalp massage for both my temple and crown zones?',
+      specialistRecommended
+        ? 'My scan recommended a specialist visit — what questions should I ask about NW3v?'
+        : 'How long before finasteride shows results in both my NW3v zones?',
+      'How do I track whether both my temples and crown are responding to treatment?',
+    ];
+  }
+  // NW3, NW4 — most common active-treatment stages
   if (!hasAnyOTC && !rx) {
     return [
       `What's the best first step for someone at ${stage}?`,
