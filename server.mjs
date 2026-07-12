@@ -2210,7 +2210,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                           ? "Your DHT-blocking shampoo helps slow miniaturization at NW6 — keep it up and add weekly microneedling to prime remaining follicles. Consider adding minoxidil to the fringe and lateral edges twice daily for the complementary topical growth signal alongside DHT suppression."
                           : 'At NW6, add a DHT-blocking shampoo 3× weekly to slow further miniaturization of remaining fringe coverage. Combine with minoxidil on the fringe and lateral edges twice daily — the realistic goal at this stage is stabilizing what remains rather than restoring full density.')
               : data.stage === 'NW2'
-              ? (_hasFinasteride && _hasDHTShampoo
+              ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
+                  ? 'At NW2, finasteride + minoxidil + DHT-blocking shampoo is the most complete non-surgical stack at this early preventive stage — finasteride blocks systemic DHT, the DHT shampoo adds topical control, and minoxidil addresses the temple recession. Your density is well-protected; leave the DHT shampoo on 3-5 minutes before rinsing and add a 5-minute scalp massage on wash days to maximize the anti-miniaturization benefit.'
+                  : _hasFinasteride && _hasMinoxidil
+                  ? 'At NW2, finasteride + minoxidil covers systemic DHT suppression and the topical growth signal for your temple recession — your density protection is solid. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the topical DHT control layer to complete the dual-level density prevention at this early stage.'
+                  : _hasFinasteride && _hasDHTShampoo
                   ? 'NW2 density is protected by finasteride (systemic DHT suppression) and your DHT-blocking shampoo (topical DHT control) — dual-level coverage at this early stage gives the strongest long-term density protection. Leave the DHT shampoo on 3-5 minutes before rinsing and add a 5-minute scalp massage on wash days to maximize the benefit of both layers.'
                   : _hasFinasteride
                   ? 'Finasteride is already blocking systemic DHT at NW2 — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the topical complement. Dual-level DHT suppression at this early stage gives the strongest protection before any mid-scalp miniaturization develops.'

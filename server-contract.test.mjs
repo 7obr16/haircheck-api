@@ -140,9 +140,11 @@ assert(
 );
 
 assert(
-  source.includes('NW2 density is protected by finasteride (systemic DHT suppression) and your DHT-blocking shampoo') &&
+  source.includes('At NW2, finasteride + minoxidil + DHT-blocking shampoo is the most complete non-surgical stack at this early preventive stage') &&
+    source.includes('At NW2, finasteride + minoxidil covers systemic DHT suppression and the topical growth signal for your temple recession') &&
+    source.includes('NW2 density is protected by finasteride (systemic DHT suppression) and your DHT-blocking shampoo') &&
     source.includes('Finasteride is already blocking systemic DHT at NW2 — add a DHT-blocking shampoo'),
-  'WEEKLY_FOCUS_MAP.Density NW2 branch should be finasteride-aware so Rx users at the earliest detectable stage receive relevant density-protection advice'
+  'WEEKLY_FOCUS_MAP.Density NW2 branch should be finasteride-aware across all Rx combinations: finasteride+minoxidil+DHT shampoo, finasteride+minoxidil, finasteride+DHT shampoo, and finasteride alone'
 );
 
 assert(
