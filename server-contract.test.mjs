@@ -353,7 +353,7 @@ assert(
     source.includes("'My scan flagged a specialist visit — what should I bring up with a trichologist?'") &&
     source.includes("'My scan recommended a specialist visit — what questions should I ask a trichologist?'") &&
     source.includes('specialistRecommended') &&
-    /buildSuggestedQuestions[\s\S]{0,3000}specialistRecommended\s*\?/.test(source),
+    /buildSuggestedQuestions[\s\S]{0,3500}specialistRecommended\s*\?/.test(source),
   "buildSuggestedQuestions should use the specialistRecommended parameter to surface specialist-visit questions for NW3/NW3v/NW4 users flagged for a trichologist — the parameter must not be accepted but silently ignored"
 );
 
@@ -422,6 +422,14 @@ assert(
   /weeklyFocus\s*:.*\.slice\(0,\s*6\d\d\)/.test(source) &&
     /weeklyFocusSecondary\s*:.*\.slice\(0,\s*6\d\d\)/.test(source),
   'coach context should truncate weeklyFocus and weeklyFocusSecondary at ≥600 chars so long stage-specific advice texts (NW5 full-stack, ~470 chars) are never cut mid-sentence when passed to gpt-4o-mini'
+);
+
+assert(
+  source.includes("'How does finasteride fit into a hair transplant or SMP plan?'") &&
+    source.includes("'Can I continue minoxidil after a hair transplant?'") &&
+    source.includes("'Should I continue finasteride after a hair transplant?'") &&
+    source.includes("'Should I add minoxidil to my finasteride at NW6?'"),
+  'buildSuggestedQuestions NW6/NW7 branches should be routine-aware so Rx and OTC users at advanced stages get questions about integrating their treatment with surgical options'
 );
 
 console.log('server contract passed');

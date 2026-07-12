@@ -407,16 +407,24 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
 
   if (stage === 'NW7') {
     return [
-      'What are my realistic options at NW7?',
-      'How do I find a good hair transplant surgeon?',
-      'Can scalp massage help protect my remaining hair?',
+      rx
+        ? 'How does finasteride fit into a hair transplant or SMP plan?'
+        : 'What are my realistic options at NW7?',
+      topical
+        ? 'Can I continue minoxidil after a hair transplant?'
+        : 'How do I find a good hair transplant surgeon?',
+      rx
+        ? 'Should I continue finasteride after a hair transplant?'
+        : 'Can scalp massage help protect my remaining hair?',
     ];
   }
   if (stage === 'NW6') {
     return [
       rx && topical
         ? 'How do I get the most from my finasteride and minoxidil at NW6?'
-        : 'What OTC steps still make sense at NW6?',
+        : rx
+          ? 'Should I add minoxidil to my finasteride at NW6?'
+          : 'What OTC steps still make sense at NW6?',
       'Should I book a hair transplant consultation now?',
       'How do I protect the hair I still have?',
     ];
