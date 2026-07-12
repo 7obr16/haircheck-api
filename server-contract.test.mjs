@@ -363,4 +363,13 @@ assert(
   'coach response should include suggestedFollowUps: context-aware chips derived from scan stage and protocolCoverage, returned at zero API cost on every reply'
 );
 
+assert(
+  source.includes('Your finasteride is protecting the remaining horseshoe fringe at NW7') &&
+    source.includes('Your finasteride at NW7 helps protect the remaining fringe from further miniaturization') &&
+    source.includes('At NW7, your finasteride helps protect remaining fringe density from further miniaturization') &&
+    source.includes('At NW7, your finasteride is protecting remaining fringe follicles from further miniaturization') &&
+    source.includes('At NW7, your finasteride adds meaningful value by protecting the remaining fringe from further miniaturization'),
+  'WEEKLY_FOCUS_MAP NW7 Hairline/Crown/Density/Health/Potential entries should be finasteride-aware so Rx users at near-total loss see relevant fringe-protection advice alongside surgical planning'
+);
+
 console.log('server contract passed');

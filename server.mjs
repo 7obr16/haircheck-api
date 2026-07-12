@@ -2064,7 +2064,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const _isNW56         = data.stage === 'NW5' || data.stage === 'NW6';
         const WEEKLY_FOCUS_MAP = {
           Hairline: _isNW7
-            ? 'At NW7, the primary path is FUE/FUT transplant or SMP — book a trichologist consult this week to understand candidacy, donor supply, and realistic coverage outcomes.'
+            ? (_hasFinasteride
+                ? 'Your finasteride is protecting the remaining horseshoe fringe at NW7 — keep it consistent without gaps. The primary coverage path is FUE/FUT transplant or SMP; book a trichologist consult this week to understand candidacy, donor supply, and how your systemic treatment fits into the surgical strategy.'
+                : 'At NW7, the primary path is FUE/FUT transplant or SMP — book a trichologist consult this week to understand candidacy, donor supply, and realistic coverage outcomes.')
             : _isNW5only
               ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
                   ? 'NW5 frontal recession with finasteride + minoxidil + DHT shampoo is the strongest non-surgical protocol — keep all three consistent. Apply minoxidil across the full frontal zone and both temple edges twice daily, leave DHT shampoo on 3-5 minutes per wash, and take finasteride at the same time each day. Monthly front-facing photos track the bridge; the goal is stabilization.'
@@ -2161,7 +2163,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     ? 'Your minoxidil is active — maximize coverage across both recession zones twice daily and add a 3-minute scalp massage post-application to boost absorption.'
                     : 'Apply minoxidil directly to your recession zones every morning and night — temple consistency is the highest-leverage habit right now.',
           Density: _isNW7
-            ? 'At NW7, density restoration is best addressed through surgical options — keep any active OTC routine consistent and prioritize a trichologist or transplant consultation to evaluate FUE/FUT or SMP coverage for the thinning zones.'
+            ? (_hasFinasteride
+                ? 'At NW7, your finasteride helps protect remaining fringe density from further miniaturization — keep it consistent without gaps. The primary path for meaningful coverage is surgical (FUE/FUT or SMP); prioritize a trichologist consultation to evaluate candidacy and how your systemic treatment complements the surgical coverage plan.'
+                : 'At NW7, density restoration is best addressed through surgical options — keep any active OTC routine consistent and prioritize a trichologist or transplant consultation to evaluate FUE/FUT or SMP coverage for the thinning zones.')
             : _isNW5only
               ? (_hasFinasteride && _hasDHTShampoo && _hasMinoxidil && _hasMassage
                   ? 'At NW5, finasteride + minoxidil + DHT shampoo + massage is the most complete non-surgical density protocol — finasteride handles systemic DHT suppression across both frontal and crown loss zones. Optimize by applying minoxidil immediately after scalp massage, leaving DHT shampoo on 3-5 minutes before rinsing, and taking finasteride at the same time each day. Add weekly microneedling over the thinnest zones to prime follicle absorption where density loss is most advanced.'
@@ -2270,7 +2274,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                                 ? "You're using a DHT-blocking shampoo — add a 5-minute scalp massage each wash session and consider microneedling once a week to prime follicle response."
                                 : 'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.'),
           Crown: _isNW7
-            ? 'Crown coverage at NW7 is best addressed through FUE/FUT or SMP — prioritize a specialist consultation to discuss vertex coverage goals and realistic outcomes.'
+            ? (_hasFinasteride
+                ? 'Your finasteride at NW7 helps protect the remaining fringe from further miniaturization — keep it consistent. Crown coverage at this stage is best addressed through FUE/FUT or SMP; book a specialist consult this week to discuss vertex coverage goals, donor supply, and how your systemic treatment fits into the surgical plan.'
+                : 'Crown coverage at NW7 is best addressed through FUE/FUT or SMP — prioritize a specialist consultation to discuss vertex coverage goals and realistic outcomes.')
             : _isNW5only
               ? (_hasFinasteride && _hasMinoxidil && _hasMassage
                   ? 'NW5 crown thinning with finasteride + minoxidil + massage is the most complete non-surgical vertex protocol — confirm 1ml minoxidil reaches the vertex directly after each scalp massage, and take finasteride at the same time each day. Track with overhead photos every 4 weeks to monitor how quickly the frontal and crown zones are merging. A transplant consultation in parallel is worth prioritizing this quarter for full vertex coverage planning.'
@@ -2361,7 +2367,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                         ? 'Your massage habit is on — now add crown-targeted topical (minoxidil at vertex, 1ml) and take a weekly overhead photo to track baseline density.'
                         : 'Begin a crown-focused topical routine and take an overhead comparison photo now to track your baseline.',
           Health: _isNW7
-            ? 'At NW7, scalp health maintenance protects remaining hair — keep any active routine going, but the highest-ROI step this week is booking a trichologist or transplant consultation to evaluate donor supply and candidacy.'
+            ? (_hasFinasteride
+                ? 'At NW7, your finasteride is protecting remaining fringe follicles from further miniaturization — the most important next step is keeping it consistent without gaps. For scalp health, continue any active OTC routine and book a trichologist or transplant consultation this week to evaluate how your systemic treatment strategy integrates with surgical coverage options.'
+                : 'At NW7, scalp health maintenance protects remaining hair — keep any active routine going, but the highest-ROI step this week is booking a trichologist or transplant consultation to evaluate donor supply and candidacy.')
             : _isNW5only
               ? (_hasFinasteride && _hasSupplements && _hasDHTShampoo && _hasMassage
                   ? 'At NW5, your finasteride + supplement stack + DHT shampoo + stimulation protocol is the most complete scalp-health combination — optimize with weekly microneedling (0.5mm) over the thinnest zones 24-48 hours before topical application. Finasteride handles systemic DHT suppression; the remaining layers prime the scalp environment and support follicle health where miniaturization is most active.'
@@ -2479,7 +2487,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                                 ? 'Continue your supplement routine — focus this week on scalp hygiene: reduce washing to 3-4× weekly, switch to a sulfate-free shampoo, and watch for scalp tension signs.'
                                 : 'Skip sulfate shampoos this week, use a gentle scalp exfoliant mid-week, and increase water intake — scalp condition responds fast to hydration and less irritation.',
           Potential: _isNW7
-            ? 'Your highest-ROI step is a transplant or SMP consultation — OTC treatments alone are unlikely to create meaningful change at NW7. Research experienced surgeons or SMP artists this week.'
+            ? (_hasFinasteride
+                ? 'At NW7, your finasteride adds meaningful value by protecting the remaining fringe from further miniaturization — keep it consistent. Your highest-ROI step is a transplant or SMP consultation; finasteride is often continued post-transplant to protect native hair alongside new grafts. Research experienced surgeons or SMP artists this week.'
+                : 'Your highest-ROI step is a transplant or SMP consultation — OTC treatments alone are unlikely to create meaningful change at NW7. Research experienced surgeons or SMP artists this week.')
             : _isNW5only
               ? (_hasFinasteride && _hasMinoxidil && _hasMassage && _hasDHTShampoo
                   ? 'NW5 with finasteride + minoxidil + DHT shampoo + massage is the most complete non-surgical protocol — realistic potential is toward the upper end of the NW5 range (35-48%). Set a 3-month checkpoint with overhead and front-facing photos; in parallel, research transplant consultations to plan the full strategy combining systemic treatment with potential surgical options.'
