@@ -416,4 +416,10 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential diffuse/n/a(female) branch should be finasteride-aware so Rx users at these stages receive potential guidance that reflects their systemic DHT advantage'
 );
 
+assert(
+  /weeklyFocus\s*:.*\.slice\(0,\s*6\d\d\)/.test(source) &&
+    /weeklyFocusSecondary\s*:.*\.slice\(0,\s*6\d\d\)/.test(source),
+  'coach context should truncate weeklyFocus and weeklyFocusSecondary at ≥600 chars so long stage-specific advice texts (NW5 full-stack, ~470 chars) are never cut mid-sentence when passed to gpt-4o-mini'
+);
+
 console.log('server contract passed');
