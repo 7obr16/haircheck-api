@@ -372,4 +372,48 @@ assert(
   'WEEKLY_FOCUS_MAP NW7 Hairline/Crown/Density/Health/Potential entries should be finasteride-aware so Rx users at near-total loss see relevant fringe-protection advice alongside surgical planning'
 );
 
+assert(
+  source.includes('Female-pattern frontal thinning with finasteride + minoxidil covers DHT suppression and the topical growth signal') &&
+    source.includes('Finasteride is an active part of your female-pattern routine and provides DHT suppression for frontal thinning'),
+  'WEEKLY_FOCUS_MAP.Hairline n/a (female) branch should be finasteride-aware so Rx female-pattern users get hairline advice that acknowledges their systemic DHT suppression'
+);
+
+assert(
+  source.includes('Diffuse frontal thinning with finasteride + minoxidil + DHT shampoo covers systemic DHT suppression, topical growth signal, and topical DHT control') &&
+    source.includes('Finasteride provides systemic DHT suppression for diffuse frontal thinning'),
+  'WEEKLY_FOCUS_MAP.Hairline diffuse branch should be finasteride-aware so Rx users with diffuse-pattern loss receive frontal-thinning advice calibrated to their systemic DHT suppression'
+);
+
+assert(
+  source.includes('Female-pattern density with finasteride + minoxidil + DHT shampoo covers the key treatment layers') &&
+    source.includes('Finasteride in your female-pattern routine provides DHT suppression for scalp density') &&
+    source.includes('Diffuse density with finasteride + minoxidil + DHT shampoo covers systemic DHT suppression, topical growth signal, and topical DHT control') &&
+    source.includes('Finasteride provides systemic DHT suppression for diffuse density loss'),
+  'WEEKLY_FOCUS_MAP.Density diffuse/n/a(female) branch should be finasteride-aware so Rx users at these stages receive density advice that accounts for their systemic DHT suppression'
+);
+
+assert(
+  source.includes('Female-pattern crown thinning with finasteride + minoxidil + massage covers DHT suppression, topical growth signal, and mechanical stimulation') &&
+    source.includes('Finasteride in your female-pattern routine provides DHT suppression for crown thinning') &&
+    source.includes('Diffuse crown thinning with finasteride + minoxidil covers systemic DHT suppression and topical growth signal') &&
+    source.includes('Finasteride provides systemic DHT suppression for diffuse crown thinning'),
+  'WEEKLY_FOCUS_MAP.Crown diffuse/n/a(female) branch should be finasteride-aware so Rx users with diffuse or female-pattern crown thinning get advice calibrated to their systemic DHT coverage'
+);
+
+assert(
+  source.includes('Female-pattern scalp health with finasteride + supplements + DHT shampoo covers systemic DHT suppression, nutritional support, and topical DHT control') &&
+    source.includes('Finasteride in your female-pattern routine provides systemic DHT suppression for scalp health') &&
+    source.includes('Diffuse scalp health with finasteride + supplements + DHT shampoo covers systemic DHT suppression, nutritional support, and topical DHT control') &&
+    source.includes('Finasteride provides systemic DHT suppression for diffuse scalp health'),
+  'WEEKLY_FOCUS_MAP.Health diffuse/n/a(female) branch should be finasteride-aware so Rx users with diffuse or female-pattern thinning get scalp-health advice that builds on their systemic DHT suppression'
+);
+
+assert(
+  source.includes('Female-pattern potential is 55-78% and your finasteride + minoxidil + DHT shampoo covers the key treatment layers') &&
+    source.includes('Female-pattern potential is 55-78% and finasteride in your routine provides systemic DHT suppression') &&
+    source.includes('Diffuse potential is 55-78% and your finasteride + minoxidil + DHT shampoo covers systemic DHT suppression') &&
+    source.includes('Diffuse potential is 55-78% and finasteride provides the systemic DHT suppression that significantly improves outcomes'),
+  'WEEKLY_FOCUS_MAP.Potential diffuse/n/a(female) branch should be finasteride-aware so Rx users at these stages receive potential guidance that reflects their systemic DHT advantage'
+);
+
 console.log('server contract passed');
