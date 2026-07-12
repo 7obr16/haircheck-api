@@ -340,6 +340,12 @@ assert(
 );
 
 assert(
+  source.includes('At NW2, minoxidil + DHT-blocking shampoo is a solid dual-mechanism OTC stack') &&
+    source.includes('Minoxidil is active at NW2 — your density is still intact and this is the right preventive stage to add a DHT-blocking shampoo'),
+  'WEEKLY_FOCUS_MAP.Density NW2 branch should be minoxidil-aware so OTC users (without finasteride) who already have minoxidil get density advice that acknowledges their topical treatment rather than ignoring it'
+);
+
+assert(
   source.includes("'What hormone and blood tests should I ask my doctor about for female hair loss?'") &&
     source.includes("'Is minoxidil effective for female pattern hair loss?'") &&
     source.includes("'Can female pattern hair loss be stopped or reversed?'") &&
