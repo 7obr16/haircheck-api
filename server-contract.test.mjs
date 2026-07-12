@@ -346,6 +346,18 @@ assert(
 );
 
 assert(
+  source.includes('Mid-scalp density at NW3 with minoxidil + DHT shampoo + scalp massage covers the key OTC layers') &&
+    source.includes('Mid-scalp density at NW3 with minoxidil + DHT shampoo gives both topical growth signal and local DHT suppression') &&
+    source.includes('Mid-scalp density at NW3 with minoxidil and scalp massage is a strong two-layer approach') &&
+    source.includes('Mid-scalp density at NW3 is thinning while follicles are still highly responsive — add a DHT-blocking shampoo 3× weekly') &&
+    source.includes('NW3v mid-scalp and early crown with minoxidil + DHT shampoo + scalp massage is a strong OTC three-layer stack') &&
+    source.includes('NW3v density with minoxidil + DHT shampoo targets both thinning zones') &&
+    source.includes('NW3v mid-scalp and early crown with minoxidil and scalp massage covers topical growth signal and mechanical stimulation') &&
+    source.includes('NW3v density is declining across mid-scalp and early crown — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) alongside your minoxidil'),
+  'WEEKLY_FOCUS_MAP.Density NW3/NW3v branch should be minoxidil-aware so OTC users (without finasteride) who already have minoxidil get density advice that acknowledges their topical treatment rather than recommending they start it'
+);
+
+assert(
   source.includes("'What hormone and blood tests should I ask my doctor about for female hair loss?'") &&
     source.includes("'Is minoxidil effective for female pattern hair loss?'") &&
     source.includes("'Can female pattern hair loss be stopped or reversed?'") &&
