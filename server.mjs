@@ -499,7 +499,41 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       'How do I track whether both my temples and crown are responding to treatment?',
     ];
   }
-  // NW3, NW4 — most common active-treatment stages
+  // NW4 — frontal hairline retreat + pronounced crown thinning; dual-zone stage
+  // Both zones need simultaneous treatment; questions reflect this dual-front reality.
+  if (stage === 'NW4') {
+    if (!hasAnyOTC && !rx) {
+      return [
+        'At NW4, should I be treating my frontal hairline and crown simultaneously?',
+        'How long does it take to see results from minoxidil at NW4?',
+        specialistRecommended
+          ? 'My scan flagged a trichologist visit — should I see a specialist before starting NW4 treatment?'
+          : "What's the most effective treatment stack for NW4?",
+      ];
+    }
+    if (!rx) {
+      return [
+        'Does finasteride help protect both my frontal hairline and crown at NW4?',
+        topical
+          ? 'Am I applying minoxidil correctly across both my frontal and crown zones at NW4?'
+          : 'Should I add minoxidil to both my frontal zone and crown at NW4?',
+        specialistRecommended
+          ? 'My scan flagged a specialist visit — what should I ask about NW4 treatment options?'
+          : 'How long before I know if my NW4 protocol is working?',
+      ];
+    }
+    // Has Rx and some OTC
+    return [
+      !mechanical
+        ? 'Does scalp massage help with NW4 frontal and crown coverage?'
+        : 'How should I time scalp massage for both my frontal and crown zones at NW4?',
+      specialistRecommended
+        ? 'My scan recommended a specialist visit — what should I ask about my NW4 protocol?'
+        : 'How do I measure progress when treating both my frontal and crown zones?',
+      'What results can I realistically expect from finasteride and minoxidil at NW4?',
+    ];
+  }
+  // NW3 — deep bilateral temple recession; still strong treatment response window
   if (!hasAnyOTC && !rx) {
     return [
       `What's the best first step for someone at ${stage}?`,
@@ -511,7 +545,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
   }
   if (!rx) {
     return [
-      stage === 'NW4' ? 'Should I add finasteride at NW4?' : `Is finasteride worth adding at ${stage}?`,
+      `Is finasteride worth adding at ${stage}?`,
       topical ? 'How do I know if my minoxidil is working?' : 'Should I add minoxidil to my current routine?',
       specialistRecommended
         ? 'My scan flagged a specialist visit — what should I bring up with a trichologist?'

@@ -504,4 +504,22 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential NW4 branch should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo receive potential guidance that acknowledges their two-layer stack and recommends DHT shampoo as the missing layer'
 );
 
+assert(
+  source.includes("stage === 'NW4'") &&
+    source.includes("'At NW4, should I be treating my frontal hairline and crown simultaneously?'") &&
+    source.includes("'Does finasteride help protect both my frontal hairline and crown at NW4?'") &&
+    source.includes("'Am I applying minoxidil correctly across both my frontal and crown zones at NW4?'") &&
+    source.includes("'Does scalp massage help with NW4 frontal and crown coverage?'") &&
+    source.includes("'How should I time scalp massage for both my frontal and crown zones at NW4?'") &&
+    source.includes("'What results can I realistically expect from finasteride and minoxidil at NW4?'"),
+  'buildSuggestedQuestions should have a dedicated NW4 branch with dual-zone-aware questions (frontal hairline AND crown) distinct from the generic NW3 fallback — NW4 users have two simultaneous active zones and need questions that reflect that'
+);
+
+assert(
+  source.includes("'My scan flagged a trichologist visit — should I see a specialist before starting NW4 treatment?'") &&
+    source.includes("'My scan flagged a specialist visit — what should I ask about NW4 treatment options?'") &&
+    source.includes("'My scan recommended a specialist visit — what should I ask about my NW4 protocol?'"),
+  'buildSuggestedQuestions NW4 branch should surface specialist-visit questions at all three protocol-coverage levels when specialistRecommended is true'
+);
+
 console.log('server contract passed');
