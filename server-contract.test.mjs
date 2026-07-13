@@ -540,4 +540,25 @@ assert(
   'buildSuggestedQuestions NW3 branch should surface specialist-visit questions at all three protocol-coverage levels when specialistRecommended is true'
 );
 
+assert(
+  source.includes('NW3 deep temple recession is established AGA — apply 1ml to each recession zone immediately after a 4-minute scalp massage and confirm full 1ml coverage per side morning and night. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for local DHT suppression at the recession edge — it is the highest-ROI missing layer when minoxidil and massage are already in place at this pivotal stage.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW3 branch should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo receive hairline advice that sequences minoxidil after massage for better recession absorption and recommends DHT shampoo as the highest-ROI next layer at this pivotal treatment window'
+);
+
+assert(
+  source.includes('NW3v means temple recession AND early crown thinning are both active — apply 1ml minoxidil to both temple recession zones AND directly to the vertex immediately after each scalp massage so freshly primed follicles absorb it. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for local DHT suppression across both active zones — it is the highest-ROI missing layer when minoxidil and massage are already in place at this dual-zone stage.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW3v branch should be minoxidil+massage-aware so OTC users at NW3v who have minoxidil and scalp massage but no DHT shampoo receive dual-zone hairline advice that sequences minoxidil immediately after massage and recommends DHT shampoo as the missing layer across both temple and crown zones'
+);
+
+assert(
+  source.includes('Mid-scalp density at NW3 with minoxidil and scalp massage is a strong two-layer approach — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for local DHT suppression at the recession edge. DHT shampoo completes the OTC density stack and slows miniaturization while follicles are still highly responsive.') &&
+    source.includes('NW3v mid-scalp and early crown with minoxidil and scalp massage covers topical growth signal and mechanical stimulation across both active zones — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for local DHT suppression. DHT shampoo completes the OTC density stack at this two-front stage.'),
+  'WEEKLY_FOCUS_MAP.Density NW3/NW3v branches should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo or finasteride receive density advice acknowledging their two-layer protocol and recommending DHT shampoo as the missing layer'
+);
+
+assert(
+  source.includes('At NW3 you have minoxidil and massage in place — add a DHT-blocking shampoo 3× weekly as the third leg. The triple stack (topical + massage + DHT suppression) gives the strongest 6-month potential at this established stage.'),
+  'WEEKLY_FOCUS_MAP.Potential NW3 branch should be minoxidil+massage-aware so OTC users at NW3 who have minoxidil and scalp massage but no DHT shampoo receive potential guidance that acknowledges their two-layer protocol and recommends DHT shampoo as the missing third leg at this pivotal treatment window'
+);
+
 console.log('server contract passed');
