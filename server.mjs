@@ -533,7 +533,40 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       'What results can I realistically expect from finasteride and minoxidil at NW4?',
     ];
   }
-  // NW3 — deep bilateral temple recession; still strong treatment response window
+  // NW3 — deep bilateral temple recession past mid-pupil; this is the strongest treatment response window
+  if (stage === 'NW3') {
+    if (!hasAnyOTC && !rx) {
+      return [
+        'At NW3, what should I start first to stop my temple recession from deepening?',
+        'How long does it take minoxidil to show results at both temple recession zones?',
+        specialistRecommended
+          ? 'My scan flagged a trichologist visit — should I see a specialist before starting NW3 treatment?'
+          : "What's the most effective treatment stack for deep bilateral temple recession at NW3?",
+      ];
+    }
+    if (!rx) {
+      return [
+        'Is finasteride worth adding at NW3 when my temples are already in deep recession?',
+        topical
+          ? 'Am I applying minoxidil correctly to both temple recession zones at NW3?'
+          : 'Should I add minoxidil to both temple recession zones at NW3?',
+        specialistRecommended
+          ? 'My scan flagged a specialist visit — what should I bring up about my NW3 temple recession?'
+          : 'How long before I see improvement in my temple recession at NW3?',
+      ];
+    }
+    // Has Rx and some OTC
+    return [
+      !mechanical
+        ? 'Does scalp massage improve minoxidil absorption at the temple recession edge at NW3?'
+        : 'How should I time scalp massage with minoxidil for my NW3 temple recession?',
+      specialistRecommended
+        ? 'My scan recommended a specialist visit — what questions should I ask about my NW3 protocol?'
+        : 'How do I track whether my finasteride and minoxidil are slowing my NW3 recession?',
+      'What results can I realistically expect from my protocol at NW3?',
+    ];
+  }
+  // Generic fallback (should not be reached with a valid Norwood stage)
   if (!hasAnyOTC && !rx) {
     return [
       `What's the best first step for someone at ${stage}?`,

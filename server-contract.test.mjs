@@ -522,4 +522,22 @@ assert(
   'buildSuggestedQuestions NW4 branch should surface specialist-visit questions at all three protocol-coverage levels when specialistRecommended is true'
 );
 
+assert(
+  source.includes("stage === 'NW3'") &&
+    source.includes("'At NW3, what should I start first to stop my temple recession from deepening?'") &&
+    source.includes("'Is finasteride worth adding at NW3 when my temples are already in deep recession?'") &&
+    source.includes("'Am I applying minoxidil correctly to both temple recession zones at NW3?'") &&
+    source.includes("'Does scalp massage improve minoxidil absorption at the temple recession edge at NW3?'") &&
+    source.includes("'How should I time scalp massage with minoxidil for my NW3 temple recession?'") &&
+    source.includes("'What results can I realistically expect from my protocol at NW3?'"),
+  'buildSuggestedQuestions should have a dedicated NW3 branch with temple-recession-aware questions distinct from the generic fallback — NW3 users have established deep bilateral recession and need questions specific to that stage and treatment window'
+);
+
+assert(
+  source.includes("'My scan flagged a trichologist visit — should I see a specialist before starting NW3 treatment?'") &&
+    source.includes("'My scan flagged a specialist visit — what should I bring up about my NW3 temple recession?'") &&
+    source.includes("'My scan recommended a specialist visit — what questions should I ask about my NW3 protocol?'"),
+  'buildSuggestedQuestions NW3 branch should surface specialist-visit questions at all three protocol-coverage levels when specialistRecommended is true'
+);
+
 console.log('server contract passed');
