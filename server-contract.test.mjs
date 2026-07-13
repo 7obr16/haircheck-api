@@ -472,4 +472,25 @@ assert(
   'WEEKLY_FOCUS_MAP.Density NW6 branch should be minoxidil-aware so OTC users at NW6 who have minoxidil (but no DHT shampoo or finasteride) receive density advice that acknowledges their existing topical rather than suggesting they start minoxidil they already use'
 );
 
+assert(
+  source.includes('NW5 frontal recession with finasteride + minoxidil + massage covers systemic DHT suppression, topical growth signal, and mechanical stimulation — apply minoxidil along the full frontal zone immediately after your scalp massage so primed follicles absorb it directly.') &&
+    source.includes('NW5 frontal recession with minoxidil and scalp massage covers topical growth signal and mechanical stimulation — apply minoxidil along the full frontal zone immediately after your scalp massage so freshly stimulated follicles absorb it.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW5 branch should be minoxidil+massage-aware so OTC users (and Rx users) who have minoxidil and scalp massage but no DHT shampoo receive hairline advice that acknowledges both layers and recommends DHT shampoo as the missing leg'
+);
+
+assert(
+  source.includes('At NW6, your minoxidil and scalp massage are both active — apply minoxidil along the fringe and temple edges immediately after each massage to prime freshly stimulated follicles for absorption.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW6 branch should be minoxidil+massage-aware so OTC users at NW6 who have minoxidil and massage receive hairline advice acknowledging their two-layer stack and recommending DHT shampoo'
+);
+
+assert(
+  source.includes('Apply minoxidil directly to the crown (1ml) twice daily at NW6, immediately after each scalp massage to prime follicle absorption — add weekly microneedling over the crown zone and photograph from above every 6 weeks to track change.'),
+  'WEEKLY_FOCUS_MAP.Crown NW6 branch should be minoxidil+massage-aware so OTC users at NW6 who have minoxidil and scalp massage receive crown advice that sequences minoxidil after massage for better vertex absorption'
+);
+
+assert(
+  source.includes('At NW6, your minoxidil and scalp massage address topical growth signal and mechanical stimulation across the remaining fringe — add a DHT-blocking shampoo 3× weekly to complete the OTC stack for the strongest realistic non-surgical potential (15-32%).'),
+  'WEEKLY_FOCUS_MAP.Potential NW6 branch should be minoxidil+massage-aware so OTC users at NW6 who have minoxidil and scalp massage receive potential guidance that acknowledges their two-layer OTC protocol and recommends DHT shampoo as the missing layer'
+);
+
 console.log('server contract passed');

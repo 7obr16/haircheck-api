@@ -2113,24 +2113,30 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             : _isNW5only
               ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
                   ? 'NW5 frontal recession with finasteride + minoxidil + DHT shampoo is the strongest non-surgical protocol — keep all three consistent. Apply minoxidil across the full frontal zone and both temple edges twice daily, leave DHT shampoo on 3-5 minutes per wash, and take finasteride at the same time each day. Monthly front-facing photos track the bridge; the goal is stabilization.'
+                  : _hasFinasteride && _hasMinoxidil && _hasMassage
+                    ? 'NW5 frontal recession with finasteride + minoxidil + massage covers systemic DHT suppression, topical growth signal, and mechanical stimulation — apply minoxidil along the full frontal zone immediately after your scalp massage so primed follicles absorb it directly. Add a DHT-blocking shampoo 3× weekly as the topical DHT layer to complete the protocol; track with monthly front-facing photos to monitor how quickly the bridge between forelock and lateral fringe is changing.'
                   : _hasFinasteride && _hasMinoxidil
                     ? 'NW5 frontal recession with finasteride + minoxidil gives the strongest available non-surgical coverage — add a DHT-blocking shampoo 3× weekly as the third layer. Apply minoxidil across the entire frontal zone twice daily and take monthly front-facing photos to track how the bridge between forelock and lateral fringe responds.'
                     : _hasFinasteride
                       ? 'NW5 frontal recession with finasteride providing systemic DHT suppression is a strong foundation — add minoxidil across the full frontal zone twice daily for the complementary topical signal. The finasteride + minoxidil combination is the most effective non-surgical approach at NW5; add a DHT-blocking shampoo 3× weekly and track with monthly front-facing photos.'
                       : _hasMinoxidil && _hasDHTShampoo
                           ? 'NW5 frontal recession is severe with a narrow bridge still separating the forelock from the lateral fringe — apply minoxidil across the full frontal zone twice daily and leave your DHT-blocking shampoo on 3-5 minutes per wash to slow the merge. Take monthly front-facing photos; tracking how quickly the bridge narrows is the key signal at this stage.'
-                          : _hasMinoxidil
-                            ? 'NW5 frontal recession is extensive — the bridge between the forelock and lateral fringe is narrowing. Apply minoxidil across the full frontal zone and both temple edges twice daily, and add a DHT-blocking shampoo 3× weekly. Take monthly front-facing photos to monitor how quickly the bridge is closing.'
-                            : 'NW5 frontal recession is substantial and the bridge between the forelock and lateral fringe is narrowing — start minoxidil across the full frontal zone twice daily and add a DHT-blocking shampoo 3× weekly. OTC at this stage is about slowing the merge, not full reversal; take monthly photos to track the bridge.')
+                          : _hasMinoxidil && _hasMassage
+                            ? 'NW5 frontal recession with minoxidil and scalp massage covers topical growth signal and mechanical stimulation — apply minoxidil along the full frontal zone immediately after your scalp massage so freshly stimulated follicles absorb it. Add a DHT-blocking shampoo 3× weekly as the topical DHT-suppression layer; together the three OTC layers give the strongest non-surgical hairline response at this stage. Track with monthly front-facing photos.'
+                            : _hasMinoxidil
+                              ? 'NW5 frontal recession is extensive — the bridge between the forelock and lateral fringe is narrowing. Apply minoxidil across the full frontal zone and both temple edges twice daily, and add a DHT-blocking shampoo 3× weekly. Take monthly front-facing photos to monitor how quickly the bridge is closing.'
+                              : 'NW5 frontal recession is substantial and the bridge between the forelock and lateral fringe is narrowing — start minoxidil across the full frontal zone twice daily and add a DHT-blocking shampoo 3× weekly. OTC at this stage is about slowing the merge, not full reversal; take monthly photos to track the bridge.')
               : _isNW56
               // only NW6 reaches here — NW5 is handled by _isNW5only above
               ? (_hasFinasteride && _hasMinoxidil
                   ? 'At NW6, finasteride + minoxidil is your strongest non-surgical defense for the remaining fringe and temporal hair — keep both consistent with no gaps. Apply minoxidil along the fringe and temple edges twice daily and take finasteride at the same time each day. In parallel, research FUE/FUT transplant options: combining systemic treatment with surgical planning is the most complete strategy at this stage.'
                   : _hasFinasteride
                     ? 'Finasteride is blocking systemic DHT at NW6 — add minoxidil to the fringe and temporal edges twice daily to complete the non-surgical protocol. Together they give the best realistic slowdown of further fringe recession; book a transplant consultation in the next 6 months to plan your full-coverage strategy.'
-                    : _hasMinoxidil
-                      ? 'At NW6, apply minoxidil consistently to the fringe and temple edges twice daily and add a DHT-blocking shampoo 3× weekly as a second layer. Track whether a transplant consultation makes sense in the next 3-6 months for a comprehensive coverage strategy.'
-                      : 'At NW6 minoxidil applied to the fringe and temporal edges twice daily can still slow further recession — start this week alongside a DHT-blocking shampoo. Book a transplant consultation to evaluate surgical coverage options alongside your OTC protocol.')
+                    : _hasMinoxidil && _hasMassage
+                      ? 'At NW6, your minoxidil and scalp massage are both active — apply minoxidil along the fringe and temple edges immediately after each massage to prime freshly stimulated follicles for absorption. Add a DHT-blocking shampoo 3× weekly as the topical DHT-suppression layer; book a transplant consultation to evaluate surgical coverage options alongside your OTC maintenance.'
+                      : _hasMinoxidil
+                        ? 'At NW6, apply minoxidil consistently to the fringe and temple edges twice daily and add a DHT-blocking shampoo 3× weekly as a second layer. Track whether a transplant consultation makes sense in the next 3-6 months for a comprehensive coverage strategy.'
+                        : 'At NW6 minoxidil applied to the fringe and temporal edges twice daily can still slow further recession — start this week alongside a DHT-blocking shampoo. Book a transplant consultation to evaluate surgical coverage options alongside your OTC protocol.')
               : data.stage === 'NW4'
                 // NW4 hairline loss extends across the entire frontal zone (not just temple corners) — advice must reflect the full frontal hairline, not just "recession zones"
                 ? (_hasFinasteride && _hasMinoxidil && _hasMassage)
@@ -2392,9 +2398,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                   ? 'At NW6, finasteride + minoxidil applied to the vertex twice daily is the most complete non-surgical protocol for crown coverage — keep both consistent. Add weekly microneedling over the crown zone and photograph from above every 6 weeks to track change. Booking a transplant consultation for vertex coverage planning is worth prioritizing this quarter.'
                   : _hasFinasteride
                     ? 'Finasteride is suppressing systemic DHT at NW6 — add minoxidil (1ml) directly to the vertex twice daily for the topical growth signal. Together they form the strongest non-surgical approach for crown; photograph overhead every 6 weeks and consider booking a transplant consultation for vertex coverage planning.'
-                    : _hasMinoxidil
-                      ? 'Apply minoxidil directly to the crown (1ml) twice daily at NW6 and add weekly microneedling to prime follicle response — manage expectations and photograph from above every 6 weeks to track change. Consider booking a transplant consultation to evaluate vertex coverage options.'
-                      : 'Apply minoxidil directly to the crown/vertex (1ml) twice daily and add weekly microneedling — manage expectations and photograph from above every 6 weeks to track any change.')
+                    : _hasMinoxidil && _hasMassage
+                      ? 'Apply minoxidil directly to the crown (1ml) twice daily at NW6, immediately after each scalp massage to prime follicle absorption — add weekly microneedling over the crown zone and photograph from above every 6 weeks to track change. Consider booking a transplant consultation to evaluate vertex coverage options.'
+                      : _hasMinoxidil
+                        ? 'Apply minoxidil directly to the crown (1ml) twice daily at NW6 and add weekly microneedling to prime follicle response — manage expectations and photograph from above every 6 weeks to track change. Consider booking a transplant consultation to evaluate vertex coverage options.'
+                        : 'Apply minoxidil directly to the crown/vertex (1ml) twice daily and add weekly microneedling — manage expectations and photograph from above every 6 weeks to track any change.')
               : data.stage === 'NW4'
                 // NW4 crown thinning is significant and well-established; needs direct targeted topical + realistic timeline
                 ? (_hasFinasteride && _hasMinoxidil && _hasMassage)
@@ -2633,9 +2641,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                   ? 'At NW6 with finasteride + minoxidil, your protocol is well-optimized for non-surgical potential — realistic improvement is modest (15-32%), focused on slowing progression and protecting existing fringe. Set a 3-month checkpoint with overhead and front-facing photos, and prioritize booking a transplant consultation this quarter to plan surgical coverage alongside your OTC maintenance.'
                   : _hasFinasteride
                     ? 'Finasteride provides a systemic DHT advantage at NW6 — add minoxidil (twice daily, full top) and weekly microneedling to maximize non-surgical potential (realistic range: 15-32%). Set a 3-month checkpoint and book a transplant consultation in parallel to plan your complete coverage strategy.'
-                    : _hasMinoxidil
-                      ? 'At NW6, add weekly microneedling and a DHT-blocking shampoo to your minoxidil to give the best realistic shot at slowing progression (15-32% potential). Set a 3-month checkpoint and consider booking a transplant consultation this quarter — combining OTC maintenance with surgical planning is the most complete long-term strategy.'
-                      : 'At your stage, combining minoxidil with weekly microneedling and a DHT-blocking shampoo gives the best realistic shot at slowing progression — set a 3-month checkpoint to assess response.')
+                    : _hasMinoxidil && _hasMassage
+                      ? 'At NW6, your minoxidil and scalp massage address topical growth signal and mechanical stimulation across the remaining fringe — add a DHT-blocking shampoo 3× weekly to complete the OTC stack for the strongest realistic non-surgical potential (15-32%). Set a 3-month checkpoint and consider booking a transplant consultation this quarter — combining OTC maintenance with surgical planning is the most complete long-term strategy.'
+                      : _hasMinoxidil
+                        ? 'At NW6, add weekly microneedling and a DHT-blocking shampoo to your minoxidil to give the best realistic shot at slowing progression (15-32% potential). Set a 3-month checkpoint and consider booking a transplant consultation this quarter — combining OTC maintenance with surgical planning is the most complete long-term strategy.'
+                        : 'At your stage, combining minoxidil with weekly microneedling and a DHT-blocking shampoo gives the best realistic shot at slowing progression — set a 3-month checkpoint to assess response.')
               : data.stage === 'NW1'
                 ? (_hasFinasteride && _hasDHTShampoo && _hasSupplements
                     ? 'Your NW1 prevention protocol is as complete as it gets — finasteride + DHT shampoo + supplements covers all three anti-miniaturization layers. Maximize long-term potential through lifestyle: prioritize 7-8 hours of sleep and manage chronic stress. Cortisol accelerates miniaturization even before visible thinning begins, and no supplement can offset poor recovery.'
