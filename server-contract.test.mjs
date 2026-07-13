@@ -561,4 +561,16 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential NW3 branch should be minoxidil+massage-aware so OTC users at NW3 who have minoxidil and scalp massage but no DHT shampoo receive potential guidance that acknowledges their two-layer protocol and recommends DHT shampoo as the missing third leg at this pivotal treatment window'
 );
 
+assert(
+  source.includes('NW3 mid-scalp density with finasteride + minoxidil + scalp massage covers systemic DHT suppression, topical growth signal, and mechanical stimulation — apply minoxidil immediately after your 4-minute scalp massage so freshly primed follicles absorb it at the recession edge.') &&
+    source.includes('NW3v mid-scalp and early crown with finasteride + minoxidil + scalp massage covers systemic DHT suppression, topical growth signal, and mechanical stimulation across both active zones — apply minoxidil immediately after your scalp massage across BOTH mid-scalp and vertex zones.'),
+  'WEEKLY_FOCUS_MAP.Density NW3/NW3v branch should be finasteride+minoxidil+massage-aware so Rx users who also have minoxidil and scalp massage get density advice that acknowledges all three active layers and recommends DHT shampoo as the missing layer — not advice telling them to start minoxidil they already use'
+);
+
+assert(
+  source.includes('At NW3, finasteride + minoxidil is the most evidence-backed non-surgical density combination — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for topical-level DHT suppression where miniaturization is progressing at the recession edge, and pair each minoxidil application with a 4-minute scalp massage.') &&
+    source.includes('At NW3v, finasteride + minoxidil addresses both systemic DHT suppression and topical growth signal across mid-scalp and early crown — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for topical-level DHT control across both active zones, plus a 4-minute scalp massage covering both the mid-scalp and vertex before each application.'),
+  'WEEKLY_FOCUS_MAP.Density NW3/NW3v branch should be finasteride+minoxidil-aware so Rx users who also have minoxidil (but no DHT shampoo or massage) receive density advice that acknowledges their dual-mechanism protocol and recommends DHT shampoo + scalp massage as the next steps — not advice telling them to start minoxidil they already have'
+);
+
 console.log('server contract passed');
