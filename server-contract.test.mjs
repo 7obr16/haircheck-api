@@ -466,4 +466,10 @@ assert(
   'WEEKLY_FOCUS_MAP.Density NW4/NW5 branches should be minoxidil+massage-aware so OTC users who have both minoxidil and scalp massage but no DHT shampoo receive density advice acknowledging their two-layer protocol and recommending DHT shampoo as the missing layer'
 );
 
+assert(
+  source.includes('At NW6, minoxidil and scalp massage address topical growth signal and mechanical stimulation across the remaining fringe — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for topical DHT suppression to complete the non-surgical density stack.') &&
+    source.includes('At NW6, your minoxidil provides the topical growth signal across the fringe and lateral edges — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for topical-level DHT suppression alongside it.'),
+  'WEEKLY_FOCUS_MAP.Density NW6 branch should be minoxidil-aware so OTC users at NW6 who have minoxidil (but no DHT shampoo or finasteride) receive density advice that acknowledges their existing topical rather than suggesting they start minoxidil they already use'
+);
+
 console.log('server contract passed');
