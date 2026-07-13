@@ -2697,9 +2697,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                                   ? 'NW3v is an active dual-zone stage — your full stack is in place. Confirm that minoxidil covers BOTH temple recession zones AND the vertex each session; dual-zone coverage twice daily is what converts your current stack into maximum potential across both active fronts.'
                                   : _hasMinoxidil && _hasDHTShampoo
                                     ? 'At NW3v two zones are active simultaneously — add scalp massage (4 min, covering temples AND vertex) before each minoxidil application. Priming both fronts together maximizes absorption where your dual-zone treatment potential is highest.'
-                                    : _hasMinoxidil
-                                      ? 'NW3v means both temples and early crown need treatment simultaneously — add a DHT-blocking shampoo 3× weekly and ensure minoxidil reaches BOTH recession zones AND the vertex twice daily. Dual-zone coverage now prevents each front from advancing independently.'
-                                      : 'NW3v is a dual-zone stage — both temples and early crown are active at the same time. Start minoxidil on BOTH zones (1ml per temple + 1ml vertex twice daily), add a DHT-blocking shampoo 3× weekly, and daily scalp massage. Simultaneous dual-zone coverage now gives the strongest window before either front advances.')
+                                    : _hasMinoxidil && _hasMassage
+                                      ? 'NW3v is a dual-zone active stage and your minoxidil + scalp massage cover the topical growth signal and mechanical stimulation across both zones — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the third leg. Confirm minoxidil reaches BOTH temple recession zones AND the vertex each session; the triple stack applied simultaneously to both active fronts gives the strongest OTC potential at NW3v.'
+                                      : _hasMinoxidil
+                                        ? 'NW3v means both temples and early crown need treatment simultaneously — add a DHT-blocking shampoo 3× weekly and ensure minoxidil reaches BOTH recession zones AND the vertex twice daily. Dual-zone coverage now prevents each front from advancing independently.'
+                                        : 'NW3v is a dual-zone stage — both temples and early crown are active at the same time. Start minoxidil on BOTH zones (1ml per temple + 1ml vertex twice daily), add a DHT-blocking shampoo 3× weekly, and daily scalp massage. Simultaneous dual-zone coverage now gives the strongest window before either front advances.')
                       : data.stage === 'NW4'
                         // NW4: meaningful potential remains with the right protocol; realistic expectations and consistency are the keys
                         ? (_hasFinasteride && _hasMinoxidil && _hasMassage
@@ -2712,9 +2714,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                                     ? 'At NW4 you have the right stack active — the outcome now depends on consistency and realistic expectations. Take front-facing and overhead photos today as your baseline, and set a 4-month checkpoint. Meaningful density change at NW4 typically takes 16+ weeks of uninterrupted coverage to show.'
                                     : _hasMinoxidil && _hasDHTShampoo
                                       ? 'At NW4 your topical and DHT shampoo are in place — add a 4-minute scalp massage before each minoxidil application. Mechanical stimulation improves absorption directly where miniaturization is most advanced and is the highest-ROI addition to an existing NW4 stack.'
-                                      : _hasMinoxidil
-                                        ? 'At NW4, pair your minoxidil with a DHT-blocking shampoo 3× weekly and a 4-minute scalp massage before each application. This triple approach — topical growth signal + DHT suppression + mechanical stimulation — is the strongest realistic OTC protocol at this stage.'
-                                        : 'NW4 still has meaningful potential with the right protocol — start the full stack this week: minoxidil across the entire top twice daily, DHT-blocking shampoo 3× weekly (3-5 min contact time), and daily 4-minute scalp massage. Comprehensive, consistent coverage over 4+ months determines the outcome.')
+                                      : _hasMinoxidil && _hasMassage
+                                        ? 'At NW4, your minoxidil and scalp massage cover the topical growth signal and mechanical stimulation — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the third layer. The triple approach (topical + mechanical + DHT suppression) is the strongest realistic OTC protocol at NW4; set a 4-month checkpoint with front-facing and overhead photos today as your baseline.'
+                                        : _hasMinoxidil
+                                          ? 'At NW4, pair your minoxidil with a DHT-blocking shampoo 3× weekly and a 4-minute scalp massage before each application. This triple approach — topical growth signal + DHT suppression + mechanical stimulation — is the strongest realistic OTC protocol at this stage.'
+                                          : 'NW4 still has meaningful potential with the right protocol — start the full stack this week: minoxidil across the entire top twice daily, DHT-blocking shampoo 3× weekly (3-5 min contact time), and daily 4-minute scalp massage. Comprehensive, consistent coverage over 4+ months determines the outcome.')
                         : (data.stage === 'diffuse' || data.stage === 'n/a (female)')
                           ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
                               ? (data.stage === 'n/a (female)'

@@ -493,4 +493,15 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential NW6 branch should be minoxidil+massage-aware so OTC users at NW6 who have minoxidil and scalp massage receive potential guidance that acknowledges their two-layer OTC protocol and recommends DHT shampoo as the missing layer'
 );
 
+assert(
+  source.includes('NW3v is a dual-zone active stage and your minoxidil + scalp massage cover the topical growth signal and mechanical stimulation across both zones — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the third leg.') &&
+    source.includes('Confirm minoxidil reaches BOTH temple recession zones AND the vertex each session; the triple stack applied simultaneously to both active fronts gives the strongest OTC potential at NW3v.'),
+  'WEEKLY_FOCUS_MAP.Potential NW3v branch should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo receive dual-zone potential guidance acknowledging their two-layer protocol and recommending DHT shampoo as the missing leg'
+);
+
+assert(
+  source.includes('At NW4, your minoxidil and scalp massage cover the topical growth signal and mechanical stimulation — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the third layer. The triple approach (topical + mechanical + DHT suppression) is the strongest realistic OTC protocol at NW4; set a 4-month checkpoint with front-facing and overhead photos today as your baseline.'),
+  'WEEKLY_FOCUS_MAP.Potential NW4 branch should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo receive potential guidance that acknowledges their two-layer stack and recommends DHT shampoo as the missing layer'
+);
+
 console.log('server contract passed');
