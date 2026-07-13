@@ -460,4 +460,10 @@ assert(
   'buildSuggestedQuestions should have a dedicated NW3v branch with dual-zone-aware questions (temples AND crown) distinct from the generic NW3/NW4 fallback — NW3v users have two simultaneous active zones and need questions that reflect that'
 );
 
+assert(
+  source.includes('At NW4, minoxidil and scalp massage cover topical growth signal and mechanical stimulation — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for local DHT suppression where miniaturization is advancing across the mid-scalp. Stacking all three OTC layers gives the strongest non-surgical density response at this established stage.') &&
+    source.includes('At NW5, minoxidil and scalp massage address topical growth signal and mechanical stimulation across both frontal and crown density loss zones — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for local DHT suppression. Leave DHT shampoo on 3-5 minutes per wash and add weekly microneedling over the thinnest zones to prime follicle absorption and get the most from your existing protocol.'),
+  'WEEKLY_FOCUS_MAP.Density NW4/NW5 branches should be minoxidil+massage-aware so OTC users who have both minoxidil and scalp massage but no DHT shampoo receive density advice acknowledging their two-layer protocol and recommending DHT shampoo as the missing layer'
+);
+
 console.log('server contract passed');
