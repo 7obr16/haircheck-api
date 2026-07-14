@@ -520,11 +520,34 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       'How will I know if my prevention is actually working?',
     ];
   }
+  // NW2 — slight symmetric temple recession; earliest AGA stage; strongest preventive window.
+  // 3-tier structure mirrors NW3-NW7: no-treatment / OTC-only / Rx, calibrated to the early stage.
   if (stage === 'NW2') {
+    if (!hasAnyOTC && !rx) {
+      return [
+        'Should I start minoxidil for early temple recession at NW2?',
+        'Is finasteride worth starting at NW2 to prevent further recession?',
+        'How quickly can NW2 progress without treatment?',
+      ];
+    }
+    if (!rx) {
+      return [
+        'Is finasteride worth adding to my OTC routine at NW2?',
+        topical
+          ? 'Am I applying minoxidil correctly to both temple corners at NW2?'
+          : 'Should I add minoxidil to my DHT shampoo routine at NW2?',
+        'How long before I know if my OTC treatment is protecting my temples at NW2?',
+      ];
+    }
+    // Has Rx and possibly OTC
     return [
-      !topical ? 'Should I start minoxidil for early temple recession?' : 'Am I applying minoxidil to the right areas?',
-      !rx ? 'Is finasteride worth considering at NW2?' : 'How do I know if finasteride is slowing my recession?',
-      'How quickly can NW2 progress without treatment?',
+      topical
+        ? 'How do I know if my finasteride and minoxidil are slowing my NW2 recession?'
+        : 'Should I add minoxidil to my finasteride at NW2?',
+      !mechanical
+        ? 'Does scalp massage improve minoxidil absorption at the temple corners at NW2?'
+        : 'How should I time scalp massage with my minoxidil application at NW2?',
+      'What results can I realistically expect from my NW2 protocol?',
     ];
   }
   // NW3v — dual-zone stage (temples AND early crown active simultaneously)

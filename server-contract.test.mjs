@@ -625,4 +625,17 @@ assert(
   "buildSuggestedQuestions NW7 branch should use 3-tier protocol-coverage structure (no-treatment / OTC-only / Rx) like NW5/NW6 — no-treatment users see realistic-options + first-step questions, OTC-only users are asked about Rx vs. surgical priority, Rx users get transplant-integration questions"
 );
 
+assert(
+  source.includes("'Should I start minoxidil for early temple recession at NW2?'") &&
+    source.includes("'Is finasteride worth starting at NW2 to prevent further recession?'") &&
+    source.includes("'How quickly can NW2 progress without treatment?'") &&
+    source.includes("'Is finasteride worth adding to my OTC routine at NW2?'") &&
+    source.includes("'Am I applying minoxidil correctly to both temple corners at NW2?'") &&
+    source.includes("'How do I know if my finasteride and minoxidil are slowing my NW2 recession?'") &&
+    source.includes("'Should I add minoxidil to my finasteride at NW2?'") &&
+    source.includes("'What results can I realistically expect from my NW2 protocol?'") &&
+    /stage === 'NW2'[\s\S]{0,500}!hasAnyOTC && !rx/.test(source),
+  "buildSuggestedQuestions NW2 branch should use 3-tier protocol-coverage structure (no-treatment / OTC-only / Rx) like NW3-NW7 — no-treatment users see starting-point questions, OTC-only users are asked about adding finasteride with OTC optimization, Rx users get tracking and results-expectation questions"
+);
+
 console.log('server contract passed');
