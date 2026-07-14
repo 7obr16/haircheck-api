@@ -587,4 +587,9 @@ assert(
   'buildSuggestedQuestions NW5 branch should use 3-tier protocol-coverage structure with transplant-consultation questions at every tier — NW5 specialistRecommended is always true so surgical planning context belongs in all branches, and questions must differ by whether the user has no treatment, OTC only, or Rx'
 );
 
+assert(
+  source.includes('NW5 potential with minoxidil and scalp massage covers the topical growth signal and mechanical stimulation across both frontal and crown zones — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for local DHT suppression. The three-layer OTC stack gives the strongest realistic non-surgical potential at NW5 (28-48%); set a 3-month checkpoint and consider booking a transplant consultation to plan surgical and OTC paths in parallel.'),
+  'WEEKLY_FOCUS_MAP.Potential NW5 branch should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo receive potential guidance that acknowledges their two-layer protocol and recommends DHT shampoo as the missing layer — not advice telling them to start minoxidil they already have'
+);
+
 console.log('server contract passed');
