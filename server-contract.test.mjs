@@ -607,4 +607,12 @@ assert(
   'WEEKLY_FOCUS_MAP.Density NW2 branch should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo or finasteride receive density advice that sequences minoxidil after massage for better absorption and recommends DHT shampoo as the missing layer — not the generic minoxidil-only advice that ignores the active massage habit'
 );
 
+assert(
+  source.includes("'Is finasteride worth adding to my OTC protocol at NW6?'") &&
+    source.includes("'Am I applying minoxidil correctly to my remaining fringe and temple edges at NW6?'") &&
+    source.includes("'How does my NW6 protocol fit into a transplant or SMP plan?'") &&
+    /stage === 'NW6'[\s\S]{0,600}!hasAnyOTC && !rx/.test(source),
+  "buildSuggestedQuestions NW6 branch should use 3-tier protocol-coverage structure (no-treatment / OTC-only / Rx) like NW5 — OTC-only users should be asked about adding finasteride and correct fringe application, Rx users should get transplant-integration context calibrated to whether they have minoxidil"
+);
+
 console.log('server contract passed');

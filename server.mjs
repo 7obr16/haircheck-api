@@ -418,15 +418,34 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
         : 'Can scalp massage help protect my remaining hair?',
     ];
   }
+  // NW6 — frontal and crown merged; only lateral fringe remains; surgical options become primary path.
+  // 3-tier structure matches NW5: no-treatment / OTC-only / Rx, each with transplant-planning context.
   if (stage === 'NW6') {
+    if (!hasAnyOTC && !rx) {
+      return [
+        'What OTC steps still make sense at NW6?',
+        'Should I book a hair transplant consultation now?',
+        'How do I protect the hair I still have?',
+      ];
+    }
+    if (!rx) {
+      return [
+        topical
+          ? 'Am I applying minoxidil correctly to my remaining fringe and temple edges at NW6?'
+          : 'Which OTC treatments most effectively slow fringe recession at NW6?',
+        'Is finasteride worth adding to my OTC protocol at NW6?',
+        'Should I book a hair transplant consultation now?',
+      ];
+    }
+    // Has Rx (and possibly OTC)
     return [
-      rx && topical
+      topical
         ? 'How do I get the most from my finasteride and minoxidil at NW6?'
-        : rx
-          ? 'Should I add minoxidil to my finasteride at NW6?'
-          : 'What OTC steps still make sense at NW6?',
+        : 'Should I add minoxidil to my finasteride at NW6?',
       'Should I book a hair transplant consultation now?',
-      'How do I protect the hair I still have?',
+      topical
+        ? 'How does my NW6 protocol fit into a transplant or SMP plan?'
+        : 'How does finasteride alone fit into a transplant or SMP plan at NW6?',
     ];
   }
   // NW5 — frontal and crown zones nearly merging; significant loss across the full scalp top.
