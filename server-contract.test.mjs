@@ -638,4 +638,16 @@ assert(
   "buildSuggestedQuestions NW2 branch should use 3-tier protocol-coverage structure (no-treatment / OTC-only / Rx) like NW3-NW7 — no-treatment users see starting-point questions, OTC-only users are asked about adding finasteride with OTC optimization, Rx users get tracking and results-expectation questions"
 );
 
+assert(
+  source.includes("'Is it worth starting any treatment when my hair is still fully intact at NW1?'") &&
+    source.includes("'Which prevention step has the strongest evidence at NW1?'") &&
+    source.includes("'How will I know when I need to escalate from prevention to active treatment?'") &&
+    source.includes("'Is finasteride worth starting at NW1 to strengthen my prevention protocol?'") &&
+    source.includes("'How will I know if my NW1 prevention is actually working?'") &&
+    source.includes("'Is finasteride enough on its own for NW1 prevention, or should I add something else?'") &&
+    source.includes("'How long should I continue finasteride at NW1 before reassessing?'") &&
+    /stage === 'NW1'[\s\S]{0,600}!hasAnyOTC && !rx/.test(source),
+  "buildSuggestedQuestions NW1 branch should use 3-tier protocol-coverage structure (no-treatment / OTC-only / Rx) — no-treatment users see prevention-value and monitoring questions, OTC users are asked about adding finasteride and optimizing their DHT shampoo, Rx users get finasteride-adequacy and stack-completion questions"
+);
+
 console.log('server contract passed');

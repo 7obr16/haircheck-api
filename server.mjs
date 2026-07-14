@@ -513,11 +513,32 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       'How is diffuse thinning different from male pattern hair loss?',
     ];
   }
+  // NW1 — fully intact hairline; purely preventive stage; questions focus on prevention value and monitoring, not treatment.
+  // 3-tier structure: no-treatment / OTC-only / Rx, calibrated to a user who has no visible loss yet.
   if (stage === 'NW1') {
+    if (!hasAnyOTC && !rx) {
+      return [
+        'Is it worth starting any treatment when my hair is still fully intact at NW1?',
+        'Which prevention step has the strongest evidence at NW1?',
+        'How will I know when I need to escalate from prevention to active treatment?',
+      ];
+    }
+    if (!rx) {
+      return [
+        'Is finasteride worth starting at NW1 to strengthen my prevention protocol?',
+        dhtShampoo
+          ? 'How long should I leave DHT shampoo on at NW1 for the best anti-miniaturization effect?'
+          : 'Is DHT-blocking shampoo worth it on its own at NW1?',
+        'How will I know if my NW1 prevention is actually working?',
+      ];
+    }
+    // Has Rx and possibly OTC
     return [
-      rx ? 'Is finasteride enough on its own for NW1 prevention?' : 'Is it worth starting any treatment at NW1?',
-      dhtShampoo ? 'How long should I leave DHT shampoo on for best results?' : 'Is DHT-blocking shampoo worth it at NW1?',
-      'How will I know if my prevention is actually working?',
+      'Is finasteride enough on its own for NW1 prevention, or should I add something else?',
+      dhtShampoo
+        ? 'How do I get the most from my finasteride and DHT shampoo at NW1?'
+        : 'What should I add to finasteride for the most complete NW1 prevention stack?',
+      'How long should I continue finasteride at NW1 before reassessing?',
     ];
   }
   // NW2 — slight symmetric temple recession; earliest AGA stage; strongest preventive window.
