@@ -405,17 +405,32 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
   const { topical = false, rx = false, dhtShampoo = false, mechanical = false } = protocolCoverage || {};
   const hasAnyOTC = topical || dhtShampoo || mechanical;
 
+  // NW7 — near-total loss; horseshoe fringe only; surgical options (FUE/FUT or SMP) are the primary path.
+  // 3-tier structure matches NW5/NW6: no-treatment / OTC-only / Rx, each with transplant-planning context.
   if (stage === 'NW7') {
+    if (!hasAnyOTC && !rx) {
+      return [
+        'What are my realistic options at NW7?',
+        'Should I start any OTC treatment or go straight to a transplant consultation at NW7?',
+        'What should I ask a trichologist about at NW7?',
+      ];
+    }
+    if (!rx) {
+      return [
+        topical
+          ? 'Can I continue minoxidil after a hair transplant?'
+          : 'Which OTC steps are still worth keeping alongside a transplant plan at NW7?',
+        'Is finasteride worth adding at NW7, or is surgical planning the priority?',
+        'How does my current OTC routine fit into a transplant or SMP plan at NW7?',
+      ];
+    }
+    // Has Rx (and possibly OTC)
     return [
-      rx
-        ? 'How does finasteride fit into a hair transplant or SMP plan?'
-        : 'What are my realistic options at NW7?',
+      'How does finasteride fit into a hair transplant or SMP plan?',
       topical
         ? 'Can I continue minoxidil after a hair transplant?'
-        : 'How do I find a good hair transplant surgeon?',
-      rx
-        ? 'Should I continue finasteride after a hair transplant?'
-        : 'Can scalp massage help protect my remaining hair?',
+        : 'Should I add minoxidil to my finasteride at NW7?',
+      'Should I continue finasteride after a hair transplant?',
     ];
   }
   // NW6 — frontal and crown merged; only lateral fringe remains; surgical options become primary path.

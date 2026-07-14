@@ -615,4 +615,14 @@ assert(
   "buildSuggestedQuestions NW6 branch should use 3-tier protocol-coverage structure (no-treatment / OTC-only / Rx) like NW5 — OTC-only users should be asked about adding finasteride and correct fringe application, Rx users should get transplant-integration context calibrated to whether they have minoxidil"
 );
 
+assert(
+  source.includes("stage === 'NW7'") &&
+    source.includes("'Should I start any OTC treatment or go straight to a transplant consultation at NW7?'") &&
+    source.includes("'What should I ask a trichologist about at NW7?'") &&
+    source.includes("'Is finasteride worth adding at NW7, or is surgical planning the priority?'") &&
+    source.includes("'How does my current OTC routine fit into a transplant or SMP plan at NW7?'") &&
+    /stage === 'NW7'[\s\S]{0,500}!hasAnyOTC && !rx/.test(source),
+  "buildSuggestedQuestions NW7 branch should use 3-tier protocol-coverage structure (no-treatment / OTC-only / Rx) like NW5/NW6 — no-treatment users see realistic-options + first-step questions, OTC-only users are asked about Rx vs. surgical priority, Rx users get transplant-integration questions"
+);
+
 console.log('server contract passed');
