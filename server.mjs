@@ -2278,6 +2278,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     ? 'NW2 temple recession with finasteride + minoxidil is the strongest dual-mechanism approach at the ideal preventive stage — keep both consistent. Add a DHT-blocking shampoo 3× weekly as the topical DHT suppression layer, and take monthly front-facing photos to catch any further M-shape deepening early.'
                     : _hasFinasteride
                     ? 'Finasteride is already suppressing systemic DHT at NW2 — add minoxidil directly to both temple corners twice daily for the topical growth signal. Finasteride + minoxidil at the earliest detectable stage gives the strongest long-term protection before the M-shape deepens further.'
+                    : (_hasMinoxidil && _hasMassage)
+                    ? 'NW2 temple recession with minoxidil and scalp massage covers topical growth signal and mechanical stimulation at the ideal preventive stage — apply minoxidil to both temple corners immediately after your scalp massage so freshly stimulated follicles absorb it. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the DHT-suppression layer to complete the triple OTC approach before the M-shape deepens further.'
                     : _hasMinoxidil
                     ? 'NW2 is the ideal preventive stage and your minoxidil is already on the temple corners — good call. Keep it consistent twice daily and add a DHT-blocking shampoo 3× weekly as a complementary prevention layer to slow the M-shape from deepening further.'
                     : 'NW2 temple recession is the earliest warning sign — and the best treatment window. Start minoxidil directly on both temple corners twice daily this week. At NW2, follicles are fully viable and early intervention produces the strongest long-term results. Take a monthly front-facing photo to catch any further change early.')
@@ -2771,11 +2773,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                         ? 'NW2 is the ideal window and your finasteride already suppresses DHT systemically — add minoxidil directly to both temple corners twice daily for the complementary topical growth signal. The finasteride + minoxidil combination at NW2 delivers the most impactful prevention before recession deepens.'
                         : (_hasMinoxidil && _hasDHTShampoo)
                             ? 'Minoxidil and DHT shampoo are both active at NW2 — your stack is right for this stage. Confirm twice-daily coverage on both temple corners and leave the DHT shampoo on 3-5 minutes before rinsing. Consistency beats adding new products at this early stage.'
-                            : _hasMinoxidil
-                              ? 'At NW2 minoxidil is well-timed — add a DHT-blocking shampoo 3× weekly as the second prevention layer. Together they attack AGA from two angles (topical growth signal + DHT suppression), which delivers the strongest long-term response at this early stage.'
-                              : _hasDHTShampoo
-                                ? 'At NW2 the treatment window is open and follicles are still fully viable — add minoxidil directly to both temple corners twice daily. Pairing it with your existing DHT-blocking shampoo gives the strongest dual-mechanism response before recession deepens.'
-                                : 'NW2 is the optimal window to act — start minoxidil on both temple corners and add a DHT-blocking shampoo 3× weekly. This dual approach (topical growth signal + DHT suppression) at the earliest detectable stage produces the strongest long-term ROI.'
+                            : (_hasMinoxidil && _hasMassage)
+                              ? 'NW2 is the ideal prevention window and your minoxidil and scalp massage cover the topical growth signal and mechanical stimulation at the temple corners — apply minoxidil immediately after your scalp massage so freshly stimulated follicles absorb it. Add a DHT-blocking shampoo 3× weekly as the DHT-suppression third layer; the triple approach (topical + mechanical + DHT) delivers the strongest long-term potential at this earliest detectable stage.'
+                              : _hasMinoxidil
+                                ? 'At NW2 minoxidil is well-timed — add a DHT-blocking shampoo 3× weekly as the second prevention layer. Together they attack AGA from two angles (topical growth signal + DHT suppression), which delivers the strongest long-term response at this early stage.'
+                                : _hasDHTShampoo
+                                  ? 'At NW2 the treatment window is open and follicles are still fully viable — add minoxidil directly to both temple corners twice daily. Pairing it with your existing DHT-blocking shampoo gives the strongest dual-mechanism response before recession deepens.'
+                                  : 'NW2 is the optimal window to act — start minoxidil on both temple corners and add a DHT-blocking shampoo 3× weekly. This dual approach (topical growth signal + DHT suppression) at the earliest detectable stage produces the strongest long-term ROI.'
                   : data.stage === 'NW3'
                     // NW3: strong treatment response window; deep recession is established but follicles at the edge are still highly responsive
                     ? (_hasFinasteride && _hasMinoxidil && _hasMassage

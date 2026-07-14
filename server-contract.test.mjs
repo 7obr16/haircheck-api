@@ -592,4 +592,14 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential NW5 branch should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo receive potential guidance that acknowledges their two-layer protocol and recommends DHT shampoo as the missing layer — not advice telling them to start minoxidil they already have'
 );
 
+assert(
+  source.includes('NW2 temple recession with minoxidil and scalp massage covers topical growth signal and mechanical stimulation at the ideal preventive stage — apply minoxidil to both temple corners immediately after your scalp massage so freshly stimulated follicles absorb it. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the DHT-suppression layer to complete the triple OTC approach before the M-shape deepens further.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW2 branch should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo or finasteride receive hairline advice that sequences minoxidil after massage for better absorption and recommends DHT shampoo as the missing layer — not the generic minoxidil-only advice that ignores the active massage habit'
+);
+
+assert(
+  source.includes('NW2 is the ideal prevention window and your minoxidil and scalp massage cover the topical growth signal and mechanical stimulation at the temple corners — apply minoxidil immediately after your scalp massage so freshly stimulated follicles absorb it. Add a DHT-blocking shampoo 3× weekly as the DHT-suppression third layer; the triple approach (topical + mechanical + DHT) delivers the strongest long-term potential at this earliest detectable stage.'),
+  'WEEKLY_FOCUS_MAP.Potential NW2 branch should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo or finasteride receive potential guidance that acknowledges their two-layer stack and recommends DHT shampoo as the missing third leg — not advice telling them to add DHT shampoo without acknowledging the massage they already do'
+);
+
 console.log('server contract passed');
