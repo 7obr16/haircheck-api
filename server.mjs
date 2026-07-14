@@ -429,11 +429,40 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       'How do I protect the hair I still have?',
     ];
   }
+  // NW5 — frontal and crown zones nearly merging; significant loss across the full scalp top.
+  // specialistRecommended is always true at NW5 (SPECIALIST_STAGES); conditional is written
+  // for consistency with other branches and against the edge case where currentStateScore
+  // overrides the flag. A transplant-consultation question appears at every tier.
   if (stage === 'NW5') {
+    if (!hasAnyOTC && !rx) {
+      return [
+        'At NW5, what OTC steps are still worth starting alongside a transplant plan?',
+        'Is minoxidil worth starting at NW5, or is it too late for meaningful results?',
+        specialistRecommended
+          ? 'At NW5, when should I prioritize booking a hair transplant consultation?'
+          : 'What is the most impactful step I can take at NW5?',
+      ];
+    }
+    if (!rx) {
+      return [
+        topical
+          ? 'Am I applying minoxidil correctly across both my frontal and crown zones at NW5?'
+          : 'Should I add minoxidil across both my frontal and crown zones at NW5?',
+        'Is finasteride worth adding to my OTC protocol at NW5?',
+        specialistRecommended
+          ? 'My scan recommended a transplant consultation — what OTC steps should I keep going alongside surgical planning at NW5?'
+          : 'How do I know if my OTC protocol is working at NW5?',
+      ];
+    }
+    // Has Rx and some OTC
     return [
-      rx ? 'How long before finasteride shows results at NW5?' : 'Is it worth starting finasteride at NW5?',
-      'At NW5, when should I start thinking about a transplant?',
-      topical ? 'How do I apply minoxidil for maximum coverage at NW5?' : 'Should I add minoxidil to my protocol at NW5?',
+      topical
+        ? 'How do I get the most from my finasteride and minoxidil at NW5?'
+        : 'Should I add minoxidil to my finasteride at NW5?',
+      specialistRecommended
+        ? 'My scan recommended a transplant consultation — how does my current NW5 protocol fit into a surgical plan?'
+        : 'How do I measure progress with my current NW5 Rx protocol?',
+      'What results can I realistically expect from my NW5 protocol before committing to a transplant?',
     ];
   }
   if (stage === 'n/a (female)') {

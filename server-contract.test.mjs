@@ -573,4 +573,18 @@ assert(
   'WEEKLY_FOCUS_MAP.Density NW3/NW3v branch should be finasteride+minoxidil-aware so Rx users who also have minoxidil (but no DHT shampoo or massage) receive density advice that acknowledges their dual-mechanism protocol and recommends DHT shampoo + scalp massage as the next steps — not advice telling them to start minoxidil they already have'
 );
 
+assert(
+  source.includes("stage === 'NW5'") &&
+    source.includes("'At NW5, what OTC steps are still worth starting alongside a transplant plan?'") &&
+    source.includes("'Is minoxidil worth starting at NW5, or is it too late for meaningful results?'") &&
+    source.includes("'At NW5, when should I prioritize booking a hair transplant consultation?'") &&
+    source.includes("'Is finasteride worth adding to my OTC protocol at NW5?'") &&
+    source.includes("'Am I applying minoxidil correctly across both my frontal and crown zones at NW5?'") &&
+    source.includes("'My scan recommended a transplant consultation — what OTC steps should I keep going alongside surgical planning at NW5?'") &&
+    source.includes("'How do I get the most from my finasteride and minoxidil at NW5?'") &&
+    source.includes("'My scan recommended a transplant consultation — how does my current NW5 protocol fit into a surgical plan?'") &&
+    source.includes("'What results can I realistically expect from my NW5 protocol before committing to a transplant?'"),
+  'buildSuggestedQuestions NW5 branch should use 3-tier protocol-coverage structure with transplant-consultation questions at every tier — NW5 specialistRecommended is always true so surgical planning context belongs in all branches, and questions must differ by whether the user has no treatment, OTC only, or Rx'
+);
+
 console.log('server contract passed');
