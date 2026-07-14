@@ -602,4 +602,9 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential NW2 branch should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo or finasteride receive potential guidance that acknowledges their two-layer stack and recommends DHT shampoo as the missing third leg — not advice telling them to add DHT shampoo without acknowledging the massage they already do'
 );
 
+assert(
+  source.includes('At NW2, minoxidil and scalp massage cover the topical growth signal and mechanical stimulation at the ideal preventive stage — apply minoxidil to both temple corners immediately after your scalp massage so freshly stimulated follicles absorb it. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the DHT-suppression third layer; the triple OTC approach gives the strongest long-term density protection before any mid-scalp miniaturization begins.'),
+  'WEEKLY_FOCUS_MAP.Density NW2 branch should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo or finasteride receive density advice that sequences minoxidil after massage for better absorption and recommends DHT shampoo as the missing layer — not the generic minoxidil-only advice that ignores the active massage habit'
+);
+
 console.log('server contract passed');
