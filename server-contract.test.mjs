@@ -721,4 +721,12 @@ assert(
   "buildSuggestedQuestions diffuse branch should use 3-tier protocol-coverage structure (no-treatment / OTC-only / Rx) — no-treatment users see root-cause investigation + specialist questions, OTC-only users get topical optimization + Rx prompt + bloodwork reminder, Rx users get cause-targeting check + remaining bloodwork + realistic expectations"
 );
 
+assert(
+  source.includes("'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage protocol at NW3?'") &&
+    source.includes("'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW3v?'") &&
+    source.includes("'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW4?'") &&
+    source.includes("'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW2?'"),
+  'buildSuggestedQuestions Rx branches for NW2/NW3/NW3v/NW4 should be DHT-shampoo-aware: when mechanical is already active but dhtShampoo is not, surface a DHT shampoo question instead of a massage timing question'
+);
+
 console.log('server contract passed');

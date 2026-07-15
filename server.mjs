@@ -614,7 +614,9 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
         : 'Should I add minoxidil to my finasteride at NW2?',
       !mechanical
         ? 'Does scalp massage improve minoxidil absorption at the temple corners at NW2?'
-        : 'How should I time scalp massage with my minoxidil application at NW2?',
+        : !dhtShampoo
+          ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW2?'
+          : 'How should I time scalp massage with my minoxidil application at NW2?',
       'What results can I realistically expect from my NW2 protocol?',
     ];
   }
@@ -646,7 +648,9 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
     return [
       !mechanical
         ? 'Does scalp massage help both my temple and crown zones at NW3v?'
-        : 'How should I time scalp massage for both my temple and crown zones?',
+        : !dhtShampoo
+          ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW3v?'
+          : 'How should I time scalp massage for both my temple and crown zones?',
       specialistRecommended
         ? 'My scan recommended a specialist visit — what questions should I ask about NW3v?'
         : 'How long before finasteride shows results in both my NW3v zones?',
@@ -680,7 +684,9 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
     return [
       !mechanical
         ? 'Does scalp massage help with NW4 frontal and crown coverage?'
-        : 'How should I time scalp massage for both my frontal and crown zones at NW4?',
+        : !dhtShampoo
+          ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW4?'
+          : 'How should I time scalp massage for both my frontal and crown zones at NW4?',
       specialistRecommended
         ? 'My scan recommended a specialist visit — what should I ask about my NW4 protocol?'
         : 'How do I measure progress when treating both my frontal and crown zones?',
@@ -713,7 +719,9 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
     return [
       !mechanical
         ? 'Does scalp massage improve minoxidil absorption at the temple recession edge at NW3?'
-        : 'How should I time scalp massage with minoxidil for my NW3 temple recession?',
+        : !dhtShampoo
+          ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage protocol at NW3?'
+          : 'How should I time scalp massage with minoxidil for my NW3 temple recession?',
       specialistRecommended
         ? 'My scan recommended a specialist visit — what questions should I ask about my NW3 protocol?'
         : 'How do I track whether my finasteride and minoxidil are slowing my NW3 recession?',
