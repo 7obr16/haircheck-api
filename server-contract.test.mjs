@@ -729,4 +729,10 @@ assert(
   'buildSuggestedQuestions Rx branches for NW2/NW3/NW3v/NW4 should be DHT-shampoo-aware: when mechanical is already active but dhtShampoo is not, surface a DHT shampoo question instead of a massage timing question'
 );
 
+assert(
+  source.includes("_hasSupplements && _hasMassage\n                                            ? 'At NW4, your supplement stack and scalp massage cover nutritional support and mechanical stimulation") &&
+    source.includes("_hasSupplements\n                                              ? 'Your supplement stack is supporting follicle health at NW4"),
+  'NW4 Health WEEKLY_FOCUS_MAP should have separate branches for (supplements+massage) and (supplements alone) so users who already have supplements are never told to start a supplement stack'
+);
+
 console.log('server contract passed');

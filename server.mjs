@@ -2832,7 +2832,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                                         ? 'At NW4, add scalp massage before each topical application and consider weekly microneedling (0.5mm) over the thinnest zones — mechanical stimulation significantly improves topical absorption where miniaturization is most advanced, and your supplement and DHT shampoo stack benefits directly from it.'
                                         : _hasDHTShampoo
                                           ? 'At NW4, your DHT shampoo is handling topical suppression — add a supplement stack (biotin, zinc, vitamin D) and a pre-application scalp massage. Advanced miniaturization at NW4 needs every anti-inflammatory layer working together to maintain follicle health.'
-                                          : 'At NW4, scalp health needs the full anti-miniaturization stack: DHT-blocking shampoo 3× weekly (3-5 min contact time), a supplement stack (biotin, zinc, vitamin D), and weekly microneedling. Advanced miniaturization at this stage requires every layer to be active.')
+                                          : _hasSupplements && _hasMassage
+                                            ? 'At NW4, your supplement stack and scalp massage cover nutritional support and mechanical stimulation — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT suppression layer. It is the most impactful addition to your existing stack where miniaturization spans both the frontal and crown zones.'
+                                            : _hasSupplements
+                                              ? 'Your supplement stack is supporting follicle health at NW4 — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) and a pre-application scalp massage. DHT suppression at the topical level plus mechanical stimulation are the two most impactful missing layers where miniaturization is most advanced across the full scalp top.'
+                                              : 'At NW4, scalp health needs the full anti-miniaturization stack: DHT-blocking shampoo 3× weekly (3-5 min contact time), a supplement stack (biotin, zinc, vitamin D), and weekly microneedling. Advanced miniaturization at this stage requires every layer to be active.')
                         : (data.stage === 'diffuse' || data.stage === 'n/a (female)')
                           ? (_hasFinasteride && _hasSupplements && _hasDHTShampoo
                               ? (data.stage === 'n/a (female)'
