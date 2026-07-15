@@ -499,18 +499,65 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       'What results can I realistically expect from my NW5 protocol before committing to a transplant?',
     ];
   }
+  // n/a (female) — female-pattern thinning; Ludwig scale applies; hormonal/nutritional root-cause
+  // investigation is always the first priority because treating a correctable cause (ferritin,
+  // thyroid, oestrogen) produces faster results than adding products over an uncorrected driver.
+  // 3-tier structure: no-treatment / OTC-only / Rx, all with specialist-visit context since
+  // n/a (female) is always in SPECIALIST_STAGES.
   if (stage === 'n/a (female)') {
+    if (!hasAnyOTC && !rx) {
+      return [
+        'What hormone and blood tests should I ask my doctor about for female hair loss?',
+        'What is the most effective treatment for female-pattern hair loss?',
+        'My scan flagged a specialist visit — what should I ask a dermatologist or gynecologist about female-pattern loss?',
+      ];
+    }
+    if (!rx) {
+      return [
+        topical
+          ? 'Am I applying minoxidil correctly for female-pattern hair loss — central part, not just the hairline?'
+          : 'Is minoxidil effective for female-pattern hair loss and how should I use it correctly?',
+        'Should I ask my doctor about prescription treatments for female-pattern loss?',
+        'What hormone and blood tests should I still get, even while using OTC treatment for female-pattern loss?',
+      ];
+    }
+    // Has Rx (and possibly OTC)
     return [
-      'What hormone and blood tests should I ask my doctor about for female hair loss?',
-      topical ? 'Am I applying minoxidil correctly for female pattern hair loss?' : 'Is minoxidil effective for female pattern hair loss?',
-      rx ? 'What results should I expect from my current treatment for female pattern loss?' : 'Can female pattern hair loss be stopped or reversed?',
+      topical
+        ? 'How do I know if my current treatment is working for female-pattern loss — what signs should I look for?'
+        : 'Should I add minoxidil to my current prescription treatment for female-pattern loss?',
+      'What blood tests should I still ask about, even while on treatment for female-pattern loss?',
+      'What results can I realistically expect from my female-pattern loss protocol over 6-12 months?',
     ];
   }
+  // diffuse — uniform thinning without a classic recession pattern; often nutritional, hormonal,
+  // or telogen-effluvium-driven. Root-cause investigation before adding products is the highest-ROI
+  // step since many diffuse causes are reversible. diffuse is always in SPECIALIST_STAGES.
+  // 3-tier structure: no-treatment / OTC-only / Rx, all with specialist-visit context.
   if (stage === 'diffuse') {
+    if (!hasAnyOTC && !rx) {
+      return [
+        'What blood tests should I ask my doctor about for diffuse thinning?',
+        'What is the most effective first step for diffuse hair loss: topicals or root-cause testing?',
+        'My scan flagged a specialist visit — what should I bring up about my diffuse thinning?',
+      ];
+    }
+    if (!rx) {
+      return [
+        topical
+          ? 'Am I applying minoxidil correctly for diffuse thinning across the full scalp?'
+          : 'Which OTC topical works best for diffuse thinning alongside my current routine?',
+        'Is finasteride worth adding to my OTC routine to address the hormonal side of diffuse thinning?',
+        'What blood workup should I still ask about while treating diffuse thinning with OTC products?',
+      ];
+    }
+    // Has Rx (and possibly OTC)
     return [
-      'What blood tests should I ask my doctor about for diffuse thinning?',
-      topical ? 'Am I applying minoxidil correctly for diffuse thinning?' : 'What topical treatment works best for diffuse thinning?',
-      'How is diffuse thinning different from male pattern hair loss?',
+      topical
+        ? 'How do I know if my finasteride and minoxidil are targeting the right cause of my diffuse thinning?'
+        : 'Should I add minoxidil to my finasteride for diffuse thinning?',
+      'What blood tests should I still ask about, even while on Rx treatment for diffuse thinning?',
+      'What results can I realistically expect from my current diffuse thinning protocol?',
     ];
   }
   // NW1 — fully intact hairline; purely preventive stage; questions focus on prevention value and monitoring, not treatment.

@@ -359,11 +359,11 @@ assert(
 
 assert(
   source.includes("'What hormone and blood tests should I ask my doctor about for female hair loss?'") &&
-    source.includes("'Is minoxidil effective for female pattern hair loss?'") &&
-    source.includes("'Can female pattern hair loss be stopped or reversed?'") &&
+    source.includes("'What is the most effective treatment for female-pattern hair loss?'") &&
+    source.includes("'What results can I realistically expect from my female-pattern loss protocol over 6-12 months?'") &&
     source.includes("stage === 'n/a (female)'") &&
     !source.includes("stage === 'n/a (female)' || stage === 'diffuse'"),
-  "buildSuggestedQuestions should give female-specific questions for n/a (female) stage (hormone panel, female-specific minoxidil, reversibility), distinct from diffuse-AGA questions — these are separate branches, not combined"
+  "buildSuggestedQuestions should give female-specific questions for n/a (female) stage (hormone panel, treatment question, expectations), distinct from diffuse-AGA questions — these are separate branches, not combined"
 );
 
 assert(
@@ -673,6 +673,40 @@ assert(
     source.includes("s.includes('derma roller')") &&
     source.includes("s.includes('micro-needl')"),
   'coach pre-scan protocolCoverage fallback should recognise the same product-name variants as scan-time detection (Regaine, Proscar/Finpecia, Regenepure, Nutrafol/Viviscal, "derma roller"/"micro-needl") so pre-scan users listing brand-name products have their protocol coverage computed correctly'
+);
+
+assert(
+  source.includes("stage === 'n/a (female)'") &&
+    source.includes("'What hormone and blood tests should I ask my doctor about for female hair loss?'") &&
+    source.includes("'What is the most effective treatment for female-pattern hair loss?'") &&
+    source.includes("'My scan flagged a specialist visit — what should I ask a dermatologist or gynecologist about female-pattern loss?'") &&
+    source.includes("'Am I applying minoxidil correctly for female-pattern hair loss — central part, not just the hairline?'") &&
+    source.includes("'Is minoxidil effective for female-pattern hair loss and how should I use it correctly?'") &&
+    source.includes("'Should I ask my doctor about prescription treatments for female-pattern loss?'") &&
+    source.includes("'What hormone and blood tests should I still get, even while using OTC treatment for female-pattern loss?'") &&
+    source.includes("'How do I know if my current treatment is working for female-pattern loss — what signs should I look for?'") &&
+    source.includes("'Should I add minoxidil to my current prescription treatment for female-pattern loss?'") &&
+    source.includes("'What blood tests should I still ask about, even while on treatment for female-pattern loss?'") &&
+    source.includes("'What results can I realistically expect from my female-pattern loss protocol over 6-12 months?'") &&
+    /stage === 'n\/a \(female\)'[\s\S]{0,600}!hasAnyOTC && !rx/.test(source),
+  "buildSuggestedQuestions n/a (female) branch should use 3-tier protocol-coverage structure (no-treatment / OTC-only / Rx) — no-treatment users see hormonal investigation + specialist questions, OTC-only users get minoxidil optimization + Rx prompt + bloodwork reminder, Rx users get efficacy signals + remaining bloodwork + realistic expectations"
+);
+
+assert(
+  source.includes("stage === 'diffuse'") &&
+    source.includes("'What blood tests should I ask my doctor about for diffuse thinning?'") &&
+    source.includes("'What is the most effective first step for diffuse hair loss: topicals or root-cause testing?'") &&
+    source.includes("'My scan flagged a specialist visit — what should I bring up about my diffuse thinning?'") &&
+    source.includes("'Am I applying minoxidil correctly for diffuse thinning across the full scalp?'") &&
+    source.includes("'Which OTC topical works best for diffuse thinning alongside my current routine?'") &&
+    source.includes("'Is finasteride worth adding to my OTC routine to address the hormonal side of diffuse thinning?'") &&
+    source.includes("'What blood workup should I still ask about while treating diffuse thinning with OTC products?'") &&
+    source.includes("'How do I know if my finasteride and minoxidil are targeting the right cause of my diffuse thinning?'") &&
+    source.includes("'Should I add minoxidil to my finasteride for diffuse thinning?'") &&
+    source.includes("'What blood tests should I still ask about, even while on Rx treatment for diffuse thinning?'") &&
+    source.includes("'What results can I realistically expect from my current diffuse thinning protocol?'") &&
+    /stage === 'diffuse'[\s\S]{0,600}!hasAnyOTC && !rx/.test(source),
+  "buildSuggestedQuestions diffuse branch should use 3-tier protocol-coverage structure (no-treatment / OTC-only / Rx) — no-treatment users see root-cause investigation + specialist questions, OTC-only users get topical optimization + Rx prompt + bloodwork reminder, Rx users get cause-targeting check + remaining bloodwork + realistic expectations"
 );
 
 console.log('server contract passed');
