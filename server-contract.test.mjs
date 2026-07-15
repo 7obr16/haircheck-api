@@ -650,4 +650,16 @@ assert(
   "buildSuggestedQuestions NW1 branch should use 3-tier protocol-coverage structure (no-treatment / OTC-only / Rx) — no-treatment users see prevention-value and monitoring questions, OTC users are asked about adding finasteride and optimizing their DHT shampoo, Rx users get finasteride-adequacy and stack-completion questions"
 );
 
+assert(
+  source.includes("r.includes('regaine')") &&
+    source.includes("r.includes('proscar')") &&
+    source.includes("r.includes('finpecia')") &&
+    source.includes("r.includes('derma roller')") &&
+    source.includes("r.includes('micro-needl')") &&
+    source.includes("r.includes('nutrafol')") &&
+    source.includes("r.includes('viviscal')") &&
+    source.includes("r.includes('regenepure')"),
+  'routine detection should recognise common product-name variants: Regaine (UK minoxidil), Proscar/Finpecia (finasteride brands), "derma roller"/"micro-needling" (spacing variants), Nutrafol/Viviscal (supplement brands), Regenepure (DHT shampoo brand)'
+);
+
 console.log('server contract passed');

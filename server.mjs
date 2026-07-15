@@ -2269,11 +2269,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // Routine-aware: if the primary suggestion is already in their routine, recommend
         // the next most impactful complementary action instead of repeating redundant advice.
         const _routineItems = (profile.routine || []).map((r) => String(r).toLowerCase());
-        const _hasMinoxidil  = _routineItems.some((r) => r.includes('minoxidil') || r.includes('rogaine'));
-        const _hasDHTShampoo = _routineItems.some((r) => r.includes('dht') || r.includes('ketoconazole') || r.includes('nizoral') || r.includes('keto shampoo') || r.includes('caffeine shampoo'));
-        const _hasMassage    = _routineItems.some((r) => r.includes('massage') || r.includes('dermaroller') || r.includes('microneedl'));
-        const _hasSupplements= _routineItems.some((r) => r.includes('supplement') || r.includes('biotin') || r.includes('vitamin') || r.includes('zinc') || r.includes('saw palmetto'));
-        const _hasFinasteride = _routineItems.some((r) => r.includes('finasteride') || r.includes('propecia') || r.includes('dutasteride') || r.includes('avodart'));
+        const _hasMinoxidil  = _routineItems.some((r) => r.includes('minoxidil') || r.includes('rogaine') || r.includes('regaine'));
+        const _hasDHTShampoo = _routineItems.some((r) => r.includes('dht') || r.includes('ketoconazole') || r.includes('nizoral') || r.includes('keto shampoo') || r.includes('caffeine shampoo') || r.includes('regenepure'));
+        const _hasMassage    = _routineItems.some((r) => r.includes('massage') || r.includes('dermaroller') || r.includes('derma roller') || r.includes('microneedl') || r.includes('micro-needl'));
+        const _hasSupplements= _routineItems.some((r) => r.includes('supplement') || r.includes('biotin') || r.includes('vitamin') || r.includes('zinc') || r.includes('saw palmetto') || r.includes('nutrafol') || r.includes('viviscal'));
+        const _hasFinasteride = _routineItems.some((r) => r.includes('finasteride') || r.includes('propecia') || r.includes('dutasteride') || r.includes('avodart') || r.includes('proscar') || r.includes('finpecia'));
         // Stage gates: at NW5 expectations shift; at NW6/NW7 OTC has very limited effect
         // and the primary path is specialist consultation / surgical options.
         const _isNW7          = data.stage === 'NW7';
