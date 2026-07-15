@@ -340,9 +340,16 @@ assert(
 );
 
 assert(
-  source.includes('NW2 is the ideal preventive window and your finasteride + minoxidil combination is the strongest possible non-surgical stack at this stage') &&
+  source.includes('NW2 is the ideal preventive window and your finasteride + minoxidil + DHT-blocking shampoo covers every layer') &&
+    source.includes('Finasteride + DHT-blocking shampoo gives dual-level DHT suppression at NW2') &&
+    source.includes('NW2 is the ideal preventive window and your finasteride + minoxidil combination is the strongest possible non-surgical stack at this stage') &&
     source.includes('NW2 is the ideal window and your finasteride already suppresses DHT systemically'),
-  'WEEKLY_FOCUS_MAP.Potential NW2 branch should be finasteride-aware so Rx users at the earliest-recession stage get potential guidance that reflects their systemic DHT advantage'
+  'WEEKLY_FOCUS_MAP.Potential NW2 branch should be finasteride+DHT-shampoo-aware so Rx users at the earliest-recession stage get potential guidance that reflects their full multi-layer stack — the triple finasteride+minoxidil+DHT branch acknowledges all three layers, the dual finasteride+DHT branch adds the minoxidil recommendation, and existing single-finasteride and dual-finasteride+minoxidil branches remain distinct'
+);
+
+assert(
+  source.includes('NW2 is the ideal prevention window and your minoxidil, scalp massage, and DHT-blocking shampoo cover the full OTC triple stack'),
+  'WEEKLY_FOCUS_MAP.Potential NW2 branch should be minoxidil+massage+DHT-shampoo-aware so OTC users who already have all three layers get potential guidance that acknowledges the complete OTC stack rather than falling through to the dual-layer minoxidil+DHT branch that ignores their massage habit'
 );
 
 assert(
