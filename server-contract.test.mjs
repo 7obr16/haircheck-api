@@ -194,6 +194,18 @@ assert(
 );
 
 assert(
+  source.includes('At NW3v, finasteride + supplements + DHT shampoo + massage is the most complete anti-miniaturization protocol across both active fronts') &&
+    source.includes('Mechanical priming at both active fronts amplifies the impact of every layer in your current four-layer protocol where miniaturization is simultaneously progressing'),
+  'WEEKLY_FOCUS_MAP.Health NW3v branch should have a 4-layer (finasteride+supplements+DHT shampoo+massage) branch so users who already have scalp massage are told to add microneedling rather than being told mechanical stimulation is still the highest-ROI addition'
+);
+
+assert(
+  source.includes('At NW3v, supplements + DHT shampoo + massage covers nutrition, topical DHT suppression, and mechanical stimulation across both active zones') &&
+    source.includes('A doctor consult about finasteride is the highest-ROI next step for systemic DHT suppression at this dual-zone stage'),
+  'WEEKLY_FOCUS_MAP.Health NW3v branch should have a 3-layer OTC+massage branch so OTC users who already have supplements+DHT shampoo+massage are directed to microneedling and finasteride consult rather than being told to add mechanical stimulation they already have'
+);
+
+assert(
   source.includes('At NW3v, finasteride + supplements + DHT shampoo is providing systemic and topical DHT suppression across both active miniaturization fronts') &&
     source.includes('Finasteride provides systemic DHT suppression at NW3v where temples and early crown are simultaneously active'),
   'WEEKLY_FOCUS_MAP.Health NW3v branch should be finasteride-aware so Rx users at the dual-zone stage get scalp-health advice that builds on systemic DHT suppression'
