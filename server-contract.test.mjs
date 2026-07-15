@@ -662,4 +662,17 @@ assert(
   'routine detection should recognise common product-name variants: Regaine (UK minoxidil), Proscar/Finpecia (finasteride brands), "derma roller"/"micro-needling" (spacing variants), Nutrafol/Viviscal (supplement brands), Regenepure (DHT shampoo brand)'
 );
 
+assert(
+  source.includes("!pc && ctx.routine.length > 0") &&
+    source.includes("s.includes('regaine')") &&
+    source.includes("s.includes('proscar')") &&
+    source.includes("s.includes('finpecia')") &&
+    source.includes("s.includes('regenepure')") &&
+    source.includes("s.includes('nutrafol')") &&
+    source.includes("s.includes('viviscal')") &&
+    source.includes("s.includes('derma roller')") &&
+    source.includes("s.includes('micro-needl')"),
+  'coach pre-scan protocolCoverage fallback should recognise the same product-name variants as scan-time detection (Regaine, Proscar/Finpecia, Regenepure, Nutrafol/Viviscal, "derma roller"/"micro-needl") so pre-scan users listing brand-name products have their protocol coverage computed correctly'
+);
+
 console.log('server contract passed');

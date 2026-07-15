@@ -3193,11 +3193,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (!pc && ctx.routine.length > 0) {
           const r = ctx.routine.map((s) => String(s).toLowerCase());
           pc = {
-            topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine')),
-            rx:          r.some((s) => s.includes('finasteride') || s.includes('propecia') || s.includes('dutasteride') || s.includes('avodart')),
-            dhtShampoo:  r.some((s) => s.includes('dht') || s.includes('ketoconazole') || s.includes('nizoral') || s.includes('keto shampoo') || s.includes('caffeine shampoo')),
-            mechanical:  r.some((s) => s.includes('massage') || s.includes('dermaroller') || s.includes('microneedl')),
-            supplements: r.some((s) => s.includes('supplement') || s.includes('biotin') || s.includes('vitamin') || s.includes('zinc') || s.includes('saw palmetto')),
+            topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine') || s.includes('regaine')),
+            rx:          r.some((s) => s.includes('finasteride') || s.includes('propecia') || s.includes('dutasteride') || s.includes('avodart') || s.includes('proscar') || s.includes('finpecia')),
+            dhtShampoo:  r.some((s) => s.includes('dht') || s.includes('ketoconazole') || s.includes('nizoral') || s.includes('keto shampoo') || s.includes('caffeine shampoo') || s.includes('regenepure')),
+            mechanical:  r.some((s) => s.includes('massage') || s.includes('dermaroller') || s.includes('derma roller') || s.includes('microneedl') || s.includes('micro-needl')),
+            supplements: r.some((s) => s.includes('supplement') || s.includes('biotin') || s.includes('vitamin') || s.includes('zinc') || s.includes('saw palmetto') || s.includes('nutrafol') || s.includes('viviscal')),
           };
         }
         if (!pc) return '';
