@@ -2090,6 +2090,8 @@ Scoring guide (all scores 0-100 integers):
   • diffuse/female pattern: 55-78 (often nutritional or hormonal — responds well if cause found)
   Upward adjustments (+5 to +10): age under 28, loss duration under 1 year, no family history of NW6+, already responding to current treatment, currently on finasteride or dutasteride (+6 to +10 on top of stage baseline — Rx DHT blockers meaningfully shift outcomes even at NW5-NW6; use the high end of this range for users who have been on them consistently for 6+ months).
   Downward adjustments (−5 to −8): age over 60, family history of NW6+, loss for 10+ years untreated, visible miniaturization across entire top.
+  Age unspecified: use the median bracket for each stage (NW3-NW3v → apply the 35-54 range; NW4 → apply the over-40 range; NW5+ → any-age range); skip all age-specific upward or downward adjustments; do NOT guess or infer an age penalty when age is absent.
+  photoQuality does not affect potential: score potential from stage×age×routine context alone regardless of photoQuality — poor or acceptable photos reduce confidence in hairline/density/crown/health assessment only, never in the forward-looking treatment-response potential.
   Potential is NOT the same as current health — a NW4 with good hair health can still score 55+ potential because the follicles are viable.
 - overall (computed server-side): do not output this field.
 
