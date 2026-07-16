@@ -737,6 +737,13 @@ assert(
 );
 
 assert(
+  source.includes("'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW5?'") &&
+    source.includes("'Does scalp massage improve minoxidil absorption across both the frontal and crown zones at NW5?'") &&
+    /stage === 'NW5'[\s\S]{0,2000}!mechanical[\s\S]{0,200}!dhtShampoo/.test(source),
+  'buildSuggestedQuestions NW5 Rx branch should be DHT-shampoo-aware: when mechanical is missing ask about massage absorption across both frontal and crown zones; when massage is active but dhtShampoo is not, surface a DHT shampoo question; matches the NW2/NW3/NW3v/NW4 pattern'
+);
+
+assert(
   source.includes("_hasSupplements && _hasMassage\n                                            ? 'At NW4, your supplement stack and scalp massage cover nutritional support and mechanical stimulation") &&
     source.includes("_hasSupplements\n                                              ? 'Your supplement stack is supporting follicle health at NW4"),
   'NW4 Health WEEKLY_FOCUS_MAP should have separate branches for (supplements+massage) and (supplements alone) so users who already have supplements are never told to start a supplement stack'

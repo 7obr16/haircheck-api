@@ -493,9 +493,13 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       topical
         ? 'How do I get the most from my finasteride and minoxidil at NW5?'
         : 'Should I add minoxidil to my finasteride at NW5?',
-      specialistRecommended
-        ? 'My scan recommended a transplant consultation — how does my current NW5 protocol fit into a surgical plan?'
-        : 'How do I measure progress with my current NW5 Rx protocol?',
+      !mechanical
+        ? 'Does scalp massage improve minoxidil absorption across both the frontal and crown zones at NW5?'
+        : !dhtShampoo
+          ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW5?'
+          : (specialistRecommended
+              ? 'My scan recommended a transplant consultation — how does my current NW5 protocol fit into a surgical plan?'
+              : 'How do I measure progress with my current NW5 Rx protocol?'),
       'What results can I realistically expect from my NW5 protocol before committing to a transplant?',
     ];
   }
