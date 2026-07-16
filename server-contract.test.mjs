@@ -791,4 +791,20 @@ assert(
   'NW3v Health WEEKLY_FOCUS_MAP should have a dedicated (dhtShampoo+massage) branch so users with both treatments active at this dual-zone stage receive nutritional-gap advice rather than the generic no-treatment fallback'
 );
 
+assert(
+  source.includes('NW4 crown with finasteride + minoxidil + DHT shampoo + scalp massage is the most complete non-surgical crown protocol — apply 1ml minoxidil to the vertex immediately after a 4-minute scalp massage, leave DHT shampoo on 3-5 minutes on wash days, and take finasteride at the same time daily.') &&
+    source.includes('At NW4, finasteride + minoxidil + DHT shampoo delivers systemic and topical DHT suppression alongside the topical growth signal for crown coverage — apply 1ml minoxidil directly to the vertex twice daily and leave DHT shampoo on 3-5 minutes on wash days. Add a 4-minute scalp massage before each topical application to complete the protocol') &&
+    source.includes('At NW4, minoxidil + DHT shampoo + scalp massage covers topical growth signal, local DHT suppression, and mechanical stimulation at the vertex — apply 1ml minoxidil to the crown immediately after your scalp massage and leave DHT shampoo on 3-5 minutes on wash days.') &&
+    source.includes('At NW4, minoxidil + DHT shampoo covers topical growth signal and local DHT control at the vertex — apply 1ml minoxidil directly to the crown twice daily and leave DHT shampoo on 3-5 minutes on wash days. Add a 4-minute scalp massage before each minoxidil application to prime vertex absorption'),
+  'WEEKLY_FOCUS_MAP.Crown NW4 branch should be DHT-shampoo-aware across all tiers: 4-combo (fin+dht+min+massage) top tier, fin+dht+min Rx tier (add massage), OTC min+dht+massage tier (suggest finasteride), and OTC min+dht tier (add massage + suggest finasteride) — so users with DHT shampoo in any combination receive acknowledgement rather than falling through to a branch that ignores it'
+);
+
+assert(
+  source.includes('NW3v crown thinning has just started and your finasteride + minoxidil + DHT shampoo + scalp massage is the most complete non-surgical protocol — apply 1ml to the vertex immediately after your scalp massage, leave DHT shampoo on 3-5 minutes on wash days, and take finasteride at the same time daily.') &&
+    source.includes('NW3v early crown thinning with finasteride + minoxidil + DHT shampoo covers systemic DHT suppression, topical growth signal, and local DHT control at the vertex — apply 1ml minoxidil directly to the crown twice daily and leave DHT shampoo on 3-5 minutes on wash days. Add a 3-minute scalp massage before each topical application to complete the stack') &&
+    source.includes('NW3v crown thinning has just started — your minoxidil, DHT shampoo, and scalp massage cover topical growth signal, local DHT suppression, and mechanical stimulation at the vertex. Apply 1ml minoxidil to the crown immediately after your massage and leave DHT shampoo on 3-5 minutes on wash days') &&
+    source.includes('NW3v crown thinning is at the earliest detectable stage — your minoxidil and DHT shampoo cover topical growth signal and local DHT control at the vertex. Leave DHT shampoo on 3-5 minutes per wash and add a 3-minute scalp massage before each minoxidil application to prime vertex absorption.'),
+  'WEEKLY_FOCUS_MAP.Crown NW3v branch should be DHT-shampoo-aware across all tiers: 4-combo (fin+dht+min+massage) top tier, fin+dht+min Rx tier (add massage), OTC min+dht+massage tier (suggest finasteride), and OTC min+dht tier (add massage + suggest finasteride) — catches the NW3v highest-ROI window with protocol-specific guidance for every combination that includes a DHT-blocking shampoo'
+);
+
 console.log('server contract passed');
