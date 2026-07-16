@@ -238,6 +238,18 @@ assert(
 );
 
 assert(
+  source.includes('NW4 frontal hairline with finasteride + minoxidil + DHT shampoo + massage is the most complete non-surgical protocol') &&
+    source.includes('At NW4, finasteride + minoxidil + DHT shampoo delivers systemic and topical DHT suppression alongside the topical growth signal'),
+  'WEEKLY_FOCUS_MAP.Hairline NW4 branch should be DHT-shampoo-aware: users with the complete 4-layer stack get the most-complete protocol confirmation; finasteride + minoxidil + DHT shampoo users are prompted to add massage'
+);
+
+assert(
+  source.includes('At NW4, minoxidil + DHT shampoo + scalp massage covers topical growth signal, local DHT suppression, and mechanical stimulation across the full frontal hairline') &&
+    source.includes('At NW4, minoxidil + DHT shampoo covers topical growth signal and local DHT suppression across the full frontal hairline'),
+  'WEEKLY_FOCUS_MAP.Hairline NW4 OTC branches should be DHT-shampoo-aware: minoxidil + DHT shampoo + massage users get protocol confirmation with finasteride CTA; minoxidil + DHT shampoo users are prompted to add massage and consider finasteride'
+);
+
+assert(
   source.includes('NW5 frontal recession with finasteride providing systemic DHT suppression is a strong foundation') &&
     source.includes('NW5 frontal recession with finasteride + minoxidil + DHT shampoo is the strongest non-surgical protocol'),
   'WEEKLY_FOCUS_MAP.Hairline NW5 branch should be finasteride-aware so Rx users at the advanced-recession stage get hairline advice that builds on systemic DHT suppression'
