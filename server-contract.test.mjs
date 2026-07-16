@@ -581,6 +581,25 @@ assert(
 );
 
 assert(
+  source.includes('NW3 is a strong response window and your finasteride + minoxidil + massage + DHT shampoo is the most complete non-surgical protocol — apply minoxidil to both recession zones immediately after a 4-minute scalp massage, leave DHT shampoo on 3-5 minutes on wash days, and take finasteride at the same time each day.') &&
+    source.includes('NW3 is a strong response window and your finasteride + minoxidil + DHT shampoo covers systemic DHT suppression, topical growth signal, and local DHT control — add a 4-minute scalp massage before each minoxidil application to complete the stack.') &&
+    source.includes('NW3 has a strong treatment response window — add a 4-minute scalp massage before each minoxidil application to prime absorption where DHT pressure is highest at the recession edge. Your minoxidil and DHT shampoo cover the topical growth signal and local DHT suppression'),
+  'WEEKLY_FOCUS_MAP.Potential NW3 branch should be DHT-shampoo-aware across all tiers: 4-combo (fin+min+massage+DHT) top tier, fin+min+DHT Rx tier (add massage), and OTC minoxidil+DHT tier (add massage) — so users with DHT shampoo in any combination receive acknowledgement rather than falling through to a branch that ignores it'
+);
+
+assert(
+  source.includes('NW3v is a dual-zone stage and your finasteride + minoxidil + massage + DHT shampoo is the most complete non-surgical protocol — confirm minoxidil covers BOTH temple recession zones AND the vertex each session, apply it right after your scalp massage, and leave DHT shampoo on 3-5 minutes on wash days.') &&
+    source.includes('At NW3v two zones are active and your finasteride + minoxidil + DHT shampoo covers systemic DHT suppression, topical growth signal, and local DHT control across both fronts — add scalp massage (4 min, covering temples AND vertex) before each topical application.'),
+  'WEEKLY_FOCUS_MAP.Potential NW3v branch should be DHT-shampoo-aware in the Rx tiers: 4-combo (fin+min+massage+DHT) top tier acknowledges the complete protocol, and fin+min+DHT branch recommends massage as the missing layer — mirrors the NW5 pattern and prevents the fin+min+DHT combination from falling through to the fin+min branch that ignores the DHT shampoo'
+);
+
+assert(
+  source.includes('At NW4 your finasteride + minoxidil + massage + DHT shampoo is the most complete non-surgical protocol — apply minoxidil immediately after a 4-minute scalp massage across the full frontal and crown zones, leave DHT shampoo on 3-5 minutes on wash days, and take finasteride at the same time each day.') &&
+    source.includes('At NW4 your finasteride + minoxidil + DHT shampoo covers systemic DHT suppression, topical growth signal, and local DHT control — add a 4-minute scalp massage before each topical application to prime absorption across the full frontal and crown zones.'),
+  'WEEKLY_FOCUS_MAP.Potential NW4 branch should be DHT-shampoo-aware in the Rx tiers: 4-combo (fin+min+massage+DHT) top tier acknowledges the full stack, and fin+min+DHT branch recommends massage as the missing layer — mirrors the NW5 pattern and prevents the fin+min+DHT combination from silently falling through to the fin+min branch that ignores the DHT shampoo'
+);
+
+assert(
   source.includes('NW3 mid-scalp density with finasteride + minoxidil + scalp massage covers systemic DHT suppression, topical growth signal, and mechanical stimulation — apply minoxidil immediately after your 4-minute scalp massage so freshly primed follicles absorb it at the recession edge.') &&
     source.includes('NW3v mid-scalp and early crown with finasteride + minoxidil + scalp massage covers systemic DHT suppression, topical growth signal, and mechanical stimulation across both active zones — apply minoxidil immediately after your scalp massage across BOTH mid-scalp and vertex zones.'),
   'WEEKLY_FOCUS_MAP.Density NW3/NW3v branch should be finasteride+minoxidil+massage-aware so Rx users who also have minoxidil and scalp massage get density advice that acknowledges all three active layers and recommends DHT shampoo as the missing layer — not advice telling them to start minoxidil they already use'
