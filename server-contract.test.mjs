@@ -510,8 +510,19 @@ assert(
 );
 
 assert(
+  source.includes('NW5 frontal recession with finasteride + minoxidil + DHT shampoo + massage is the most complete non-surgical protocol — apply minoxidil along the full frontal zone immediately after your scalp massage so primed follicles absorb it, leave DHT shampoo on 3-5 minutes per wash, and take finasteride at the same time each day.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW5 4-combo branch should exist so users with finasteride + minoxidil + DHT shampoo + massage at NW5 receive advice acknowledging all four treatment layers'
+);
+
+assert(
   source.includes('At NW6, your minoxidil and scalp massage are both active — apply minoxidil along the fringe and temple edges immediately after each massage to prime freshly stimulated follicles for absorption.'),
   'WEEKLY_FOCUS_MAP.Hairline NW6 branch should be minoxidil+massage-aware so OTC users at NW6 who have minoxidil and massage receive hairline advice acknowledging their two-layer stack and recommending DHT shampoo'
+);
+
+assert(
+  source.includes('At NW6, finasteride + minoxidil + DHT shampoo covers systemic DHT suppression, topical growth signal, and local DHT blocking — apply minoxidil along the fringe and temple edges twice daily, leave DHT shampoo on 3-5 minutes per wash, and take finasteride at the same time each day.') &&
+    source.includes('At NW6, minoxidil + DHT shampoo covers topical growth signal and local DHT blocking — apply minoxidil along the fringe and temple edges twice daily and leave DHT shampoo on 3-5 minutes per wash.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW6 branch should be DHT-shampoo-aware so users at NW6 with DHT shampoo in their protocol receive hairline advice that acknowledges the topical DHT-blocking layer'
 );
 
 assert(

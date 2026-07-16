@@ -2346,7 +2346,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 ? 'Your finasteride is protecting the remaining horseshoe fringe at NW7 — keep it consistent without gaps. The primary coverage path is FUE/FUT transplant or SMP; book a trichologist consult this week to understand candidacy, donor supply, and how your systemic treatment fits into the surgical strategy.'
                 : 'At NW7, the primary path is FUE/FUT transplant or SMP — book a trichologist consult this week to understand candidacy, donor supply, and realistic coverage outcomes.')
             : _isNW5only
-              ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
+              ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo && _hasMassage
+                  ? 'NW5 frontal recession with finasteride + minoxidil + DHT shampoo + massage is the most complete non-surgical protocol — apply minoxidil along the full frontal zone immediately after your scalp massage so primed follicles absorb it, leave DHT shampoo on 3-5 minutes per wash, and take finasteride at the same time each day. Monthly front-facing photos track the bridge; this four-layer stack gives the strongest realistic hairline response at this stage.'
+                  : _hasFinasteride && _hasMinoxidil && _hasDHTShampoo
                   ? 'NW5 frontal recession with finasteride + minoxidil + DHT shampoo is the strongest non-surgical protocol — keep all three consistent. Apply minoxidil across the full frontal zone and both temple edges twice daily, leave DHT shampoo on 3-5 minutes per wash, and take finasteride at the same time each day. Monthly front-facing photos track the bridge; the goal is stabilization.'
                   : _hasFinasteride && _hasMinoxidil && _hasMassage
                     ? 'NW5 frontal recession with finasteride + minoxidil + massage covers systemic DHT suppression, topical growth signal, and mechanical stimulation — apply minoxidil along the full frontal zone immediately after your scalp massage so primed follicles absorb it directly. Add a DHT-blocking shampoo 3× weekly as the topical DHT layer to complete the protocol; track with monthly front-facing photos to monitor how quickly the bridge between forelock and lateral fringe is changing.'
@@ -2363,15 +2365,21 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                               : 'NW5 frontal recession is substantial and the bridge between the forelock and lateral fringe is narrowing — start minoxidil across the full frontal zone twice daily and add a DHT-blocking shampoo 3× weekly. OTC at this stage is about slowing the merge, not full reversal; take monthly photos to track the bridge.')
               : _isNW56
               // only NW6 reaches here — NW5 is handled by _isNW5only above
-              ? (_hasFinasteride && _hasMinoxidil
+              ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
+                  ? 'At NW6, finasteride + minoxidil + DHT shampoo covers systemic DHT suppression, topical growth signal, and local DHT blocking — apply minoxidil along the fringe and temple edges twice daily, leave DHT shampoo on 3-5 minutes per wash, and take finasteride at the same time each day. Together they give the strongest non-surgical fringe defense at this stage; book a transplant consultation to evaluate surgical planning alongside your protocol.'
+                  : _hasFinasteride && _hasMinoxidil
                   ? 'At NW6, finasteride + minoxidil is your strongest non-surgical defense for the remaining fringe and temporal hair — keep both consistent with no gaps. Apply minoxidil along the fringe and temple edges twice daily and take finasteride at the same time each day. In parallel, research FUE/FUT transplant options: combining systemic treatment with surgical planning is the most complete strategy at this stage.'
                   : _hasFinasteride
                     ? 'Finasteride is blocking systemic DHT at NW6 — add minoxidil to the fringe and temporal edges twice daily to complete the non-surgical protocol. Together they give the best realistic slowdown of further fringe recession; book a transplant consultation in the next 6 months to plan your full-coverage strategy.'
-                    : _hasMinoxidil && _hasMassage
-                      ? 'At NW6, your minoxidil and scalp massage are both active — apply minoxidil along the fringe and temple edges immediately after each massage to prime freshly stimulated follicles for absorption. Add a DHT-blocking shampoo 3× weekly as the topical DHT-suppression layer; book a transplant consultation to evaluate surgical coverage options alongside your OTC maintenance.'
-                      : _hasMinoxidil
-                        ? 'At NW6, apply minoxidil consistently to the fringe and temple edges twice daily and add a DHT-blocking shampoo 3× weekly as a second layer. Track whether a transplant consultation makes sense in the next 3-6 months for a comprehensive coverage strategy.'
-                        : 'At NW6 minoxidil applied to the fringe and temporal edges twice daily can still slow further recession — start this week alongside a DHT-blocking shampoo. Book a transplant consultation to evaluate surgical coverage options alongside your OTC protocol.')
+                    : _hasMinoxidil && _hasDHTShampoo && _hasMassage
+                      ? 'At NW6, minoxidil + DHT shampoo + scalp massage covers topical growth signal, local DHT suppression, and mechanical stimulation — apply minoxidil along the fringe and temple edges immediately after your massage, and leave DHT shampoo on 3-5 minutes per wash. Book a transplant consultation and consider a doctor consult about finasteride for systemic DHT suppression as the most impactful upgrade at this stage.'
+                      : _hasMinoxidil && _hasDHTShampoo
+                        ? 'At NW6, minoxidil + DHT shampoo covers topical growth signal and local DHT blocking — apply minoxidil along the fringe and temple edges twice daily and leave DHT shampoo on 3-5 minutes per wash. Consider a doctor consult about finasteride for systemic DHT suppression, the most impactful upgrade at this stage, and book a transplant consultation for a full coverage strategy.'
+                        : _hasMinoxidil && _hasMassage
+                          ? 'At NW6, your minoxidil and scalp massage are both active — apply minoxidil along the fringe and temple edges immediately after each massage to prime freshly stimulated follicles for absorption. Add a DHT-blocking shampoo 3× weekly as the topical DHT-suppression layer; book a transplant consultation to evaluate surgical coverage options alongside your OTC maintenance.'
+                          : _hasMinoxidil
+                            ? 'At NW6, apply minoxidil consistently to the fringe and temple edges twice daily and add a DHT-blocking shampoo 3× weekly as a second layer. Track whether a transplant consultation makes sense in the next 3-6 months for a comprehensive coverage strategy.'
+                            : 'At NW6 minoxidil applied to the fringe and temporal edges twice daily can still slow further recession — start this week alongside a DHT-blocking shampoo. Book a transplant consultation to evaluate surgical coverage options alongside your OTC protocol.')
               : data.stage === 'NW4'
                 // NW4 hairline loss extends across the entire frontal zone (not just temple corners) — advice must reflect the full frontal hairline, not just "recession zones"
                 ? (_hasFinasteride && _hasDHTShampoo && _hasMinoxidil && _hasMassage)
