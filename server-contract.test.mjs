@@ -768,4 +768,15 @@ assert(
   'NW4 Health WEEKLY_FOCUS_MAP should have separate branches for (supplements+massage) and (supplements alone) so users who already have supplements are never told to start a supplement stack'
 );
 
+assert(
+  source.includes("_hasDHTShampoo && _hasMassage\n                                        ? 'At NW3, your DHT-blocking shampoo and scalp massage cover topical DHT suppression and mechanical stimulation at the recession edge") &&
+    source.includes("_hasDHTShampoo\n                                          ? 'Your DHT-blocking shampoo is suppressing topical DHT at the recession edge at NW3"),
+  'NW3 Health WEEKLY_FOCUS_MAP should have separate branches for (dhtShampoo+massage) and (dhtShampoo alone) so users who already have a DHT-blocking shampoo are never told to add one'
+);
+
+assert(
+  source.includes("_hasDHTShampoo && _hasMassage\n                                    ? 'At NW3v, your DHT-blocking shampoo and scalp massage cover topical DHT suppression and mechanical stimulation across both the recession edge and early crown"),
+  'NW3v Health WEEKLY_FOCUS_MAP should have a dedicated (dhtShampoo+massage) branch so users with both treatments active at this dual-zone stage receive nutritional-gap advice rather than the generic no-treatment fallback'
+);
+
 console.log('server contract passed');
