@@ -807,4 +807,19 @@ assert(
   'WEEKLY_FOCUS_MAP.Crown NW3v branch should be DHT-shampoo-aware across all tiers: 4-combo (fin+dht+min+massage) top tier, fin+dht+min Rx tier (add massage), OTC min+dht+massage tier (suggest finasteride), and OTC min+dht tier (add massage + suggest finasteride) — catches the NW3v highest-ROI window with protocol-specific guidance for every combination that includes a DHT-blocking shampoo'
 );
 
+assert(
+  source.includes('NW5 crown thinning with finasteride + minoxidil + DHT shampoo + scalp massage is the most complete non-surgical vertex protocol — confirm 1ml minoxidil reaches the vertex directly after each scalp massage, leave DHT shampoo on 3-5 minutes on wash days, and take finasteride at the same time each day.') &&
+    source.includes('At NW5, finasteride + minoxidil + DHT shampoo covers systemic DHT suppression, topical growth signal, and local DHT control at the crown zone — add a 4-minute scalp massage before each topical application to prime vertex follicle absorption where the frontal and crown zones are closest to merging.') &&
+    source.includes('At NW5, your minoxidil, DHT shampoo, and scalp massage cover the three OTC layers at the crown — apply 1ml minoxidil directly to the vertex immediately after your scalp massage and leave DHT shampoo on 3-5 minutes on wash days.') &&
+    source.includes('At NW5, your minoxidil and DHT shampoo cover topical growth signal and local DHT suppression at the crown — apply 1ml minoxidil directly to the vertex twice daily and leave DHT shampoo on 3-5 minutes on wash days. Add a 4-minute scalp massage before each application and weekly microneedling to prime vertex follicle absorption.'),
+  'WEEKLY_FOCUS_MAP.Crown NW5 branch should be DHT-shampoo-aware across all tiers: 4-combo (fin+min+dht+massage) top tier, fin+min+dht Rx tier (add massage), OTC min+dht+massage tier (suggest finasteride), and OTC min+dht tier (add massage + suggest finasteride) — NW5 users with DHT shampoo in any combination should receive acknowledgement rather than falling through to a branch that ignores it'
+);
+
+assert(
+  source.includes('At NW6, finasteride + minoxidil + DHT shampoo covers systemic DHT suppression, topical growth signal, and local DHT control for crown coverage — apply 1ml minoxidil to the vertex twice daily, leave DHT shampoo on 3-5 minutes per wash, and keep finasteride consistent.') &&
+    source.includes('Apply minoxidil directly to the crown (1ml) twice daily at NW6, immediately after each scalp massage and leave DHT shampoo on 3-5 minutes on wash days — add weekly microneedling over the crown zone and photograph from above every 6 weeks to track change. Consider booking a transplant consultation to evaluate vertex coverage options alongside your OTC maintenance.') &&
+    source.includes('Apply minoxidil directly to the crown (1ml) twice daily at NW6 and leave DHT shampoo on 3-5 minutes on wash days — add a 4-minute scalp massage before each application and weekly microneedling to prime vertex follicle response.'),
+  'WEEKLY_FOCUS_MAP.Crown NW6 branch should be DHT-shampoo-aware across three tiers: fin+min+dht Rx tier (add microneedling), OTC min+dht+massage tier (sequence minoxidil after massage + add microneedling), and OTC min+dht tier (add massage + microneedling) — NW6 users with DHT shampoo should not fall through to branches that ignore it'
+);
+
 console.log('server contract passed');
