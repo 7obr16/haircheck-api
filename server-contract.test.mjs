@@ -340,6 +340,16 @@ assert(
 );
 
 assert(
+  source.includes("_hasDHTShampoo\n                    ? 'Your crown is fully intact at NW2 — your DHT-blocking shampoo is providing topical-level DHT protection at the crown. The temple recession is the active priority"),
+  'WEEKLY_FOCUS_MAP.Crown NW2 branch should be DHT-shampoo-aware so OTC users with a DHT-blocking shampoo (but no finasteride or minoxidil) receive crown advice that acknowledges their active topical DHT protection and redirects focus to the temple recession'
+);
+
+assert(
+  source.includes("_hasDHTShampoo\n                          ? 'Your crown is still intact at NW3 — your DHT-blocking shampoo is providing topical DHT suppression across the scalp top. The deep temple recession is the active priority"),
+  'WEEKLY_FOCUS_MAP.Crown NW3 branch should be DHT-shampoo-aware so OTC users with a DHT-blocking shampoo (but no finasteride or minoxidil) receive crown advice that acknowledges their active topical DHT protection and redirects to the recession zones'
+);
+
+assert(
   source.includes('NW2 temple recession with finasteride + minoxidil is the strongest dual-mechanism approach at the ideal preventive stage') &&
     source.includes('Finasteride is already suppressing systemic DHT at NW2 — add minoxidil directly to both temple corners twice daily'),
   'WEEKLY_FOCUS_MAP.Hairline NW2 branch should be finasteride-aware so Rx users at the earliest-recession stage get hairline advice calibrated to their systemic DHT suppression'
