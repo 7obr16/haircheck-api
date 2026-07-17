@@ -419,7 +419,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       return [
         topical
           ? 'Can I continue minoxidil after a hair transplant?'
-          : 'Which OTC steps are still worth keeping alongside a transplant plan at NW7?',
+          : dhtShampoo ? 'Should I add minoxidil to my DHT-blocking shampoo routine at NW7?' : 'Which OTC steps are still worth keeping alongside a transplant plan at NW7?',
         'Is finasteride worth adding at NW7, or is surgical planning the priority?',
         'How does my current OTC routine fit into a transplant or SMP plan at NW7?',
       ];
@@ -429,7 +429,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       'How does finasteride fit into a hair transplant or SMP plan?',
       topical
         ? 'Can I continue minoxidil after a hair transplant?'
-        : 'Should I add minoxidil to my finasteride at NW7?',
+        : dhtShampoo ? 'Should I add minoxidil to my finasteride + DHT-blocking shampoo at NW7?' : 'Should I add minoxidil to my finasteride at NW7?',
       'Should I continue finasteride after a hair transplant?',
     ];
   }
@@ -447,7 +447,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       return [
         topical
           ? 'Am I applying minoxidil correctly to my remaining fringe and temple edges at NW6?'
-          : 'Which OTC treatments most effectively slow fringe recession at NW6?',
+          : dhtShampoo ? 'Should I add minoxidil to my DHT-blocking shampoo routine at NW6?' : 'Which OTC treatments most effectively slow fringe recession at NW6?',
         'Is finasteride worth adding to my OTC protocol at NW6?',
         'Should I book a hair transplant consultation now?',
       ];
@@ -456,11 +456,11 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
     return [
       topical
         ? 'How do I get the most from my finasteride and minoxidil at NW6?'
-        : 'Should I add minoxidil to my finasteride at NW6?',
+        : dhtShampoo ? 'Should I add minoxidil to my finasteride + DHT-blocking shampoo at NW6?' : 'Should I add minoxidil to my finasteride at NW6?',
       'Should I book a hair transplant consultation now?',
       topical
         ? 'How does my NW6 protocol fit into a transplant or SMP plan?'
-        : 'How does finasteride alone fit into a transplant or SMP plan at NW6?',
+        : dhtShampoo ? 'How does my finasteride + DHT-blocking shampoo fit into a transplant or SMP plan at NW6?' : 'How does finasteride alone fit into a transplant or SMP plan at NW6?',
     ];
   }
   // NW5 — frontal and crown zones nearly merging; significant loss across the full scalp top.

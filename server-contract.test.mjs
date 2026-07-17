@@ -412,7 +412,7 @@ assert(
     source.includes("'My scan flagged a specialist visit — what should I bring up with a trichologist?'") &&
     source.includes("'My scan recommended a specialist visit — what questions should I ask a trichologist?'") &&
     source.includes('specialistRecommended') &&
-    /buildSuggestedQuestions[\s\S]{0,3500}specialistRecommended\s*\?/.test(source),
+    /buildSuggestedQuestions[\s\S]{0,4000}specialistRecommended\s*\?/.test(source),
   "buildSuggestedQuestions should use the specialistRecommended parameter to surface specialist-visit questions for NW3/NW3v/NW4 users flagged for a trichologist — the parameter must not be accepted but silently ignored"
 );
 
@@ -883,6 +883,19 @@ assert(
     source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW4?' : 'Should I add minoxidil to both my frontal zone and crown at NW4?'") &&
     source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW5?' : 'Should I add minoxidil across both my frontal and crown zones at NW5?'"),
   'buildSuggestedQuestions OTC (!rx) branches for NW3/NW3v/NW4/NW5 should be DHT-shampoo-aware: when topical is missing but dhtShampoo is active, acknowledge the shampoo routine rather than asking a generic add-minoxidil question — consistent with the existing NW2 OTC pattern'
+);
+
+assert(
+  source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT-blocking shampoo routine at NW6?' : 'Which OTC treatments most effectively slow fringe recession at NW6?'") &&
+    source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT-blocking shampoo routine at NW7?' : 'Which OTC steps are still worth keeping alongside a transplant plan at NW7?'"),
+  'buildSuggestedQuestions OTC (!rx) branches for NW6/NW7 should be DHT-shampoo-aware: when topical is missing but dhtShampoo is active, acknowledge the shampoo routine rather than surfacing a generic OTC-discovery question — consistent with the NW3/NW4/NW5 pattern'
+);
+
+assert(
+  source.includes("dhtShampoo ? 'Should I add minoxidil to my finasteride + DHT-blocking shampoo at NW6?' : 'Should I add minoxidil to my finasteride at NW6?'") &&
+    source.includes("dhtShampoo ? 'How does my finasteride + DHT-blocking shampoo fit into a transplant or SMP plan at NW6?' : 'How does finasteride alone fit into a transplant or SMP plan at NW6?'") &&
+    source.includes("dhtShampoo ? 'Should I add minoxidil to my finasteride + DHT-blocking shampoo at NW7?' : 'Should I add minoxidil to my finasteride at NW7?'"),
+  'buildSuggestedQuestions Rx branches for NW6/NW7 should be DHT-shampoo-aware: when topical is missing but dhtShampoo is active, acknowledge the combined finasteride + DHT shampoo stack rather than describing the protocol as finasteride-alone'
 );
 
 console.log('server contract passed');
