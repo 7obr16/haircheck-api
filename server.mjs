@@ -481,7 +481,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       return [
         topical
           ? 'Am I applying minoxidil correctly across both my frontal and crown zones at NW5?'
-          : 'Should I add minoxidil across both my frontal and crown zones at NW5?',
+          : dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW5?' : 'Should I add minoxidil across both my frontal and crown zones at NW5?',
         'Is finasteride worth adding to my OTC protocol at NW5?',
         specialistRecommended
           ? 'My scan recommended a transplant consultation — what OTC steps should I keep going alongside surgical planning at NW5?'
@@ -642,7 +642,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
         'Does finasteride help protect both my temples and crown at NW3v?',
         topical
           ? 'Am I applying minoxidil to both my temple and crown zones at NW3v?'
-          : 'Should I add minoxidil to both my temples and crown at NW3v?',
+          : dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW3v?' : 'Should I add minoxidil to both my temples and crown at NW3v?',
         specialistRecommended
           ? 'My scan flagged a specialist visit — what should I bring up about my NW3v dual-zone loss?'
           : 'How long before I see improvement in both active zones at NW3v?',
@@ -678,7 +678,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
         'Does finasteride help protect both my frontal hairline and crown at NW4?',
         topical
           ? 'Am I applying minoxidil correctly across both my frontal and crown zones at NW4?'
-          : 'Should I add minoxidil to both my frontal zone and crown at NW4?',
+          : dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW4?' : 'Should I add minoxidil to both my frontal zone and crown at NW4?',
         specialistRecommended
           ? 'My scan flagged a specialist visit — what should I ask about NW4 treatment options?'
           : 'How long before I know if my NW4 protocol is working?',
@@ -713,7 +713,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
         'Is finasteride worth adding at NW3 when my temples are already in deep recession?',
         topical
           ? 'Am I applying minoxidil correctly to both temple recession zones at NW3?'
-          : 'Should I add minoxidil to both temple recession zones at NW3?',
+          : dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW3?' : 'Should I add minoxidil to both temple recession zones at NW3?',
         specialistRecommended
           ? 'My scan flagged a specialist visit — what should I bring up about my NW3 temple recession?'
           : 'How long before I see improvement in my temple recession at NW3?',

@@ -877,4 +877,12 @@ assert(
   'WEEKLY_FOCUS_MAP.Hairline NW2 branch should be DHT-shampoo-aware: users with fin+min+dhtShampoo should not be told to add DHT shampoo they already have'
 );
 
+assert(
+  source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW3?' : 'Should I add minoxidil to both temple recession zones at NW3?'") &&
+    source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW3v?' : 'Should I add minoxidil to both my temples and crown at NW3v?'") &&
+    source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW4?' : 'Should I add minoxidil to both my frontal zone and crown at NW4?'") &&
+    source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW5?' : 'Should I add minoxidil across both my frontal and crown zones at NW5?'"),
+  'buildSuggestedQuestions OTC (!rx) branches for NW3/NW3v/NW4/NW5 should be DHT-shampoo-aware: when topical is missing but dhtShampoo is active, acknowledge the shampoo routine rather than asking a generic add-minoxidil question — consistent with the existing NW2 OTC pattern'
+);
+
 console.log('server contract passed');
