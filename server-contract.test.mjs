@@ -850,4 +850,21 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential NW6 branch should be DHT-shampoo-aware across all OTC tiers: fin+min+dht Rx tier (all non-surgical layers covered), OTC min+dht+massage tier (three-layer triple stack), and OTC min+dht tier (add massage + microneedling) — NW6 users with DHT shampoo should not fall through to branches that tell them to add shampoo they already have'
 );
 
+assert(
+  source.includes('NW3v has two active zones and finasteride + minoxidil + DHT shampoo + massage is the most complete non-surgical protocol') &&
+    source.includes('NW3v with finasteride + minoxidil + DHT shampoo delivers systemic DHT suppression, topical growth signal, and local DHT control across both active zones'),
+  'WEEKLY_FOCUS_MAP.Hairline NW3v branch should be DHT-shampoo-aware: 4-combo (fin+min+dht+massage) and 3-combo (fin+min+dht) branches so users with DHT shampoo already active are never told to add it'
+);
+
+assert(
+  source.includes('NW3 deep temple recession with finasteride + minoxidil + DHT shampoo + massage is the most complete non-surgical protocol at this pivotal window') &&
+    source.includes('NW3 is the strongest treatment response window and finasteride + minoxidil + DHT shampoo covers systemic DHT suppression'),
+  'WEEKLY_FOCUS_MAP.Hairline NW3 branch should be DHT-shampoo-aware: 4-combo (fin+min+dht+massage) and 3-combo (fin+min+dht) branches so users with DHT shampoo already active are never told to add it'
+);
+
+assert(
+  source.includes('NW2 with finasteride + minoxidil + DHT-blocking shampoo is the most complete preventive stack at the ideal early detectable stage'),
+  'WEEKLY_FOCUS_MAP.Hairline NW2 branch should be DHT-shampoo-aware: users with fin+min+dhtShampoo should not be told to add DHT shampoo they already have'
+);
+
 console.log('server contract passed');
