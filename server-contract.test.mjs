@@ -898,4 +898,34 @@ assert(
   'buildSuggestedQuestions Rx branches for NW6/NW7 should be DHT-shampoo-aware: when topical is missing but dhtShampoo is active, acknowledge the combined finasteride + DHT shampoo stack rather than describing the protocol as finasteride-alone'
 );
 
+assert(
+  source.includes("_hasFinasteride && _hasDHTShampoo\n                ? 'Your finasteride + DHT-blocking shampoo at NW7 delivers both systemic and topical DHT suppression for the remaining horseshoe fringe") &&
+    source.includes("_hasDHTShampoo\n                ? 'Your DHT-blocking shampoo provides topical DHT suppression for the remaining fringe at NW7"),
+  'WEEKLY_FOCUS_MAP NW7 Hairline should be DHT-shampoo-aware: add _hasFinasteride && _hasDHTShampoo branch and standalone _hasDHTShampoo branch for users with shampoo but no Rx'
+);
+
+assert(
+  source.includes("_hasFinasteride && _hasDHTShampoo\n                ? 'At NW7, your finasteride + DHT-blocking shampoo delivers systemic and topical DHT suppression for the remaining fringe") &&
+    source.includes("_hasDHTShampoo\n                ? 'Your DHT-blocking shampoo helps slow miniaturization of the remaining fringe at NW7"),
+  'WEEKLY_FOCUS_MAP NW7 Density should be DHT-shampoo-aware: add _hasFinasteride && _hasDHTShampoo branch and standalone _hasDHTShampoo branch'
+);
+
+assert(
+  source.includes("_hasFinasteride && _hasDHTShampoo\n                ? 'Your finasteride + DHT-blocking shampoo at NW7 delivers dual-level DHT suppression for the remaining fringe") &&
+    source.includes("_hasDHTShampoo\n                ? 'Your DHT-blocking shampoo provides topical DHT suppression for the remaining fringe at NW7 — keep using it 3× weekly with 3-5 minutes of contact time. Crown coverage"),
+  'WEEKLY_FOCUS_MAP NW7 Crown should be DHT-shampoo-aware: add _hasFinasteride && _hasDHTShampoo branch and standalone _hasDHTShampoo branch'
+);
+
+assert(
+  source.includes("_hasFinasteride && _hasDHTShampoo\n                ? 'At NW7, your finasteride + DHT-blocking shampoo provides systemic and topical DHT suppression for remaining fringe follicle health") &&
+    source.includes("_hasDHTShampoo\n                ? 'Your DHT-blocking shampoo supports fringe follicle health at NW7"),
+  'WEEKLY_FOCUS_MAP NW7 Health should be DHT-shampoo-aware: add _hasFinasteride && _hasDHTShampoo branch and standalone _hasDHTShampoo branch'
+);
+
+assert(
+  source.includes("_hasFinasteride && _hasDHTShampoo\n                ? 'At NW7, your finasteride + DHT-blocking shampoo adds meaningful non-surgical value") &&
+    source.includes("_hasDHTShampoo\n                ? 'Your DHT-blocking shampoo helps slow further miniaturization of remaining fringe at NW7"),
+  'WEEKLY_FOCUS_MAP NW7 Potential should be DHT-shampoo-aware: add _hasFinasteride && _hasDHTShampoo branch and standalone _hasDHTShampoo branch'
+);
+
 console.log('server contract passed');
