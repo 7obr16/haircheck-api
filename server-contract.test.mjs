@@ -808,6 +808,16 @@ assert(
 );
 
 assert(
+  source.includes("_hasDHTShampoo && _hasMassage\n                                          ? 'At NW4, your DHT-blocking shampoo and scalp massage cover topical DHT suppression and mechanical stimulation across the full scalp top"),
+  'NW4 Health WEEKLY_FOCUS_MAP should have a (dhtShampoo+massage) branch so users who already have both active at this established stage are not told to add scalp massage they already have — direct them to add supplements as the missing nutritional layer instead'
+);
+
+assert(
+  source.includes("_hasDHTShampoo\n                                ? 'Your DHT-blocking shampoo is providing topical DHT protection at NW2 where miniaturization is just beginning"),
+  'NW2 Health WEEKLY_FOCUS_MAP should have a (dhtShampoo alone) branch so OTC users at the earliest-recession stage who already have a DHT shampoo are not told to add one — recommend supplements as the missing layer instead'
+);
+
+assert(
   source.includes("_hasDHTShampoo && _hasMassage\n                                    ? 'At NW3v, your DHT-blocking shampoo and scalp massage cover topical DHT suppression and mechanical stimulation across both the recession edge and early crown"),
   'NW3v Health WEEKLY_FOCUS_MAP should have a dedicated (dhtShampoo+massage) branch so users with both treatments active at this dual-zone stage receive nutritional-gap advice rather than the generic no-treatment fallback'
 );
