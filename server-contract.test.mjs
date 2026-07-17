@@ -928,4 +928,15 @@ assert(
   'WEEKLY_FOCUS_MAP NW7 Potential should be DHT-shampoo-aware: add _hasFinasteride && _hasDHTShampoo branch and standalone _hasDHTShampoo branch'
 );
 
+assert(
+  source.includes("_hasDHTShampoo && _hasMassage\n                                ? 'At NW5, your DHT-blocking shampoo and scalp massage provide topical DHT suppression and mechanical stimulation across the full top") &&
+    source.includes("_hasDHTShampoo\n                                  ? 'Your DHT-blocking shampoo provides topical DHT suppression at NW5 where miniaturization spans the full scalp top"),
+  'WEEKLY_FOCUS_MAP NW5 Health should be DHT-shampoo-aware: add _hasDHTShampoo && _hasMassage and standalone _hasDHTShampoo branches before generic fallback'
+);
+
+assert(
+  source.includes("_hasDHTShampoo\n                          ? 'Your DHT-blocking shampoo provides topical DHT suppression for remaining fringe follicles at NW6 — keep using it 3× weekly with 3-5 minutes of contact time. Add biotin"),
+  'WEEKLY_FOCUS_MAP NW6 Health should be DHT-shampoo-aware: add standalone _hasDHTShampoo branch before generic fallback'
+);
+
 console.log('server contract passed');
