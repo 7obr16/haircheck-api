@@ -603,6 +603,12 @@ assert(
 );
 
 assert(
+  source.includes('NW3v temple recession AND early crown thinning with minoxidil and DHT-blocking shampoo covers the topical growth signal and local DHT control across both active zones — apply 1ml to both temple recession zones AND directly to the vertex twice daily, and leave the DHT shampoo on 3-5 minutes per wash. Add a 3-minute scalp massage before each minoxidil application to prime absorption at both active fronts; massage is the highest-ROI addition at this dual-zone stage.') &&
+    source.includes('NW3v temple recession AND early crown thinning — your DHT-blocking shampoo provides local DHT suppression across both active zones, which is a solid start. Add minoxidil to BOTH the temple recession zones AND directly to the vertex twice daily as the topical growth signal; dual-zone coverage at this two-front stage addresses recession and early crown thinning simultaneously.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW3v branch should be OTC-DHT-shampoo-aware: minoxidil+dhtShampoo branch acknowledges both layers and recommends massage as the missing third leg; standalone dhtShampoo branch recommends adding minoxidil to both temple and vertex — mirrors NW2/NW3 pattern for consistency'
+);
+
+assert(
   source.includes('Mid-scalp density at NW3 with minoxidil and scalp massage is a strong two-layer approach — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for local DHT suppression at the recession edge. DHT shampoo completes the OTC density stack and slows miniaturization while follicles are still highly responsive.') &&
     source.includes('NW3v mid-scalp and early crown with minoxidil and scalp massage covers topical growth signal and mechanical stimulation across both active zones — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for local DHT suppression. DHT shampoo completes the OTC density stack at this two-front stage.'),
   'WEEKLY_FOCUS_MAP.Density NW3/NW3v branches should be minoxidil+massage-aware so OTC users who have minoxidil and scalp massage but no DHT shampoo or finasteride receive density advice acknowledging their two-layer protocol and recommending DHT shampoo as the missing layer'
