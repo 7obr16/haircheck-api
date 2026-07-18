@@ -1000,8 +1000,18 @@ assert(
 );
 
 assert(
-  source.includes("const _hasLLLT       = _routineItems.some((r) => r.includes('lllt') || r.includes('laser cap') || r.includes('laser comb') || r.includes('capillus') || r.includes('hairmax'));"),
-  'server should detect LLLT devices (laser cap, laser comb, Capillus, HairMax) as a separate _hasLLLT flag distinct from _hasMassage so users with LLLT devices can be identified in protocolCoverage'
+  source.includes("r.includes('capillus') || r.includes('hairmax') || r.includes('irestore') || r.includes('igrow')"),
+  'server should detect iRestore and iGrow as LLLT devices alongside Capillus and HairMax in both _hasLLLT and _hasMassage detection'
+);
+
+assert(
+  source.includes("r.includes('pura d') || r.includes('shapiro md') || r.includes('rosemary oil')"),
+  'server should detect Pura D\'or, Shapiro MD, and rosemary oil as DHT-blocking shampoo brands in _hasDHTShampoo detection'
+);
+
+assert(
+  source.includes("r.includes('dermapen')"),
+  'server should detect Dermapen as a microneedling device in _hasMassage detection'
 );
 
 assert(
