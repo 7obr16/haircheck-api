@@ -607,7 +607,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
         'Is finasteride worth adding to my OTC routine at NW2?',
         topical
           ? 'Am I applying minoxidil correctly to both temple corners at NW2?'
-          : 'Should I add minoxidil to my DHT shampoo routine at NW2?',
+          : dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW2?' : 'Should I add minoxidil to both temple corners at NW2?',
         'How long before I know if my OTC treatment is protecting my temples at NW2?',
       ];
     }

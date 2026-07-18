@@ -908,11 +908,12 @@ assert(
 );
 
 assert(
-  source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW3?' : 'Should I add minoxidil to both temple recession zones at NW3?'") &&
+  source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW2?' : 'Should I add minoxidil to both temple corners at NW2?'") &&
+    source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW3?' : 'Should I add minoxidil to both temple recession zones at NW3?'") &&
     source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW3v?' : 'Should I add minoxidil to both my temples and crown at NW3v?'") &&
     source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW4?' : 'Should I add minoxidil to both my frontal zone and crown at NW4?'") &&
     source.includes("dhtShampoo ? 'Should I add minoxidil to my DHT shampoo routine at NW5?' : 'Should I add minoxidil across both my frontal and crown zones at NW5?'"),
-  'buildSuggestedQuestions OTC (!rx) branches for NW3/NW3v/NW4/NW5 should be DHT-shampoo-aware: when topical is missing but dhtShampoo is active, acknowledge the shampoo routine rather than asking a generic add-minoxidil question — consistent with the existing NW2 OTC pattern'
+  'buildSuggestedQuestions OTC (!rx) branches for NW2/NW3/NW3v/NW4/NW5 should be DHT-shampoo-aware: when topical is missing but dhtShampoo is active, acknowledge the shampoo routine rather than asking a generic add-minoxidil question'
 );
 
 assert(
