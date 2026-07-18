@@ -974,4 +974,22 @@ assert(
   'WEEKLY_FOCUS_MAP NW1 Health should be DHT-shampoo-aware: add a standalone _hasDHTShampoo branch so OTC users at NW1 who only have a DHT-blocking shampoo are not told to add one — they should be directed to add supplements as the missing nutritional layer'
 );
 
+assert(
+  source.includes("const _hasLLLT       = _routineItems.some((r) => r.includes('lllt') || r.includes('laser cap') || r.includes('laser comb') || r.includes('capillus') || r.includes('hairmax'));"),
+  'server should detect LLLT devices (laser cap, laser comb, Capillus, HairMax) as a separate _hasLLLT flag distinct from _hasMassage so users with LLLT devices can be identified in protocolCoverage'
+);
+
+assert(
+  source.includes("lllt:        _hasLLLT,") &&
+    source.includes("LLLT devices: laser cap, laser comb, Capillus, HairMax"),
+  'protocolCoverage should expose a separate lllt field derived from _hasLLLT so the iOS app and coach can distinguish LLLT therapy from scalp massage without re-parsing the routine string'
+);
+
+assert(
+  source.includes("if (pc.lllt)                    active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)')") &&
+    source.includes("if (pc.mechanical && !pc.lllt)  active.push('mechanical stimulation (massage/microneedling)')") &&
+    source.includes("if (!pc.mechanical)             missing.push('scalp massage/microneedling')"),
+  'coach protocolStatusLine should report LLLT as a distinct active layer and avoid listing generic massage/microneedling when the user only has an LLLT device — prevents the coach from giving scalp-massage advice to laser-cap users'
+);
+
 console.log('server contract passed');

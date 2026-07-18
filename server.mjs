@@ -2333,6 +2333,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const _hasMinoxidil  = _routineItems.some((r) => r.includes('minoxidil') || r.includes('rogaine') || r.includes('regaine') || r.includes('minox') || r.includes('kirkland'));
         const _hasDHTShampoo = _routineItems.some((r) => r.includes('dht') || r.includes('ketoconazole') || r.includes('nizoral') || r.includes('keto shampoo') || r.includes('caffeine shampoo') || r.includes('regenepure') || r.includes('alpecin') || r.includes('plantur') || r.includes('foligain') || r.includes('lipogaine'));
         const _hasMassage    = _routineItems.some((r) => r.includes('massage') || r.includes('dermaroller') || r.includes('derma roller') || r.includes('microneedl') || r.includes('micro-needl') || r.includes('lllt') || r.includes('laser cap') || r.includes('laser comb') || r.includes('capillus') || r.includes('hairmax'));
+        const _hasLLLT       = _routineItems.some((r) => r.includes('lllt') || r.includes('laser cap') || r.includes('laser comb') || r.includes('capillus') || r.includes('hairmax'));
         const _hasSupplements= _routineItems.some((r) => r.includes('supplement') || r.includes('biotin') || r.includes('vitamin') || r.includes('zinc') || r.includes('saw palmetto') || r.includes('nutrafol') || r.includes('viviscal'));
         const _hasFinasteride = _routineItems.some((r) => r.includes('finasteride') || r.includes('propecia') || r.includes('dutasteride') || r.includes('avodart') || r.includes('proscar') || r.includes('finpecia'));
         // Stage gates: at NW5 expectations shift; at NW6/NW7 OTC has very limited effect
@@ -3162,7 +3163,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           topical:     _hasMinoxidil,    // minoxidil / rogaine
           rx:          _hasFinasteride,  // finasteride / dutasteride (Rx DHT blocker)
           dhtShampoo:  _hasDHTShampoo,   // ketoconazole / DHT-blocking shampoo
-          mechanical:  _hasMassage,      // scalp massage / dermaroller / microneedling
+          mechanical:  _hasMassage,      // scalp massage / dermaroller / microneedling / LLLT
+          lllt:        _hasLLLT,         // LLLT devices: laser cap, laser comb, Capillus, HairMax
           supplements: _hasSupplements,  // biotin / zinc / vitamins / saw palmetto
         };
 
@@ -3272,6 +3274,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 rx:          !!userContext.result.protocolCoverage.rx,
                 dhtShampoo:  !!userContext.result.protocolCoverage.dhtShampoo,
                 mechanical:  !!userContext.result.protocolCoverage.mechanical,
+                lllt:        !!userContext.result.protocolCoverage.lllt,
                 supplements: !!userContext.result.protocolCoverage.supplements,
               }
             : null,
@@ -3390,17 +3393,20 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             rx:          r.some((s) => s.includes('finasteride') || s.includes('propecia') || s.includes('dutasteride') || s.includes('avodart') || s.includes('proscar') || s.includes('finpecia')),
             dhtShampoo:  r.some((s) => s.includes('dht') || s.includes('ketoconazole') || s.includes('nizoral') || s.includes('keto shampoo') || s.includes('caffeine shampoo') || s.includes('regenepure') || s.includes('alpecin') || s.includes('plantur') || s.includes('foligain') || s.includes('lipogaine')),
             mechanical:  r.some((s) => s.includes('massage') || s.includes('dermaroller') || s.includes('derma roller') || s.includes('microneedl') || s.includes('micro-needl') || s.includes('lllt') || s.includes('laser cap') || s.includes('laser comb') || s.includes('capillus') || s.includes('hairmax')),
+            lllt:        r.some((s) => s.includes('lllt') || s.includes('laser cap') || s.includes('laser comb') || s.includes('capillus') || s.includes('hairmax')),
             supplements: r.some((s) => s.includes('supplement') || s.includes('biotin') || s.includes('vitamin') || s.includes('zinc') || s.includes('saw palmetto') || s.includes('nutrafol') || s.includes('viviscal')),
           };
         }
         if (!pc) return '';
         const active = [];
         const missing = [];
-        if (pc.topical)     active.push('minoxidil');                                     else missing.push('minoxidil');
-        if (pc.rx)          active.push('Rx DHT blocker (finasteride/dutasteride)');      else missing.push('Rx DHT blocker');
-        if (pc.dhtShampoo)  active.push('DHT-blocking shampoo');                          else missing.push('DHT-blocking shampoo');
-        if (pc.mechanical)  active.push('mechanical stimulation (massage/microneedling)'); else missing.push('scalp massage/microneedling');
-        if (pc.supplements) active.push('supplements (biotin/zinc/vitamin D)');            else missing.push('supplements');
+        if (pc.topical)                 active.push('minoxidil');                                           else missing.push('minoxidil');
+        if (pc.rx)                      active.push('Rx DHT blocker (finasteride/dutasteride)');            else missing.push('Rx DHT blocker');
+        if (pc.dhtShampoo)              active.push('DHT-blocking shampoo');                                else missing.push('DHT-blocking shampoo');
+        if (pc.lllt)                    active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)');
+        if (pc.mechanical && !pc.lllt)  active.push('mechanical stimulation (massage/microneedling)');
+        if (!pc.mechanical)             missing.push('scalp massage/microneedling');
+        if (pc.supplements)             active.push('supplements (biotin/zinc/vitamin D)');                 else missing.push('supplements');
         return `- Protocol layers — ACTIVE: ${active.join(', ') || 'none'}; NOT STARTED: ${missing.join(', ') || 'none'} — when the user asks what to add next, which layer is missing, or how complete their protocol is, use this structured breakdown; never re-suggest an ACTIVE layer.`;
       })();
       const systemPrompt = [
