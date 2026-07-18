@@ -747,6 +747,36 @@ assert(
 );
 
 assert(
+  source.includes("r.includes('minox')") &&
+    source.includes("r.includes('kirkland')") &&
+    source.includes("r.includes('alpecin')") &&
+    source.includes("r.includes('plantur')") &&
+    source.includes("r.includes('foligain')") &&
+    source.includes("r.includes('lipogaine')") &&
+    source.includes("r.includes('lllt')") &&
+    source.includes("r.includes('laser cap')") &&
+    source.includes("r.includes('laser comb')") &&
+    source.includes("r.includes('capillus')") &&
+    source.includes("r.includes('hairmax')"),
+  'routine detection should recognise additional brand names and abbreviations: minox (minoxidil abbreviation), Kirkland (Costco minoxidil brand), Alpecin/Plantur (caffeine DHT shampoos), Foligain/Lipogaine (DHT shampoo brands), LLLT/laser cap/laser comb/Capillus/HairMax (low-level laser therapy devices)'
+);
+
+assert(
+  source.includes("s.includes('minox')") &&
+    source.includes("s.includes('kirkland')") &&
+    source.includes("s.includes('alpecin')") &&
+    source.includes("s.includes('plantur')") &&
+    source.includes("s.includes('foligain')") &&
+    source.includes("s.includes('lipogaine')") &&
+    source.includes("s.includes('lllt')") &&
+    source.includes("s.includes('laser cap')") &&
+    source.includes("s.includes('laser comb')") &&
+    source.includes("s.includes('capillus')") &&
+    source.includes("s.includes('hairmax')"),
+  'coach pre-scan protocolCoverage fallback should recognise the same additional brand names as scan-time detection: minox, Kirkland, Alpecin, Plantur, Foligain, Lipogaine, LLLT, laser cap/comb, Capillus, HairMax — so pre-scan users who list these products in their routine have their protocol coverage computed correctly before their first scan'
+);
+
+assert(
   source.includes("stage === 'n/a (female)'") &&
     source.includes("'What hormone and blood tests should I ask my doctor about for female hair loss?'") &&
     source.includes("'What is the most effective treatment for female-pattern hair loss?'") &&

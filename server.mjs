@@ -2330,9 +2330,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // Routine-aware: if the primary suggestion is already in their routine, recommend
         // the next most impactful complementary action instead of repeating redundant advice.
         const _routineItems = (profile.routine || []).map((r) => String(r).toLowerCase());
-        const _hasMinoxidil  = _routineItems.some((r) => r.includes('minoxidil') || r.includes('rogaine') || r.includes('regaine'));
-        const _hasDHTShampoo = _routineItems.some((r) => r.includes('dht') || r.includes('ketoconazole') || r.includes('nizoral') || r.includes('keto shampoo') || r.includes('caffeine shampoo') || r.includes('regenepure'));
-        const _hasMassage    = _routineItems.some((r) => r.includes('massage') || r.includes('dermaroller') || r.includes('derma roller') || r.includes('microneedl') || r.includes('micro-needl'));
+        const _hasMinoxidil  = _routineItems.some((r) => r.includes('minoxidil') || r.includes('rogaine') || r.includes('regaine') || r.includes('minox') || r.includes('kirkland'));
+        const _hasDHTShampoo = _routineItems.some((r) => r.includes('dht') || r.includes('ketoconazole') || r.includes('nizoral') || r.includes('keto shampoo') || r.includes('caffeine shampoo') || r.includes('regenepure') || r.includes('alpecin') || r.includes('plantur') || r.includes('foligain') || r.includes('lipogaine'));
+        const _hasMassage    = _routineItems.some((r) => r.includes('massage') || r.includes('dermaroller') || r.includes('derma roller') || r.includes('microneedl') || r.includes('micro-needl') || r.includes('lllt') || r.includes('laser cap') || r.includes('laser comb') || r.includes('capillus') || r.includes('hairmax'));
         const _hasSupplements= _routineItems.some((r) => r.includes('supplement') || r.includes('biotin') || r.includes('vitamin') || r.includes('zinc') || r.includes('saw palmetto') || r.includes('nutrafol') || r.includes('viviscal'));
         const _hasFinasteride = _routineItems.some((r) => r.includes('finasteride') || r.includes('propecia') || r.includes('dutasteride') || r.includes('avodart') || r.includes('proscar') || r.includes('finpecia'));
         // Stage gates: at NW5 expectations shift; at NW6/NW7 OTC has very limited effect
@@ -3386,10 +3386,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (!pc && ctx.routine.length > 0) {
           const r = ctx.routine.map((s) => String(s).toLowerCase());
           pc = {
-            topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine') || s.includes('regaine')),
+            topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine') || s.includes('regaine') || s.includes('minox') || s.includes('kirkland')),
             rx:          r.some((s) => s.includes('finasteride') || s.includes('propecia') || s.includes('dutasteride') || s.includes('avodart') || s.includes('proscar') || s.includes('finpecia')),
-            dhtShampoo:  r.some((s) => s.includes('dht') || s.includes('ketoconazole') || s.includes('nizoral') || s.includes('keto shampoo') || s.includes('caffeine shampoo') || s.includes('regenepure')),
-            mechanical:  r.some((s) => s.includes('massage') || s.includes('dermaroller') || s.includes('derma roller') || s.includes('microneedl') || s.includes('micro-needl')),
+            dhtShampoo:  r.some((s) => s.includes('dht') || s.includes('ketoconazole') || s.includes('nizoral') || s.includes('keto shampoo') || s.includes('caffeine shampoo') || s.includes('regenepure') || s.includes('alpecin') || s.includes('plantur') || s.includes('foligain') || s.includes('lipogaine')),
+            mechanical:  r.some((s) => s.includes('massage') || s.includes('dermaroller') || s.includes('derma roller') || s.includes('microneedl') || s.includes('micro-needl') || s.includes('lllt') || s.includes('laser cap') || s.includes('laser comb') || s.includes('capillus') || s.includes('hairmax')),
             supplements: r.some((s) => s.includes('supplement') || s.includes('biotin') || s.includes('vitamin') || s.includes('zinc') || s.includes('saw palmetto') || s.includes('nutrafol') || s.includes('viviscal')),
           };
         }
