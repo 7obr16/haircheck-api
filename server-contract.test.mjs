@@ -777,6 +777,30 @@ assert(
 );
 
 assert(
+  source.includes("r.includes('spironolactone')") &&
+    source.includes("r.includes('spiro')") &&
+    source.includes("r.includes('aldactone')"),
+  'routine detection (_hasFinasteride) should recognise spironolactone and its variants (spiro, Aldactone) so female users on the most common Rx for FPHL are correctly classified as having Rx treatment'
+);
+
+assert(
+  source.includes("s.includes('spironolactone')") &&
+    source.includes("s.includes('spiro')") &&
+    source.includes("s.includes('aldactone')"),
+  'coach pre-scan protocolCoverage rx detection should recognise spironolactone/spiro/aldactone — mirrors the scan-time _hasFinasteride detection so female users listing spiro in their routine have their Rx layer correctly identified before their first scan'
+);
+
+assert(
+  source.includes("r.includes('revita')"),
+  'routine detection (_hasDHTShampoo) should recognise Revita (DS Laboratories ketoconazole + caffeine shampoo) so users of this popular brand are correctly classified as having a DHT-blocking shampoo in their routine'
+);
+
+assert(
+  source.includes("s.includes('revita')"),
+  'coach pre-scan protocolCoverage dhtShampoo detection should recognise Revita — mirrors the scan-time _hasDHTShampoo detection so pre-scan users listing Revita have their DHT-shampoo layer correctly identified'
+);
+
+assert(
   source.includes("stage === 'n/a (female)'") &&
     source.includes("'What hormone and blood tests should I ask my doctor about for female hair loss?'") &&
     source.includes("'What is the most effective treatment for female-pattern hair loss?'") &&
