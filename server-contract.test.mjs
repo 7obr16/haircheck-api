@@ -1000,6 +1000,18 @@ assert(
 );
 
 assert(
+  source.includes('NW3 deep temple recession with minoxidil and DHT-blocking shampoo covers the topical growth signal and local DHT control at the recession edge — apply 1ml minoxidil to each zone twice daily and leave DHT shampoo on 3-5 minutes per wash.') &&
+    source.includes('NW3 deep temple recession — your DHT-blocking shampoo provides local DHT suppression at the recession edge, which is a solid start. Add minoxidil on both temple zones twice daily for the topical growth signal'),
+  'WEEKLY_FOCUS_MAP.Hairline NW3 branch should be OTC-DHT-shampoo-aware: minoxidil+dhtShampoo branch acknowledges both layers and recommends massage; standalone dhtShampoo branch recommends adding minoxidil as the missing topical growth signal — so OTC users with DHT shampoo are never sent to generic advice that ignores their routine'
+);
+
+assert(
+  source.includes('NW2 temple recession with minoxidil and DHT-blocking shampoo covers the topical growth signal and local DHT suppression at the ideal preventive stage — leave DHT shampoo on 3-5 minutes before rinsing and confirm twice-daily minoxidil coverage on both temple corners.') &&
+    source.includes('NW2 temple recession is the earliest warning sign — your DHT-blocking shampoo provides topical DHT protection at the temple edges, which is a good start. Add minoxidil directly to both temple corners twice daily as the topical growth signal'),
+  'WEEKLY_FOCUS_MAP.Hairline NW2 branch should be OTC-DHT-shampoo-aware: minoxidil+dhtShampoo branch acknowledges both layers and recommends finasteride consult; standalone dhtShampoo branch recommends adding minoxidil as the missing topical growth signal — so OTC users with DHT shampoo at the earliest preventive stage are never sent to generic advice that ignores their routine'
+);
+
+assert(
   source.includes("r.includes('capillus') || r.includes('hairmax') || r.includes('irestore') || r.includes('igrow')"),
   'server should detect iRestore and iGrow as LLLT devices alongside Capillus and HairMax in both _hasLLLT and _hasMassage detection'
 );
