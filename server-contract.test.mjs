@@ -939,4 +939,9 @@ assert(
   'WEEKLY_FOCUS_MAP NW6 Health should be DHT-shampoo-aware: add standalone _hasDHTShampoo branch before generic fallback'
 );
 
+assert(
+  source.includes("_hasDHTShampoo\n                              ? 'Your DHT-blocking shampoo provides topical-level DHT protection at NW1 before any visible thinning begins — keep using it 3× weekly with 3-5 minutes of contact time. Add a supplement stack (biotin, zinc, vitamin D) as the nutritional layer; together they form the strongest dual-layer OTC preventive foundation at this optimal prevention window.'"),
+  'WEEKLY_FOCUS_MAP NW1 Health should be DHT-shampoo-aware: add a standalone _hasDHTShampoo branch so OTC users at NW1 who only have a DHT-blocking shampoo are not told to add one — they should be directed to add supplements as the missing nutritional layer'
+);
+
 console.log('server contract passed');

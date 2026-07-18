@@ -2854,7 +2854,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                           ? 'Your scalp is in strong preventive shape — target sleep quality this week (7-8 hrs). Cortisol from poor sleep accelerates miniaturization even before visible thinning begins.'
                           : _hasSupplements
                             ? 'Your supplement stack is active — add a DHT-blocking shampoo 3× weekly as a preventive layer. NW1 is the optimal window to build a protective routine before any thinning develops.'
-                            : 'Your hair is healthy — protect it now: switch to a gentle sulfate-free shampoo, stay well-hydrated, and start a basic supplement stack (biotin, zinc, vitamin D) to support follicle health proactively.')
+                            : _hasDHTShampoo
+                              ? 'Your DHT-blocking shampoo provides topical-level DHT protection at NW1 before any visible thinning begins — keep using it 3× weekly with 3-5 minutes of contact time. Add a supplement stack (biotin, zinc, vitamin D) as the nutritional layer; together they form the strongest dual-layer OTC preventive foundation at this optimal prevention window.'
+                              : 'Your hair is healthy — protect it now: switch to a gentle sulfate-free shampoo, stay well-hydrated, and start a basic supplement stack (biotin, zinc, vitamin D) to support follicle health proactively.')
                 : data.stage === 'NW2'
                   // NW2: earliest recession stage — scalp health is still strong, goal is protection and anti-miniaturization foundation
                   ? (_hasFinasteride && _hasSupplements && _hasDHTShampoo
