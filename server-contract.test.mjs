@@ -1057,14 +1057,15 @@ assert(
 
 assert(
   source.includes('suggestedAdviceVisuals') &&
-    source.includes("suggestions.push('topical')") &&
-    source.includes("suggestions.push('shampoo')") &&
-    source.includes("suggestions.push('supplements')") &&
-    source.includes("suggestions.push('massage')") &&
-    source.includes("suggestions.push('microneedling')") &&
-    source.includes("suggestions.push('consultation')") &&
-    source.includes('suggestions.slice(0, 3)'),
-  'scan response should include suggestedAdviceVisuals: ordered list of up to 3 missing-protocol-layer advice visual kinds for iOS app carousel pre-fetch, with consultation appended when specialistRecommended'
+    source.includes("missing.push('topical')") &&
+    source.includes("missing.push('shampoo')") &&
+    source.includes("missing.push('supplements')") &&
+    source.includes("missing.push('massage')") &&
+    source.includes("missing.push('microneedling')") &&
+    source.includes("missing.slice(0, 2), 'consultation'") &&
+    source.includes('if (data.specialistRecommended)') &&
+    source.includes('missing.slice(0, 3)'),
+  'scan response should include suggestedAdviceVisuals: up to 3 protocol-gap visual kinds; when specialistRecommended is true, consultation is guaranteed in the top 3 (up to 2 missing-layer visuals + consultation) so advanced-stage users always see the specialist CTA even when many protocol layers are absent'
 );
 
 console.log('server contract passed');

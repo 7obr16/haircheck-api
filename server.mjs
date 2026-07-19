@@ -3202,18 +3202,24 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
 
         // suggestedAdviceVisuals: ordered list of up to 3 advice-visual kinds for the iOS
         // app to pre-fetch for the protocol card carousel. Derived from missing protocol
-        // layers (priority: topical → shampoo → supplements → massage/microneedling) with
-        // consultation appended last when specialistRecommended is true.
+        // layers (priority: topical → shampoo → supplements → massage/microneedling).
+        // When specialistRecommended is true (NW5+, diffuse, n/a female), consultation
+        // is guaranteed in the top-3 slot — up to 2 missing-layer visuals are taken
+        // first, then consultation is appended. This prevents consultation from being
+        // silently dropped when 3+ protocol layers are missing simultaneously, which
+        // would happen for untreated advanced-stage users.
         data.suggestedAdviceVisuals = (() => {
           const { topical, dhtShampoo, supplements, mechanical, lllt } = data.protocolCoverage;
-          const suggestions = [];
-          if (!topical)     suggestions.push('topical');
-          if (!dhtShampoo)  suggestions.push('shampoo');
-          if (!supplements) suggestions.push('supplements');
-          if (!mechanical)  suggestions.push('massage');
-          else if (!lllt)   suggestions.push('microneedling');
-          if (data.specialistRecommended) suggestions.push('consultation');
-          return suggestions.slice(0, 3);
+          const missing = [];
+          if (!topical)     missing.push('topical');
+          if (!dhtShampoo)  missing.push('shampoo');
+          if (!supplements) missing.push('supplements');
+          if (!mechanical)  missing.push('massage');
+          else if (!lllt)   missing.push('microneedling');
+          if (data.specialistRecommended) {
+            return [...missing.slice(0, 2), 'consultation'];
+          }
+          return missing.slice(0, 3);
         })();
 
         // checkInIntervalDays: how many days until the next meaningful scan.
