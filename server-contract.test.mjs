@@ -1050,4 +1050,9 @@ assert(
   'buildSuggestedQuestions NW5 Rx branch first question should be DHT-shampoo-aware: when the user has finasteride + DHT shampoo but no topical, acknowledge both layers rather than describing the protocol as finasteride-alone — consistent with the NW6/NW7 Rx pattern'
 );
 
+assert(
+  source.includes("_hasFinasteride && _hasDHTShampoo\n                          ? 'At NW4, finasteride + DHT-blocking shampoo delivers dual-level DHT suppression"),
+  'NW4 Density WEEKLY_FOCUS_MAP should have a dedicated _hasFinasteride+_hasDHTShampoo branch (without minoxidil) so users with this combination get told to add minoxidil rather than hitting the generic _hasFinasteride branch that incorrectly tells them to also add DHT shampoo they already have'
+);
+
 console.log('server contract passed');
