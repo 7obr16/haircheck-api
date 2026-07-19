@@ -1045,4 +1045,9 @@ assert(
   'coach protocolStatusLine should report LLLT as a distinct active layer and avoid listing generic massage/microneedling when the user only has an LLLT device — prevents the coach from giving scalp-massage advice to laser-cap users'
 );
 
+assert(
+  source.includes("dhtShampoo ? 'Should I add minoxidil to my finasteride + DHT-blocking shampoo at NW5?' : 'Should I add minoxidil to my finasteride at NW5?'"),
+  'buildSuggestedQuestions NW5 Rx branch first question should be DHT-shampoo-aware: when the user has finasteride + DHT shampoo but no topical, acknowledge both layers rather than describing the protocol as finasteride-alone — consistent with the NW6/NW7 Rx pattern'
+);
+
 console.log('server contract passed');

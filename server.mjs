@@ -492,7 +492,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
     return [
       topical
         ? 'How do I get the most from my finasteride and minoxidil at NW5?'
-        : 'Should I add minoxidil to my finasteride at NW5?',
+        : dhtShampoo ? 'Should I add minoxidil to my finasteride + DHT-blocking shampoo at NW5?' : 'Should I add minoxidil to my finasteride at NW5?',
       !mechanical
         ? 'Does scalp massage improve minoxidil absorption across both the frontal and crown zones at NW5?'
         : !dhtShampoo
