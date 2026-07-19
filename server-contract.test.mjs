@@ -1056,6 +1056,21 @@ assert(
 );
 
 assert(
+  source.includes("_hasFinasteride && _hasDHTShampoo\n                            ? 'At NW4, finasteride + DHT-blocking shampoo delivers systemic and topical DHT suppression across the frontal hairline"),
+  'NW4 Hairline WEEKLY_FOCUS_MAP should have a dedicated _hasFinasteride+_hasDHTShampoo branch so users with this combo get told to add minoxidil rather than falling through to _hasFinasteride which ignores their existing DHT shampoo'
+);
+
+assert(
+  source.includes("_hasFinasteride && _hasDHTShampoo\n                            ? 'At NW4, finasteride + DHT-blocking shampoo delivers systemic and topical DHT suppression at the vertex"),
+  'NW4 Crown WEEKLY_FOCUS_MAP should have a dedicated _hasFinasteride+_hasDHTShampoo branch so users with this combo get told to add minoxidil rather than falling through to _hasFinasteride which ignores their existing DHT shampoo'
+);
+
+assert(
+  source.includes("_hasFinasteride && _hasDHTShampoo\n                                    ? 'At NW4, finasteride + DHT-blocking shampoo delivers dual-level DHT suppression — systemic and topical control at this established stage"),
+  'NW4 Potential WEEKLY_FOCUS_MAP should have a dedicated _hasFinasteride+_hasDHTShampoo branch so users with this combo get told to add minoxidil rather than falling through to _hasFinasteride which ignores their existing DHT shampoo'
+);
+
+assert(
   source.includes('suggestedAdviceVisuals') &&
     source.includes("missing.push('topical')") &&
     source.includes("missing.push('shampoo')") &&
