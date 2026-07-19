@@ -1868,7 +1868,7 @@ const server = createServer(async (req, res) => {
   }
 
   // ─── /api/generate-advice-visual — image-led protocol card art ─
-  // Input: { kind: 'topical' | 'supplements' | 'massage' | 'shampoo', quality? }
+  // Input: { kind: 'topical' | 'supplements' | 'massage' | 'shampoo' | 'microneedling' | 'lllt' | 'consultation', quality? }
   // Output: { adviceVisual: 'data:image/png;base64,...', kind }
   if (req.method === 'POST' && reqPath === '/api/generate-advice-visual') {
     try {
@@ -3199,6 +3199,22 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // Computed server-side from stage + protocolCoverage so the iOS app can surface them
         // as suggestion chips without any extra API calls or client-side logic.
         data.coachSuggestedQuestions = buildSuggestedQuestions(stage, data.protocolCoverage, data.specialistRecommended);
+
+        // suggestedAdviceVisuals: ordered list of up to 3 advice-visual kinds for the iOS
+        // app to pre-fetch for the protocol card carousel. Derived from missing protocol
+        // layers (priority: topical → shampoo → supplements → massage/microneedling) with
+        // consultation appended last when specialistRecommended is true.
+        data.suggestedAdviceVisuals = (() => {
+          const { topical, dhtShampoo, supplements, mechanical, lllt } = data.protocolCoverage;
+          const suggestions = [];
+          if (!topical)     suggestions.push('topical');
+          if (!dhtShampoo)  suggestions.push('shampoo');
+          if (!supplements) suggestions.push('supplements');
+          if (!mechanical)  suggestions.push('massage');
+          else if (!lllt)   suggestions.push('microneedling');
+          if (data.specialistRecommended) suggestions.push('consultation');
+          return suggestions.slice(0, 3);
+        })();
 
         // checkInIntervalDays: how many days until the next meaningful scan.
         // Derived from treatmentUrgency so the iOS app can schedule a push reminder

@@ -1055,4 +1055,16 @@ assert(
   'NW4 Density WEEKLY_FOCUS_MAP should have a dedicated _hasFinasteride+_hasDHTShampoo branch (without minoxidil) so users with this combination get told to add minoxidil rather than hitting the generic _hasFinasteride branch that incorrectly tells them to also add DHT shampoo they already have'
 );
 
+assert(
+  source.includes('suggestedAdviceVisuals') &&
+    source.includes("suggestions.push('topical')") &&
+    source.includes("suggestions.push('shampoo')") &&
+    source.includes("suggestions.push('supplements')") &&
+    source.includes("suggestions.push('massage')") &&
+    source.includes("suggestions.push('microneedling')") &&
+    source.includes("suggestions.push('consultation')") &&
+    source.includes('suggestions.slice(0, 3)'),
+  'scan response should include suggestedAdviceVisuals: ordered list of up to 3 missing-protocol-layer advice visual kinds for iOS app carousel pre-fetch, with consultation appended when specialistRecommended'
+);
+
 console.log('server contract passed');
