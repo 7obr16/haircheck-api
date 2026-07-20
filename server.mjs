@@ -2274,13 +2274,25 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // Guarantee the weakest metric is covered by at least one insight.
         // GPT-4o may return 3 insights that all miss the weakest area — replace
         // insights[2] (lowest-priority slot) with a targeted server-side fallback.
+        // NW6/NW7 get surgical-aware language: at those stages OTC can only protect
+        // the remaining fringe; promising "the treatment response window is open" is
+        // misleading when FUE/FUT or SMP is the primary coverage path.
         if (!data.insights.some((ins) => ins.metric === _weakLabel)) {
+          const _isAdvancedForFallback = data.stage === 'NW6' || data.stage === 'NW7';
           const _weakFallback = {
-            Hairline: { title: 'Target recession zones',     body: `Apply minoxidil twice daily to both temple recession zones — at ${data.hairline}/100, hairline is your highest-ROI focus and the treatment response window is open.`,     metric: 'Hairline' },
-            Density:  { title: 'Build mid-scalp density',    body: `Add a DHT-blocking shampoo 3× weekly and a 5-minute scalp massage each wash — at ${data.density}/100 density, these are the most cost-effective OTC tools for coverage.`,  metric: 'Density'  },
-            Crown:    { title: 'Protect the vertex now',     body: `Apply minoxidil 1ml directly to the crown twice daily and track with monthly overhead photos — your crown at ${data.crown}/100 responds best to targeted topical coverage.`,  metric: 'Crown'    },
-            Health:   { title: 'Optimize scalp environment', body: `Switch to a gentle sulfate-free shampoo and add biotin and zinc — scalp health at ${data.health}/100 directly affects how well topicals absorb and follicles respond.`,     metric: 'Health'   },
-            Potential:{ title: 'Stack the right habits',     body: `Pairing minoxidil with scalp massage and a DHT-blocking shampoo gives the strongest 6-month OTC response — start the full stack now while the treatment window is open.`,  metric: 'Potential'},
+            Hairline: _isAdvancedForFallback
+              ? { title: 'Protect the remaining fringe',   body: `At ${data.stage} with hairline at ${data.hairline}/100, finasteride protects the lateral fringe from further loss — pair it with a transplant consultation this quarter to plan the most realistic path to coverage.`,                                                                                             metric: 'Hairline' }
+              : { title: 'Target recession zones',         body: `Apply minoxidil twice daily to both temple recession zones — at ${data.hairline}/100, hairline is your highest-ROI focus and the treatment response window is open.`,                                                                                                                                        metric: 'Hairline' },
+            Density: _isAdvancedForFallback
+              ? { title: 'Defend lateral hair density',    body: `At ${data.stage} with density at ${data.density}/100, apply minoxidil along the fringe and temporal edges twice daily to protect remaining density — book a transplant consultation to build a realistic full-coverage strategy alongside your OTC routine.`,                                                      metric: 'Density'  }
+              : { title: 'Build mid-scalp density',        body: `Add a DHT-blocking shampoo 3× weekly and a 5-minute scalp massage each wash — at ${data.density}/100 density, these are the most cost-effective OTC tools for coverage.`,                                                                                                                                  metric: 'Density'  },
+            Crown: _isAdvancedForFallback
+              ? { title: 'Plan coverage; protect the fringe', body: `At ${data.stage} with crown at ${data.crown}/100, crown restoration is primarily a surgical goal — apply minoxidil along the remaining lateral fringe to preserve it and consult a trichologist about FUE/FUT or SMP options.`,                                                                           metric: 'Crown'    }
+              : { title: 'Protect the vertex now',         body: `Apply minoxidil 1ml directly to the crown twice daily and track with monthly overhead photos — your crown at ${data.crown}/100 responds best to targeted topical coverage.`,                                                                                                                               metric: 'Crown'    },
+            Health:   { title: 'Optimize scalp environment', body: `Switch to a gentle sulfate-free shampoo and add biotin and zinc — scalp health at ${data.health}/100 directly affects how well topicals absorb and follicles respond.`,                                                                                                                                   metric: 'Health'   },
+            Potential: _isAdvancedForFallback
+              ? { title: 'Maximize realistic outcomes',    body: `At ${data.stage} with potential at ${data.potential}/100, finasteride and minoxidil together give the strongest OTC baseline for the remaining fringe — pair with a surgical consultation to build the most complete multi-layer strategy.`,                                                                    metric: 'Potential'}
+              : { title: 'Stack the right habits',         body: `Pairing minoxidil with scalp massage and a DHT-blocking shampoo gives the strongest 6-month OTC response — start the full stack now while the treatment window is open.`,                                                                                                                                   metric: 'Potential'},
           }[_weakLabel];
           if (_weakFallback) data.insights[2] = _weakFallback;
         }

@@ -42,6 +42,15 @@ assert(
 );
 
 assert(
+  source.includes('_isAdvancedForFallback') &&
+    source.includes("Protect the remaining fringe") &&
+    source.includes("Plan coverage; protect the fringe") &&
+    source.includes("Maximize realistic outcomes") &&
+    source.includes("data.stage === 'NW6' || data.stage === 'NW7'"),
+  'weakest-metric fallback insights should use surgical-aware language at NW6/NW7 — not promise "treatment response window is open" when FUE/FUT or SMP is the primary path'
+);
+
+assert(
   source.includes('STATIC_METRIC_FALLBACKS') &&
     source.includes('Deduplicate insight metrics') &&
     source.includes('_usedMetrics.size < rawInsights.length') &&
