@@ -359,8 +359,18 @@ assert(
 );
 
 assert(
+  source.includes("_hasFinasteride && _hasMinoxidil && _hasDHTShampoo\n                    ? 'Your crown is intact at NW3 — finasteride + minoxidil + DHT-blocking shampoo gives you systemic DHT suppression, topical growth signal, and topical DHT control across the full scalp top. The deep temple recession is the active priority"),
+  'WEEKLY_FOCUS_MAP.Crown NW3 branch should have a finasteride+minoxidil+DHT-shampoo branch so users with all three active at NW3 receive crown advice that acknowledges the full three-layer protocol rather than falling through to the fin+min branch that ignores DHT shampoo'
+);
+
+assert(
   source.includes("_hasFinasteride && _hasDHTShampoo\n                      ? 'Your crown is intact at NW3 — finasteride + DHT-blocking shampoo gives you dual-level DHT protection across the entire scalp top. The deep temple recession is the active priority"),
   'WEEKLY_FOCUS_MAP.Crown NW3 branch should have a combined finasteride+DHT-shampoo branch so users with dual DHT suppression at NW3 receive crown advice acknowledging both layers and recommending crown-targeted minoxidil at the NW3v transition window'
+);
+
+assert(
+  source.includes("_hasMinoxidil && _hasDHTShampoo\n                        ? 'Your crown is still intact at NW3 — your minoxidil and DHT-blocking shampoo provide topical growth signal and local DHT suppression across the scalp top. The deep temple recession is the active priority"),
+  'WEEKLY_FOCUS_MAP.Crown NW3 branch should have a minoxidil+DHT-shampoo OTC branch so users with both topical layers at NW3 receive crown advice acknowledging their two-layer protocol rather than falling through to the minoxidil-only branch that ignores DHT shampoo'
 );
 
 assert(

@@ -2802,13 +2802,17 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     : 'Your crown is currently intact at NW2 — temples are the active zone. Focus treatment there first and track the crown monthly with overhead photos to catch any early vertex thinning before it needs aggressive intervention.')
                 : data.stage === 'NW3'
                 // NW3: crown is intact — vertex thinning only starts at NW3v; redirect focus to temples and set up early-detection tracking
-                ? (_hasFinasteride && _hasMinoxidil
+                ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
+                    ? 'Your crown is intact at NW3 — finasteride + minoxidil + DHT-blocking shampoo gives you systemic DHT suppression, topical growth signal, and topical DHT control across the full scalp top. The deep temple recession is the active priority; keep your three-layer protocol focused on both recession zones and take monthly overhead photos to catch any early vertex thinning. At the NW3→NW3v transition, redirect 1ml of minoxidil directly to the vertex for the strongest early-crown response.'
+                    : _hasFinasteride && _hasMinoxidil
                     ? 'Your crown is still intact at NW3 — the deep temple recession is the active priority. Your finasteride + minoxidil stack targets the recession zones directly; keep both consistent and take monthly overhead photos so any early vertex thinning is caught the moment it appears. That transition to NW3v is the highest-ROI crown intervention window.'
                     : _hasFinasteride && _hasDHTShampoo
                       ? 'Your crown is intact at NW3 — finasteride + DHT-blocking shampoo gives you dual-level DHT protection across the entire scalp top. The deep temple recession is the active priority; keep your dual-layer protocol consistent and take monthly overhead photos to catch any early vertex thinning. The NW3→NW3v transition is the ideal time to add crown-targeted minoxidil (1ml to the vertex) for the strongest early-crown response.'
                       : _hasFinasteride
                       ? 'Your crown is intact at NW3 — temple recession is the current focus and your finasteride is already blocking systemic DHT. Take monthly overhead photos to catch any early vertex thinning; the NW3→NW3v transition is the ideal time to add minoxidil directly to the vertex for the strongest early-crown response.'
-                      : _hasMinoxidil
+                      : _hasMinoxidil && _hasDHTShampoo
+                        ? 'Your crown is still intact at NW3 — your minoxidil and DHT-blocking shampoo provide topical growth signal and local DHT suppression across the scalp top. The deep temple recession is the active priority; keep both focused on both recession zones and take monthly overhead photos to catch any early vertex thinning. At the NW3→NW3v transition, redirect 1ml of minoxidil directly to the vertex for the strongest early-crown response.'
+                        : _hasMinoxidil
                         ? 'Your crown is still intact at NW3 — focus your minoxidil on both temple recession zones now. Take a monthly overhead photo to catch any early vertex thinning; if it appears, that marks NW3v — the highest-ROI window to act on crown thinning before it advances.'
                         : _hasDHTShampoo
                           ? 'Your crown is still intact at NW3 — your DHT-blocking shampoo is providing topical DHT suppression across the scalp top. The deep temple recession is the active priority; keep your treatment focused on both recession zones and take monthly overhead photos to catch any early vertex thinning; acting at the NW3v window gives the strongest possible crown response.'
