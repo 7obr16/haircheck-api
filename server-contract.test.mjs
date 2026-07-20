@@ -1112,4 +1112,16 @@ assert(
   'scan response should include suggestedAdviceVisuals: up to 3 protocol-gap visual kinds; when specialistRecommended is true, consultation is guaranteed in the top 3 (up to 2 missing-layer visuals + consultation) so advanced-stage users always see the specialist CTA even when many protocol layers are absent'
 );
 
+assert(
+  source.includes("lllt = false } = protocolCoverage || {};") &&
+    source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW5?'") &&
+    source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW4?'") &&
+    source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW3v?'") &&
+    source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW2?'") &&
+    source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT protocol at NW3?'") &&
+    source.includes("lllt ? 'How do I get the most from my LLLT device for my NW3 temple recession?'") &&
+    source.includes("lllt ? 'How should I time my LLLT sessions with minoxidil for maximum absorption?'"),
+  'buildSuggestedQuestions should be LLLT-aware: destructure lllt from protocolCoverage and use it so LLLT users (who have mechanical=true via laser cap/comb) see LLLT-specific questions rather than questions framed around scalp massage they do not practice'
+);
+
 console.log('server contract passed');

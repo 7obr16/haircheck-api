@@ -402,7 +402,7 @@ const buildProgressionPrompt = (month, stage) => {
 // Questions are routine-aware (don't suggest starting something already active) and
 // stage-aware (specialist framing for NW5+, cause-finding for diffuse/female).
 const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended) => {
-  const { topical = false, rx = false, dhtShampoo = false, mechanical = false } = protocolCoverage || {};
+  const { topical = false, rx = false, dhtShampoo = false, mechanical = false, lllt = false } = protocolCoverage || {};
   const hasAnyOTC = topical || dhtShampoo || mechanical;
 
   // NW7 — near-total loss; horseshoe fringe only; surgical options (FUE/FUT or SMP) are the primary path.
@@ -496,10 +496,10 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       !mechanical
         ? 'Does scalp massage improve minoxidil absorption across both the frontal and crown zones at NW5?'
         : !dhtShampoo
-          ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW5?'
+          ? (lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW5?' : 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW5?')
           : (specialistRecommended
               ? 'My scan recommended a transplant consultation — how does my current NW5 protocol fit into a surgical plan?'
-              : 'How do I measure progress with my current NW5 Rx protocol?'),
+              : (lllt ? 'How do I get the most from my LLLT device across both my NW5 frontal and crown zones?' : 'How do I measure progress with my current NW5 Rx protocol?')),
       'What results can I realistically expect from my NW5 protocol before committing to a transplant?',
     ];
   }
@@ -619,8 +619,8 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       !mechanical
         ? 'Does scalp massage improve minoxidil absorption at the temple corners at NW2?'
         : !dhtShampoo
-          ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW2?'
-          : 'How should I time scalp massage with my minoxidil application at NW2?',
+          ? (lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW2?' : 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW2?')
+          : (lllt ? 'How do I get the most from my LLLT device alongside finasteride and minoxidil at NW2?' : 'How should I time scalp massage with my minoxidil application at NW2?'),
       'What results can I realistically expect from my NW2 protocol?',
     ];
   }
@@ -653,8 +653,8 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       !mechanical
         ? 'Does scalp massage help both my temple and crown zones at NW3v?'
         : !dhtShampoo
-          ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW3v?'
-          : 'How should I time scalp massage for both my temple and crown zones?',
+          ? (lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW3v?' : 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW3v?')
+          : (lllt ? 'How do I get the most from my LLLT device across both my NW3v temple and crown zones?' : 'How should I time scalp massage for both my temple and crown zones?'),
       specialistRecommended
         ? 'My scan recommended a specialist visit — what questions should I ask about NW3v?'
         : 'How long before finasteride shows results in both my NW3v zones?',
@@ -689,8 +689,8 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       !mechanical
         ? 'Does scalp massage help with NW4 frontal and crown coverage?'
         : !dhtShampoo
-          ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW4?'
-          : 'How should I time scalp massage for both my frontal and crown zones at NW4?',
+          ? (lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW4?' : 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage stack at NW4?')
+          : (lllt ? 'How do I get the most from my LLLT device for both my NW4 frontal and crown zones?' : 'How should I time scalp massage for both my frontal and crown zones at NW4?'),
       specialistRecommended
         ? 'My scan recommended a specialist visit — what should I ask about my NW4 protocol?'
         : 'How do I measure progress when treating both my frontal and crown zones?',
@@ -724,8 +724,8 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
       !mechanical
         ? 'Does scalp massage improve minoxidil absorption at the temple recession edge at NW3?'
         : !dhtShampoo
-          ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage protocol at NW3?'
-          : 'How should I time scalp massage with minoxidil for my NW3 temple recession?',
+          ? (lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT protocol at NW3?' : 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + massage protocol at NW3?')
+          : (lllt ? 'How do I get the most from my LLLT device for my NW3 temple recession?' : 'How should I time scalp massage with minoxidil for my NW3 temple recession?'),
       specialistRecommended
         ? 'My scan recommended a specialist visit — what questions should I ask about my NW3 protocol?'
         : 'How do I track whether my finasteride and minoxidil are slowing my NW3 recession?',
@@ -753,7 +753,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
   }
   // Has Rx and some OTC
   return [
-    !mechanical ? 'Does scalp massage actually make a difference?' : 'How should I time scalp massage with my minoxidil?',
+    !mechanical ? 'Does scalp massage actually make a difference?' : (lllt ? 'How should I time my LLLT sessions with minoxidil for maximum absorption?' : 'How should I time scalp massage with my minoxidil?'),
     specialistRecommended
       ? 'My scan recommended a specialist visit — what questions should I ask a trichologist?'
       : 'How long before my current protocol shows visible results?',
