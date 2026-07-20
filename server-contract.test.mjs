@@ -1100,6 +1100,16 @@ assert(
 );
 
 assert(
+  source.includes("_hasDHTShampoo\n                                            ? 'NW3 is a pivotal response window and your DHT-blocking shampoo is providing local DHT suppression at the recession edge"),
+  'NW3 Potential WEEKLY_FOCUS_MAP should have a standalone _hasDHTShampoo branch so users with only a DHT shampoo (no minoxidil, no finasteride) get told to add minoxidil rather than falling through to the no-treatment fallback that ignores their existing shampoo'
+);
+
+assert(
+  source.includes("_hasDHTShampoo\n                                              ? 'NW3v is a dual-zone stage — both temples and early crown are active — and your DHT-blocking shampoo is providing local DHT suppression across both thinning zones"),
+  'NW3v Potential WEEKLY_FOCUS_MAP should have a standalone _hasDHTShampoo branch so users with only a DHT shampoo at the dual-zone NW3v stage get dual-zone-aware advice to add minoxidil to both zones rather than falling through to the no-treatment fallback'
+);
+
+assert(
   source.includes('suggestedAdviceVisuals') &&
     source.includes("missing.push('topical')") &&
     source.includes("missing.push('shampoo')") &&
