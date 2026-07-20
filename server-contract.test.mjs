@@ -1110,6 +1110,21 @@ assert(
 );
 
 assert(
+  source.includes("data.stage === 'NW3v'\n                                                    ? 'At NW3v, your DHT-blocking shampoo and scalp massage cover topical DHT suppression and mechanical stimulation across both the mid-scalp and early crown"),
+  'NW3v Density WEEKLY_FOCUS_MAP _hasDHTShampoo && _hasMassage branch should differentiate NW3v users with dual-zone advice (mid-scalp AND early crown) rather than giving mid-scalp-only advice that ignores the NW3v vertex thinning front'
+);
+
+assert(
+  source.includes("data.stage === 'NW3v'\n                                                        ? 'Your DHT-blocking shampoo is active at NW3v where both mid-scalp and early crown are thinning simultaneously"),
+  'NW3v Density WEEKLY_FOCUS_MAP standalone _hasDHTShampoo branch should differentiate NW3v users with dual-zone advice (both mid-scalp and early crown zones) rather than mid-scalp-only microneedling advice that ignores the vertex thinning front'
+);
+
+assert(
+  source.includes("data.stage === 'NW3v'\n                                                        ? 'NW3v density is declining across mid-scalp and early crown simultaneously"),
+  'NW3v Density WEEKLY_FOCUS_MAP no-treatment fallback should differentiate NW3v users with dual-zone advice (mid-scalp and early crown simultaneously) rather than mid-scalp-only DHT shampoo + massage advice that ignores the vertex thinning front'
+);
+
+assert(
   source.includes('suggestedAdviceVisuals') &&
     source.includes("missing.push('topical')") &&
     source.includes("missing.push('shampoo')") &&
