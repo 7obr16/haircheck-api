@@ -3247,7 +3247,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           dhtShampoo:  _hasDHTShampoo,   // ketoconazole / DHT-blocking shampoo
           mechanical:    _hasMassage,        // scalp massage / dermaroller / microneedling / LLLT
           microneedling: _hasMicroneedling, // dermaroller / dermapen / microneedling (excludes LLLT)
-          lllt:          _hasLLLT,          // LLLT devices: laser cap, laser comb, Capillus, HairMax
+          lllt:        _hasLLLT,          // LLLT devices: laser cap, laser comb, Capillus, HairMax
           supplements:   _hasSupplements,   // biotin / zinc / vitamins / saw palmetto
         };
 
@@ -3270,8 +3270,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           if (!topical)     missing.push('topical');
           if (!dhtShampoo)  missing.push('shampoo');
           if (!supplements) missing.push('supplements');
-          if (!mechanical)  missing.push('massage');
-          else if (!lllt)   missing.push(microneedling ? 'lllt' : 'microneedling');
+          if (!mechanical)                  missing.push('massage');
+          else if (!microneedling && !lllt) missing.push('microneedling');
+          else if (!lllt)                   missing.push('lllt');
           if (data.specialistRecommended) {
             return [...missing.slice(0, 2), 'consultation'];
           }
@@ -3509,10 +3510,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (pc.topical)                 active.push('minoxidil');                                           else missing.push('minoxidil');
         if (pc.rx)                      active.push('Rx DHT blocker (finasteride/dutasteride/spironolactone)'); else missing.push('Rx DHT blocker');
         if (pc.dhtShampoo)              active.push('DHT-blocking shampoo');                                else missing.push('DHT-blocking shampoo');
-        if (pc.lllt)                              active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)');
-        if (pc.microneedling && !pc.lllt)         active.push('microneedling (dermaroller/dermapen)');
-        if (pc.mechanical && !pc.microneedling && !pc.lllt) active.push('scalp massage');
-        if (!pc.mechanical)                       missing.push('scalp massage/microneedling');
+        if (pc.lllt)                    active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)');
+        if (pc.mechanical && !pc.lllt)  active.push('mechanical stimulation (massage/microneedling)');
+        if (!pc.mechanical)             missing.push('scalp massage/microneedling');
         if (pc.supplements)             active.push('supplements (biotin/zinc/vitamin D)');                 else missing.push('supplements');
         return `- Protocol layers — ACTIVE: ${active.join(', ') || 'none'}; NOT STARTED: ${missing.join(', ') || 'none'} — when the user asks what to add next, which layer is missing, or how complete their protocol is, use this structured breakdown; never re-suggest an ACTIVE layer.`;
       })();
