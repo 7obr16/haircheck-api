@@ -1149,4 +1149,10 @@ assert(
   'buildSuggestedQuestions should be LLLT-aware: destructure lllt from protocolCoverage and use it so LLLT users (who have mechanical=true via laser cap/comb) see LLLT-specific questions rather than questions framed around scalp massage they do not practice'
 );
 
+assert(
+  source.includes("immediately after your LLLT session while scalp circulation is elevated") &&
+    source.includes("NW2 temple recession with minoxidil and LLLT covers topical growth signal and photobiomodulation"),
+  'WEEKLY_FOCUS_MAP Hairline NW3 and NW2 _hasMinoxidil+_hasMassage branches should sub-check _hasLLLT and give LLLT-specific timing advice (apply after LLLT session) rather than always telling LLLT device users to do a scalp massage they do not practice'
+);
+
 console.log('server contract passed');
