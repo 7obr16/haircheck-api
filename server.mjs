@@ -2347,6 +2347,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const _hasDHTShampoo = _routineItems.some((r) => r.includes('dht') || r.includes('ketoconazole') || r.includes('nizoral') || r.includes('keto shampoo') || r.includes('caffeine shampoo') || r.includes('regenepure') || r.includes('alpecin') || r.includes('plantur') || r.includes('foligain') || r.includes('lipogaine') || r.includes('revita') || r.includes('pura d') || r.includes('shapiro md') || r.includes('rosemary oil'));
         const _hasMassage    = _routineItems.some((r) => r.includes('massage') || r.includes('dermaroller') || r.includes('derma roller') || r.includes('dermapen') || r.includes('microneedl') || r.includes('micro-needl') || r.includes('lllt') || r.includes('laser cap') || r.includes('laser comb') || r.includes('capillus') || r.includes('hairmax') || r.includes('irestore') || r.includes('igrow'));
         const _hasLLLT       = _routineItems.some((r) => r.includes('lllt') || r.includes('laser cap') || r.includes('laser comb') || r.includes('capillus') || r.includes('hairmax') || r.includes('irestore') || r.includes('igrow'));
+        const _hasMicroneedling = _routineItems.some((r) => r.includes('microneedl') || r.includes('micro-needl') || r.includes('dermaroller') || r.includes('derma roller') || r.includes('dermapen'));
         const _hasSupplements= _routineItems.some((r) => r.includes('supplement') || r.includes('biotin') || r.includes('vitamin') || r.includes('zinc') || r.includes('saw palmetto') || r.includes('nutrafol') || r.includes('viviscal') || r.includes('iron') || r.includes('pumpkin seed') || r.includes('folexin') || r.includes('hairfinity') || r.includes('perfectil') || r.includes('hairburst') || r.includes('collagen') || r.includes('keratin') || r.includes('marine collagen') || r.includes('hair formula'));
         const _hasFinasteride = _routineItems.some((r) => r.includes('finasteride') || r.includes('propecia') || r.includes('dutasteride') || r.includes('avodart') || r.includes('proscar') || r.includes('finpecia') || r.includes('spironolactone') || r.includes('spiro') || r.includes('aldactone'));
         // Stage gates: at NW5 expectations shift; at NW6/NW7 OTC has very limited effect
@@ -3244,9 +3245,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           topical:     _hasMinoxidil,    // minoxidil / rogaine
           rx:          _hasFinasteride,  // finasteride / dutasteride (Rx DHT blocker)
           dhtShampoo:  _hasDHTShampoo,   // ketoconazole / DHT-blocking shampoo
-          mechanical:  _hasMassage,      // scalp massage / dermaroller / microneedling / LLLT
-          lllt:        _hasLLLT,         // LLLT devices: laser cap, laser comb, Capillus, HairMax
-          supplements: _hasSupplements,  // biotin / zinc / vitamins / saw palmetto
+          mechanical:    _hasMassage,        // scalp massage / dermaroller / microneedling / LLLT
+          microneedling: _hasMicroneedling, // dermaroller / dermapen / microneedling (excludes LLLT)
+          lllt:          _hasLLLT,          // LLLT devices: laser cap, laser comb, Capillus, HairMax
+          supplements:   _hasSupplements,   // biotin / zinc / vitamins / saw palmetto
         };
 
         // coachSuggestedQuestions: 3 context-aware conversation starters for the coach tab.
@@ -3263,13 +3265,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // silently dropped when 3+ protocol layers are missing simultaneously, which
         // would happen for untreated advanced-stage users.
         data.suggestedAdviceVisuals = (() => {
-          const { topical, dhtShampoo, supplements, mechanical, lllt } = data.protocolCoverage;
+          const { topical, dhtShampoo, supplements, mechanical, microneedling, lllt } = data.protocolCoverage;
           const missing = [];
           if (!topical)     missing.push('topical');
           if (!dhtShampoo)  missing.push('shampoo');
           if (!supplements) missing.push('supplements');
           if (!mechanical)  missing.push('massage');
-          else if (!lllt)   missing.push('microneedling');
+          else if (!lllt)   missing.push(microneedling ? 'lllt' : 'microneedling');
           if (data.specialistRecommended) {
             return [...missing.slice(0, 2), 'consultation'];
           }
@@ -3495,9 +3497,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine') || s.includes('regaine') || s.includes('minox') || s.includes('kirkland')),
             rx:          r.some((s) => s.includes('finasteride') || s.includes('propecia') || s.includes('dutasteride') || s.includes('avodart') || s.includes('proscar') || s.includes('finpecia') || s.includes('spironolactone') || s.includes('spiro') || s.includes('aldactone')),
             dhtShampoo:  r.some((s) => s.includes('dht') || s.includes('ketoconazole') || s.includes('nizoral') || s.includes('keto shampoo') || s.includes('caffeine shampoo') || s.includes('regenepure') || s.includes('alpecin') || s.includes('plantur') || s.includes('foligain') || s.includes('lipogaine') || s.includes('revita') || s.includes('pura d') || s.includes('shapiro md') || s.includes('rosemary oil')),
-            mechanical:  r.some((s) => s.includes('massage') || s.includes('dermaroller') || s.includes('derma roller') || s.includes('dermapen') || s.includes('microneedl') || s.includes('micro-needl') || s.includes('lllt') || s.includes('laser cap') || s.includes('laser comb') || s.includes('capillus') || s.includes('hairmax') || s.includes('irestore') || s.includes('igrow')),
-            lllt:        r.some((s) => s.includes('lllt') || s.includes('laser cap') || s.includes('laser comb') || s.includes('capillus') || s.includes('hairmax') || s.includes('irestore') || s.includes('igrow')),
-            supplements: r.some((s) => s.includes('supplement') || s.includes('biotin') || s.includes('vitamin') || s.includes('zinc') || s.includes('saw palmetto') || s.includes('nutrafol') || s.includes('viviscal') || s.includes('iron') || s.includes('pumpkin seed') || s.includes('folexin') || s.includes('hairfinity') || s.includes('perfectil') || s.includes('hairburst') || s.includes('collagen') || s.includes('keratin') || s.includes('marine collagen') || s.includes('hair formula')),
+            mechanical:    r.some((s) => s.includes('massage') || s.includes('dermaroller') || s.includes('derma roller') || s.includes('dermapen') || s.includes('microneedl') || s.includes('micro-needl') || s.includes('lllt') || s.includes('laser cap') || s.includes('laser comb') || s.includes('capillus') || s.includes('hairmax') || s.includes('irestore') || s.includes('igrow')),
+            microneedling: r.some((s) => s.includes('microneedl') || s.includes('micro-needl') || s.includes('dermaroller') || s.includes('derma roller') || s.includes('dermapen')),
+            lllt:          r.some((s) => s.includes('lllt') || s.includes('laser cap') || s.includes('laser comb') || s.includes('capillus') || s.includes('hairmax') || s.includes('irestore') || s.includes('igrow')),
+            supplements:   r.some((s) => s.includes('supplement') || s.includes('biotin') || s.includes('vitamin') || s.includes('zinc') || s.includes('saw palmetto') || s.includes('nutrafol') || s.includes('viviscal') || s.includes('iron') || s.includes('pumpkin seed') || s.includes('folexin') || s.includes('hairfinity') || s.includes('perfectil') || s.includes('hairburst') || s.includes('collagen') || s.includes('keratin') || s.includes('marine collagen') || s.includes('hair formula')),
           };
         }
         if (!pc) return '';
@@ -3506,9 +3509,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (pc.topical)                 active.push('minoxidil');                                           else missing.push('minoxidil');
         if (pc.rx)                      active.push('Rx DHT blocker (finasteride/dutasteride/spironolactone)'); else missing.push('Rx DHT blocker');
         if (pc.dhtShampoo)              active.push('DHT-blocking shampoo');                                else missing.push('DHT-blocking shampoo');
-        if (pc.lllt)                    active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)');
-        if (pc.mechanical && !pc.lllt)  active.push('mechanical stimulation (massage/microneedling)');
-        if (!pc.mechanical)             missing.push('scalp massage/microneedling');
+        if (pc.lllt)                              active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)');
+        if (pc.microneedling && !pc.lllt)         active.push('microneedling (dermaroller/dermapen)');
+        if (pc.mechanical && !pc.microneedling && !pc.lllt) active.push('scalp massage');
+        if (!pc.mechanical)                       missing.push('scalp massage/microneedling');
         if (pc.supplements)             active.push('supplements (biotin/zinc/vitamin D)');                 else missing.push('supplements');
         return `- Protocol layers — ACTIVE: ${active.join(', ') || 'none'}; NOT STARTED: ${missing.join(', ') || 'none'} — when the user asks what to add next, which layer is missing, or how complete their protocol is, use this structured breakdown; never re-suggest an ACTIVE layer.`;
       })();
