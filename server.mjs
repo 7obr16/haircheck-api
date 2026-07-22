@@ -390,10 +390,18 @@ const PROGRESSION_STAGE_HINTS = {
 
 // Build a progression prompt with an optional stage-specific zone hint.
 // Falls back to the base prompt when stage is absent or unrecognised.
+// For 12-month + advanced stages (NW5-NW7) the base prompt says "Full natural-looking density"
+// which conflicts with the stage hint's "not perfect / believable" constraints. We signal
+// that the stage hint takes precedence so the model doesn't over-restore severe cases.
+const PROGRESSION_ADVANCED_STAGES = new Set(['NW5', 'NW6', 'NW7']);
 const buildProgressionPrompt = (month, stage) => {
   const basePrompt = PROGRESSION_PROMPTS[month];
   const hint = stage ? PROGRESSION_STAGE_HINTS[stage] : null;
-  return hint ? `${basePrompt}\n\nStage-specific focus: ${hint}` : basePrompt;
+  if (!hint) return basePrompt;
+  const qualifier = (month === 12 && PROGRESSION_ADVANCED_STAGES.has(stage))
+    ? 'Stage-specific constraint (OVERRIDES the "STRONG / Full natural-looking density" language above — do not restore to full density for this advanced stage):'
+    : 'Stage-specific focus:';
+  return `${basePrompt}\n\n${qualifier} ${hint}`;
 };
 
 // Build 3 context-aware suggested questions for the coach tab.
