@@ -891,14 +891,16 @@ assert(
 );
 
 assert(
-  source.includes("_hasDHTShampoo && _hasMassage\n                                        ? 'At NW3, your DHT-blocking shampoo and scalp massage cover topical DHT suppression and mechanical stimulation at the recession edge") &&
+  source.includes("_hasDHTShampoo && _hasMassage\n                                        ? (_hasLLLT") &&
+    source.includes("At NW3, your DHT-blocking shampoo and scalp massage cover topical DHT suppression and mechanical stimulation at the recession edge") &&
     source.includes("_hasDHTShampoo\n                                          ? 'Your DHT-blocking shampoo is suppressing topical DHT at the recession edge at NW3"),
-  'NW3 Health WEEKLY_FOCUS_MAP should have separate branches for (dhtShampoo+massage) and (dhtShampoo alone) so users who already have a DHT-blocking shampoo are never told to add one'
+  'NW3 Health WEEKLY_FOCUS_MAP should have separate branches for (dhtShampoo+massage) and (dhtShampoo alone) so users who already have a DHT-blocking shampoo are never told to add one; the dhtShampoo+massage branch should sub-check _hasLLLT for LLLT device users'
 );
 
 assert(
-  source.includes("_hasDHTShampoo && _hasMassage\n                                          ? 'At NW4, your DHT-blocking shampoo and scalp massage cover topical DHT suppression and mechanical stimulation across the full scalp top"),
-  'NW4 Health WEEKLY_FOCUS_MAP should have a (dhtShampoo+massage) branch so users who already have both active at this established stage are not told to add scalp massage they already have — direct them to add supplements as the missing nutritional layer instead'
+  source.includes("_hasDHTShampoo && _hasMassage\n                                          ? (_hasLLLT") &&
+    source.includes("At NW4, your DHT-blocking shampoo and scalp massage cover topical DHT suppression and mechanical stimulation across the full scalp top"),
+  'NW4 Health WEEKLY_FOCUS_MAP should have a (dhtShampoo+massage) branch (with LLLT sub-check) so users who already have both active at this established stage are not told to add scalp massage they already have — direct them to add supplements as the missing nutritional layer instead'
 );
 
 assert(
@@ -907,8 +909,9 @@ assert(
 );
 
 assert(
-  source.includes("_hasDHTShampoo && _hasMassage\n                                    ? 'At NW3v, your DHT-blocking shampoo and scalp massage cover topical DHT suppression and mechanical stimulation across both the recession edge and early crown"),
-  'NW3v Health WEEKLY_FOCUS_MAP should have a dedicated (dhtShampoo+massage) branch so users with both treatments active at this dual-zone stage receive nutritional-gap advice rather than the generic no-treatment fallback'
+  source.includes("_hasDHTShampoo && _hasMassage\n                                    ? (_hasLLLT") &&
+    source.includes("At NW3v, your DHT-blocking shampoo and scalp massage cover topical DHT suppression and mechanical stimulation across both the recession edge and early crown"),
+  'NW3v Health WEEKLY_FOCUS_MAP should have a dedicated (dhtShampoo+massage) branch (with LLLT sub-check) so users with both treatments active at this dual-zone stage receive nutritional-gap advice rather than the generic no-treatment fallback'
 );
 
 assert(
@@ -1019,9 +1022,10 @@ assert(
 );
 
 assert(
-  source.includes("_hasDHTShampoo && _hasMassage\n                                ? 'At NW5, your DHT-blocking shampoo and scalp massage provide topical DHT suppression and mechanical stimulation across the full top") &&
+  source.includes("_hasDHTShampoo && _hasMassage\n                                ? (_hasLLLT") &&
+    source.includes("At NW5, your DHT-blocking shampoo and scalp massage provide topical DHT suppression and mechanical stimulation across the full top") &&
     source.includes("_hasDHTShampoo\n                                  ? 'Your DHT-blocking shampoo provides topical DHT suppression at NW5 where miniaturization spans the full scalp top"),
-  'WEEKLY_FOCUS_MAP NW5 Health should be DHT-shampoo-aware: add _hasDHTShampoo && _hasMassage and standalone _hasDHTShampoo branches before generic fallback'
+  'WEEKLY_FOCUS_MAP NW5 Health should be DHT-shampoo-aware: _hasDHTShampoo+_hasMassage branch (with LLLT sub-check) and standalone _hasDHTShampoo branch before generic fallback'
 );
 
 assert(
@@ -1161,6 +1165,15 @@ assert(
     source.includes("Apply minoxidil directly to the crown (1ml) twice daily at NW6, immediately after your LLLT session while scalp circulation is elevated to prime follicle absorption — add weekly microneedling over the crown zone and photograph from above every 6 weeks to track change. Consider booking a transplant consultation to evaluate vertex coverage options.") &&
     source.includes("your minoxidil and LLLT device cover topical growth signal and photobiomodulation across the remaining fringe — apply minoxidil immediately after your LLLT session while scalp circulation is elevated. Add a DHT-blocking shampoo 3× weekly to complete the OTC stack for the strongest realistic non-surgical potential (15-32%). Set a 3-month checkpoint"),
   'WEEKLY_FOCUS_MAP NW6 Hairline, Density, Crown, and Potential _hasMinoxidil+_hasMassage branches should sub-check _hasLLLT and give LLLT-specific timing advice rather than telling LLLT device users to time application after a scalp massage they do not practice'
+);
+
+assert(
+  source.includes("your DHT-blocking shampoo and LLLT device cover topical DHT suppression and photobiomodulation at the recession edge — add a supplement stack (biotin, zinc, vitamin D) as the missing nutritional layer. Three complementary layers (DHT suppression + photobiomodulation + nutritional) give the strongest non-Rx scalp-health response where miniaturization is actively progressing at this established stage.") &&
+    source.includes("your supplements + DHT shampoo + LLLT device covers nutrition, topical DHT suppression, and photobiomodulation across both active zones — add weekly microneedling (0.5mm) at both the recession edge AND the early crown zone after your LLLT sessions to amplify follicle response at both active fronts.") &&
+    source.includes("your DHT-blocking shampoo and LLLT device cover topical DHT suppression and photobiomodulation across both the recession edge and early crown — add a supplement stack (biotin, zinc, vitamin D) as the missing nutritional layer, and weekly microneedling (0.5mm) at both active zones after your LLLT sessions.") &&
+    source.includes("your DHT-blocking shampoo and LLLT device cover topical DHT suppression and photobiomodulation across the full scalp top — add a supplement stack (biotin, zinc, vitamin D) as the missing nutritional layer. Biotin, zinc, and vitamin D support follicle structure from within; weekly microneedling (0.5mm) over the thinnest zones timed after your LLLT sessions is the highest-ROI absorption upgrade") &&
+    source.includes("your DHT-blocking shampoo and LLLT device provide topical DHT suppression and photobiomodulation across the full top — add a supplement stack (biotin, zinc, vitamin D) this week as the nutritional layer. Leave DHT shampoo on 3-5 minutes per wash and schedule weekly microneedling after your LLLT sessions to prime follicle response where miniaturization is most advanced at this stage."),
+  'WEEKLY_FOCUS_MAP Health metric _hasDHTShampoo+_hasMassage branches for NW3, NW3v (with and without supplements), NW4, and NW5 should sub-check _hasLLLT and give LLLT-specific advice (photobiomodulation, microneedling after LLLT session) rather than always describing a scalp massage LLLT device users do not practice'
 );
 
 console.log('server contract passed');
