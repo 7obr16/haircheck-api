@@ -1155,4 +1155,12 @@ assert(
   'WEEKLY_FOCUS_MAP Hairline NW3 and NW2 _hasMinoxidil+_hasMassage branches should sub-check _hasLLLT and give LLLT-specific timing advice (apply after LLLT session) rather than always telling LLLT device users to do a scalp massage they do not practice'
 );
 
+assert(
+  source.includes("your minoxidil and LLLT device cover topical growth signal and photobiomodulation across the remaining fringe and temple edges — apply minoxidil immediately after your LLLT session while scalp circulation is elevated so freshly stimulated follicles absorb it. Add a DHT-blocking shampoo 3× weekly as the topical DHT-suppression layer; book a transplant consultation to evaluate surgical coverage options alongside your OTC maintenance.") &&
+    source.includes("minoxidil and LLLT cover topical growth signal and photobiomodulation across the remaining fringe — apply minoxidil immediately after your LLLT session while scalp circulation is elevated. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) for topical DHT suppression to complete the non-surgical density stack. The realistic goal is stabilizing existing fringe coverage") &&
+    source.includes("Apply minoxidil directly to the crown (1ml) twice daily at NW6, immediately after your LLLT session while scalp circulation is elevated to prime follicle absorption — add weekly microneedling over the crown zone and photograph from above every 6 weeks to track change. Consider booking a transplant consultation to evaluate vertex coverage options.") &&
+    source.includes("your minoxidil and LLLT device cover topical growth signal and photobiomodulation across the remaining fringe — apply minoxidil immediately after your LLLT session while scalp circulation is elevated. Add a DHT-blocking shampoo 3× weekly to complete the OTC stack for the strongest realistic non-surgical potential (15-32%). Set a 3-month checkpoint"),
+  'WEEKLY_FOCUS_MAP NW6 Hairline, Density, Crown, and Potential _hasMinoxidil+_hasMassage branches should sub-check _hasLLLT and give LLLT-specific timing advice rather than telling LLLT device users to time application after a scalp massage they do not practice'
+);
+
 console.log('server contract passed');
