@@ -3455,12 +3455,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           specialistReason: userContext.result.specialistReason ? String(userContext.result.specialistReason).slice(0, 300) : null,
           protocolCoverage: userContext.result.protocolCoverage
             ? {
-                topical:     !!userContext.result.protocolCoverage.topical,
-                rx:          !!userContext.result.protocolCoverage.rx,
-                dhtShampoo:  !!userContext.result.protocolCoverage.dhtShampoo,
-                mechanical:  !!userContext.result.protocolCoverage.mechanical,
-                lllt:        !!userContext.result.protocolCoverage.lllt,
-                supplements: !!userContext.result.protocolCoverage.supplements,
+                topical:      !!userContext.result.protocolCoverage.topical,
+                rx:           !!userContext.result.protocolCoverage.rx,
+                dhtShampoo:   !!userContext.result.protocolCoverage.dhtShampoo,
+                mechanical:   !!userContext.result.protocolCoverage.mechanical,
+                microneedling:!!userContext.result.protocolCoverage.microneedling,
+                lllt:         !!userContext.result.protocolCoverage.lllt,
+                supplements:  !!userContext.result.protocolCoverage.supplements,
               }
             : null,
         } : null,
@@ -3589,9 +3590,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (pc.topical)                 active.push('minoxidil');                                           else missing.push('minoxidil');
         if (pc.rx)                      active.push('Rx DHT blocker (finasteride/dutasteride/spironolactone)'); else missing.push('Rx DHT blocker');
         if (pc.dhtShampoo)              active.push('DHT-blocking shampoo');                                else missing.push('DHT-blocking shampoo');
-        if (pc.lllt)                    active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)');
-        if (pc.mechanical && !pc.lllt)  active.push('mechanical stimulation (massage/microneedling)');
-        if (!pc.mechanical)             missing.push('scalp massage/microneedling');
+        if (pc.lllt)                                         active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)');
+        if (pc.microneedling)                                active.push('microneedling/dermaroller');
+        if (pc.mechanical && !pc.lllt && !pc.microneedling)  active.push('scalp massage');
+        if (!pc.mechanical)                                  missing.push('scalp massage/microneedling');
         if (pc.supplements)             active.push('supplements (biotin/zinc/vitamin D)');                 else missing.push('supplements');
         return `- Protocol layers — ACTIVE: ${active.join(', ') || 'none'}; NOT STARTED: ${missing.join(', ') || 'none'} — when the user asks what to add next, which layer is missing, or how complete their protocol is, use this structured breakdown; never re-suggest an ACTIVE layer.`;
       })();
