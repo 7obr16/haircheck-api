@@ -463,6 +463,24 @@ assert(
 );
 
 assert(
+  source.includes('Your minoxidil provides a topical growth signal for the remaining horseshoe fringe at NW7 — keep applying it consistently to the fringe and lateral edges') &&
+    source.includes('Your minoxidil helps maintain remaining fringe density at NW7 — keep applying it consistently') &&
+    source.includes('Your minoxidil provides a topical growth signal for the remaining horseshoe fringe at NW7 — keep applying it consistently. Crown coverage at this stage') &&
+    source.includes('Your minoxidil helps support follicle health at the remaining horseshoe fringe at NW7') &&
+    source.includes('Your minoxidil provides a topical growth signal for the remaining horseshoe fringe at NW7 — keep applying it consistently. Your highest-ROI step is a transplant or SMP consultation; minoxidil is often continued post-transplant'),
+  'WEEKLY_FOCUS_MAP NW7 Hairline/Density/Crown/Health/Potential entries should be minoxidil-aware so OTC users at near-total loss who have minoxidil receive fringe-maintenance advice alongside surgical planning, rather than generic advice that ignores their active treatment'
+);
+
+assert(
+  source.includes('Your finasteride + minoxidil at NW7 delivers systemic DHT suppression and a topical growth signal for the remaining horseshoe fringe') &&
+    source.includes('At NW7, your finasteride + minoxidil provides systemic DHT suppression and a topical growth signal for the remaining fringe — keep both consistent without gaps. The primary path for meaningful density') &&
+    source.includes('Your finasteride + minoxidil at NW7 delivers systemic DHT suppression and a topical growth signal for the remaining fringe — keep both consistent. Crown coverage') &&
+    source.includes('At NW7, your finasteride + minoxidil is protecting remaining fringe follicles through systemic DHT suppression and topical stimulation') &&
+    source.includes('At NW7, your finasteride + minoxidil provides systemic DHT suppression and a topical growth signal for the remaining horseshoe fringe — keep both consistent without gaps. Your highest-ROI step is a transplant or SMP consultation; both finasteride and minoxidil are often continued post-transplant'),
+  'WEEKLY_FOCUS_MAP NW7 entries should be finasteride+minoxidil-aware so Rx users at near-total loss who have both treatments receive advice acknowledging the dual-layer protocol rather than falling through to the finasteride-only branch that ignores minoxidil'
+);
+
+assert(
   source.includes('Female-pattern frontal thinning with finasteride + minoxidil covers DHT suppression and the topical growth signal') &&
     source.includes('Finasteride is an active part of your female-pattern routine and provides DHT suppression for frontal thinning'),
   'WEEKLY_FOCUS_MAP.Hairline n/a (female) branch should be finasteride-aware so Rx female-pattern users get hairline advice that acknowledges their systemic DHT suppression'
