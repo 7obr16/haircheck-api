@@ -2388,7 +2388,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     ? 'NW5 frontal recession with finasteride + minoxidil gives the strongest available non-surgical coverage — add a DHT-blocking shampoo 3× weekly as the third layer. Apply minoxidil across the entire frontal zone twice daily and take monthly front-facing photos to track how the bridge between forelock and lateral fringe responds.'
                     : _hasFinasteride
                       ? 'NW5 frontal recession with finasteride providing systemic DHT suppression is a strong foundation — add minoxidil across the full frontal zone twice daily for the complementary topical signal. The finasteride + minoxidil combination is the most effective non-surgical approach at NW5; add a DHT-blocking shampoo 3× weekly and track with monthly front-facing photos.'
-                      : _hasMinoxidil && _hasDHTShampoo
+                      : _hasMinoxidil && _hasDHTShampoo && _hasMassage
+                          ? 'NW5 frontal recession with minoxidil + DHT shampoo + scalp massage covers topical growth signal, local DHT suppression, and mechanical stimulation — apply minoxidil along the full frontal zone immediately after your scalp massage and leave DHT shampoo on 3-5 minutes per wash. A doctor consult about finasteride adds systemic DHT suppression, the most impactful upgrade at this stage; track with monthly front-facing photos to monitor how quickly the bridge between the forelock and lateral fringe is changing.'
+                          : _hasMinoxidil && _hasDHTShampoo
                           ? 'NW5 frontal recession is severe with a narrow bridge still separating the forelock from the lateral fringe — apply minoxidil across the full frontal zone twice daily and leave your DHT-blocking shampoo on 3-5 minutes per wash to slow the merge. Take monthly front-facing photos; tracking how quickly the bridge narrows is the key signal at this stage.'
                           : _hasMinoxidil && _hasMassage
                             ? (_hasLLLT

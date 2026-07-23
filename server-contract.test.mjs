@@ -265,6 +265,11 @@ assert(
 );
 
 assert(
+  source.includes('NW5 frontal recession with minoxidil + DHT shampoo + scalp massage covers topical growth signal, local DHT suppression, and mechanical stimulation'),
+  'WEEKLY_FOCUS_MAP.Hairline NW5 OTC branch should be DHT-shampoo+massage-aware: minoxidil + DHT shampoo + massage users get protocol confirmation with finasteride CTA rather than falling into the minoxidil+DHT branch that ignores their massage'
+);
+
+assert(
   source.includes('At NW6, finasteride + minoxidil is your strongest non-surgical defense for the remaining fringe and temporal hair') &&
     source.includes('Finasteride is blocking systemic DHT at NW6 — add minoxidil to the fringe and temporal edges twice daily'),
   'WEEKLY_FOCUS_MAP.Hairline NW6 branch should be finasteride-aware so Rx users at the advanced merged-loss stage receive guidance that accounts for their systemic DHT coverage'
@@ -1160,7 +1165,7 @@ assert(
 );
 
 assert(
-  source.includes("lllt = false } = protocolCoverage || {};") &&
+  source.includes("lllt = false, microneedling = false } = protocolCoverage || {};") &&
     source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW5?'") &&
     source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW4?'") &&
     source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW3v?'") &&
