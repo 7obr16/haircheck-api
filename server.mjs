@@ -3372,7 +3372,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           moderate: 'Steady progress phase — check back in 6 weeks to track improvement',
           low:      'Stable state — next scan in 2 months to monitor for changes',
         };
-        data.nextCheckInReason = URGENCY_REASONS[data.treatmentUrgency] || 'Check back regularly to track progress';
+        const _SURGICAL_STAGES_CHECKIN = new Set(['NW6', 'NW7']);
+        data.nextCheckInReason = _SURGICAL_STAGES_CHECKIN.has(stage)
+          ? 'Limited OTC response at this stage — rescan in 2 months to monitor fringe changes and track any surgical planning progress'
+          : (URGENCY_REASONS[data.treatmentUrgency] || 'Check back regularly to track progress');
 
         const scanUsage = scanPayload.usage;
         if (scanUsage) {
