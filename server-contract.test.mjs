@@ -1229,4 +1229,11 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential _hasMinoxidil+_hasMassage branches for NW2/NW3/NW3v/NW4/NW5/NW6 should sub-check _hasMicroneedling (after _hasLLLT) and give microneedling-specific timing advice (wait 24-48 hours before applying minoxidil) rather than telling microneedling users to time application after a scalp massage they do not practice'
 );
 
+assert(
+  source.includes("At NW7, your minoxidil and microneedling cover topical growth signal and scalp priming for the remaining horseshoe fringe — wait 24-48 hours after each microneedling session before applying minoxidil along the fringe (applying immediately after needling risks follicle irritation); on non-needling days apply twice daily as normal. Your highest-ROI next step is a transplant or SMP consultation; minoxidil is commonly continued post-transplant to protect native fringe hair around new grafts. Research experienced surgeons or SMP artists this week.") &&
+  source.includes("At NW7, your minoxidil and LLLT device cover topical growth signal and photobiomodulation for the remaining horseshoe fringe — apply minoxidil immediately after your LLLT session while scalp circulation is elevated. Your highest-ROI next step is a transplant or SMP consultation; minoxidil and LLLT are commonly continued post-transplant to protect native fringe hair. Research experienced surgeons or SMP artists this week.") &&
+  source.includes("At NW7, your minoxidil and scalp massage provide topical growth signal and mechanical stimulation for the remaining horseshoe fringe — apply minoxidil immediately after your massage while scalp circulation is elevated. Your highest-ROI next step is a transplant or SMP consultation; minoxidil is commonly continued post-transplant to protect native fringe hair around new grafts. Research experienced surgeons or SMP artists this week."),
+  'WEEKLY_FOCUS_MAP.Potential NW7 _hasMinoxidil+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling and give device-specific timing advice — microneedling users wait 24-48 hours before applying minoxidil; LLLT users apply immediately after session; plain massage users also apply immediately after massage'
+);
+
 console.log('server contract passed');
