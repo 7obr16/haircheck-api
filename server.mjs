@@ -1097,7 +1097,9 @@ const normalizeOpenAIError = (fallback, status, payload) => {
           ? 'This photo could not be processed. Please try a clearer, well-lit photo showing only your hair and scalp.'
           : message,
     code,
-    retryable: billing || status === 429 || status >= 500,
+    // billing and content_policy errors are NOT retryable — they need manual intervention
+    // or a different input. Only rate-limit (non-billing 429) and server errors are transient.
+    retryable: !billing && !contentPolicy && (status === 429 || status >= 500),
     contentPolicy,
     detail: payload,
   };
@@ -1149,6 +1151,13 @@ const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDel
     if (r.ok) return { ok: true, status: r.status, payload };
     const retryable = r.status === 429 || r.status >= 500;
     if (!retryable || attempt >= maxAttempts) {
+      return { ok: false, status: r.status, payload };
+    }
+    // Billing/quota errors are not transient — retrying won't help and just adds delay.
+    const _errCode = payload?.error?.code || payload?.code || null;
+    const _isBilling = _errCode === 'billing_hard_limit_reached' || _errCode === 'insufficient_quota'
+      || /billing|quota/i.test(payload?.error?.message || payload?.message || '');
+    if (_isBilling) {
       return { ok: false, status: r.status, payload };
     }
     // Respect OpenAI's Retry-After header (seconds) when present; fall back to
