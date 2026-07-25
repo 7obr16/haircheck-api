@@ -3596,9 +3596,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           low:      'Stable state — next scan in 2 months to monitor for changes',
         };
         const _SURGICAL_STAGES_CHECKIN = new Set(['NW6', 'NW7']);
-        data.nextCheckInReason = _SURGICAL_STAGES_CHECKIN.has(stage)
-          ? 'Limited OTC response at this stage — rescan in 2 months to monitor fringe changes and track any surgical planning progress'
-          : (URGENCY_REASONS[data.treatmentUrgency] || 'Check back regularly to track progress');
+        const _STAGE_CHECKIN_REASONS = {
+          'NW6': 'Limited OTC response at this stage — rescan in 2 months to monitor fringe changes and track any surgical planning progress',
+          'NW7': 'Limited OTC response at this stage — rescan in 2 months to monitor fringe changes and track any surgical planning progress',
+          'diffuse': 'Identify the root cause first: book a workup (ferritin, thyroid, hormones) — rescan in 6 weeks once treatment is started to measure initial response',
+          'n/a (female)': 'Hormonal workup is step one: ferritin, thyroid, hormone panel — rescan in 6 weeks once treatment is started to measure initial response',
+        };
+        data.nextCheckInReason = _STAGE_CHECKIN_REASONS[stage]
+          ?? (URGENCY_REASONS[data.treatmentUrgency] || 'Check back regularly to track progress');
 
         const scanUsage = scanPayload.usage;
         if (scanUsage) {
@@ -3825,7 +3830,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
         'Tone: friendly, direct, evidence-based. Avoid medical disclaimers unless specifically asked.',
-        'Constraints: never prescribe Rx drugs; recommend talking to a doctor for finasteride/dutasteride.',
+        'Constraints: never prescribe Rx drugs; recommend talking to a doctor for finasteride/dutasteride/spironolactone (and any other Rx-only treatments — including spironolactone for female users).',
         'Length: short, scannable. Use bullets when listing options.',
         'ROUTINE RULE: Always check "Current routine" below before recommending any treatment or product. If something is already listed (e.g. minoxidil, finasteride, DHT shampoo, supplements), do NOT suggest starting it — acknowledge it is active and instead suggest how to optimize it (application technique, timing, coverage area, contact time) or recommend a complementary next step they have not yet tried.',
         'Response style: answer directly. Do NOT open with affirmations or filler ("Great!", "Absolutely!", "Of course!", "Sure thing!", "That\'s a great question!"). Start with the substance of your answer. Do NOT close with generic motivational CTAs or marketing phrases ("Start your journey today!", "Take the first step!", "You\'ve got this!", "Begin your transformation!") — end with the most specific actionable point.',
