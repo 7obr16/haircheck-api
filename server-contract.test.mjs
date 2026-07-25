@@ -1264,4 +1264,25 @@ assert(
   'WEEKLY_FOCUS_MAP.Crown NW5 _hasFinasteride+_hasMinoxidil+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours — mirrors the NW3v/NW4 pattern for consistency at this nearly-merged stage'
 );
 
+assert(
+  source.includes("NW4 frontal hairline with minoxidil + DHT shampoo + LLLT covers topical growth signal, local DHT suppression, and photobiomodulation — apply minoxidil along the entire hairline edge immediately after your LLLT session while scalp circulation is elevated") &&
+    source.includes("NW4 frontal hairline with minoxidil + DHT shampoo + microneedling covers topical growth signal, local DHT suppression, and scalp priming — wait 24-48 hours after each microneedling session before applying minoxidil along the entire hairline edge") &&
+    source.includes("At NW4, minoxidil + DHT shampoo + scalp massage covers topical growth signal, local DHT suppression, and mechanical stimulation across the full frontal hairline — apply minoxidil along the entire hairline edge immediately after your scalp massage"),
+  'WEEKLY_FOCUS_MAP.Hairline NW4 _hasMinoxidil+_hasDHTShampoo+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours — not be told to apply after a scalp massage they do not practice'
+);
+
+assert(
+  source.includes("NW5 frontal recession with minoxidil + DHT shampoo + LLLT covers topical growth signal, local DHT suppression, and photobiomodulation — apply minoxidil along the full frontal zone immediately after your LLLT session while scalp circulation is elevated") &&
+    source.includes("NW5 frontal recession with minoxidil + DHT shampoo + microneedling covers topical growth signal, local DHT suppression, and scalp priming — wait 24-48 hours after each microneedling session before applying minoxidil along the full frontal zone") &&
+    source.includes("NW5 frontal recession with minoxidil + DHT shampoo + scalp massage covers topical growth signal, local DHT suppression, and mechanical stimulation — apply minoxidil along the full frontal zone immediately after your scalp massage"),
+  'WEEKLY_FOCUS_MAP.Hairline NW5 _hasMinoxidil+_hasDHTShampoo+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours — not be told to apply after a scalp massage they do not practice'
+);
+
+assert(
+  source.includes("At NW6, minoxidil + DHT shampoo + LLLT covers topical growth signal, local DHT suppression, and photobiomodulation for the remaining fringe — apply minoxidil along the fringe and temple edges immediately after your LLLT session while scalp circulation is elevated") &&
+    source.includes("At NW6, minoxidil + DHT shampoo + microneedling covers topical growth signal, local DHT suppression, and scalp priming for the remaining fringe — wait 24-48 hours after each microneedling session before applying minoxidil along the fringe and temple edges") &&
+    source.includes("At NW6, minoxidil + DHT shampoo + scalp massage covers topical growth signal, local DHT suppression, and mechanical stimulation — apply minoxidil along the fringe and temple edges immediately after your massage"),
+  'WEEKLY_FOCUS_MAP.Hairline NW6 _hasMinoxidil+_hasDHTShampoo+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours — not be told to apply after a scalp massage they do not practice'
+);
+
 console.log('server contract passed');
