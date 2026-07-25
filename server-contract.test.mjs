@@ -1236,4 +1236,25 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential NW7 _hasMinoxidil+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling and give device-specific timing advice — microneedling users wait 24-48 hours before applying minoxidil; LLLT users apply immediately after session; plain massage users also apply immediately after massage'
 );
 
+assert(
+  source.includes("NW4 crown with finasteride + minoxidil + LLLT is a strong non-surgical crown protocol — apply 1ml minoxidil to the vertex immediately after your LLLT session while scalp circulation is elevated") &&
+    source.includes("NW4 crown with finasteride + minoxidil + microneedling is a strong non-surgical crown protocol — wait 24-48 hours after each microneedling session before applying minoxidil to the vertex") &&
+    source.includes("NW4 crown with finasteride + minoxidil + massage is the most complete non-surgical crown protocol — apply 1ml minoxidil to the vertex immediately after a 4-minute scalp massage"),
+  'WEEKLY_FOCUS_MAP.Crown NW4 _hasFinasteride+_hasMinoxidil+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours — not be told to time application after a scalp massage they do not practice'
+);
+
+assert(
+  source.includes("NW3v crown thinning has just started and your finasteride + minoxidil + LLLT protocol is fully deployed for the crown — apply 1ml to the vertex immediately after your LLLT session while scalp circulation is elevated") &&
+    source.includes("NW3v crown thinning has just started and your finasteride + minoxidil + microneedling protocol is fully deployed for the crown — wait 24-48 hours after each microneedling session before applying minoxidil to the vertex") &&
+    source.includes("NW3v crown thinning has just started and your finasteride + minoxidil + massage stack is fully deployed — apply 1ml to the vertex immediately after your scalp massage"),
+  'WEEKLY_FOCUS_MAP.Crown NW3v _hasFinasteride+_hasMinoxidil+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours at this highest-ROI crown intervention window'
+);
+
+assert(
+  source.includes("NW5 crown thinning with finasteride + minoxidil + LLLT is a strong non-surgical vertex protocol — confirm 1ml minoxidil reaches the vertex directly after your LLLT session while scalp circulation is elevated") &&
+    source.includes("NW5 crown thinning with finasteride + minoxidil + microneedling is a strong non-surgical vertex protocol — wait 24-48 hours after each microneedling session before applying minoxidil to the vertex") &&
+    source.includes("NW5 crown thinning with finasteride + minoxidil + massage is the most complete non-surgical vertex protocol — confirm 1ml minoxidil reaches the vertex directly after each scalp massage"),
+  'WEEKLY_FOCUS_MAP.Crown NW5 _hasFinasteride+_hasMinoxidil+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours — mirrors the NW3v/NW4 pattern for consistency at this nearly-merged stage'
+);
+
 console.log('server contract passed');
