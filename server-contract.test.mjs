@@ -77,6 +77,13 @@ assert(
 );
 
 assert(
+  source.includes("month === 6 && PROGRESSION_ADVANCED_STAGES.has(stage)") &&
+    source.includes("OVERRIDES the \"40–50% closer to full density\" language above") &&
+    source.includes("far more modest than the 40–50% figure implies"),
+  'buildProgressionPrompt should override the 40-50% density language for NW5-NW7 at 6 months, matching the existing 12-month override pattern for advanced stages'
+);
+
+assert(
   source.includes('_isNW5only') &&
     source.includes('NW5 density loss spans both frontal and crown zones'),
   'WEEKLY_FOCUS_MAP.Density should have NW5-specific advice distinct from the NW6/NW7 fallback'

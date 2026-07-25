@@ -393,14 +393,21 @@ const PROGRESSION_STAGE_HINTS = {
 // For 12-month + advanced stages (NW5-NW7) the base prompt says "Full natural-looking density"
 // which conflicts with the stage hint's "not perfect / believable" constraints. We signal
 // that the stage hint takes precedence so the model doesn't over-restore severe cases.
+// For 6-month + advanced stages the base says "40–50% closer to full density" — similarly
+// too optimistic for NW5-NW7 where realistic 6-month improvement is well below that range.
 const PROGRESSION_ADVANCED_STAGES = new Set(['NW5', 'NW6', 'NW7']);
 const buildProgressionPrompt = (month, stage) => {
   const basePrompt = PROGRESSION_PROMPTS[month];
   const hint = stage ? PROGRESSION_STAGE_HINTS[stage] : null;
   if (!hint) return basePrompt;
-  const qualifier = (month === 12 && PROGRESSION_ADVANCED_STAGES.has(stage))
-    ? 'Stage-specific constraint (OVERRIDES the "STRONG / Full natural-looking density" language above — do not restore to full density for this advanced stage):'
-    : 'Stage-specific focus:';
+  let qualifier;
+  if (month === 12 && PROGRESSION_ADVANCED_STAGES.has(stage)) {
+    qualifier = 'Stage-specific constraint (OVERRIDES the "STRONG / Full natural-looking density" language above — do not restore to full density for this advanced stage):';
+  } else if (month === 6 && PROGRESSION_ADVANCED_STAGES.has(stage)) {
+    qualifier = 'Stage-specific constraint (OVERRIDES the "40–50% closer to full density" language above — at this advanced stage that level of improvement is not realistic at 6 months; show clearly better coverage than the 3-month result but far more modest than the 40–50% figure implies):';
+  } else {
+    qualifier = 'Stage-specific focus:';
+  }
   return `${basePrompt}\n\n${qualifier} ${hint}`;
 };
 
