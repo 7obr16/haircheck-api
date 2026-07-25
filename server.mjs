@@ -810,8 +810,8 @@ const PROGRESSION_PROMPTS = {
 Make ONLY a small, realistic improvement that matches what a user would expect after 12 weeks of minoxidil + supplements + medicated shampoo:
 - Slight thickening at the existing thinning edges (NOT in obviously bald spots — those don't fully fill in by month 3)
 - Reduce visible scalp shine through hair by maybe 15–20%
-- Vellus (peach-fuzz) hair starting to appear in receded zones, but NOT yet fully pigmented
-- Hairline shape unchanged — recession edges still visible, just slightly softer
+- Existing miniaturized hairs at the recession boundary appear very slightly more pigmented and thicker as they begin to terminalize — do NOT add new fuzzy peach-fuzz growth in bald or empty zones; the early response is invisible-unless-comparing, not dramatic
+- Hairline shape unchanged — recession edges still visible, just very slightly less sharp
 
 DO NOT regrow lost zones to completion. DO NOT change hair color or style. CRITICAL: preserve the exact hair texture and ethnicity — do NOT straighten curly or coily hair, do NOT lighten dark hair, do NOT apply a European texture to any other hair type. CRITICAL grey/white hair: if the hair is grey, white, silver, or salt-and-pepper, the restored hair MUST match that exact shade — do NOT restore grey or white hair to a darker color. The user should think "subtle but real" — not "miracle." Most people wouldn't notice unless comparing photos side-by-side.
 
