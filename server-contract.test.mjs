@@ -1265,6 +1265,27 @@ assert(
 );
 
 assert(
+  source.includes("NW5 crown thinning with finasteride + minoxidil + DHT shampoo + LLLT is the most complete non-surgical vertex protocol — confirm 1ml minoxidil reaches the vertex directly after your LLLT session while scalp circulation is elevated") &&
+    source.includes("NW5 crown thinning with finasteride + minoxidil + DHT shampoo + microneedling is the most complete non-surgical vertex protocol — wait 24-48 hours after each microneedling session before applying minoxidil to the vertex (applying immediately after needling risks follicle irritation)") &&
+    source.includes("NW5 crown thinning with finasteride + minoxidil + DHT shampoo + scalp massage is the most complete non-surgical vertex protocol — confirm 1ml minoxidil reaches the vertex directly after each scalp massage"),
+  'WEEKLY_FOCUS_MAP.Crown NW5 full-stack _hasFinasteride+_hasMinoxidil+_hasDHTShampoo+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours — mirrors the non-DHT-shampoo sibling branch pattern'
+);
+
+assert(
+  source.includes("NW4 crown with finasteride + minoxidil + DHT shampoo + LLLT is the most complete non-surgical crown protocol — apply 1ml minoxidil to the vertex immediately after your LLLT session while scalp circulation is elevated") &&
+    source.includes("NW4 crown with finasteride + minoxidil + DHT shampoo + microneedling is the most complete non-surgical crown protocol — wait 24-48 hours after each microneedling session before applying minoxidil to the vertex (applying immediately after needling risks follicle irritation)") &&
+    source.includes("NW4 crown with finasteride + minoxidil + DHT shampoo + scalp massage is the most complete non-surgical crown protocol — apply 1ml minoxidil to the vertex immediately after a 4-minute scalp massage"),
+  'WEEKLY_FOCUS_MAP.Crown NW4 full-stack _hasFinasteride+_hasDHTShampoo+_hasMinoxidil+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours — mirrors the non-DHT-shampoo sibling branch pattern'
+);
+
+assert(
+  source.includes("NW3v crown thinning has just started and your finasteride + minoxidil + DHT shampoo + LLLT is the most complete non-surgical protocol — apply 1ml to the vertex immediately after your LLLT session while scalp circulation is elevated") &&
+    source.includes("NW3v crown thinning has just started and your finasteride + minoxidil + DHT shampoo + microneedling is the most complete non-surgical protocol — wait 24-48 hours after each microneedling session before applying minoxidil to the vertex (applying immediately after needling risks follicle irritation)") &&
+    source.includes("NW3v crown thinning has just started and your finasteride + minoxidil + DHT shampoo + scalp massage is the most complete non-surgical protocol — apply 1ml to the vertex immediately after your scalp massage"),
+  'WEEKLY_FOCUS_MAP.Crown NW3v full-stack _hasFinasteride+_hasDHTShampoo+_hasMinoxidil+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours at this highest-ROI crown window'
+);
+
+assert(
   source.includes("NW4 frontal hairline with minoxidil + DHT shampoo + LLLT covers topical growth signal, local DHT suppression, and photobiomodulation — apply minoxidil along the entire hairline edge immediately after your LLLT session while scalp circulation is elevated") &&
     source.includes("NW4 frontal hairline with minoxidil + DHT shampoo + microneedling covers topical growth signal, local DHT suppression, and scalp priming — wait 24-48 hours after each microneedling session before applying minoxidil along the entire hairline edge") &&
     source.includes("At NW4, minoxidil + DHT shampoo + scalp massage covers topical growth signal, local DHT suppression, and mechanical stimulation across the full frontal hairline — apply minoxidil along the entire hairline edge immediately after your scalp massage"),
