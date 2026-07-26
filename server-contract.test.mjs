@@ -1354,4 +1354,9 @@ assert(
   'WEEKLY_FOCUS_MAP.Crown NW6 OTC 3-layer (minoxidil+DHT shampoo+massage) branch should sub-check _hasLLLT and _hasMicroneedling so device users get correct minoxidil timing — not "immediately after each scalp massage" when they use an LLLT cap or dermaroller'
 );
 
+assert(
+  source.includes("At NW3v, your supplements + DHT shampoo + microneedling covers nutrition, topical DHT suppression, and scalp priming across both active zones — use your DHT shampoo on non-needling days (or wait 48 hours after each session) to avoid applying active ingredients to a sensitized scalp; on non-needling wash days leave it on 3-5 minutes per wash at both the recession edge and early crown zone. A doctor consult about finasteride is the highest-ROI next step for systemic DHT suppression at this dual-zone stage."),
+  'WEEKLY_FOCUS_MAP.Health NW3v _hasSupplements+_hasDHTShampoo+_hasMassage branch should sub-check _hasMicroneedling so microneedling users get DHT shampoo timing advice (wait 48h after needling) instead of being told to add weekly microneedling they already practice'
+);
+
 console.log('server contract passed');
