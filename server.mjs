@@ -1473,6 +1473,19 @@ const server = createServer(async (req, res) => {
         err.statusCode = 422;
         throw err;
       }
+
+      // NW1 = fully intact hairline with no hair loss. The prompt tells gpt-image-2 to make
+      // zero changes, but model drift can still introduce subtle artifacts. Skip the API call
+      // entirely when the client uses the default stage flow (no custom prompt): return the
+      // original photo instantly, saving ~$0.02-0.19 and 30-300 seconds per call.
+      if (!prompt && stageParam === 'NW1') {
+        METRICS.after.cacheHits++;
+        bumpSuccess(METRICS.after);
+        console.log('[openai] generate-after NW1 passthrough (no hair loss at this stage)');
+        json(req, res, 200, { afterPhoto: photoDataUrl, requestId: reqId });
+        return;
+      }
+
       const hash = cacheHashOf('after', mime, buffer.length, createHash('sha256').update(buffer).digest('hex'), effectivePrompt, quality);
 
       // 1. Cache hit — return instantly
@@ -1574,6 +1587,18 @@ const server = createServer(async (req, res) => {
         err.statusCode = 422;
         throw err;
       }
+
+      // NW1 = fully intact hair, no thinning zones to improve at any month.
+      // The prompt instructs the model to return a pixel-identical result — skip the API call
+      // entirely and return the original photo instantly.
+      if (stageParam === 'NW1') {
+        METRICS.progression.cacheHits++;
+        bumpSuccess(METRICS.progression);
+        console.log('[progression] NW1 passthrough', { month: m });
+        json(req, res, 200, { afterPhoto: photoDataUrl, month: m, requestId: reqId });
+        return;
+      }
+
       // Include stage in cache key because buildProgressionPrompt interpolates it.
       // stageParam || '' ensures the key is stable when stage is omitted.
       const hash = cacheHashOf('progression', mime, createHash('sha256').update(buffer).digest('hex'), String(m), quality, stageParam || '');
@@ -1680,6 +1705,17 @@ const server = createServer(async (req, res) => {
         const err = new Error('Photo appears corrupted or too small. Please retake a clearer photo.');
         err.statusCode = 422;
         throw err;
+      }
+
+      // NW1 = fully intact hair, no thinning zones to improve at any month.
+      // Skip OpenAI for all requested months and return the original photo instantly.
+      if (stageParam === 'NW1') {
+        months.forEach(() => { METRICS.progression.requests++; METRICS.progression.cacheHits++; });
+        const results = Object.fromEntries(months.map((m) => [String(m), photoDataUrl]));
+        console.log('[progression-batch] NW1 passthrough', { months });
+        bumpSuccess(METRICS.progressionBatch);
+        json(req, res, 200, { results, requestId: reqId });
+        return;
       }
 
       const photoHash = createHash('sha256').update(buffer).digest('hex');
