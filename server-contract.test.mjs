@@ -1306,4 +1306,19 @@ assert(
   'WEEKLY_FOCUS_MAP.Hairline NW6 _hasMinoxidil+_hasDHTShampoo+_hasMassage branch should sub-check _hasLLLT and _hasMicroneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours — not be told to apply after a scalp massage they do not practice'
 );
 
+assert(
+  source.includes("Your scalp is fully intact — rescan in 2 months to confirm prevention is holding; subtle early temple shifts are easy to miss without a periodic baseline comparison") &&
+    source.includes("Early temple recession is highly responsive to treatment — rescan in") &&
+    source.includes("to catch the first density response before it's visible in the mirror") &&
+    source.includes("Deep recession at NW3 responds strongly to a consistent protocol — rescan in") &&
+    source.includes("to see if the miniaturization edge is stabilizing") &&
+    source.includes("Both active zones (temples and early crown) are in the treatment-response window — rescan in") &&
+    source.includes("to measure density progress across both active fronts") &&
+    source.includes("Consistent multi-layer treatment at NW4 produces measurable results over 4-6 weeks — rescan in") &&
+    source.includes("to track stabilization across both the frontal and crown zones") &&
+    source.includes("OTC treatment at NW5 primarily slows progression rather than reversing it — rescan in") &&
+    source.includes("to confirm the rate of change is stabilizing"),
+  'nextCheckInReason should have stage-specific messages for NW1-NW5 (not just generic urgency strings) so the iOS app can surface clinically relevant, stage-calibrated check-in context for every Norwood stage'
+);
+
 console.log('server contract passed');

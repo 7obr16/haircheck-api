@@ -3604,11 +3604,20 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           moderate: 'Steady progress phase — check back in 6 weeks to track improvement',
           low:      'Stable state — next scan in 2 months to monitor for changes',
         };
-        const _SURGICAL_STAGES_CHECKIN = new Set(['NW6', 'NW7']);
+        // Friendly label for the check-in interval already set above.
+        const _dayLabel = data.checkInIntervalDays === 28 ? '4 weeks'
+          : data.checkInIntervalDays === 42 ? '6 weeks'
+          : '2 months';
         const _STAGE_CHECKIN_REASONS = {
-          'NW6': 'Limited OTC response at this stage — rescan in 2 months to monitor fringe changes and track any surgical planning progress',
-          'NW7': 'Limited OTC response at this stage — rescan in 2 months to monitor fringe changes and track any surgical planning progress',
-          'diffuse': 'Identify the root cause first: book a workup (ferritin, thyroid, hormones) — rescan in 6 weeks once treatment is started to measure initial response',
+          'NW1':  `Your scalp is fully intact — rescan in 2 months to confirm prevention is holding; subtle early temple shifts are easy to miss without a periodic baseline comparison`,
+          'NW2':  `Early temple recession is highly responsive to treatment — rescan in ${_dayLabel} to catch the first density response before it's visible in the mirror`,
+          'NW3':  `Deep recession at NW3 responds strongly to a consistent protocol — rescan in ${_dayLabel} to see if the miniaturization edge is stabilizing`,
+          'NW3v': `Both active zones (temples and early crown) are in the treatment-response window — rescan in ${_dayLabel} to measure density progress across both active fronts`,
+          'NW4':  `Consistent multi-layer treatment at NW4 produces measurable results over 4-6 weeks — rescan in ${_dayLabel} to track stabilization across both the frontal and crown zones`,
+          'NW5':  `OTC treatment at NW5 primarily slows progression rather than reversing it — rescan in ${_dayLabel} to confirm the rate of change is stabilizing`,
+          'NW6':  'Limited OTC response at this stage — rescan in 2 months to monitor fringe changes and track any surgical planning progress',
+          'NW7':  'Limited OTC response at this stage — rescan in 2 months to monitor fringe changes and track any surgical planning progress',
+          'diffuse':      'Identify the root cause first: book a workup (ferritin, thyroid, hormones) — rescan in 6 weeks once treatment is started to measure initial response',
           'n/a (female)': 'Hormonal workup is step one: ferritin, thyroid, hormone panel — rescan in 6 weeks once treatment is started to measure initial response',
         };
         data.nextCheckInReason = _STAGE_CHECKIN_REASONS[stage]
