@@ -3615,8 +3615,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           'NW3v': `Both active zones (temples and early crown) are in the treatment-response window — rescan in ${_dayLabel} to measure density progress across both active fronts`,
           'NW4':  `Consistent multi-layer treatment at NW4 produces measurable results over 4-6 weeks — rescan in ${_dayLabel} to track stabilization across both the frontal and crown zones`,
           'NW5':  `OTC treatment at NW5 primarily slows progression rather than reversing it — rescan in ${_dayLabel} to confirm the rate of change is stabilizing`,
-          'NW6':  'Limited OTC response at this stage — rescan in 2 months to monitor fringe changes and track any surgical planning progress',
-          'NW7':  'Limited OTC response at this stage — rescan in 2 months to monitor fringe changes and track any surgical planning progress',
+          'NW6':  'At NW6 the fringe and temporal edges are the last OTC-responsive zones — rescan in 2 months to track fringe density and evaluate whether surgical planning is the right next move',
+          'NW7':  'At NW7 the horseshoe fringe is the priority — rescan in 2 months to monitor fringe density and inform any surgical planning around your available donor reserve',
           'diffuse':      'Identify the root cause first: book a workup (ferritin, thyroid, hormones) — rescan in 6 weeks once treatment is started to measure initial response',
           'n/a (female)': 'Hormonal workup is step one: ferritin, thyroid, hormone panel — rescan in 6 weeks once treatment is started to measure initial response',
         };
