@@ -1225,6 +1225,35 @@ const computeTreatmentUrgency = (stage, age) => {
   }
 };
 
+// Compute how complete the user's treatment protocol is for their stage.
+// Returns a 0-100 integer and a label for the iOS app to surface in a protocol card.
+// Weights reflect evidence strength: Rx DHT blocker and topical minoxidil are the
+// two highest-impact interventions; DHT shampoo and mechanical stimulation are
+// supporting layers; supplements are the most foundational / lowest-barrier addition.
+// At NW6/NW7, OTC alone cannot address the primary coverage deficit — surgical options
+// are the main path — so even a perfect OTC protocol is capped at 75 to signal that
+// the "missing 25" requires a specialist/surgical step, not more products.
+const computeProtocolStrengthScore = (stage, protocolCoverage) => {
+  if (!protocolCoverage) return { score: 0, label: 'starting' };
+  const { topical, rx, dhtShampoo, mechanical, supplements } = protocolCoverage;
+  let score = 0;
+  if (rx)          score += 30; // Rx DHT blocker — highest-evidence systemic layer
+  if (topical)     score += 25; // Minoxidil — highest-evidence topical
+  if (dhtShampoo)  score += 20; // DHT-blocking shampoo — supporting topical DHT layer
+  if (mechanical)  score += 15; // Massage / microneedling / LLLT
+  if (supplements) score += 10; // Biotin, zinc, vitamin D — nutritional layer
+  // NW6/NW7: cap at 75 — OTC covers the maintenance role but surgical evaluation is the
+  // primary path to meaningful coverage; the capped score signals that gap to the iOS app.
+  const isAdvanced = stage === 'NW6' || stage === 'NW7';
+  if (isAdvanced) score = Math.min(score, 75);
+  const label = score >= 85 ? 'complete'
+    : score >= 65 ? 'strong'
+    : score >= 45 ? 'partial'
+    : score >= 20 ? 'basic'
+    : 'starting';
+  return { score, label };
+};
+
 // Structured output schema for analyze-scan (gpt-4o strict mode).
 // This guarantees valid JSON, correct enum values for stage/metric, and eliminates
 // parse failures from truncated responses. Strict mode requires all properties listed
@@ -3630,6 +3659,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           lllt:        _hasLLLT,          // LLLT devices: laser cap, laser comb, Capillus, HairMax
           supplements:   _hasSupplements,   // biotin / zinc / vitamins / saw palmetto
         };
+
+        // protocolStrengthScore + label: how complete the user's treatment stack is for their stage.
+        // 0-100 integer (capped at 75 for NW6/NW7 since OTC alone can't address the primary
+        // coverage deficit at those stages) plus a plain-language label the iOS app can render
+        // on the protocol card without additional client-side logic.
+        const _protocolStrength = computeProtocolStrengthScore(stage, data.protocolCoverage);
+        data.protocolStrengthScore = _protocolStrength.score;
+        data.protocolStrengthLabel = _protocolStrength.label;
 
         // coachSuggestedQuestions: 3 context-aware conversation starters for the coach tab.
         // Computed server-side from stage + protocolCoverage so the iOS app can surface them

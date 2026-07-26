@@ -1321,4 +1321,13 @@ assert(
   'nextCheckInReason should have stage-specific messages for NW1-NW5 (not just generic urgency strings) so the iOS app can surface clinically relevant, stage-calibrated check-in context for every Norwood stage'
 );
 
+assert(
+  source.includes('computeProtocolStrengthScore') &&
+    source.includes('protocolStrengthScore') &&
+    source.includes('protocolStrengthLabel') &&
+    source.includes("score >= 85 ? 'complete'") &&
+    source.includes('if (isAdvanced) score = Math.min(score, 75)'),
+  'scan response should include protocolStrengthScore (0-100) and protocolStrengthLabel derived from protocolCoverage, with NW6/NW7 capped at 75 to signal that surgical options are the primary path'
+);
+
 console.log('server contract passed');
