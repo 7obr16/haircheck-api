@@ -1290,6 +1290,16 @@ const sanitizeProfile = (raw = {}) => {
   };
 };
 
+// Magic byte signatures for each allowed image MIME type.
+// Checked against the first bytes of the decoded buffer so we catch corrupted
+// or mistyped data URLs before sending them to OpenAI.
+const IMAGE_MAGIC = {
+  'image/jpeg': [0xFF, 0xD8, 0xFF],
+  'image/png':  [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A],
+  'image/webp': null, // validated separately (RIFF....WEBP)
+  'image/gif':  [0x47, 0x49, 0x46, 0x38], // GIF8 (covers GIF87a and GIF89a)
+};
+
 const dataUrlToBuffer = (dataUrl) => {
   const m = dataUrl.match(/^data:(image\/[a-z+.-]+);base64,(.+)$/i);
   if (!m) throw new Error('Expected data:image/...;base64,...');
@@ -1299,7 +1309,30 @@ const dataUrlToBuffer = (dataUrl) => {
     err.statusCode = 415;
     throw err;
   }
-  return { mime, buffer: Buffer.from(m[2], 'base64') };
+  const buffer = Buffer.from(m[2], 'base64');
+
+  // Validate magic bytes — catches corrupted uploads and MIME type mismatches
+  // before they cause confusing errors from OpenAI.
+  const magic = IMAGE_MAGIC[mime];
+  if (magic !== null) {
+    const mismatch = magic && magic.some((b, i) => buffer[i] !== b);
+    if (mismatch) {
+      const err = new Error(`Photo data appears corrupted — declared ${mime} but file header does not match. Please retake the photo.`);
+      err.statusCode = 422;
+      throw err;
+    }
+  } else if (mime === 'image/webp') {
+    // WebP: starts with RIFF (bytes 0-3) and has WEBP at bytes 8-11
+    const isWebP = buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46
+                && buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50;
+    if (!isWebP) {
+      const err = new Error(`Photo data appears corrupted — declared image/webp but file header does not match. Please retake the photo.`);
+      err.statusCode = 422;
+      throw err;
+    }
+  }
+
+  return { mime, buffer };
 };
 
 const serveStatic = (req, res) => {
