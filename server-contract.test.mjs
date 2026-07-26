@@ -1330,4 +1330,24 @@ assert(
   'scan response should include protocolStrengthScore (0-100) and protocolStrengthLabel derived from protocolCoverage, with NW6/NW7 capped at 75 to signal that surgical options are the primary path'
 );
 
+assert(
+  source.includes('At NW5, finasteride + minoxidil + DHT shampoo + LLLT is the most complete non-surgical density protocol') &&
+    source.includes('Apply minoxidil immediately after your LLLT session while scalp circulation is elevated, leave DHT shampoo on 3-5 minutes before rinsing, and take finasteride at the same time each day. Track progress with monthly overhead photos; this four-layer protocol gives the strongest documented non-surgical density response at NW5') &&
+    source.includes('At NW5, finasteride + minoxidil + DHT shampoo + microneedling is the most complete non-surgical density protocol') &&
+    source.includes('Wait 24-48 hours after each microneedling session before applying minoxidil (applying immediately after needling risks follicle irritation); on non-needling days apply across both thinning fronts twice daily as normal. Leave DHT shampoo on 3-5 minutes before rinsing and take finasteride at the same time each day. Track progress with monthly overhead photos; this four-layer protocol gives the strongest documented non-surgical density response at NW5'),
+  'WEEKLY_FOCUS_MAP.Density NW5 full-stack (finasteride+minoxidil+DHT shampoo+massage) branch should sub-check _hasLLLT and _hasMicroneedling so LLLT users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours — not be told to apply "immediately after scalp massage" when they have a more advanced device'
+);
+
+assert(
+  source.includes('At NW5, density loss spans both frontal and crown zones and your three-layer stack is the right approach — apply minoxidil immediately after your LLLT session while scalp circulation is elevated') &&
+    source.includes("At NW5, density loss spans both frontal and crown zones and your three-layer stack is the right approach — wait 24-48 hours after each microneedling session before applying minoxidil"),
+  'WEEKLY_FOCUS_MAP.Density NW5 OTC 3-layer (DHT shampoo+minoxidil+massage) branch should sub-check _hasLLLT and _hasMicroneedling so device users get correct minoxidil timing rather than "apply immediately after scalp massage"'
+);
+
+assert(
+  source.includes('Apply minoxidil directly to the crown (1ml) twice daily at NW6, immediately after your LLLT session while scalp circulation is elevated, and leave DHT shampoo on 3-5 minutes on wash days') &&
+    source.includes('Apply minoxidil directly to the crown (1ml) twice daily at NW6 — wait 24-48 hours after each microneedling session before applying (applying immediately after needling risks follicle irritation). On non-needling days apply twice daily as normal; leave DHT shampoo on 3-5 minutes on wash days'),
+  'WEEKLY_FOCUS_MAP.Crown NW6 OTC 3-layer (minoxidil+DHT shampoo+massage) branch should sub-check _hasLLLT and _hasMicroneedling so device users get correct minoxidil timing — not "immediately after each scalp massage" when they use an LLLT cap or dermaroller'
+);
+
 console.log('server contract passed');
