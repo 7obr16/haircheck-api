@@ -574,13 +574,17 @@ assert(
 
 assert(
   source.includes('NW5 frontal recession with finasteride + minoxidil + massage covers systemic DHT suppression, topical growth signal, and mechanical stimulation — apply minoxidil along the full frontal zone immediately after your scalp massage so primed follicles absorb it directly.') &&
+    source.includes('NW5 frontal recession with finasteride + minoxidil + LLLT covers systemic DHT suppression, topical growth signal, and photobiomodulation — apply minoxidil along the full frontal zone immediately after your LLLT session while scalp circulation is elevated.') &&
+    source.includes('NW5 frontal recession with finasteride + minoxidil + microneedling covers systemic DHT suppression, topical growth signal, and scalp priming — wait 24-48 hours after each microneedling session before applying minoxidil along the full frontal zone') &&
     source.includes('NW5 frontal recession with minoxidil and scalp massage covers topical growth signal and mechanical stimulation — apply minoxidil along the full frontal zone immediately after your scalp massage so freshly stimulated follicles absorb it.'),
-  'WEEKLY_FOCUS_MAP.Hairline NW5 branch should be minoxidil+massage-aware so OTC users (and Rx users) who have minoxidil and scalp massage but no DHT shampoo receive hairline advice that acknowledges both layers and recommends DHT shampoo as the missing leg'
+  'WEEKLY_FOCUS_MAP.Hairline NW5 branch should be minoxidil+massage-aware so OTC users (and Rx users) who have minoxidil and scalp massage but no DHT shampoo receive hairline advice that acknowledges both layers; Rx fin+min+massage branches should sub-check LLLT/microneedling so device users get correct timing advice'
 );
 
 assert(
-  source.includes('NW5 frontal recession with finasteride + minoxidil + DHT shampoo + massage is the most complete non-surgical protocol — apply minoxidil along the full frontal zone immediately after your scalp massage so primed follicles absorb it, leave DHT shampoo on 3-5 minutes per wash, and take finasteride at the same time each day.'),
-  'WEEKLY_FOCUS_MAP.Hairline NW5 4-combo branch should exist so users with finasteride + minoxidil + DHT shampoo + massage at NW5 receive advice acknowledging all four treatment layers'
+  source.includes('NW5 frontal recession with finasteride + minoxidil + DHT shampoo + scalp massage is the most complete non-surgical protocol — apply minoxidil along the full frontal zone immediately after your scalp massage so primed follicles absorb it, leave DHT shampoo on 3-5 minutes per wash, and take finasteride at the same time each day.') &&
+    source.includes('NW5 frontal recession with finasteride + minoxidil + DHT shampoo + LLLT is the most complete non-surgical protocol — apply minoxidil along the full frontal zone immediately after your LLLT session while scalp circulation is elevated, leave DHT shampoo on 3-5 minutes per wash, and take finasteride at the same time each day.') &&
+    source.includes('NW5 frontal recession with finasteride + minoxidil + DHT shampoo + microneedling is the most complete non-surgical protocol — wait 24-48 hours after each microneedling session before applying minoxidil along the full frontal zone (applying immediately after needling risks follicle irritation)'),
+  'WEEKLY_FOCUS_MAP.Hairline NW5 4-combo branch should sub-check LLLT/microneedling so LLLT device users apply minoxidil after their LLLT session and microneedling users wait 24-48 hours — not be told to apply after a scalp massage they do not practice; mirrors the NW4 Hairline 4-combo pattern'
 );
 
 assert(
