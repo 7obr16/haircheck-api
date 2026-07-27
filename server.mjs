@@ -790,6 +790,15 @@ const buildPhotoGuidance = (quality, stage, sex) => {
   // angle captures temples but misses the crown. A 45° angle from slightly behind the hairline
   // is the best compromise for capturing both active zones simultaneously.
   const isDualZone = stage === 'NW3v';
+  // NW4: frontal hairline retreat + pronounced crown thinning — another dual-zone stage.
+  // Like NW3v, capturing both the frontal zone and the crown in one frame is critical.
+  // A straight-overhead angle sees the crown but loses the frontal hairline shape;
+  // a 45° overhead angle from slightly above and behind the hairline captures both.
+  const isFrontalCrown = stage === 'NW4';
+  // NW3: deep bilateral temple recession — the defining diagnostic feature is the depth and
+  // symmetry of both temple corners. An angle slightly above eye level keeps both temples
+  // in frame without foreshortening; avoid straight-overhead (compresses temple depth).
+  const isDeepRecession = stage === 'NW3';
   // NW2: early symmetric temple recession is subtle — the M-shape is shallow and easy to miss
   // if the camera is too high (compresses the hairline) or too low (face dominates). Shooting
   // slightly above eye level with both temple corners clearly in frame is the ideal angle.
@@ -801,8 +810,14 @@ const buildPhotoGuidance = (quality, stage, sex) => {
     if (isAdvanced) {
       return 'For best results: hold your camera directly above your head with your arm fully extended in bright natural light. At your stage, capturing both your hairline and crown in the same overhead shot gives the clearest picture of both thinning zones.';
     }
+    if (isFrontalCrown) {
+      return 'For best results: hold your camera at a 45° angle above your head in bright natural light — slightly behind the hairline so both your frontal recession and crown thinning are visible in the same frame. At NW4 both zones are actively thinning and capturing them together gives the most accurate multi-zone reading.';
+    }
     if (isDualZone) {
       return 'For best results: hold your camera at a 45° angle above your head in bright natural light — slightly behind the hairline so both your temple recession and early crown are visible in the same frame. At NW3v both zones are active and need to be captured together.';
+    }
+    if (isDeepRecession) {
+      return 'For best results: hold your camera slightly above eye level in bright natural light so both temple recession zones are clearly in frame. At NW3, the depth and symmetry of bilateral recession is the key diagnostic feature — both temple corners need to be visible from the same angle.';
     }
     if (isEarlyRecession) {
       return 'For best results: hold your camera slightly above eye level in bright natural light so both temple corners are clearly in frame. Early M-shape recession is subtle — capturing both temples at once gives the clearest NW2 baseline.';
@@ -816,8 +831,14 @@ const buildPhotoGuidance = (quality, stage, sex) => {
   if (isAdvanced) {
     return 'For a more accurate scan: try shooting from directly overhead in bright lighting with both your hairline and crown in frame — capturing the full scalp top gives the most accurate view of both thinning zones at your stage.';
   }
+  if (isFrontalCrown) {
+    return 'For a more accurate scan: hold your camera at a 45° overhead angle so both your frontal hairline and crown are visible in the same shot — at NW4 both zones are actively thinning and a single frame that captures both gives the most accurate multi-zone assessment.';
+  }
   if (isDualZone) {
     return 'For a more accurate scan: hold your camera at a 45° angle above your head so both your temple recession and early crown are visible in the same shot — NW3v has two active zones and both should be in frame.';
+  }
+  if (isDeepRecession) {
+    return 'For a more accurate scan: shoot from slightly above eye level with both temple corners clearly in frame — at NW3 the depth of bilateral recession is the defining diagnostic feature and symmetry is best assessed when both sides are visible simultaneously.';
   }
   if (isEarlyRecession) {
     return 'For a more accurate scan: shoot from slightly above eye level with both temple corners clearly in frame — early temple recession is subtle and easier to measure when both sides are visible simultaneously.';
