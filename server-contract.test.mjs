@@ -126,6 +126,14 @@ assert(
 );
 
 assert(
+  source.includes('At NW3v both zones are active and need to be captured together') &&
+    source.includes('NW3v has two active zones and both should be in frame') &&
+    source.includes("Early M-shape recession is subtle — capturing both temples at once gives the clearest NW2 baseline") &&
+    source.includes('early temple recession is subtle and easier to measure when both sides are visible simultaneously'),
+  'buildPhotoGuidance should have NW3v-specific dual-zone angle guidance and NW2-specific temple-corner guidance for subtle early recession'
+);
+
+assert(
   source.includes("NW1:  'Show HIGH density (green/teal) uniformly across the entire scalp top") &&
     source.includes('do NOT place any red, orange, or yellow patches anywhere'),
   'MAP_STAGE_HINTS should include NW1 so analysis maps for fully-healthy scalps show uniform high-density overlay, not misleading thinning indicators'

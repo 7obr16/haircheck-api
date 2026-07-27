@@ -785,12 +785,27 @@ const buildPhotoGuidance = (quality, stage, sex) => {
   if (quality === 'good') return null;
   const isFemale = stage === 'n/a (female)' || sex === 'female' || sex === 'f';
   const isAdvanced = stage === 'NW5' || stage === 'NW6' || stage === 'NW7';
+  // NW3v: dual-zone stage (temples AND early crown) — both zones must be visible in the same frame.
+  // A straight-overhead shot captures the crown but can miss temple recession depth; a too-low
+  // angle captures temples but misses the crown. A 45° angle from slightly behind the hairline
+  // is the best compromise for capturing both active zones simultaneously.
+  const isDualZone = stage === 'NW3v';
+  // NW2: early symmetric temple recession is subtle — the M-shape is shallow and easy to miss
+  // if the camera is too high (compresses the hairline) or too low (face dominates). Shooting
+  // slightly above eye level with both temple corners clearly in frame is the ideal angle.
+  const isEarlyRecession = stage === 'NW2';
   if (quality === 'poor') {
     if (isFemale) {
       return 'For best results: part your hair down the center and hold your camera directly above your head in bright natural light near a window — the parting line and scalp top are the most diagnostically important zones for female-pattern thinning.';
     }
     if (isAdvanced) {
       return 'For best results: hold your camera directly above your head with your arm fully extended in bright natural light. At your stage, capturing both your hairline and crown in the same overhead shot gives the clearest picture of both thinning zones.';
+    }
+    if (isDualZone) {
+      return 'For best results: hold your camera at a 45° angle above your head in bright natural light — slightly behind the hairline so both your temple recession and early crown are visible in the same frame. At NW3v both zones are active and need to be captured together.';
+    }
+    if (isEarlyRecession) {
+      return 'For best results: hold your camera slightly above eye level in bright natural light so both temple corners are clearly in frame. Early M-shape recession is subtle — capturing both temples at once gives the clearest NW2 baseline.';
     }
     return 'For best results: hold your camera directly above your head with your arm fully extended. Use bright natural light (near a window or outdoors). Part your hair slightly so the scalp is visible, and make sure both your hairline and crown are in frame.';
   }
@@ -800,6 +815,12 @@ const buildPhotoGuidance = (quality, stage, sex) => {
   }
   if (isAdvanced) {
     return 'For a more accurate scan: try shooting from directly overhead in bright lighting with both your hairline and crown in frame — capturing the full scalp top gives the most accurate view of both thinning zones at your stage.';
+  }
+  if (isDualZone) {
+    return 'For a more accurate scan: hold your camera at a 45° angle above your head so both your temple recession and early crown are visible in the same shot — NW3v has two active zones and both should be in frame.';
+  }
+  if (isEarlyRecession) {
+    return 'For a more accurate scan: shoot from slightly above eye level with both temple corners clearly in frame — early temple recession is subtle and easier to measure when both sides are visible simultaneously.';
   }
   return 'For a more accurate scan: try shooting from a slightly higher angle in brighter lighting. Part your hair so the scalp is visible through thinning areas.';
 };
