@@ -268,7 +268,9 @@ if (!process.env.OPENAI_API_KEY) {
   process.exit(1);
 }
 
-let GIT_SHA = process.env.GIT_SHA || 'unknown';
+let GIT_SHA = process.env.GIT_SHA
+  || (process.env.RAILWAY_GIT_COMMIT_SHA ? process.env.RAILWAY_GIT_COMMIT_SHA.slice(0, 7) : null)
+  || 'unknown';
 if (GIT_SHA === 'unknown') {
   try { GIT_SHA = execSync('git rev-parse --short HEAD', { cwd: here, stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim(); }
   catch (_) {}
@@ -1481,11 +1483,14 @@ const server = createServer(async (req, res) => {
 
   if (req.method === 'GET' && reqPath === '/api/health') {
     const mem = process.memoryUsage();
+    const railwayEnv = process.env.RAILWAY_ENVIRONMENT_NAME || null;
+    const railwayService = process.env.RAILWAY_SERVICE_NAME || null;
     json(req, res, 200, {
       ok: true,
       models: { scan: 'gpt-4o', coach: 'gpt-4o-mini', image: 'gpt-image-2' },
       port: PORT,
       sha: GIT_SHA,
+      ...(railwayEnv || railwayService ? { railway: { environment: railwayEnv, service: railwayService } } : {}),
       uptimeSeconds: Math.floor((Date.now() - SERVER_START_MS) / 1000),
       openRequests,
       cache: {
