@@ -380,10 +380,10 @@ const PROGRESSION_STAGE_HINTS = {
   NW2:  "This user is Norwood 2 (slight temple recession). Direct all visible improvement to the temple corners only — gradually fill the M-shape recession toward a natural adult hairline. Crown and mid-scalp are intact; leave them unchanged.",
   NW3:  "This user is Norwood 3 (deep bilateral temple recession). Show improvement primarily in the temple recession zones. Crown and mid-scalp should remain mostly unchanged unless thinning is clearly visible there.",
   NW3v: "This user is Norwood 3v (deep temple recession + early crown thinning). Show improvement in both zones equally — temple recession filling and modest crown density increase — proportional to the treatment month.",
-  NW4:  "This user is Norwood 4 (significant frontal hairline retreat + pronounced crown thinning). Show visible improvement across both zones — a more defined frontal hairline (credible adult hairline, not a teenager's) and noticeably better crown coverage — but keep it realistic: the crown still shows thinning and visible scalp remains; 'clearly improved' not 'naturally full.' NW4 at 12 months rarely achieves complete crown coverage even with a strong protocol.",
-  NW5:  "This user is Norwood 5 (frontal and crown zones nearly merging). Show improvement across the entire scalp top — reduce visible scalp throughout. The sparse band between frontal and crown should look slightly wider and denser.",
-  NW6:  "This user is Norwood 6 (frontal and crown merged). Show meaningful density restoration across the full scalp top proportional to the treatment month. The result should be noticeably improved, not perfect.",
-  NW7:  "This user is Norwood 7 (near-total top loss). Show uniform density improvement across the entire top proportional to the treatment month. Keep it realistic — the improvement should be believable for this degree of loss.",
+  NW4:  "This user is Norwood 4 (significant frontal hairline retreat + pronounced crown thinning). Direct any improvement to both zones — the frontal hairline area (toward a more defined, credible adult hairline shape, not a teenager's hairline) and the crown/vertex (denser, but visible scalp always remains; 'clearly improved, not naturally full'). Complete crown coverage at NW4 is unlikely regardless of treatment duration — the crown must still show thinning and exposed scalp even at the strongest improvement level.",
+  NW5:  "This user is Norwood 5 (frontal and crown zones nearly merging). Direct improvement uniformly across the entire scalp top — reduce visible scalp throughout, proportional to the treatment month. The sparse band between frontal and crown should look slightly wider and denser, but never fully bridged.",
+  NW6:  "This user is Norwood 6 (frontal and crown merged). Direct improvement uniformly across the full scalp top, proportional to the treatment month. The result must still show large areas of exposed scalp — improvement is always partial at NW6, never approaching full coverage.",
+  NW7:  "This user is Norwood 7 (near-total top loss). Direct improvement uniformly across the entire scalp top, proportional to the treatment month. The horseshoe fringe must remain as the only dense zone — the top should look less bare than the input, but never appear densely covered.",
   diffuse: "This user has diffuse thinning (uniform loss across the entire scalp top). Show uniform density increase across the whole top without shifting or changing the hairline position.",
   'n/a (female)': "This user has female-pattern thinning (diffuse loss at the central part and crown). Focus improvement on the central parting and scalp top. Do not change the hairline position.",
 };
@@ -392,9 +392,9 @@ const PROGRESSION_STAGE_HINTS = {
 // Falls back to the base prompt when stage is absent or unrecognised.
 // For 12-month + realistic stages (NW4-NW7) the base prompt says "Full natural-looking density"
 // which conflicts with clinical reality — NW4+ rarely achieves complete coverage after 12 months.
-// For 6-month + advanced stages (NW5-NW7) the base says "40–50% closer to full density" —
-// too optimistic for NW5-NW7; NW4 at 6 months can realistically hit that range.
-const PROGRESSION_ADVANCED_STAGES    = new Set(['NW5', 'NW6', 'NW7']);        // 6-month override
+// For 6-month + advanced stages (NW4-NW7) the base says "40–50% closer to full density" —
+// too optimistic for NW4-NW7; that range applies to NW2-NW3 where follicles are more viable.
+const PROGRESSION_ADVANCED_STAGES    = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 6-month override
 const PROGRESSION_REALISTIC_12MO_STAGES = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 12-month override
 const buildProgressionPrompt = (month, stage) => {
   const basePrompt = PROGRESSION_PROMPTS[month];
