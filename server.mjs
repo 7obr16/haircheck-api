@@ -380,7 +380,7 @@ const PROGRESSION_STAGE_HINTS = {
   NW2:  "This user is Norwood 2 (slight temple recession). Direct all visible improvement to the temple corners only — gradually fill the M-shape recession toward a natural adult hairline. Crown and mid-scalp are intact; leave them unchanged.",
   NW3:  "This user is Norwood 3 (deep bilateral temple recession). Show improvement primarily in the temple recession zones. Crown and mid-scalp should remain mostly unchanged unless thinning is clearly visible there.",
   NW3v: "This user is Norwood 3v (deep temple recession + early crown thinning). Show improvement in both zones equally — temple recession filling and modest crown density increase — proportional to the treatment month.",
-  NW4:  "This user is Norwood 4 (significant frontal hairline retreat + pronounced crown thinning). Show improvement across both the frontal zone (toward a credible age-appropriate hairline, not a teenager's) and the crown/vertex.",
+  NW4:  "This user is Norwood 4 (significant frontal hairline retreat + pronounced crown thinning). Show visible improvement across both zones — a more defined frontal hairline (credible adult hairline, not a teenager's) and noticeably better crown coverage — but keep it realistic: the crown still shows thinning and visible scalp remains; 'clearly improved' not 'naturally full.' NW4 at 12 months rarely achieves complete crown coverage even with a strong protocol.",
   NW5:  "This user is Norwood 5 (frontal and crown zones nearly merging). Show improvement across the entire scalp top — reduce visible scalp throughout. The sparse band between frontal and crown should look slightly wider and denser.",
   NW6:  "This user is Norwood 6 (frontal and crown merged). Show meaningful density restoration across the full scalp top proportional to the treatment month. The result should be noticeably improved, not perfect.",
   NW7:  "This user is Norwood 7 (near-total top loss). Show uniform density improvement across the entire top proportional to the treatment month. Keep it realistic — the improvement should be believable for this degree of loss.",
@@ -390,19 +390,19 @@ const PROGRESSION_STAGE_HINTS = {
 
 // Build a progression prompt with an optional stage-specific zone hint.
 // Falls back to the base prompt when stage is absent or unrecognised.
-// For 12-month + advanced stages (NW5-NW7) the base prompt says "Full natural-looking density"
-// which conflicts with the stage hint's "not perfect / believable" constraints. We signal
-// that the stage hint takes precedence so the model doesn't over-restore severe cases.
-// For 6-month + advanced stages the base says "40–50% closer to full density" — similarly
-// too optimistic for NW5-NW7 where realistic 6-month improvement is well below that range.
-const PROGRESSION_ADVANCED_STAGES = new Set(['NW5', 'NW6', 'NW7']);
+// For 12-month + realistic stages (NW4-NW7) the base prompt says "Full natural-looking density"
+// which conflicts with clinical reality — NW4+ rarely achieves complete coverage after 12 months.
+// For 6-month + advanced stages (NW5-NW7) the base says "40–50% closer to full density" —
+// too optimistic for NW5-NW7; NW4 at 6 months can realistically hit that range.
+const PROGRESSION_ADVANCED_STAGES    = new Set(['NW5', 'NW6', 'NW7']);        // 6-month override
+const PROGRESSION_REALISTIC_12MO_STAGES = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 12-month override
 const buildProgressionPrompt = (month, stage) => {
   const basePrompt = PROGRESSION_PROMPTS[month];
   const hint = stage ? PROGRESSION_STAGE_HINTS[stage] : null;
   if (!hint) return basePrompt;
   let qualifier;
-  if (month === 12 && PROGRESSION_ADVANCED_STAGES.has(stage)) {
-    qualifier = 'Stage-specific constraint (OVERRIDES the "STRONG / Full natural-looking density" language above — do not restore to full density for this advanced stage):';
+  if (month === 12 && PROGRESSION_REALISTIC_12MO_STAGES.has(stage)) {
+    qualifier = 'Stage-specific constraint (OVERRIDES the "STRONG / Full natural-looking density" language above — do not restore to full density for this stage; show clear improvement proportional to what real users at this stage achieve after 12 months):';
   } else if (month === 6 && PROGRESSION_ADVANCED_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (OVERRIDES the "40–50% closer to full density" language above — at this advanced stage that level of improvement is not realistic at 6 months; show clearly better coverage than the 3-month result but far more modest than the 40–50% figure implies):';
   } else {
