@@ -3841,6 +3841,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 supplements:  !!userContext.result.protocolCoverage.supplements,
               }
             : null,
+          protocolStrengthScore: typeof userContext.result.protocolStrengthScore === 'number' ? userContext.result.protocolStrengthScore : null,
+          protocolStrengthLabel: userContext.result.protocolStrengthLabel ? String(userContext.result.protocolStrengthLabel).slice(0, 20) : null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -4037,6 +4039,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.strongestMetric?.label ? `- Current strongest metric: ${ctx.strongestMetric.label} (${ctx.strongestMetric.value}/100) — mention this as a positive when relevant.` : '',
         ctx.routine.length ? `- Current routine: ${ctx.routine.join(', ')}.` : '- No routine logged yet.',
         protocolStatusLine,
+        ctx.scan?.protocolStrengthScore !== null && ctx.scan?.protocolStrengthLabel
+          ? `- Protocol strength: ${ctx.scan.protocolStrengthLabel} (${ctx.scan.protocolStrengthScore}/100) — use this as a concise summary when the user asks how complete or strong their treatment stack is, e.g. "Your protocol is currently ${ctx.scan.protocolStrengthLabel} at ${ctx.scan.protocolStrengthScore}/100." Labels: starting=0–19, basic=20–44, partial=45–64, strong=65–84, complete=85+.`
+          : '',
         ctx.routineDoneToday.length ? `- Routine tasks completed today: ${ctx.routineDoneToday.join(', ')}.` : '- No routine tasks completed today.',
         ctx.planProducts.length ? `- Saved plan products: ${ctx.planProducts.join(', ')}.` : '- No saved plan products yet.',
         ctx.scanHistory.length
