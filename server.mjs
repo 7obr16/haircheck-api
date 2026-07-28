@@ -784,7 +784,19 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
 const buildPhotoGuidance = (quality, stage, sex) => {
   if (quality === 'good') return null;
   const isFemale = stage === 'n/a (female)' || sex === 'female' || sex === 'f';
-  const isAdvanced = stage === 'NW5' || stage === 'NW6' || stage === 'NW7';
+  // NW5: frontal and crown zones are nearly merged — the diagnostic key is whether the narrow
+  // bridge of hair between the two loss zones is still intact. A 45° overhead angle from slightly
+  // behind the hairline captures both the frontal recession and crown simultaneously, so the
+  // bridge (or its absence) is clearly visible in a single frame.
+  const isNearlyMerged = stage === 'NW5';
+  // NW6: frontal and crown have fully merged into one bald zone — lateral fringe is the remaining
+  // diagnostic area. A straight overhead shot captures the full extent of the merged bald top and
+  // shows how far the lateral fringe extends inward on each side.
+  const isMergedFringe = stage === 'NW6';
+  // NW7: near-total top loss with only a horseshoe fringe — the fringe's density and width are
+  // the key surgical-planning metrics (donor supply for FUE/FUT). A straight overhead shot with
+  // the head tilted slightly back captures both the bald crown and fringe thickness simultaneously.
+  const isHorseshoeFringe = stage === 'NW7';
   // NW3v: dual-zone stage (temples AND early crown) — both zones must be visible in the same frame.
   // A straight-overhead shot captures the crown but can miss temple recession depth; a too-low
   // angle captures temples but misses the crown. A 45° angle from slightly behind the hairline
@@ -807,8 +819,14 @@ const buildPhotoGuidance = (quality, stage, sex) => {
     if (isFemale) {
       return 'For best results: part your hair down the center and hold your camera directly above your head in bright natural light near a window — the parting line and scalp top are the most diagnostically important zones for female-pattern thinning.';
     }
-    if (isAdvanced) {
-      return 'For best results: hold your camera directly above your head with your arm fully extended in bright natural light. At your stage, capturing both your hairline and crown in the same overhead shot gives the clearest picture of both thinning zones.';
+    if (isHorseshoeFringe) {
+      return 'For best results: hold your camera directly above your head with your arm fully extended in bright natural light — a straight overhead shot captures the full bald top and the horseshoe fringe around the sides and nape. The fringe width and density are the key features at NW7, so make sure both sides of the fringe are visible in the frame.';
+    }
+    if (isMergedFringe) {
+      return 'For best results: hold your camera directly above your head with your arm fully extended in bright natural light — a straight overhead shot shows the full extent of the bald zone across the top and how far the lateral fringe reaches on each side. Both fringe edges need to be in frame at NW6.';
+    }
+    if (isNearlyMerged) {
+      return 'For best results: hold your camera at a 45° angle above your head in bright natural light — slightly behind the hairline so both your frontal recession and crown are visible in the same frame. At NW5, the narrow bridge of hair between the two thinning zones is the key diagnostic feature and needs to be visible to track whether merger has occurred.';
     }
     if (isFrontalCrown) {
       return 'For best results: hold your camera at a 45° angle above your head in bright natural light — slightly behind the hairline so both your frontal recession and crown thinning are visible in the same frame. At NW4 both zones are actively thinning and capturing them together gives the most accurate multi-zone reading.';
@@ -828,8 +846,14 @@ const buildPhotoGuidance = (quality, stage, sex) => {
   if (isFemale) {
     return 'For a more accurate scan: part your hair down the center and shoot from directly above in bright lighting — the parting line is where female-pattern thinning is most visible and measurable.';
   }
-  if (isAdvanced) {
-    return 'For a more accurate scan: try shooting from directly overhead in bright lighting with both your hairline and crown in frame — capturing the full scalp top gives the most accurate view of both thinning zones at your stage.';
+  if (isHorseshoeFringe) {
+    return 'For a more accurate scan: shoot from directly overhead in bright lighting with your arm fully extended — a straight overhead frame captures the full bald top and the horseshoe fringe around the sides and nape. Make sure both sides of the fringe are visible in the shot.';
+  }
+  if (isMergedFringe) {
+    return 'For a more accurate scan: shoot from directly overhead in bright lighting — a straight overhead shot shows the full extent of the merged bald zone and how far the lateral fringe reaches on each side. Both fringe edges should be in frame.';
+  }
+  if (isNearlyMerged) {
+    return 'For a more accurate scan: hold your camera at a 45° overhead angle so both your frontal recession and crown are visible in the same shot — at NW5 the narrow bridge of hair between the two thinning zones is the key diagnostic feature and needs to be clearly visible.';
   }
   if (isFrontalCrown) {
     return 'For a more accurate scan: hold your camera at a 45° overhead angle so both your frontal hairline and crown are visible in the same shot — at NW4 both zones are actively thinning and a single frame that captures both gives the most accurate multi-zone assessment.';

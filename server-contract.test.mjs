@@ -121,8 +121,10 @@ assert(
   source.includes('buildPhotoGuidance') &&
     source.includes('parting line and scalp top are the most diagnostically important zones for female-pattern thinning') &&
     source.includes('part your hair down the center') &&
-    source.includes('capturing both your hairline and crown in the same overhead shot'),
-  'buildPhotoGuidance should return female-specific central-parting guidance for n/a (female) users and advanced-stage guidance for NW5+ users'
+    source.includes('narrow bridge of hair between the two thinning zones') &&
+    source.includes('fringe width and density are the key features at NW7') &&
+    source.includes('Both fringe edges need to be in frame at NW6'),
+  'buildPhotoGuidance should return female-specific central-parting guidance for n/a (female) users and stage-specific guidance for NW5 (bridge focus), NW6 (merged fringe extent), and NW7 (horseshoe fringe width)'
 );
 
 assert(
