@@ -1369,4 +1369,12 @@ assert(
   'WEEKLY_FOCUS_MAP.Health NW3v _hasSupplements+_hasDHTShampoo+_hasMassage branch should sub-check _hasMicroneedling so microneedling users get DHT shampoo timing advice (wait 48h after needling) instead of being told to add weekly microneedling they already practice'
 );
 
+assert(
+  source.includes('Buffer.concat(chunks)') &&
+    source.includes('chunks.push(chunk)') &&
+    source.includes('REQUEST_BODY_TIMEOUT_MS') &&
+    source.includes('err.statusCode = 408'),
+  'readJsonBody should accumulate request chunks as Buffers (not string concatenation) for memory efficiency on large photo payloads, and enforce a per-request body-read timeout to guard against slow-body attacks'
+);
+
 console.log('server contract passed');

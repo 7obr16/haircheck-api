@@ -1097,20 +1097,48 @@ const jsonError = (req, res, code, body) => {
   json(req, res, code, body);
 };
 
+// Per-request read timeout. Prevents a very slow or stalled client from holding an
+// open connection (and a server process) indefinitely while trickling in body bytes.
+// Set REQUEST_BODY_TIMEOUT_MS in env to override; default 90s is generous for a 14MB
+// photo upload even on a slow mobile connection (~1 Mbps = 112s for 14MB, but photos
+// from an iOS camera are typically 1-4MB HEIC→JPEG, so 90s covers the realistic tail).
+const REQUEST_BODY_TIMEOUT_MS = Number(process.env.REQUEST_BODY_TIMEOUT_MS || 90_000);
+
 const readJsonBody = async (req) => {
-  let body = '';
+  // Collect chunks as Buffers to avoid quadratic string-concatenation overhead.
+  // At 14MB payload / 16KB chunks = ~900 iterations; `body += chunk` would create
+  // ~900 intermediate string copies, whereas Buffer.concat does one final allocation.
+  const chunks = [];
   let bytes = 0;
-  for await (const chunk of req) {
-    bytes += chunk.length;
-    if (bytes > MAX_BODY_BYTES) {
-      const err = new Error(`Request body too large. Limit is ${Math.round(MAX_BODY_BYTES / 1024 / 1024)}MB.`);
-      err.statusCode = 413;
-      throw err;
+
+  let timeoutId;
+  const readBody = async () => {
+    for await (const chunk of req) {
+      bytes += chunk.length;
+      if (bytes > MAX_BODY_BYTES) {
+        const err = new Error(`Request body too large. Limit is ${Math.round(MAX_BODY_BYTES / 1024 / 1024)}MB.`);
+        err.statusCode = 413;
+        throw err;
+      }
+      chunks.push(chunk);
     }
-    body += chunk;
-  }
+  };
+  const timeout = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      const err = new Error('Request body read timed out — upload was too slow or stalled');
+      err.statusCode = 408;
+      reject(err);
+    }, REQUEST_BODY_TIMEOUT_MS);
+  });
+
   try {
-    return JSON.parse(body || '{}');
+    await Promise.race([readBody(), timeout]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
+  try {
+    return JSON.parse(chunks.length ? Buffer.concat(chunks).toString('utf8') : '{}');
   } catch (_) {
     const err = new Error('Invalid JSON body');
     err.statusCode = 400;
