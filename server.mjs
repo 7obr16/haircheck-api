@@ -1601,7 +1601,7 @@ const server = createServer(async (req, res) => {
       const cached = cacheRead(AFTER_CACHE, hash);
       if (cached) {
         METRICS.after.cacheHits++;
-        console.log('[openai] generate-after CACHE HIT', { hash: hash.slice(0, 8) });
+        console.log('[openai] generate-after CACHE HIT', { hash: hash.slice(0, 8), reqId });
         json(req, res, 200, { afterPhoto: cached, cached: true, requestId: reqId });
         return;
       }
@@ -1609,7 +1609,7 @@ const server = createServer(async (req, res) => {
       // 2. In-flight dedup — piggyback on the same OpenAI call
       let inflight = AFTER_INFLIGHT.get(hash);
       if (inflight) {
-        console.log('[openai] generate-after IN-FLIGHT JOIN', { hash: hash.slice(0, 8) });
+        console.log('[openai] generate-after IN-FLIGHT JOIN', { hash: hash.slice(0, 8), reqId });
         const result = await inflight;
         if (result.ok) {
           json(req, res, 200, { afterPhoto: result.afterPhoto, deduped: true, requestId: reqId });
@@ -1622,7 +1622,7 @@ const server = createServer(async (req, res) => {
       }
 
       const startedAt = Date.now();
-      console.log('[openai] generate-after START', { hash: hash.slice(0, 8), mime, inputKb: Math.round(buffer.length / 1024) });
+      console.log('[openai] generate-after START', { hash: hash.slice(0, 8), mime, inputKb: Math.round(buffer.length / 1024), reqId });
 
       const promise = (async () => {
         const { ok, status, payload } = await withOpenAIRetry('generate-after', (signal) => {
@@ -1642,7 +1642,7 @@ const server = createServer(async (req, res) => {
         }, { maxAttempts: 2, timeoutMs: 300_000 });
 
         if (!ok) {
-          console.error('[openai] generate-after error', status, payload);
+          console.error('[openai] generate-after error', { status, reqId }, payload);
           return { ok: false, status, error: payload };
         }
         const b64 = payload?.data?.[0]?.b64_json;
@@ -1667,7 +1667,7 @@ const server = createServer(async (req, res) => {
       cacheWrite(AFTER_CACHE, hash, result.afterPhoto, IMAGE_CACHE_MAX);
       bumpSuccess(METRICS.after);
       warnIfSlow('generate-after', startedAt, 'image');
-      console.log('[openai] generate-after OK', { ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
+      console.log('[openai] generate-after OK', { ms: Date.now() - startedAt, hash: hash.slice(0, 8), reqId });
       json(req, res, 200, { afterPhoto: result.afterPhoto, requestId: reqId });
     } catch (err) {
       bumpError(METRICS.after, err.statusCode || 500, err.message);
@@ -1716,7 +1716,7 @@ const server = createServer(async (req, res) => {
       const progCached = cacheRead(PROGRESSION_CACHE, hash);
       if (progCached) {
         METRICS.progression.cacheHits++;
-        console.log('[progression] CACHE HIT', { month: m, hash: hash.slice(0, 8) });
+        console.log('[progression] CACHE HIT', { month: m, hash: hash.slice(0, 8), reqId });
         json(req, res, 200, { afterPhoto: progCached, month: m, cached: true, requestId: reqId });
         return;
       }
@@ -1724,7 +1724,7 @@ const server = createServer(async (req, res) => {
       // 2. In-flight dedup
       let progInflight = PROGRESSION_INFLIGHT.get(hash);
       if (progInflight) {
-        console.log('[progression] IN-FLIGHT JOIN', { month: m, hash: hash.slice(0, 8) });
+        console.log('[progression] IN-FLIGHT JOIN', { month: m, hash: hash.slice(0, 8), reqId });
         const progResult = await progInflight;
         if (progResult.ok) {
           json(req, res, 200, { afterPhoto: progResult.afterPhoto, month: m, deduped: true, requestId: reqId });
@@ -1738,7 +1738,7 @@ const server = createServer(async (req, res) => {
 
       const startedAt = Date.now();
       const progressionPrompt = buildProgressionPrompt(m, stageParam);
-      console.log('[progression] start', { month: m, stage: stageParam || null, mime, inputKb: Math.round(buffer.length / 1024), quality });
+      console.log('[progression] start', { month: m, stage: stageParam || null, mime, inputKb: Math.round(buffer.length / 1024), quality, reqId });
 
       const progPromise = (async () => {
         const { ok, status, payload } = await withOpenAIRetry('generate-progression', (signal) => {
@@ -1757,7 +1757,7 @@ const server = createServer(async (req, res) => {
           });
         }, { maxAttempts: 2, timeoutMs: 300_000 });
         if (!ok) {
-          console.error('[openai progression] error', status, payload);
+          console.error('[openai progression] error', { status, month: m, reqId }, payload);
           return { ok: false, status, error: payload };
         }
         const b64 = payload?.data?.[0]?.b64_json;
@@ -1782,7 +1782,7 @@ const server = createServer(async (req, res) => {
       cacheWrite(PROGRESSION_CACHE, hash, progResult.afterPhoto, IMAGE_CACHE_MAX);
       bumpSuccess(METRICS.progression);
       warnIfSlow('generate-progression', startedAt, 'image');
-      console.log('[progression] ok', { month: m, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
+      console.log('[progression] ok', { month: m, ms: Date.now() - startedAt, hash: hash.slice(0, 8), reqId });
       json(req, res, 200, { afterPhoto: progResult.afterPhoto, month: m, requestId: reqId });
     } catch (err) {
       bumpError(METRICS.progression, err.statusCode || 500, err.message);
@@ -1829,7 +1829,7 @@ const server = createServer(async (req, res) => {
 
       const photoHash = createHash('sha256').update(buffer).digest('hex');
       const startedAt = Date.now();
-      console.log('[progression-batch] start', { months, stage: stageParam || null, mime, inputKb: Math.round(buffer.length / 1024), quality });
+      console.log('[progression-batch] start', { months, stage: stageParam || null, mime, inputKb: Math.round(buffer.length / 1024), quality, reqId });
 
       // Run all requested months in parallel. PROGRESSION_CACHE and PROGRESSION_INFLIGHT are shared
       // with the single-month handler so concurrent calls for the same photo never hit OpenAI twice.
@@ -1916,7 +1916,7 @@ const server = createServer(async (req, res) => {
 
       bumpSuccess(METRICS.progressionBatch);
       warnIfSlow('generate-progression-batch', startedAt, 'image');
-      console.log('[progression-batch] done', { months, ms: Date.now() - startedAt, succeeded: Object.keys(results).length, failed: Object.keys(errors).length });
+      console.log('[progression-batch] done', { months, ms: Date.now() - startedAt, succeeded: Object.keys(results).length, failed: Object.keys(errors).length, reqId });
       json(req, res, 200, {
         results,
         ...(Object.keys(errors).length ? { errors } : {}),
@@ -1960,7 +1960,7 @@ const server = createServer(async (req, res) => {
       const mapCached = cacheRead(MAP_CACHE, hash);
       if (mapCached) {
         METRICS.map.cacheHits++;
-        console.log('[analysis-map] CACHE HIT', { kind: mapKind, hash: hash.slice(0, 8) });
+        console.log('[analysis-map] CACHE HIT', { kind: mapKind, hash: hash.slice(0, 8), reqId });
         json(req, res, 200, { analysisMap: mapCached, kind: mapKind, cached: true, requestId: reqId });
         return;
       }
@@ -1968,7 +1968,7 @@ const server = createServer(async (req, res) => {
       // 2. In-flight dedup
       let mapInflight = MAP_INFLIGHT.get(hash);
       if (mapInflight) {
-        console.log('[analysis-map] IN-FLIGHT JOIN', { kind: mapKind, hash: hash.slice(0, 8) });
+        console.log('[analysis-map] IN-FLIGHT JOIN', { kind: mapKind, hash: hash.slice(0, 8), reqId });
         const mapResult = await mapInflight;
         if (mapResult.ok) {
           json(req, res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, deduped: true, requestId: reqId });
@@ -1981,7 +1981,7 @@ const server = createServer(async (req, res) => {
       }
 
       const startedAt = Date.now();
-      console.log('[analysis-map] start', { kind: mapKind, stage: stageKey || null, mime, inputKb: Math.round(buffer.length / 1024) });
+      console.log('[analysis-map] start', { kind: mapKind, stage: stageKey || null, mime, inputKb: Math.round(buffer.length / 1024), reqId });
 
       const mapPromptText = buildAnalysisMapPrompt(mapKind, scanScores);
       const mapPromise = (async () => {
@@ -2001,7 +2001,7 @@ const server = createServer(async (req, res) => {
           });
         }, { maxAttempts: 2, timeoutMs: 300_000 });
         if (!ok) {
-          console.error('[analysis-map] error', status, payload);
+          console.error('[analysis-map] error', { status, kind: mapKind, reqId }, payload);
           return { ok: false, status, error: payload };
         }
         const b64 = payload?.data?.[0]?.b64_json;
@@ -2026,7 +2026,7 @@ const server = createServer(async (req, res) => {
       cacheWrite(MAP_CACHE, hash, mapResult.analysisMap, IMAGE_CACHE_MAX);
       bumpSuccess(METRICS.map);
       warnIfSlow('generate-analysis-map', startedAt, 'image');
-      console.log('[analysis-map] ok', { kind: mapKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
+      console.log('[analysis-map] ok', { kind: mapKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8), reqId });
       json(req, res, 200, { analysisMap: mapResult.analysisMap, kind: mapKind, requestId: reqId });
     } catch (err) {
       bumpError(METRICS.map, err.statusCode || 500, err.message);
@@ -2051,14 +2051,14 @@ const server = createServer(async (req, res) => {
       const cached = cacheRead(ADVICE_VISUAL_CACHE, hash);
       if (cached) {
         METRICS.adviceVisual.cacheHits++;
-        console.log('[advice-visual] CACHE HIT', { kind: visualKind, hash: hash.slice(0, 8) });
+        console.log('[advice-visual] CACHE HIT', { kind: visualKind, hash: hash.slice(0, 8), reqId });
         json(req, res, 200, { adviceVisual: cached, kind: visualKind, cached: true, requestId: reqId });
         return;
       }
 
       let inflight = ADVICE_VISUAL_INFLIGHT.get(hash);
       if (inflight) {
-        console.log('[advice-visual] IN-FLIGHT JOIN', { kind: visualKind, hash: hash.slice(0, 8) });
+        console.log('[advice-visual] IN-FLIGHT JOIN', { kind: visualKind, hash: hash.slice(0, 8), reqId });
         const result = await inflight;
         if (result.ok) {
           json(req, res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, deduped: true, requestId: reqId });
@@ -2071,7 +2071,7 @@ const server = createServer(async (req, res) => {
       }
 
       const startedAt = Date.now();
-      console.log('[advice-visual] start', { kind: visualKind, quality });
+      console.log('[advice-visual] start', { kind: visualKind, quality, reqId });
 
       const promise = (async () => {
         const reqBody = JSON.stringify({ model: 'gpt-image-2', prompt, n: 1, size: '1024x1024', quality, output_format: 'png' });
@@ -2086,7 +2086,7 @@ const server = createServer(async (req, res) => {
         );
 
         if (!ok) {
-          console.error('[advice-visual] error', status, payload);
+          console.error('[advice-visual] error', { status, kind: visualKind, reqId }, payload);
           return { ok: false, status, error: payload };
         }
         const b64 = payload?.data?.[0]?.b64_json;
@@ -2111,7 +2111,7 @@ const server = createServer(async (req, res) => {
       cacheWrite(ADVICE_VISUAL_CACHE, hash, result.adviceVisual, IMAGE_CACHE_MAX);
       bumpSuccess(METRICS.adviceVisual);
       warnIfSlow('generate-advice-visual', startedAt, 'image');
-      console.log('[advice-visual] ok', { kind: visualKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8) });
+      console.log('[advice-visual] ok', { kind: visualKind, ms: Date.now() - startedAt, hash: hash.slice(0, 8), reqId });
       json(req, res, 200, { adviceVisual: result.adviceVisual, kind: visualKind, requestId: reqId });
     } catch (err) {
       bumpError(METRICS.adviceVisual, err.statusCode || 500, err.message);
@@ -2154,14 +2154,14 @@ const server = createServer(async (req, res) => {
       const scanCached = cacheRead(SCAN_CACHE, scanHash);
       if (scanCached) {
         METRICS.scan.cacheHits++;
-        console.log('[vision] CACHE HIT', { hash: scanHash.slice(0, 8) });
+        console.log('[vision] CACHE HIT', { hash: scanHash.slice(0, 8), reqId });
         json(req, res, 200, { ...scanCached, ...computeStageChange(scanCached.stage, previousStage), ...computeScoreDeltas(scanCached, previousScores), cached: true, requestId: reqId });
         return;
       }
 
       const scanInflight = SCAN_INFLIGHT.get(scanHash);
       if (scanInflight) {
-        console.log('[vision] IN-FLIGHT JOIN', { hash: scanHash.slice(0, 8) });
+        console.log('[vision] IN-FLIGHT JOIN', { hash: scanHash.slice(0, 8), reqId });
         const scanResult = await scanInflight;
         if (scanResult.ok) {
           json(req, res, 200, { ...scanResult.data, ...computeStageChange(scanResult.data.stage, previousStage), ...computeScoreDeltas(scanResult.data, previousScores), deduped: true, requestId: reqId });
@@ -2173,7 +2173,7 @@ const server = createServer(async (req, res) => {
       }
 
       const startedAt = Date.now();
-      console.log('[vision] start', { inputKb: Math.round(visionBuffer.length / 1024) });
+      console.log('[vision] start', { inputKb: Math.round(visionBuffer.length / 1024), reqId });
 
       const ctx = [
         `Sex: ${profile.sex || 'unspecified'}`,
@@ -2311,7 +2311,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         );
 
         if (!scanOk) {
-          console.error('[openai vision] error', scanStatus, scanPayload);
+          console.error('[openai vision] error', { status: scanStatus, reqId }, scanPayload);
           return { ok: false, status: scanStatus, error: normalizeOpenAIError('Vision request failed', scanStatus, scanPayload) };
         }
 
@@ -3815,7 +3815,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           METRICS.scan.promptTokens     += scanUsage.prompt_tokens     || 0;
           METRICS.scan.completionTokens += scanUsage.completion_tokens || 0;
         }
-        console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null });
+        console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null, reqId });
         return { ok: true, data };
       })();
 
@@ -4150,7 +4150,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       if (!coachOk) {
         const aiErr = normalizeOpenAIError('Coach request failed', coachStatus, coachPayload);
         bumpError(METRICS.coach, coachStatus, aiErr.error);
-        console.error('[coach] error', coachStatus, coachPayload);
+        console.error('[coach] error', { status: coachStatus, reqId }, coachPayload);
         jsonError(req, res, coachStatus, { ...aiErr, requestId: reqId });
         return;
       }
@@ -4172,7 +4172,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       }
       bumpSuccess(METRICS.coach);
       warnIfSlow('coach', startedAt, 'coach');
-      if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason });
+      if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason, reqId });
       const coachTruncated = coachFinishReason === 'length';
       // suggestedFollowUps: fresh context-aware chips for the iOS coach tab.
       // Reuses scan-time logic so chips stay aligned with stage and protocol without
