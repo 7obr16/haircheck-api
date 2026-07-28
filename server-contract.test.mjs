@@ -84,6 +84,14 @@ assert(
 );
 
 assert(
+  source.includes("month === 12 && PROGRESSION_CALIBRATED_12MO_STAGES.has(stage)") &&
+    source.includes("CALIBRATES the \"Full natural-looking density\" language above") &&
+    source.includes("NW2 hairline, NOT a fully restored NW1 hairline") &&
+    source.includes("PROGRESSION_CALIBRATED_12MO_STAGES = new Set(['NW3', 'NW3v'])"),
+  'buildProgressionPrompt should apply a calibrated 12-month override for NW3/NW3v that prevents the "Full natural-looking density" language from producing a fully-restored NW1 result — realistic 12-month ceiling is NW2-equivalent, not complete recession erasure'
+);
+
+assert(
   source.includes('_isNW5only') &&
     source.includes('NW5 density loss spans both frontal and crown zones'),
   'WEEKLY_FOCUS_MAP.Density should have NW5-specific advice distinct from the NW6/NW7 fallback'

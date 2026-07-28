@@ -396,8 +396,12 @@ const PROGRESSION_STAGE_HINTS = {
 // which conflicts with clinical reality — NW4+ rarely achieves complete coverage after 12 months.
 // For 6-month + advanced stages (NW4-NW7) the base says "40–50% closer to full density" —
 // too optimistic for NW4-NW7; that range applies to NW2-NW3 where follicles are more viable.
+// For 12-month + NW3/NW3v, "Full natural-looking density" overshoots — the realistic best-case
+// ceiling after 12 months of consistent treatment is a substantial fill of the temple recession
+// (equivalent to a NW2 hairline), not full NW1 restoration. Recession lines remain visible.
 const PROGRESSION_ADVANCED_STAGES    = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 6-month override
 const PROGRESSION_REALISTIC_12MO_STAGES = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 12-month override
+const PROGRESSION_CALIBRATED_12MO_STAGES = new Set(['NW3', 'NW3v']); // 12-month calibration override
 const buildProgressionPrompt = (month, stage) => {
   const basePrompt = PROGRESSION_PROMPTS[month];
   const hint = stage ? PROGRESSION_STAGE_HINTS[stage] : null;
@@ -405,6 +409,8 @@ const buildProgressionPrompt = (month, stage) => {
   let qualifier;
   if (month === 12 && PROGRESSION_REALISTIC_12MO_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (OVERRIDES the "STRONG / Full natural-looking density" language above — do not restore to full density for this stage; show clear improvement proportional to what real users at this stage achieve after 12 months):';
+  } else if (month === 12 && PROGRESSION_CALIBRATED_12MO_STAGES.has(stage)) {
+    qualifier = 'Stage-specific constraint (CALIBRATES the "Full natural-looking density" language above — at NW3/NW3v the realistic 12-month ceiling is significant temple filling equivalent to a NW2 hairline, NOT a fully restored NW1 hairline. The recession should look substantially reduced — temple corners clearly filled and less angular — but the hairline must still show some recession character; do NOT erase all recession to produce a straight, NW1-level result):';
   } else if (month === 6 && PROGRESSION_ADVANCED_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (OVERRIDES the "40–50% closer to full density" language above — at this advanced stage that level of improvement is not realistic at 6 months; show clearly better coverage than the 3-month result but far more modest than the 40–50% figure implies):';
   } else {
