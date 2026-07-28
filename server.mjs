@@ -402,6 +402,10 @@ const PROGRESSION_STAGE_HINTS = {
 const PROGRESSION_ADVANCED_STAGES    = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 6-month override
 const PROGRESSION_REALISTIC_12MO_STAGES = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 12-month override
 const PROGRESSION_CALIBRATED_12MO_STAGES = new Set(['NW3', 'NW3v']); // 12-month calibration override
+// 3-month override for very advanced stages: at NW5-NW7 the bald zones are so large that
+// real 3-month results are essentially invisible in photos. The base prompt's "15–20% shine
+// reduction / slight thickening" language is far too optimistic when the scalp top is mostly bare.
+const PROGRESSION_MINIMAL_3MO_STAGES = new Set(['NW5', 'NW6', 'NW7']); // 3-month override
 const buildProgressionPrompt = (month, stage) => {
   const basePrompt = PROGRESSION_PROMPTS[month];
   const hint = stage ? PROGRESSION_STAGE_HINTS[stage] : null;
@@ -413,6 +417,8 @@ const buildProgressionPrompt = (month, stage) => {
     qualifier = 'Stage-specific constraint (CALIBRATES the "Full natural-looking density" language above — at NW3/NW3v the realistic 12-month ceiling is significant temple filling equivalent to a NW2 hairline, NOT a fully restored NW1 hairline. The recession should look substantially reduced — temple corners clearly filled and less angular — but the hairline must still show some recession character; do NOT erase all recession to produce a straight, NW1-level result):';
   } else if (month === 6 && PROGRESSION_ADVANCED_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (OVERRIDES the "40–50% closer to full density" language above — at this advanced stage that level of improvement is not realistic at 6 months; show clearly better coverage than the 3-month result but far more modest than the 40–50% figure implies):';
+  } else if (month === 3 && PROGRESSION_MINIMAL_3MO_STAGES.has(stage)) {
+    qualifier = 'Stage-specific constraint (OVERRIDES the "15–20% shine reduction / slight thickening" language above — at this advanced stage, real 3-month treatment results are nearly invisible in photos. The large bald zones across the scalp top must show NO new growth or density change. Show at most the faintest hint of marginally thicker hairs only at the horseshoe fringe boundary — the output must look essentially identical to the input and an ordinary viewer should not notice any difference without a side-by-side comparison):';
   } else {
     qualifier = 'Stage-specific focus:';
   }
