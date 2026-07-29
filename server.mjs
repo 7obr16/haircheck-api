@@ -625,11 +625,13 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
     }
     // Has Rx and possibly OTC
     return [
-      'Is finasteride enough on its own for NW1 prevention, or should I add something else?',
-      dhtShampoo
-        ? 'How do I get the most from my finasteride and DHT shampoo at NW1?'
-        : 'What should I add to finasteride for the most complete NW1 prevention stack?',
+      !mechanical
+        ? 'Is finasteride enough on its own for NW1 prevention, or should I add scalp massage or LLLT?'
+        : !dhtShampoo
+          ? (lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + LLLT stack at NW1?' : microneedling ? 'Should I add a DHT-blocking shampoo to my finasteride + microneedling stack at NW1?' : 'Should I add a DHT-blocking shampoo to my finasteride + scalp massage routine at NW1?')
+          : (lllt ? 'How do I get the most from my LLLT device as part of my NW1 prevention stack?' : microneedling ? 'How often should I do microneedling alongside finasteride at NW1 to maximize prevention?' : 'How do I get the most from my finasteride and DHT shampoo at NW1?'),
       'How long should I continue finasteride at NW1 before reassessing?',
+      'How will I know if my NW1 prevention protocol is actually working?',
     ];
   }
   // NW2 — slight symmetric temple recession; earliest AGA stage; strongest preventive window.
