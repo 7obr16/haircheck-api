@@ -831,6 +831,12 @@ const buildPhotoGuidance = (quality, stage, sex) => {
   // if the camera is too high (compresses the hairline) or too low (face dominates). Shooting
   // slightly above eye level with both temple corners clearly in frame is the ideal angle.
   const isEarlyRecession = stage === 'NW2';
+  // diffuse: uniform thinning across the entire scalp top without a localized pattern. Unlike
+  // recession stages where 45° angles help capture depth at specific zones, diffuse needs a
+  // straight overhead shot to show the full distribution — any angle that cuts off the scalp
+  // edges will miss how far the diffuse thinning extends. Good overhead lighting from a window
+  // or lamp directly above the user helps reveal the subtle scalp visibility through the hair.
+  const isDiffuse = stage === 'diffuse';
   if (quality === 'poor') {
     if (isFemale) {
       return 'For best results: part your hair down the center and hold your camera directly above your head in bright natural light near a window — the parting line and scalp top are the most diagnostically important zones for female-pattern thinning.';
@@ -855,6 +861,9 @@ const buildPhotoGuidance = (quality, stage, sex) => {
     }
     if (isEarlyRecession) {
       return 'For best results: hold your camera slightly above eye level in bright natural light so both temple corners are clearly in frame. Early M-shape recession is subtle — capturing both temples at once gives the clearest NW2 baseline.';
+    }
+    if (isDiffuse) {
+      return 'For best results: hold your camera directly above your head with your arm fully extended in bright natural light (near a window or lamp directly overhead). Diffuse thinning is distributed across the entire scalp top — a straight overhead angle captures the full extent of coverage, including the edges. Part your hair slightly along the center to show the scalp surface through the hair.';
     }
     return 'For best results: hold your camera directly above your head with your arm fully extended. Use bright natural light (near a window or outdoors). Part your hair slightly so the scalp is visible, and make sure both your hairline and crown are in frame.';
   }
@@ -882,6 +891,9 @@ const buildPhotoGuidance = (quality, stage, sex) => {
   }
   if (isEarlyRecession) {
     return 'For a more accurate scan: shoot from slightly above eye level with both temple corners clearly in frame — early temple recession is subtle and easier to measure when both sides are visible simultaneously.';
+  }
+  if (isDiffuse) {
+    return 'For a more accurate scan: shoot from directly overhead in bright lighting — diffuse thinning is distributed across the entire scalp top and a straight overhead angle captures the full extent. Part your hair along the center so the scalp surface is visible through the hair.';
   }
   return 'For a more accurate scan: try shooting from a slightly higher angle in brighter lighting. Part your hair so the scalp is visible through thinning areas.';
 };

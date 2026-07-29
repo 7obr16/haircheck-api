@@ -144,6 +144,13 @@ assert(
 );
 
 assert(
+  source.includes("stage === 'diffuse'") &&
+    source.includes('Diffuse thinning is distributed across the entire scalp top') &&
+    source.includes('diffuse thinning is distributed across the entire scalp top and a straight overhead angle captures the full extent'),
+  "buildPhotoGuidance should have diffuse-specific straight-overhead guidance so diffuse-pattern users get angle advice appropriate for uniform thinning, not localized-recession advice"
+);
+
+assert(
   source.includes("NW1:  'Show HIGH density (green/teal) uniformly across the entire scalp top") &&
     source.includes('do NOT place any red, orange, or yellow patches anywhere'),
   'MAP_STAGE_HINTS should include NW1 so analysis maps for fully-healthy scalps show uniform high-density overlay, not misleading thinning indicators'
