@@ -626,7 +626,7 @@ const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended)
     // Has Rx and possibly OTC
     return [
       !mechanical
-        ? 'Is finasteride enough on its own for NW1 prevention, or should I add scalp massage or LLLT?'
+        ? 'Is finasteride enough on its own for NW1 prevention, or should I add something else?'
         : !dhtShampoo
           ? (lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + LLLT stack at NW1?' : microneedling ? 'Should I add a DHT-blocking shampoo to my finasteride + microneedling stack at NW1?' : 'Should I add a DHT-blocking shampoo to my finasteride + scalp massage routine at NW1?')
           : (lllt ? 'How do I get the most from my LLLT device as part of my NW1 prevention stack?' : microneedling ? 'How often should I do microneedling alongside finasteride at NW1 to maximize prevention?' : 'How do I get the most from my finasteride and DHT shampoo at NW1?'),
