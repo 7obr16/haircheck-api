@@ -1643,7 +1643,15 @@ const server = createServer(async (req, res) => {
         heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
         heapTotal:Math.round(mem.heapTotal/ 1024 / 1024),
       },
-      metrics: METRICS,
+      metrics: Object.fromEntries(
+        Object.entries(METRICS).map(([k, m]) => [k, {
+          ...m,
+          errorRate: m.requests > 0 ? +(m.errors / m.requests * 100).toFixed(1) : 0,
+          ...(m.cacheHits !== undefined
+              ? { cacheHitRate: m.requests > 0 ? +(m.cacheHits / m.requests * 100).toFixed(1) : 0 }
+              : {}),
+        }])
+      ),
       latency: Object.fromEntries(
         Object.entries(LATENCY).map(([k, arr]) => [k, latencyStats(arr)])
       ),
