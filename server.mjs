@@ -408,12 +408,19 @@ const PROGRESSION_CALIBRATED_12MO_STAGES = new Set(['NW3', 'NW3v']); // 12-month
 // NW5-NW7: near-total or fully merged bald zones → essentially identical to input.
 // NW4: large frontal + crown bald zones → nearly identical; faintest edge thickening only.
 const PROGRESSION_MINIMAL_3MO_STAGES = new Set(['NW5', 'NW6', 'NW7']); // 3-month override
+// NW1 has no hair loss at all — the base prompts for months 3, 6, and 12 all instruct
+// making improvements, which directly conflicts with the stage hint ("make no changes").
+// Without an explicit OVERRIDES qualifier the image model follows the base prompt and
+// incorrectly adds hair to an already-full scalp. Apply an override for all months.
+const PROGRESSION_IDENTICAL_STAGES = new Set(['NW1']); // no-change override (all months)
 const buildProgressionPrompt = (month, stage) => {
   const basePrompt = PROGRESSION_PROMPTS[month];
   const hint = stage ? PROGRESSION_STAGE_HINTS[stage] : null;
   if (!hint) return basePrompt;
   let qualifier;
-  if (month === 12 && PROGRESSION_REALISTIC_12MO_STAGES.has(stage)) {
+  if (PROGRESSION_IDENTICAL_STAGES.has(stage)) {
+    qualifier = 'Stage-specific constraint (OVERRIDES the entire improvement prompt above — this user is Norwood 1 with a fully intact hairline and no hair loss anywhere. Make NO visible changes to hair density, hairline shape, or any scalp area for any treatment month. The output must look essentially identical to the input. Do not thicken, darken, add, or restore any hair):';
+  } else if (month === 12 && PROGRESSION_REALISTIC_12MO_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (OVERRIDES the "STRONG / Full natural-looking density" language above — do not restore to full density for this stage; show clear improvement proportional to what real users at this stage achieve after 12 months):';
   } else if (month === 12 && PROGRESSION_CALIBRATED_12MO_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (CALIBRATES the "Full natural-looking density" language above — at NW3/NW3v the realistic 12-month ceiling is significant temple filling equivalent to a NW2 hairline, NOT a fully restored NW1 hairline. The recession should look substantially reduced — temple corners clearly filled and less angular — but the hairline must still show some recession character; do NOT erase all recession to produce a straight, NW1-level result):';
