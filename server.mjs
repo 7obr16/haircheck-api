@@ -2298,7 +2298,7 @@ Thinning pattern discriminator — use when adjacent patterns are ambiguous:
 - crown vs bitemporal+crown: Assign crown ONLY when the temples are clearly intact with no M-shape recession. If any temple recession co-exists with crown thinning → bitemporal+crown.
 - frontal vs bitemporal: frontal = hairline retreating evenly across the full width without a distinct M-shape or sharp temple angles. bitemporal = clear bilateral angular recession at both temple corners. If the recession forms visible corner notches → bitemporal; if it's a uniform straight-line retreat → frontal.
 - frontal vs diffuse: frontal = hairline retreating at the front, mid-scalp and crown largely intact. diffuse = uniform thinning distributed across the entire scalp top with the hairline mostly preserved. If the top is uniformly thin AND the hairline has some frontal retreat, prefer diffuse.
-- diffuse vs total: total applies ONLY when multiple large consolidated bald areas are visible (equivalent to NW5+). diffuse means thinning throughout but no large bald patches. If large patches exist → total.
+- diffuse vs total: total applies ONLY when multiple large consolidated bald areas are visible (equivalent to NW6+). diffuse means thinning throughout but no large bald patches. If large patches exist → total. NW5 still retains a narrow sparse bridge between the frontal and crown bald zones — assign bitemporal+crown, NOT total, for NW5 (total is NW6+ where that bridge is fully gone).
 - n/a (female): Use for female-presenting patients regardless of pattern — Ludwig classification applies mentally but output the Norwood thinningPattern enum value that best describes the visible zone (diffuse for Ludwig I-II, total for Ludwig III).
 
 Stage-thinningPattern consistency — apply after assigning both stage and thinningPattern independently:
@@ -2307,6 +2307,7 @@ Stage-thinningPattern consistency — apply after assigning both stage and thinn
 - NW3 is defined by deep bilateral temple recession without crown involvement — thinningPattern MUST be bitemporal. Crown is intact at NW3 (that is what distinguishes NW3 from NW3v); do NOT assign bitemporal+crown to NW3.
 - NW3v is defined by simultaneous temple recession AND early crown thinning — thinningPattern MUST be bitemporal+crown; if independent pattern assessment returned only bitemporal, re-examine the vertex and correct to bitemporal+crown.
 - NW4 has both frontal and pronounced crown thinning — thinningPattern should be bitemporal+crown (not bitemporal alone). If crown is somehow unaffected at NW4, double-check the stage assignment.
+- NW5 has extensive frontal and crown loss with a narrow, sparse bridge of hair still separating the two zones — thinningPattern MUST be bitemporal+crown (NOT total; the bridge distinguishes NW5 from NW6). Only assign total at NW6+, where the bridge has fully disappeared.
 - NW6 and NW7 have fully merged frontal and crown bald zones — thinningPattern MUST be total.
 - stage=diffuse → thinningPattern MUST be diffuse.
 - stage=n/a (female) → thinningPattern MUST be diffuse (Ludwig I-II) or total (Ludwig III severe).
