@@ -955,9 +955,16 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
   const stage = String(result.stage || '').trim();
   const stageHint = MAP_STAGE_HINTS[stage] || null;
 
+  const isFemaleStage = stage === 'n/a (female)';
+  const isDiffuseStage = stage === 'diffuse';
+
   const focus = kind === 'crown'
     ? `Focus the overlay on crown and vertex thinning. Use crown score ${crown}/100, density score ${density}/100, and hairline score ${hairline}/100 as guidance.`
-    : `Focus the overlay on visible scalp density across the top, mid-scalp, temples, and hairline. Use density score ${density}/100, crown score ${crown}/100, and hairline score ${hairline}/100 as guidance.`;
+    : isFemaleStage
+      ? `Focus the overlay on visible scalp density along the central part, crown, and mid-scalp. The frontal hairline and temples are typically preserved in female-pattern loss — do not place red or orange zones there. Use density score ${density}/100, crown score ${crown}/100, and hairline score ${hairline}/100 as guidance.`
+      : isDiffuseStage
+        ? `Focus the overlay on overall scalp density distributed uniformly across the entire scalp top and mid-scalp — diffuse thinning does not spare the temples or hairline. Use density score ${density}/100, crown score ${crown}/100, and hairline score ${hairline}/100 as guidance.`
+        : `Focus the overlay on visible scalp density across the top, mid-scalp, temples, and hairline. Use density score ${density}/100, crown score ${crown}/100, and hairline score ${hairline}/100 as guidance.`;
 
   const stageSection = stageHint
     ? `\n\nStage-specific placement guide (${stage}): ${stageHint}`
