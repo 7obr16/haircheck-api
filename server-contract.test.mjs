@@ -1400,4 +1400,20 @@ assert(
   'buildProgressionPrompt should apply a calibrated 12-month override for diffuse and n/a (female) stages — the base "Full natural-looking density" is too optimistic for central-part thinning that rarely returns to fully uniform density at 12 months; mirrors the NW3/NW3v calibration pattern'
 );
 
+assert(
+  source.includes("PROGRESSION_CALIBRATED_DIFFUSE_3MO_STAGES = new Set(['diffuse', 'n/a (female)'])") &&
+    source.includes("month === 3 && PROGRESSION_CALIBRATED_DIFFUSE_3MO_STAGES.has(stage)") &&
+    source.includes("CALIBRATES the \"thinning edges / recession boundary\" language above") &&
+    source.includes("DO NOT alter the hairline, temples, or frontal edge"),
+  'buildProgressionPrompt should apply a calibrated 3-month override for diffuse/n/a(female) that removes AGA-specific "thinning edges" language and redirects improvement to the central parting — anatomically correct for uniform diffuse thinning and female-pattern (Ludwig) loss where temples are spared'
+);
+
+assert(
+  source.includes("PROGRESSION_CALIBRATED_DIFFUSE_6MO_STAGES = new Set(['diffuse', 'n/a (female)'])") &&
+    source.includes("month === 6 && PROGRESSION_CALIBRATED_DIFFUSE_6MO_STAGES.has(stage)") &&
+    source.includes("CALIBRATES the \"hairline edges / temple recession\" language above") &&
+    source.includes("central parting and scalp top only"),
+  'buildProgressionPrompt should apply a calibrated 6-month override for diffuse/n/a(female) that removes AGA-specific "temple recession" language and redirects visible density improvement to the central parting and scalp top — correct for diffuse thinning and female-pattern loss where the hairline must not change'
+);
+
 console.log('server contract passed');

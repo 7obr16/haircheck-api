@@ -409,6 +409,17 @@ const PROGRESSION_CALIBRATED_12MO_STAGES = new Set(['NW3', 'NW3v']); // 12-month
 // The improvement should look meaningful (denser parting, less visible scalp) but retain
 // some evidence that thinning was present — the same principle as the NW3/NW3v calibration.
 const PROGRESSION_CALIBRATED_DIFFUSE_12MO_STAGES = new Set(['diffuse', 'n/a (female)']); // 12-month calibration
+// 3-month calibration for diffuse/female-pattern stages: the base prompt uses AGA-specific
+// language ("thinning edges", "recession boundary") that is anatomically incorrect for these
+// stages — diffuse thinning is uniform and female-pattern (Ludwig) loss spares the temples.
+// The override redirects the model to the correct zone (central parting) and removes the
+// recession-specific language that would cause the wrong area to be "improved".
+const PROGRESSION_CALIBRATED_DIFFUSE_3MO_STAGES = new Set(['diffuse', 'n/a (female)']); // 3-month calibration
+// 6-month calibration for diffuse/female-pattern stages: the base prompt says "hairline edges
+// look more defined and the temple recession appears partially filled" — both wrong for these
+// stages. Female-pattern loss and diffuse AGA affect the central parting and scalp top, not
+// the temples. Override to redirect improvement to the correct anatomical zone.
+const PROGRESSION_CALIBRATED_DIFFUSE_6MO_STAGES = new Set(['diffuse', 'n/a (female)']); // 6-month calibration
 // 3-month override for advanced stages: at NW4+ the bald zones are large enough that real
 // 3-month results are essentially invisible in photos. The base prompt's "15–20% shine
 // reduction / slight thickening" language is far too optimistic when large bald areas exist.
@@ -435,6 +446,10 @@ const buildProgressionPrompt = (month, stage) => {
     qualifier = 'Stage-specific constraint (CALIBRATES the "Full natural-looking density" language above — for diffuse thinning or female-pattern loss the realistic 12-month ceiling is noticeably increased central density and visibly less scalp showing at the central part and crown top, NOT a return to uniformly full hair. Show meaningful improvement — the parting and scalp top look substantially denser than the input — but keep some evidence that central-part thinning was present; do NOT produce a result where the parting and scalp look completely identical to a person with no hair loss history):';
   } else if (month === 6 && PROGRESSION_ADVANCED_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (OVERRIDES the "40–50% closer to full density" language above — at this advanced stage that level of improvement is not realistic at 6 months; show clearly better coverage than the 3-month result but far more modest than the 40–50% figure implies):';
+  } else if (month === 6 && PROGRESSION_CALIBRATED_DIFFUSE_6MO_STAGES.has(stage)) {
+    qualifier = 'Stage-specific constraint (CALIBRATES the "hairline edges / temple recession" language above — for diffuse thinning or female-pattern loss there is NO temple recession and the hairline position must not change. Show noticeable density improvement at the central parting and scalp top only: the part line looks narrower, visibly less scalp shows through the central area and crown region, and the overall top appears moderately denser than the 3-month result — but DO NOT alter the hairline, temples, or frontal edge in any way):';
+  } else if (month === 3 && PROGRESSION_CALIBRATED_DIFFUSE_3MO_STAGES.has(stage)) {
+    qualifier = 'Stage-specific constraint (CALIBRATES the "thinning edges / recession boundary" language above — for diffuse thinning or female-pattern loss there are no distinct recession edges or temple corners to fill. Show only the faintest, nearly imperceptible uniform density improvement across the central parting and scalp top: slightly less scalp shows through the center part, the overall top looks the tiniest bit fuller — but the output must look nearly identical to the input and an ordinary viewer should not notice any change without a side-by-side comparison. DO NOT alter the hairline, temples, or frontal edge):';
   } else if (month === 3 && stage === 'NW4') {
     qualifier = 'Stage-specific constraint (OVERRIDES the "15–20% shine reduction / slight thickening" language above — at NW4, real 3-month treatment results are nearly invisible in photos. The large frontal and crown bald zones must show NO new growth or density change. Show at most the faintest hint of marginally thicker hairs only at the very edges of the recession boundary and crown thinning edge — the output must look nearly identical to the input and an ordinary viewer should not notice any difference without a side-by-side comparison):';
   } else if (month === 3 && PROGRESSION_MINIMAL_3MO_STAGES.has(stage)) {
