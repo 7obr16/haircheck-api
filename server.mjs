@@ -864,6 +864,12 @@ const buildPhotoGuidance = (quality, stage, sex) => {
   // if the camera is too high (compresses the hairline) or too low (face dominates). Shooting
   // slightly above eye level with both temple corners clearly in frame is the ideal angle.
   const isEarlyRecession = stage === 'NW2';
+  // NW1: fully intact hairline — no loss to measure, but this is a preventive baseline scan.
+  // The most important features to capture are the hairline shape and both temple corners,
+  // because the NW1→NW2 transition begins at the temple angles. A slightly-above-eye-level
+  // angle that keeps the full hairline and both temple corners in frame creates the best
+  // baseline for detecting any early M-shape development in future scans.
+  const isIntact = stage === 'NW1';
   // diffuse: uniform thinning across the entire scalp top without a localized pattern. Unlike
   // recession stages where 45° angles help capture depth at specific zones, diffuse needs a
   // straight overhead shot to show the full distribution — any angle that cuts off the scalp
@@ -895,6 +901,9 @@ const buildPhotoGuidance = (quality, stage, sex) => {
     if (isEarlyRecession) {
       return 'For best results: hold your camera slightly above eye level in bright natural light so both temple corners are clearly in frame. Early M-shape recession is subtle — capturing both temples at once gives the clearest NW2 baseline.';
     }
+    if (isIntact) {
+      return 'For best results: hold your camera slightly above eye level in bright natural light so your full hairline and both temple corners are clearly in frame. At NW1 this creates the baseline photo — capturing the exact hairline shape and temple angles now makes early changes detectable in future scans.';
+    }
     if (isDiffuse) {
       return 'For best results: hold your camera directly above your head with your arm fully extended in bright natural light (near a window or lamp directly overhead). Diffuse thinning is distributed across the entire scalp top — a straight overhead angle captures the full extent of coverage, including the edges. Part your hair slightly along the center to show the scalp surface through the hair.';
     }
@@ -924,6 +933,9 @@ const buildPhotoGuidance = (quality, stage, sex) => {
   }
   if (isEarlyRecession) {
     return 'For a more accurate scan: shoot from slightly above eye level with both temple corners clearly in frame — early temple recession is subtle and easier to measure when both sides are visible simultaneously.';
+  }
+  if (isIntact) {
+    return 'For a more accurate scan: shoot from slightly above eye level with your full hairline and both temple corners clearly in frame — at NW1 the hairline shape and temple angles are the key baseline features, and capturing them clearly now makes any early change detectable in future scans.';
   }
   if (isDiffuse) {
     return 'For a more accurate scan: shoot from directly overhead in bright lighting — diffuse thinning is distributed across the entire scalp top and a straight overhead angle captures the full extent. Part your hair along the center so the scalp surface is visible through the hair.';
@@ -2320,7 +2332,7 @@ const server = createServer(async (req, res) => {
 - hairline, density, crown, health, potential: 0-100 integer scores
 - stage: Norwood stage (pick from the enum)
 - headline: 6-9 word punchy summary, confident tone. Calibrate energy to the stage: NW1-NW2 → protective/preventive urgency (this is the best window); NW3-NW3v → action-oriented, motivating, results-focused; NW4 → committed/realistic, acknowledge the work ahead; NW5+ → frank expectation-setting, specialist-aware; diffuse/female → cause-investigation framing. Avoid hedging words like "might", "could", or "some". Never start with "Your".
-- insights: exactly 3 items, each with a 5-word title (≤5 words), a 20-28 word actionable body that is specific to THIS user's visible loss pattern, scores, stage, or profile — name the actual stage or a score, specify a concrete action, and give a reason tied to their situation. CRITICAL routine rule: check "Current routine" in the user context above — if a treatment is already listed (e.g. minoxidil, finasteride, dutasteride, spironolactone, DHT-blocking shampoo, supplements), do NOT suggest starting it. Instead, suggest how to optimize that treatment (e.g. proper application coverage, timing, frequency) or recommend a different complementary layer. Never repeat a recommendation for something the user already does. Avoid generic advice. CRITICAL diversity rule: every insight MUST target a DIFFERENT metric — never assign the same metric value to two insights; pick the 3 most clinically relevant distinct metrics from: Hairline, Density, Crown, Health, Potential. The metric must match: Hairline→temple/frontal recession, Density→mid-scalp thinning, Crown→vertex/crown thinning, Health→scalp condition or miniaturization, Potential→treatment response or growth timeline
+- insights: exactly 3 items, each with a 5-word title (≤5 words), a 20-28 word actionable body that is specific to THIS user's visible loss pattern, scores, stage, or profile — name the actual stage or a score, specify a concrete action, and give a reason tied to their situation. CRITICAL routine rule: check "Current routine" in the user context above — if a treatment is already listed (e.g. minoxidil, finasteride, dutasteride, spironolactone, DHT-blocking shampoo, supplements), do NOT suggest starting it. Instead, suggest how to optimize that treatment (e.g. proper application coverage, timing, frequency) or recommend a different complementary layer. Never repeat a recommendation for something the user already does. Avoid generic advice. CRITICAL diversity rule: every insight MUST target a DIFFERENT metric — never assign the same metric value to two insights; pick the 3 most clinically relevant distinct metrics from: Hairline, Density, Crown, Health, Potential. The metric must match: Hairline→temple/frontal recession, Density→mid-scalp thinning, Crown→vertex/crown thinning, Health→scalp condition or miniaturization, Potential→treatment response or growth timeline. NW1 calibration: when stage is NW1 (fully intact), there is no visible loss to describe — frame all three insights preventively. Hairline insight: monitoring cadence to catch early M-shape (e.g. monthly front-facing photo from the same angle); Density insight: scalp-health habit that protects mid-scalp follicle caliber now (e.g. DHT-blocking shampoo contact time, scalp massage frequency); Crown insight OR Health insight: nutritional or topical layer that extends the fully-intact window. Reframe every metric as "protect what's there" not "restore what's lost".
 - verdict: 1-2 sentence verdict, no medical claims. Calibrate tone to stage: NW1-NW2 → protective and preventive opportunity (e.g. "Your follicles are fully intact — this is the best window to build the habits that keep them that way."); NW3-NW3v → motivating and results-focused (e.g. "Deep recession at this stage responds strongly to a consistent topical + DHT approach — the response window is genuinely open."); NW4 → realistic but forward-looking (e.g. "Significant loss has progressed, but consistent multi-therapy still produces real, measurable gains at this stage."); NW5 → frank with a concrete path (e.g. "OTC treatment can meaningfully slow further loss — pairing it with a transplant consultation now gives the most complete long-term strategy."); NW6-NW7 → specialist-aware and candid (e.g. "Surgical options — FUE/FUT or SMP — are the most realistic path to meaningful coverage at this stage."); diffuse/female → cause-investigation-first (e.g. "Identifying and addressing the underlying cause is the highest-impact step — topicals work best once the root driver is managed."). Never start with "Your". Slightly aspirational where the stage allows it.
 - photoQuality: 'good' | 'acceptable' | 'poor'
 - photoNote: brief sentence about quality issues, or empty string if quality is good
