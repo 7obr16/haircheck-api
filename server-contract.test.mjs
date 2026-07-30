@@ -885,6 +885,22 @@ assert(
 );
 
 assert(
+  source.includes("r.includes('bicalutamide')") &&
+    source.includes("r.includes('flutamide')") &&
+    source.includes("r.includes('cyproterone')") &&
+    source.includes("r.includes('androcur')"),
+  'routine detection (_hasFinasteride) should recognise bicalutamide, flutamide, cyproterone, and androcur — non-steroidal and anti-androgen Rx treatments used for female-pattern hair loss (FPHL) so female users on these medications are correctly classified as having Rx treatment'
+);
+
+assert(
+  source.includes("s.includes('bicalutamide')") &&
+    source.includes("s.includes('flutamide')") &&
+    source.includes("s.includes('cyproterone')") &&
+    source.includes("s.includes('androcur')"),
+  'coach pre-scan protocolCoverage rx detection should recognise bicalutamide, flutamide, cyproterone, and androcur — mirrors the scan-time _hasFinasteride detection so female users listing these anti-androgens in their routine have their Rx layer correctly identified before their first scan'
+);
+
+assert(
   source.includes("r.includes('revita')"),
   'routine detection (_hasDHTShampoo) should recognise Revita (DS Laboratories ketoconazole + caffeine shampoo) so users of this popular brand are correctly classified as having a DHT-blocking shampoo in their routine'
 );
