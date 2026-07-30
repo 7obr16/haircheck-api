@@ -402,6 +402,13 @@ const PROGRESSION_STAGE_HINTS = {
 const PROGRESSION_ADVANCED_STAGES    = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 6-month override
 const PROGRESSION_REALISTIC_12MO_STAGES = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 12-month override
 const PROGRESSION_CALIBRATED_12MO_STAGES = new Set(['NW3', 'NW3v']); // 12-month calibration override
+// 12-month calibration for diffuse/female-pattern stages: miniaturized follicles can recover
+// significantly with treatment, but the base prompt's "Full natural-looking density" language
+// overstates the typical 12-month ceiling — especially for Ludwig II-III or severe diffuse AGA
+// where central-part thinning is unlikely to be completely invisible at 12 months.
+// The improvement should look meaningful (denser parting, less visible scalp) but retain
+// some evidence that thinning was present — the same principle as the NW3/NW3v calibration.
+const PROGRESSION_CALIBRATED_DIFFUSE_12MO_STAGES = new Set(['diffuse', 'n/a (female)']); // 12-month calibration
 // 3-month override for advanced stages: at NW4+ the bald zones are large enough that real
 // 3-month results are essentially invisible in photos. The base prompt's "15–20% shine
 // reduction / slight thickening" language is far too optimistic when large bald areas exist.
@@ -424,6 +431,8 @@ const buildProgressionPrompt = (month, stage) => {
     qualifier = 'Stage-specific constraint (OVERRIDES the "STRONG / Full natural-looking density" language above — do not restore to full density for this stage; show clear improvement proportional to what real users at this stage achieve after 12 months):';
   } else if (month === 12 && PROGRESSION_CALIBRATED_12MO_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (CALIBRATES the "Full natural-looking density" language above — at NW3/NW3v the realistic 12-month ceiling is significant temple filling equivalent to a NW2 hairline, NOT a fully restored NW1 hairline. The recession should look substantially reduced — temple corners clearly filled and less angular — but the hairline must still show some recession character; do NOT erase all recession to produce a straight, NW1-level result):';
+  } else if (month === 12 && PROGRESSION_CALIBRATED_DIFFUSE_12MO_STAGES.has(stage)) {
+    qualifier = 'Stage-specific constraint (CALIBRATES the "Full natural-looking density" language above — for diffuse thinning or female-pattern loss the realistic 12-month ceiling is noticeably increased central density and visibly less scalp showing at the central part and crown top, NOT a return to uniformly full hair. Show meaningful improvement — the parting and scalp top look substantially denser than the input — but keep some evidence that central-part thinning was present; do NOT produce a result where the parting and scalp look completely identical to a person with no hair loss history):';
   } else if (month === 6 && PROGRESSION_ADVANCED_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (OVERRIDES the "40–50% closer to full density" language above — at this advanced stage that level of improvement is not realistic at 6 months; show clearly better coverage than the 3-month result but far more modest than the 40–50% figure implies):';
   } else if (month === 3 && stage === 'NW4') {

@@ -1392,4 +1392,12 @@ assert(
   'readJsonBody should accumulate request chunks as Buffers (not string concatenation) for memory efficiency on large photo payloads, and enforce a per-request body-read timeout to guard against slow-body attacks'
 );
 
+assert(
+  source.includes("PROGRESSION_CALIBRATED_DIFFUSE_12MO_STAGES = new Set(['diffuse', 'n/a (female)'])") &&
+    source.includes("month === 12 && PROGRESSION_CALIBRATED_DIFFUSE_12MO_STAGES.has(stage)") &&
+    source.includes("CALIBRATES the \"Full natural-looking density\" language above — for diffuse thinning or female-pattern loss") &&
+    source.includes("do NOT produce a result where the parting and scalp look completely identical to a person with no hair loss history"),
+  'buildProgressionPrompt should apply a calibrated 12-month override for diffuse and n/a (female) stages — the base "Full natural-looking density" is too optimistic for central-part thinning that rarely returns to fully uniform density at 12 months; mirrors the NW3/NW3v calibration pattern'
+);
+
 console.log('server contract passed');
