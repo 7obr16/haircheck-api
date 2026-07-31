@@ -960,9 +960,11 @@ assert(
 );
 
 assert(
-  source.includes("_hasSupplements && _hasMassage\n                                            ? 'At NW4, your supplement stack and scalp massage cover nutritional support and mechanical stimulation") &&
+  source.includes("At NW4, your supplement stack and LLLT device cover nutritional support and photobiomodulation across both the frontal and crown zones — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer. Schedule weekly microneedling (0.5mm) after your LLLT sessions to prime follicle absorption where miniaturization is most advanced; three complementary layers (nutritional + photobiomodulation + DHT suppression) give the strongest non-Rx scalp-health protocol at this established stage.") &&
+    source.includes("At NW4, your supplement stack and microneedling cover nutritional support and scalp priming across both the frontal and crown zones — use microneedling 24-48 hours before topical application to maximize absorption where miniaturization is most advanced. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer; three complementary layers (nutritional + scalp priming + DHT suppression) give the strongest non-Rx scalp-health protocol where miniaturization spans both the frontal and crown zones at this established stage.") &&
+    source.includes("At NW4, your supplement stack and scalp massage cover nutritional support and mechanical stimulation — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT suppression layer. It is the most impactful addition to your existing stack where miniaturization spans both the frontal and crown zones.") &&
     source.includes("_hasSupplements\n                                              ? 'Your supplement stack is supporting follicle health at NW4"),
-  'NW4 Health WEEKLY_FOCUS_MAP should have separate branches for (supplements+massage) and (supplements alone) so users who already have supplements are never told to start a supplement stack'
+  'NW4 Health WEEKLY_FOCUS_MAP should have (supplements+massage) branch with LLLT/microneedling sub-check and standalone (supplements) branch so users who already have supplements and massage are not given generic advice — consistent with NW2/NW3/NW3v/NW5/NW6 Health pattern'
 );
 
 assert(
