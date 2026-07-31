@@ -1432,4 +1432,20 @@ assert(
   'buildProgressionPrompt should apply a calibrated 6-month override for diffuse/n/a(female) that removes AGA-specific "temple recession" language and redirects visible density improvement to the central parting and scalp top — correct for diffuse thinning and female-pattern loss where the hairline must not change'
 );
 
+assert(
+  !source.includes("male hairline/top scalp") &&
+    source.includes("scalp/top of head") &&
+    source.includes('topical'),
+  'topical advice visual prompt should use gender-neutral "scalp/top of head" — not "male hairline" — so female users get a representative image for topical serum advice'
+);
+
+assert(
+  source.includes('TE/stress calibration for insights') &&
+    source.includes("Stress ≥ 7") &&
+    source.includes("Sleep ≤ 5h") &&
+    source.includes("TE root cause") &&
+    source.includes("stage is 'diffuse' or 'n/a (female)'"),
+  'scan prompt should include TE/stress calibration for insights — directing GPT-4o to surface stress/sleep management as a high-ROI insight for high-stress or sleep-deprived users with diffuse thinning'
+);
+
 console.log('server contract passed');
