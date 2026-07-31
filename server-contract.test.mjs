@@ -1463,4 +1463,18 @@ assert(
   'scan prompt should include TE/stress calibration for insights — directing GPT-4o to surface stress/sleep management as a high-ROI insight for high-stress or sleep-deprived users with diffuse thinning'
 );
 
+assert(
+  source.includes("At NW2, your supplement stack and LLLT device cover nutritional support and photobiomodulation at the ideal prevention stage — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer. Three complementary layers (nutritional + photobiomodulation + DHT suppression) give the strongest non-Rx preventive foundation at this optimal intervention window before temple recession deepens further.") &&
+    source.includes("At NW2, your supplement stack and microneedling cover nutritional support and scalp priming at the early recession edge — use microneedling 24-48 hours before topical application to maximize absorption at the temple corners. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer; three complementary layers (nutritional + scalp priming + DHT suppression) give the strongest non-Rx preventive foundation at this optimal intervention window.") &&
+    source.includes("At NW2, your supplement stack and scalp massage cover nutritional support and mechanical stimulation at the ideal prevention stage — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer. Three complementary layers (nutritional + mechanical + DHT suppression) give the strongest non-Rx preventive foundation before temple recession deepens further."),
+  'NW2 Health WEEKLY_FOCUS_MAP should have (supplements+massage) branch with LLLT/microneedling sub-check so users who already have both a supplement stack and scalp massage are not told to start supplements — consistent with the NW3v and NW4 Health pattern'
+);
+
+assert(
+  source.includes("At NW3, your supplement stack and LLLT device cover nutritional support and photobiomodulation at the active recession edge — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer. Three complementary layers (nutritional + photobiomodulation + DHT suppression) give the strongest non-Rx scalp-health response where miniaturization is actively progressing at this established stage.") &&
+    source.includes("At NW3, your supplement stack and microneedling cover nutritional support and scalp priming at the active recession edge — use microneedling 24-48 hours before topical application to maximize absorption where miniaturization is most active. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer; three complementary layers (nutritional + scalp priming + DHT suppression) give the strongest non-Rx scalp-health response where miniaturization is actively progressing at this established stage.") &&
+    source.includes("At NW3, your supplement stack and scalp massage cover nutritional support and mechanical stimulation at the active recession edge — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer. Three complementary layers (nutritional + mechanical + DHT suppression) give the strongest non-Rx scalp-health response where miniaturization is actively progressing at this established stage."),
+  'NW3 Health WEEKLY_FOCUS_MAP should have (supplements+massage) branch with LLLT/microneedling sub-check so users who already have both a supplement stack and scalp massage are not told to start supplements — consistent with the NW3v and NW4 Health pattern'
+);
+
 console.log('server contract passed');
