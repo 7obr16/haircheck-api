@@ -1477,4 +1477,11 @@ assert(
   'NW3 Health WEEKLY_FOCUS_MAP should have (supplements+massage) branch with LLLT/microneedling sub-check so users who already have both a supplement stack and scalp massage are not told to start supplements — consistent with the NW3v and NW4 Health pattern'
 );
 
+assert(
+  source.includes("At NW5, your supplement stack and LLLT device cover nutritional support and photobiomodulation across the full scalp top — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer. Biotin, zinc, and vitamin D support follicle structure from within; weekly microneedling (0.5mm) after your LLLT sessions is the highest-ROI absorption upgrade to complete the three-layer scalp-health protocol at this stage.") &&
+    source.includes("At NW5, your supplement stack and microneedling cover nutritional support and scalp priming across the full scalp top — use microneedling 24-48 hours before topical application to maximize absorption where miniaturization is most active across both frontal and crown zones. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer; three complementary layers (nutritional + scalp priming + DHT suppression) give the strongest non-Rx scalp-health response at this advanced stage.") &&
+    source.includes("At NW5, your supplement stack and scalp massage cover nutritional support and mechanical stimulation across the full scalp top — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer. Three complementary layers (nutritional + mechanical + DHT suppression) give the strongest non-Rx scalp-health response where miniaturization spans both the frontal and crown zones at this stage."),
+  'NW5 Health WEEKLY_FOCUS_MAP should have (supplements+massage) branch with LLLT/microneedling sub-check so users who already have both a supplement stack and scalp massage are not told to add microneedling they already have — consistent with NW2/NW3/NW4 Health pattern'
+);
+
 console.log('server contract passed');
