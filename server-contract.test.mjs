@@ -990,6 +990,15 @@ assert(
 );
 
 assert(
+  source.includes("_hasSupplements && _hasMassage\n                                    ? (_hasLLLT") &&
+    source.includes("At NW3v, your supplement stack and LLLT device cover nutritional support and photobiomodulation across both the recession edge and early crown") &&
+    source.includes("At NW3v, your supplement stack and microneedling cover nutritional support and scalp priming across both the recession edge and early crown") &&
+    source.includes("At NW3v, your supplement stack and scalp massage cover nutritional support and mechanical stimulation across both the recession edge and early crown") &&
+    source.includes("_hasSupplements\n                                  ? 'Your supplement stack is active at NW3v where both temples and early crown are simultaneously thinning"),
+  'NW3v Health WEEKLY_FOCUS_MAP should have (supplements+massage) branch with LLLT/microneedling sub-check and standalone (supplements) branch so users with a supplement stack are never told to start one — consistent with the NW4 Health pattern'
+);
+
+assert(
   source.includes('NW4 crown with finasteride + minoxidil + DHT shampoo + scalp massage is the most complete non-surgical crown protocol — apply 1ml minoxidil to the vertex immediately after a 4-minute scalp massage, leave DHT shampoo on 3-5 minutes on wash days, and take finasteride at the same time daily.') &&
     source.includes('At NW4, finasteride + minoxidil + DHT shampoo delivers systemic and topical DHT suppression alongside the topical growth signal for crown coverage — apply 1ml minoxidil directly to the vertex twice daily and leave DHT shampoo on 3-5 minutes on wash days. Add a 4-minute scalp massage before each topical application to complete the protocol') &&
     source.includes('At NW4, minoxidil + DHT shampoo + scalp massage covers topical growth signal, local DHT suppression, and mechanical stimulation at the vertex — apply 1ml minoxidil to the crown immediately after your scalp massage and leave DHT shampoo on 3-5 minutes on wash days.') &&
