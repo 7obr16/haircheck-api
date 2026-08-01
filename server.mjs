@@ -2934,6 +2934,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 ? 'Your DHT-blocking shampoo helps slow miniaturization of the remaining fringe at NW7 — keep using it 3× weekly with 3-5 minutes of contact time. The primary path for meaningful density coverage is surgical (FUE/FUT or SMP); prioritize a trichologist or transplant consultation to evaluate candidacy and realistic coverage outcomes alongside your OTC routine.'
                 : _hasMinoxidil
                 ? 'Your minoxidil helps maintain remaining fringe density at NW7 — keep applying it consistently. The primary path for meaningful density coverage is surgical (FUE/FUT or SMP); prioritize a trichologist or transplant consultation to evaluate candidacy and how your topical protocol complements the surgical coverage plan.'
+                : _hasSupplements
+                ? 'Your supplement stack supports remaining fringe follicle health at NW7 — keep biotin, zinc, and vitamin D consistent as nutritional support for fringe density. The primary path for meaningful density coverage is surgical (FUE/FUT or SMP); prioritize a trichologist or transplant consultation to evaluate candidacy and how your nutritional protocol integrates with the surgical coverage plan.'
                 : 'At NW7, density restoration is best addressed through surgical options — keep any active OTC routine consistent and prioritize a trichologist or transplant consultation to evaluate FUE/FUT or SMP coverage for the thinning zones.')
             : _isNW5only
               ? (_hasFinasteride && _hasDHTShampoo && _hasMinoxidil && _hasMassage
@@ -3392,6 +3394,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 ? 'Your DHT-blocking shampoo supports fringe follicle health at NW7 — keep using it 3× weekly with 3-5 minutes of contact time. Scalp health maintenance protects remaining hair, but the highest-ROI step this week is booking a trichologist or transplant consultation to evaluate donor supply, candidacy, and how your OTC routine fits into the surgical coverage plan.'
                 : _hasMinoxidil
                 ? 'Your minoxidil helps support follicle health at the remaining horseshoe fringe at NW7 — keep applying it consistently. The highest-ROI next step is booking a trichologist or transplant consultation this week to evaluate donor supply, candidacy, and how your topical maintenance fits into a surgical coverage plan (FUE/FUT or SMP).'
+                : _hasSupplements
+                ? 'Your supplement stack supports fringe follicle health at NW7 — keep biotin, zinc, and vitamin D consistent as the nutritional layer for remaining fringe follicles. The highest-ROI next step is booking a trichologist or transplant consultation this week to evaluate donor supply, candidacy, and how your nutritional protocol integrates with surgical coverage options (FUE/FUT or SMP).'
                 : 'At NW7, scalp health maintenance protects remaining hair — keep any active routine going, but the highest-ROI step this week is booking a trichologist or transplant consultation to evaluate donor supply and candidacy.')
             : _isNW5only
               ? (_hasFinasteride && _hasSupplements && _hasDHTShampoo && _hasMassage

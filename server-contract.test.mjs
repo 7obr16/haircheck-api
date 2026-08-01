@@ -1486,4 +1486,14 @@ assert(
   'NW5 Health WEEKLY_FOCUS_MAP should have (supplements+massage) branch with LLLT/microneedling sub-check so users who already have both a supplement stack and scalp massage are not told to add microneedling they already have — consistent with NW2/NW3/NW4 Health pattern'
 );
 
+assert(
+  source.includes("Your supplement stack supports remaining fringe follicle health at NW7 — keep biotin, zinc, and vitamin D consistent as nutritional support for fringe density. The primary path for meaningful density coverage is surgical (FUE/FUT or SMP); prioritize a trichologist or transplant consultation to evaluate candidacy and how your nutritional protocol integrates with the surgical coverage plan."),
+  'WEEKLY_FOCUS_MAP.Density NW7 should be supplements-aware: users whose only active treatment is a supplement stack receive acknowledgment of their nutritional protocol rather than falling through to the generic surgical-only default — mirrors NW6 supplement awareness pattern'
+);
+
+assert(
+  source.includes("Your supplement stack supports fringe follicle health at NW7 — keep biotin, zinc, and vitamin D consistent as the nutritional layer for remaining fringe follicles. The highest-ROI next step is booking a trichologist or transplant consultation this week to evaluate donor supply, candidacy, and how your nutritional protocol integrates with surgical coverage options (FUE/FUT or SMP)."),
+  'WEEKLY_FOCUS_MAP.Health NW7 should be supplements-aware: users whose only active treatment is a supplement stack receive acknowledgment of their nutritional support rather than falling through to the generic keep-any-routine-going default — mirrors NW6 supplement awareness pattern'
+);
+
 console.log('server contract passed');
