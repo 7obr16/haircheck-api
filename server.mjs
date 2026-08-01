@@ -171,14 +171,17 @@ function bumpSuccess(m) {
 }
 
 function latencyStats(arr) {
-  if (!arr.length) return { samples: 0, p50: null, p95: null, avg: null };
+  if (!arr.length) return { samples: 0, p50: null, p95: null, p99: null, avg: null, min: null, max: null };
   const sorted = [...arr].sort((a, b) => a - b);
   const p = (pct) => sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * pct / 100))];
   return {
     samples: arr.length,
     p50: p(50),
     p95: p(95),
+    p99: p(99),
     avg: Math.round(arr.reduce((s, v) => s + v, 0) / arr.length),
+    min: sorted[0],
+    max: sorted[sorted.length - 1],
   };
 }
 
