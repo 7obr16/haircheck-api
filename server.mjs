@@ -3369,12 +3369,20 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 // NW2: crown is intact, temples are the active priority — redirect focus there
                 ? (_hasFinasteride && _hasDHTShampoo
                     ? 'Finasteride + DHT-blocking shampoo gives you dual-level DHT protection at NW2 — systemic and topical control keeps the crown well-guarded. The temple recession is the active priority; keep your dual-layer DHT protocol consistent and take monthly overhead photos to catch any early vertex thinning the moment it appears. If vertex thinning develops, that marks NW3v — the highest-ROI crown intervention window.'
+                    : _hasFinasteride && _hasMinoxidil
+                    ? 'Your crown is intact at NW2 with finasteride + minoxidil providing systemic DHT suppression and topical growth signal — the temple recession is the active priority right now. Keep both consistent and take monthly overhead photos to catch any early vertex thinning; if it develops, that marks NW3v — the highest-ROI crown intervention window to redirect minoxidil (1ml) directly to the vertex.'
                     : _hasFinasteride
                     ? 'Finasteride at NW2 is already protecting the crown through systemic DHT suppression — the temple recession is the active priority. Keep taking finasteride consistently and track the crown monthly with overhead photos; if vertex thinning appears, that marks NW3v — the highest-ROI window to add direct crown coverage.'
+                    : _hasMinoxidil && _hasDHTShampoo
+                    ? 'Your crown is intact at NW2 — your minoxidil and DHT-blocking shampoo provide topical growth signal and local DHT suppression across the scalp top. The temple recession is the active priority; keep both focused on both temple corners and take monthly overhead photos to catch any early vertex thinning. At the NW2→NW3v transition, redirect 1ml of minoxidil directly to the vertex for the strongest early-crown response.'
                     : _hasMinoxidil
                     ? 'Your crown is intact at NW2 — the temple recession is the active priority right now. Keep your topical focused on both temple corners and take monthly overhead photos to catch any early vertex thinning as soon as it appears.'
                     : _hasDHTShampoo
                     ? 'Your crown is fully intact at NW2 — your DHT-blocking shampoo is providing topical-level DHT protection at the crown. The temple recession is the active priority; focus treatment on both temple corners and keep monthly overhead photos to catch any early vertex thinning the moment it appears.'
+                    : _hasSupplements && _hasDHTShampoo
+                    ? 'Your crown is intact at NW2 — your supplement stack and DHT-blocking shampoo provide nutritional support and topical DHT suppression across the scalp top. The temple recession is the active priority; leave DHT shampoo on 3-5 minutes per wash and take monthly overhead photos to catch any early vertex thinning. If vertex thinning develops, that marks NW3v — the highest-ROI crown intervention window.'
+                    : _hasSupplements
+                    ? 'Your supplement stack is supporting crown follicle health at NW2 where your vertex is fully intact — the temple recession is the active priority. Take monthly overhead photos so any early vertex change is caught at the highest-ROI intervention window; if vertex thinning appears, that marks NW3v and the ideal time to add crown-targeted minoxidil (1ml to the vertex) directly.'
                     : 'Your crown is currently intact at NW2 — temples are the active zone. Focus treatment there first and track the crown monthly with overhead photos to catch any early vertex thinning before it needs aggressive intervention.')
                 : data.stage === 'NW3'
                 // NW3: crown is intact — vertex thinning only starts at NW3v; redirect focus to temples and set up early-detection tracking
@@ -3392,7 +3400,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                         ? 'Your crown is still intact at NW3 — focus your minoxidil on both temple recession zones now. Take a monthly overhead photo to catch any early vertex thinning; if it appears, that marks NW3v — the highest-ROI window to act on crown thinning before it advances.'
                         : _hasDHTShampoo
                           ? 'Your crown is still intact at NW3 — your DHT-blocking shampoo is providing topical DHT suppression across the scalp top. The deep temple recession is the active priority; keep your treatment focused on both recession zones and take monthly overhead photos to catch any early vertex thinning; acting at the NW3v window gives the strongest possible crown response.'
-                          : 'Your crown is intact at NW3 — the temple recession is where to direct treatment first. Take a monthly overhead photo as your crown baseline so any early vertex thinning is caught the moment it begins; acting at that NW3v window gives the strongest possible crown response.')
+                          : _hasSupplements && _hasDHTShampoo
+                            ? 'Your crown is intact at NW3 — your supplement stack and DHT-blocking shampoo provide nutritional support and topical DHT suppression across the full scalp top. The deep temple recession is the active priority; keep DHT shampoo on 3-5 minutes per wash and take monthly overhead photos to catch any early vertex thinning. At the NW3→NW3v transition, adding minoxidil (1ml) directed at the vertex gives the strongest early-crown response.'
+                            : _hasSupplements
+                              ? 'Your crown is intact at NW3 — your supplement stack is supporting follicle nutrition across the scalp top. The deep temple recession is the active priority right now; take monthly overhead photos to catch any early vertex thinning. If vertex thinning appears, that marks NW3v — the highest-ROI window to act on crown thinning before it progresses further.'
+                              : 'Your crown is intact at NW3 — the temple recession is where to direct treatment first. Take a monthly overhead photo as your crown baseline so any early vertex thinning is caught the moment it begins; acting at that NW3v window gives the strongest possible crown response.')
                 : (data.stage === 'diffuse' || data.stage === 'n/a (female)')
                   ? (_hasFinasteride && _hasMinoxidil && _hasMassage
                       ? (data.stage === 'n/a (female)'
