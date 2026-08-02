@@ -1210,7 +1210,7 @@ assert(
 );
 
 assert(
-  source.includes("data.stage === 'NW3v'\n                                                        ? 'NW3v density is declining across mid-scalp and early crown simultaneously"),
+  source.includes("data.stage === 'NW3v'\n                                                            ? 'NW3v density is declining across mid-scalp and early crown simultaneously"),
   'NW3v Density WEEKLY_FOCUS_MAP no-treatment fallback should differentiate NW3v users with dual-zone advice (mid-scalp and early crown simultaneously) rather than mid-scalp-only DHT shampoo + massage advice that ignores the vertex thinning front'
 );
 

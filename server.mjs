@@ -3024,6 +3024,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                   ? 'Minoxidil is active at NW2 — your density is still intact and this is the right preventive stage to add a DHT-blocking shampoo 3× weekly alongside it. Minoxidil drives the topical growth signal; the DHT shampoo adds local DHT suppression. Together they give a meaningful dual-layer OTC density protection before any mid-scalp thinning starts.'
                   : _hasDHTShampoo
                   ? 'Your DHT-blocking shampoo is already protecting your density — at NW2 your coverage is still strong. Keep using it 3× weekly and add a 5-minute scalp massage on wash days to maintain circulation and catch any early diffuse change.'
+                  : _hasSupplements
+                  ? 'Your supplement stack supports follicle health at NW2 where your density is still strong — nutritional support is a good preventive foundation. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the next layer: topical DHT suppression at NW2 is the highest-ROI addition to your supplement routine before any mid-scalp miniaturization begins.'
                   : 'At NW2 your density is still strong — protect it now by adding a DHT-blocking shampoo 3× weekly. This is the highest-ROI prevention step at your stage: slowing miniaturization before it becomes visible is far easier than reversing it later.')
               : (data.stage === 'NW3' || data.stage === 'NW3v')
                 ? (_hasFinasteride && _hasDHTShampoo && _hasMassage
@@ -3086,9 +3088,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                                                     ? (data.stage === 'NW3v'
                                                         ? 'Your DHT-blocking shampoo is active at NW3v where both mid-scalp and early crown are thinning simultaneously — add minoxidil to BOTH zones (1ml per temple recession zone + 1ml vertex twice daily) as the topical growth signal. Dual-zone coverage at this two-front stage maximizes density response; pair each application with a 4-minute scalp massage to prime absorption at both active fronts.'
                                                         : "Your DHT-blocking shampoo is active at a key stage — add weekly microneedling over the mid-scalp thinning zone and a 5-minute post-wash scalp massage to drive follicle response while coverage is still stabilizable.")
-                                                    : (data.stage === 'NW3v'
-                                                        ? 'NW3v density is declining across mid-scalp and early crown simultaneously — start a DHT-blocking shampoo 3× weekly and ensure coverage reaches BOTH active zones. Adding minoxidil to both the recession edge and vertex twice daily completes the dual-zone OTC density stack at the strongest response window before either front advances.'
-                                                        : 'Mid-scalp density at NW3 responds well to DHT-blocking shampoo 3× weekly plus scalp massage — start both this week while follicles are still viable and the density response window is open.'))
+                                                    : _hasSupplements
+                                                        ? (data.stage === 'NW3v'
+                                                            ? 'Your supplement stack supports follicle health at NW3v where mid-scalp and early crown density are both declining — nutritional support is a good foundation, but the highest-ROI additions at this dual-zone active stage are a DHT-blocking shampoo 3× weekly and minoxidil applied to both zones twice daily. Adding both topical layers while follicles are still viable gives the strongest dual-zone density response at NW3v.'
+                                                            : 'Your supplement stack supports follicle health at NW3 where mid-scalp density is beginning to decline — nutritional support is a solid foundation, but the highest-ROI additions at this stage are a DHT-blocking shampoo 3× weekly and minoxidil applied to the mid-scalp twice daily. Starting both while follicles are still highly responsive gives the strongest density-preservation result at NW3.')
+                                                        : (data.stage === 'NW3v'
+                                                            ? 'NW3v density is declining across mid-scalp and early crown simultaneously — start a DHT-blocking shampoo 3× weekly and ensure coverage reaches BOTH active zones. Adding minoxidil to both the recession edge and vertex twice daily completes the dual-zone OTC density stack at the strongest response window before either front advances.'
+                                                            : 'Mid-scalp density at NW3 responds well to DHT-blocking shampoo 3× weekly plus scalp massage — start both this week while follicles are still viable and the density response window is open.'))
                 : data.stage === 'NW4'
                   ? (_hasFinasteride && _hasDHTShampoo && _hasMinoxidil && _hasMassage
                       ? (_hasLLLT
@@ -3122,7 +3128,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                                       ? 'At NW4, mid-scalp coverage needs a DHT-blocking shampoo as the second layer — use it 3× weekly with a 3-minute scalp massage to slow ongoing miniaturization alongside your existing topical.'
                                       : _hasDHTShampoo
                                       ? 'At NW4, add minoxidil across the full scalp top (temples + crown + mid-scalp) twice daily — your DHT shampoo slows miniaturization but minoxidil drives the active regrowth signal your follicles need.'
-                                      : 'NW4 mid-scalp density responds best to the full OTC stack: minoxidil twice daily across the entire top plus DHT-blocking shampoo 3× weekly. Start both this week — density at this stage needs simultaneous DHT suppression and growth signal.')
+                                      : _hasSupplements
+                                        ? 'Your supplement stack supports follicle health at NW4 where mid-scalp density is declining across the full scalp top — nutritional support is a good foundation, but the highest-ROI additions at this established stage are a DHT-blocking shampoo 3× weekly and minoxidil applied across the full top twice daily. Starting both topical layers while follicles are still viable gives the strongest OTC density response at NW4; track with monthly overhead photos.'
+                                        : 'NW4 mid-scalp density responds best to the full OTC stack: minoxidil twice daily across the entire top plus DHT-blocking shampoo 3× weekly. Start both this week — density at this stage needs simultaneous DHT suppression and growth signal.')
                   : (data.stage === 'diffuse' || data.stage === 'n/a (female)')
                     ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
                         ? (data.stage === 'n/a (female)'
