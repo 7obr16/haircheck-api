@@ -3334,13 +3334,29 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                                     : 'NW3v means your crown thinning has just started — the highest-ROI move is acting now: apply minoxidil directly to the vertex daily, add scalp massage, and take an overhead photo as your baseline today.'
                 : data.stage === 'NW1'
                 // NW1: crown is fully healthy — no targeted treatment needed; preventive messaging only
-                ? (_hasFinasteride && _hasDHTShampoo
-                    ? 'Your crown is fully healthy at NW1 and finasteride + DHT-blocking shampoo covers both systemic and topical DHT suppression — no targeted crown treatment needed. Take monthly overhead photos so any early vertex change is caught the moment it begins, which is the highest-ROI intervention window.'
-                    : _hasFinasteride
-                      ? 'Finasteride is providing systemic DHT protection at NW1 where your crown is fully healthy — no targeted treatment needed. Add a DHT-blocking shampoo 3× weekly as the topical-level complement and take monthly overhead photos to catch any early vertex thinning the moment it appears.'
-                      : _hasDHTShampoo
-                        ? 'Your crown is fully healthy at NW1. No targeted crown treatment needed yet — your DHT-blocking shampoo already provides preventive coverage. Take monthly overhead photos so any early vertex change is caught at the highest-ROI intervention window.'
-                        : 'Your crown is healthy at NW1. No crown treatment needed yet — add a DHT-blocking shampoo 3× weekly as a general prevention layer and take monthly overhead photos to catch any early vertex change before it requires aggressive treatment.')
+                ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
+                    ? 'Your crown is fully healthy at NW1 with finasteride + minoxidil + DHT-blocking shampoo active — the most complete preventive combination available. Finasteride and DHT shampoo are the primary crown protection layers; minoxidil supports general scalp health. Take monthly overhead photos from the same position; catching any early vertex thinning at the NW1→NW3v transition is the highest-ROI crown intervention window.'
+                    : _hasFinasteride && _hasMinoxidil
+                      ? 'Your crown is fully healthy at NW1 with finasteride + minoxidil active — finasteride is the primary crown protection layer through systemic DHT suppression. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the topical-level complement; together they form the most complete dual-level DHT prevention stack. Take monthly overhead photos to catch any early vertex thinning the moment it appears.'
+                      : _hasFinasteride && _hasSupplements && _hasDHTShampoo
+                        ? 'Your crown is fully protected at NW1 with finasteride + supplements + DHT-blocking shampoo — systemic DHT suppression, nutritional support, and topical DHT control are all active. No targeted crown treatment needed at this stage; take monthly overhead photos so any early vertex change is caught the moment it begins.'
+                        : _hasFinasteride && _hasSupplements
+                          ? 'Finasteride + supplement stack is a strong NW1 crown prevention foundation — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the topical DHT complement to your systemic finasteride. Together they form the most complete dual-level crown prevention stack at NW1; take monthly overhead photos to catch any early vertex thinning.'
+                          : _hasFinasteride && _hasDHTShampoo
+                            ? 'Your crown is fully healthy at NW1 and finasteride + DHT-blocking shampoo covers both systemic and topical DHT suppression — no targeted crown treatment needed. Take monthly overhead photos so any early vertex change is caught the moment it begins, which is the highest-ROI intervention window.'
+                            : _hasFinasteride
+                              ? 'Finasteride is providing systemic DHT protection at NW1 where your crown is fully healthy — no targeted treatment needed. Add a DHT-blocking shampoo 3× weekly as the topical-level complement and take monthly overhead photos to catch any early vertex thinning the moment it appears.'
+                              : _hasMinoxidil && _hasDHTShampoo
+                                ? 'Your crown is fully healthy at NW1 with minoxidil + DHT-blocking shampoo active — the DHT shampoo is the primary crown protection layer (3× weekly, 3-5 min contact time). Take monthly overhead photos from the same position; catching any early vertex thinning at the NW1→NW3v transition is the highest-ROI crown intervention window. A doctor consult about finasteride adds systemic DHT suppression for the most complete dual-level prevention stack.'
+                                : _hasMinoxidil
+                                  ? 'Your crown is intact at NW1 — minoxidil supports general scalp health but the primary prevention layer for crown protection is DHT suppression. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the topical-level DHT control layer alongside your existing routine. Take monthly overhead photos to catch any early vertex change the moment it begins.'
+                                  : _hasSupplements && _hasDHTShampoo
+                                    ? 'Your crown is fully healthy at NW1 with supplements and DHT-blocking shampoo providing nutritional support and topical DHT control — a solid preventive foundation. Take monthly overhead photos so any early vertex change is caught at the highest-ROI intervention window; if vertex thinning ever appears, that marks the NW3v transition and is the ideal time to act.'
+                                    : _hasSupplements
+                                      ? 'Your supplement stack supports crown follicle health at NW1 where your vertex is fully intact — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the topical DHT prevention layer. Together they form a dual-layer non-Rx preventive foundation; take monthly overhead photos to catch any early vertex change before it progresses.'
+                                      : _hasDHTShampoo
+                                        ? 'Your crown is fully healthy at NW1. No targeted crown treatment needed yet — your DHT-blocking shampoo already provides preventive coverage. Take monthly overhead photos so any early vertex change is caught at the highest-ROI intervention window.'
+                                        : 'Your crown is healthy at NW1. No crown treatment needed yet — add a DHT-blocking shampoo 3× weekly as a general prevention layer and take monthly overhead photos to catch any early vertex change before it requires aggressive treatment.')
                 : data.stage === 'NW2'
                 // NW2: crown is intact, temples are the active priority — redirect focus there
                 ? (_hasFinasteride && _hasDHTShampoo
