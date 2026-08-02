@@ -1488,7 +1488,17 @@ assert(
 
 assert(
   source.includes("Your supplement stack supports remaining fringe follicle health at NW7 — keep biotin, zinc, and vitamin D consistent as nutritional support for fringe density. The primary path for meaningful density coverage is surgical (FUE/FUT or SMP); prioritize a trichologist or transplant consultation to evaluate candidacy and how your nutritional protocol integrates with the surgical coverage plan."),
-  'WEEKLY_FOCUS_MAP.Density NW7 should be supplements-aware: users whose only active treatment is a supplement stack receive acknowledgment of their nutritional protocol rather than falling through to the generic surgical-only default — mirrors NW6 supplement awareness pattern'
+  'WEEKLY_FOCUS_MAP.Density NW7 should be supplements-aware: users whose only active treatment is a supplement stack receive acknowledgment of their nutritional protocol rather than falling through to the generic surgical-only default'
+);
+
+assert(
+  source.includes("Your supplement stack supports follicle health at NW5 where density has declined across both frontal and crown zones — nutritional support is a good foundation, but the highest-ROI additions at this dual-zone stage are minoxidil applied across the full scalp top twice daily and a DHT-blocking shampoo 3× weekly (3-5 min contact time). Adding both topical layers while follicles are still viable gives the strongest OTC density response at NW5; track with monthly overhead photos."),
+  'WEEKLY_FOCUS_MAP.Density NW5 should be supplements-aware: users with only a supplement stack receive targeted dual-zone advice rather than the generic no-treatment default'
+);
+
+assert(
+  source.includes("Your supplement stack is supporting fringe follicle health at NW6 — add minoxidil to the fringe and lateral edges twice daily and a DHT-blocking shampoo 3× weekly as the two missing topical layers. Together they deliver topical growth signal and local DHT suppression where density loss is advanced; the realistic goal at this stage is stabilizing remaining fringe coverage. Track with monthly overhead photos."),
+  'WEEKLY_FOCUS_MAP.Density NW6 should be supplements-aware: users with only a supplement stack receive fringe-specific advice rather than the generic add-minoxidil/DHT-shampoo default'
 );
 
 assert(
