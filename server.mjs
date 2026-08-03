@@ -429,6 +429,14 @@ const PROGRESSION_CALIBRATED_DIFFUSE_6MO_STAGES = new Set(['diffuse', 'n/a (fema
 // NW5-NW7: near-total or fully merged bald zones → essentially identical to input.
 // NW4: large frontal + crown bald zones → nearly identical; faintest edge thickening only.
 const PROGRESSION_MINIMAL_3MO_STAGES = new Set(['NW5', 'NW6', 'NW7']); // 3-month override
+// 3-month calibration for NW2/NW3/NW3v: the stage hints direct the model to "gradually fill
+// the M-shape recession" or "show improvement primarily in the temple recession zones" — language
+// that is correct for the 6/12-month timeframes but too aggressive for 3 months. Real 3-month
+// results for these stages are nearly imperceptible: the recession shape stays essentially
+// unchanged and any visible improvement is limited to marginally thicker existing hairs at the
+// very outermost edge of the recession boundary. Without this calibration the model may
+// prematurely fill visible recession corners that realistically wouldn't change for many months.
+const PROGRESSION_CONSERVATIVE_3MO_STAGES = new Set(['NW2', 'NW3', 'NW3v']); // 3-month calibration
 // NW1 has no hair loss at all — the base prompts for months 3, 6, and 12 all instruct
 // making improvements, which directly conflicts with the stage hint ("make no changes").
 // Without an explicit OVERRIDES qualifier the image model follows the base prompt and
@@ -457,6 +465,8 @@ const buildProgressionPrompt = (month, stage) => {
     qualifier = 'Stage-specific constraint (OVERRIDES the "15–20% shine reduction / slight thickening" language above — at NW4, real 3-month treatment results are nearly invisible in photos. The large frontal and crown bald zones must show NO new growth or density change. Show at most the faintest hint of marginally thicker hairs only at the very edges of the recession boundary and crown thinning edge — the output must look nearly identical to the input and an ordinary viewer should not notice any difference without a side-by-side comparison):';
   } else if (month === 3 && PROGRESSION_MINIMAL_3MO_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (OVERRIDES the "15–20% shine reduction / slight thickening" language above — at this advanced stage, real 3-month treatment results are nearly invisible in photos. The large bald zones across the scalp top must show NO new growth or density change. Show at most the faintest hint of marginally thicker hairs only at the horseshoe fringe boundary — the output must look essentially identical to the input and an ordinary viewer should not notice any difference without a side-by-side comparison):';
+  } else if (month === 3 && PROGRESSION_CONSERVATIVE_3MO_STAGES.has(stage)) {
+    qualifier = 'Stage-specific constraint (CALIBRATES both the base improvement prompt and the stage hint below — at 3 months the recession shape must remain essentially identical to the input: no visible filling of temple corners, no forward shift of the recession boundary. Real 3-month results for these stages are nearly imperceptible. Show only the faintest possible edge effect — marginally thicker existing hairs at the outermost edge of the recession boundary, if anything — so the output looks nearly identical to the input and an ordinary viewer would not notice any difference without a side-by-side comparison. For NW3v, the early crown thinning patch is also essentially unchanged at 3 months):';
   } else {
     qualifier = 'Stage-specific focus:';
   }
