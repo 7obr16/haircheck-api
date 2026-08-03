@@ -1519,4 +1519,19 @@ assert(
   'WEEKLY_FOCUS_MAP.Health NW7 should be supplements-aware: users whose only active treatment is a supplement stack receive acknowledgment of their nutritional support rather than falling through to the generic keep-any-routine-going default — mirrors NW6 supplement awareness pattern'
 );
 
+assert(
+  source.includes('Your supplement stack and DHT-blocking shampoo are both active at NW5 — nutritional support and topical DHT suppression across both frontal and crown thinning zones. Add minoxidil across the entire scalp top twice daily as the topical growth signal; supplements + DHT shampoo + minoxidil gives the strongest OTC triple-layer approach at this advanced stage (realistic potential: 28-48%). Set a 3-month checkpoint with overhead and front-facing photos and consider booking a transplant consultation in parallel to plan surgical and OTC paths together.'),
+  'WEEKLY_FOCUS_MAP.Potential NW5 should be supplements+DHT-shampoo-aware: users with both a supplement stack and DHT-blocking shampoo (but no minoxidil) receive acknowledgment of both layers and are directed to add minoxidil rather than falling through to the DHT-shampoo-only branch that ignores their supplements'
+);
+
+assert(
+  source.includes('Your supplement stack and DHT-blocking shampoo support fringe follicle health through nutritional and topical DHT-suppression layers at NW6 — keep both consistent. Add minoxidil to the fringe and lateral edges twice daily as the topical growth signal; the triple combination gives the strongest realistic OTC approach for fringe maintenance at this stage (realistic potential: 15-32%). Set a 3-month checkpoint with overhead photos and prioritize booking a transplant consultation this quarter to plan surgical coverage alongside your protocol.'),
+  'WEEKLY_FOCUS_MAP.Potential NW6 should be supplements+DHT-shampoo-aware: users with both a supplement stack and DHT-blocking shampoo (but no minoxidil) receive acknowledgment of both layers and are directed to add minoxidil — mirrors the NW5 supplements+DHT-shampoo pattern'
+);
+
+assert(
+  source.includes('Your supplement stack and DHT-blocking shampoo support fringe follicle health through nutritional and topical DHT-suppression layers at NW7 — keep both consistent. Your highest-ROI next step is a transplant or SMP consultation; OTC treatments alone are unlikely to create meaningful new coverage at this stage, but your dual-layer protocol complements a surgical plan by supporting fringe follicle health and protecting native hair around new grafts. Research experienced surgeons or SMP artists this week.'),
+  'WEEKLY_FOCUS_MAP.Potential NW7 should be supplements+DHT-shampoo-aware: users with both a supplement stack and DHT-blocking shampoo receive acknowledgment of both layers rather than falling through to the DHT-shampoo-only branch that ignores their supplements — mirrors the NW6 pattern'
+);
+
 console.log('server contract passed');
