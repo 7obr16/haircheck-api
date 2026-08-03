@@ -411,7 +411,7 @@ assert(
 );
 
 assert(
-  source.includes("_hasDHTShampoo\n                          ? 'Your crown is still intact at NW3 — your DHT-blocking shampoo is providing topical DHT suppression across the scalp top. The deep temple recession is the active priority"),
+  source.includes("_hasDHTShampoo\n                        ? 'Your crown is still intact at NW3 — your DHT-blocking shampoo is providing topical DHT suppression across the scalp top. The deep temple recession is the active priority"),
   'WEEKLY_FOCUS_MAP.Crown NW3 branch should be DHT-shampoo-aware so OTC users with a DHT-blocking shampoo (but no finasteride or minoxidil) receive crown advice that acknowledges their active topical DHT protection and redirects to the recession zones'
 );
 
@@ -1036,6 +1036,12 @@ assert(
     source.includes("_hasSupplements && _hasDHTShampoo\n                                          ? 'At NW5, your supplement stack and DHT-blocking shampoo cover nutritional support and topical DHT suppression at the crown vertex") &&
     source.includes("_hasSupplements && _hasDHTShampoo\n                                ? 'At NW6, your supplement stack and DHT-blocking shampoo cover nutritional support and topical DHT suppression for the crown"),
   'WEEKLY_FOCUS_MAP.Crown NW4/NW5/NW6 supplement+DHT compound branch ordering fix: _hasSupplements && _hasDHTShampoo must appear BEFORE standalone _hasDHTShampoo so users with both an active supplement stack and DHT-blocking shampoo receive compound-aware advice rather than falling through to the DHT-shampoo-only branch that ignores their supplement routine'
+);
+
+assert(
+  source.includes("_hasSupplements && _hasDHTShampoo\n                    ? 'Your crown is intact at NW2 — your supplement stack and DHT-blocking shampoo provide nutritional support and topical DHT suppression across the scalp top. The temple recession is the active priority") &&
+    source.includes("_hasSupplements && _hasDHTShampoo\n                        ? 'Your crown is intact at NW3 — your supplement stack and DHT-blocking shampoo provide nutritional support and topical DHT suppression across the full scalp top. The deep temple recession is the active priority"),
+  'WEEKLY_FOCUS_MAP.Crown NW2/NW3 supplement+DHT compound branch ordering fix: _hasSupplements && _hasDHTShampoo must appear BEFORE standalone _hasDHTShampoo so users with both an active supplement stack and DHT-blocking shampoo receive compound-aware advice rather than falling through to the DHT-shampoo-only branch that ignores their supplement routine'
 );
 
 assert(
