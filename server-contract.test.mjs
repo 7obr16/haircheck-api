@@ -373,6 +373,18 @@ assert(
 );
 
 assert(
+  source.includes('At NW5, finasteride + DHT-blocking shampoo delivers systemic and topical DHT suppression across both frontal and crown thinning zones') &&
+    source.includes('finasteride + minoxidil + DHT shampoo is the strongest non-surgical NW5 protocol (realistic potential: 28-48%)'),
+  'WEEKLY_FOCUS_MAP.Potential NW5 should have a finasteride+DHT-shampoo compound branch so users on fin+DHT-shampoo (without minoxidil) do not fall through to the standalone finasteride branch that ignores their topical DHT layer'
+);
+
+assert(
+  source.includes('At NW6, finasteride + DHT-blocking shampoo delivers systemic and topical DHT suppression for the remaining fringe and lateral edges') &&
+    source.includes('finasteride + minoxidil + DHT shampoo is the strongest non-surgical fringe protocol (realistic potential: 15-32%)'),
+  'WEEKLY_FOCUS_MAP.Potential NW6 should have a finasteride+DHT-shampoo compound branch so users on fin+DHT-shampoo (without minoxidil) do not fall through to the standalone finasteride branch that ignores their topical DHT layer'
+);
+
+assert(
   source.includes('NW3v crown thinning has just started and your finasteride + minoxidil + massage stack is fully deployed') &&
     source.includes('NW3v early crown thinning with finasteride + minoxidil is the strongest available intervention') &&
     source.includes('NW3v means early crown thinning has just started — your finasteride is suppressing DHT systemically'),
