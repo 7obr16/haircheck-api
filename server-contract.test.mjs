@@ -1544,4 +1544,19 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential NW7 should be supplements+DHT-shampoo-aware: users with both a supplement stack and DHT-blocking shampoo receive acknowledgment of both layers rather than falling through to the DHT-shampoo-only branch that ignores their supplements — mirrors the NW6 pattern'
 );
 
+assert(
+  source.includes("Your minoxidil + DHT-blocking shampoo provides a topical growth signal and local DHT suppression for the remaining horseshoe fringe at NW7 — apply minoxidil to the fringe and lateral edges twice daily and leave DHT shampoo on 3-5 minutes per wash. The primary hairline coverage path at this stage is FUE/FUT transplant or SMP; book a trichologist consult this week to understand candidacy, donor supply, and how your dual-layer topical protocol integrates into the surgical strategy."),
+  'WEEKLY_FOCUS_MAP.Hairline NW7 should have a minoxidil+DHT-shampoo compound branch: users with both topical layers but no finasteride at NW7 receive advice acknowledging both treatments rather than falling through to the DHT-shampoo-only branch that ignores their minoxidil — mirrors the NW7 Health and Potential minoxidil+DHT-shampoo patterns'
+);
+
+assert(
+  source.includes("Your minoxidil + DHT-blocking shampoo provides a topical growth signal and local DHT suppression for the remaining fringe at NW7 — apply minoxidil to the fringe and lateral edges twice daily and leave DHT shampoo on 3-5 minutes per wash. The primary path for meaningful density coverage is surgical (FUE/FUT or SMP); prioritize a trichologist consultation to evaluate candidacy and how your dual-layer topical protocol complements the surgical coverage plan."),
+  'WEEKLY_FOCUS_MAP.Density NW7 should have a minoxidil+DHT-shampoo compound branch: users with both topical layers but no finasteride at NW7 receive density advice acknowledging both treatments rather than falling through to the DHT-shampoo-only branch that ignores their minoxidil — mirrors the NW7 Health and Potential minoxidil+DHT-shampoo patterns'
+);
+
+assert(
+  source.includes("Your minoxidil + DHT-blocking shampoo provides a topical growth signal and local DHT suppression for the remaining fringe at NW7 — apply minoxidil to the fringe and lateral edges twice daily and leave DHT shampoo on 3-5 minutes per wash. Crown coverage at this stage is best addressed through FUE/FUT or SMP; book a specialist consult this week to discuss vertex coverage goals, donor supply, and how your dual-layer topical protocol fits into the surgical plan."),
+  'WEEKLY_FOCUS_MAP.Crown NW7 should have a minoxidil+DHT-shampoo compound branch: users with both topical layers but no finasteride at NW7 receive crown advice acknowledging both treatments rather than falling through to the DHT-shampoo-only branch that ignores their minoxidil — mirrors the NW7 Health and Potential minoxidil+DHT-shampoo patterns'
+);
+
 console.log('server contract passed');
