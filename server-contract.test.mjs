@@ -273,6 +273,11 @@ assert(
 );
 
 assert(
+  source.includes('At NW3v, finasteride + DHT-blocking shampoo delivers dual-level DHT suppression across both active zones — systemic through finasteride and topical through the shampoo (3-5 min contact time 3× weekly). Add minoxidil to BOTH the temple recession zones AND the vertex twice daily as the topical growth signal; finasteride + minoxidil + DHT shampoo is the most complete non-surgical dual-zone protocol at this pivotal NW3v window.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW3v branch should have a finasteride+DHT-shampoo compound branch so users who have dual DHT suppression but no minoxidil at NW3v get dual-zone advice acknowledging both layers and recommending minoxidil as the missing growth signal'
+);
+
+assert(
   source.includes('NW4 frontal hairline with finasteride + minoxidil + massage is the most complete non-surgical protocol') &&
     source.includes('Finasteride provides systemic DHT suppression at NW4 — add minoxidil applied along the entire frontal hairline twice daily'),
   'WEEKLY_FOCUS_MAP.Hairline NW4 branch should be finasteride-aware so Rx users at the significant-recession stage get hairline advice calibrated to their systemic DHT suppression'
@@ -372,6 +377,11 @@ assert(
     source.includes('NW3v early crown thinning with finasteride + minoxidil is the strongest available intervention') &&
     source.includes('NW3v means early crown thinning has just started — your finasteride is suppressing DHT systemically'),
   'WEEKLY_FOCUS_MAP.Crown NW3v branch should be finasteride-aware so Rx users at the dual-zone early-crown stage get vertex advice that builds on their systemic DHT suppression'
+);
+
+assert(
+  source.includes('NW3v early crown thinning with finasteride + DHT-blocking shampoo delivers dual-level DHT suppression at the vertex — systemic through finasteride and topical through the shampoo (3-5 min contact time 3× weekly). Add minoxidil (1ml) directly to the vertex twice daily as the topical growth signal; finasteride + minoxidil + DHT shampoo at NW3v is the strongest non-surgical crown combination at this highest-ROI intervention window.'),
+  'WEEKLY_FOCUS_MAP.Crown NW3v branch should have a finasteride+DHT-shampoo compound branch so users with dual DHT suppression but no minoxidil at NW3v get vertex advice acknowledging both suppression layers and recommending minoxidil as the missing crown growth signal'
 );
 
 assert(
