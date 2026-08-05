@@ -1559,4 +1559,19 @@ assert(
   'WEEKLY_FOCUS_MAP.Crown NW7 should have a minoxidil+DHT-shampoo compound branch: users with both topical layers but no finasteride at NW7 receive crown advice acknowledging both treatments rather than falling through to the DHT-shampoo-only branch that ignores their minoxidil — mirrors the NW7 Health and Potential minoxidil+DHT-shampoo patterns'
 );
 
+assert(
+  source.includes('Finasteride + DHT-blocking shampoo at NW6 delivers dual-level DHT suppression for the remaining fringe and temporal hairline — systemic through finasteride and topical through the shampoo (3-5 min contact time 3× weekly). Add minoxidil to the fringe and temporal edges twice daily as the topical growth signal; finasteride + minoxidil + DHT shampoo is the strongest non-surgical fringe hairline protocol at this stage. Book a transplant consultation to evaluate surgical coverage options alongside your current dual-layer DHT protocol.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW6 should have a finasteride+DHT-shampoo compound branch so users with both finasteride and DHT shampoo but not yet minoxidil receive advice acknowledging their dual-layer DHT protocol rather than falling through to the standalone finasteride branch that incorrectly tells them to add DHT shampoo they already have'
+);
+
+assert(
+  source.includes('Finasteride + DHT-blocking shampoo delivers dual-level DHT suppression at NW6 where density is mostly lost — systemic DHT control through finasteride and topical suppression through the shampoo (3-5 min contact time 3× weekly). Add minoxidil to the remaining fringe and lateral edges twice daily as the topical growth signal; finasteride + minoxidil + DHT shampoo is the strongest non-surgical density maintenance protocol at this stage. Track with monthly overhead photos and consider a transplant consultation for full coverage planning.'),
+  'WEEKLY_FOCUS_MAP.Density NW6 should have a finasteride+DHT-shampoo compound branch so users with both finasteride and DHT shampoo but not yet minoxidil receive advice acknowledging their dual-layer DHT protocol rather than falling through to the standalone finasteride branch that incorrectly recommends DHT shampoo they already have'
+);
+
+assert(
+  source.includes('Finasteride + DHT-blocking shampoo at NW6 delivers dual-level DHT suppression for the crown — systemic through finasteride and topical through the shampoo (3-5 min contact time 3× weekly). Add minoxidil (1ml) directly to the vertex twice daily as the topical growth signal; finasteride + minoxidil + DHT shampoo is the strongest non-surgical crown protocol at this stage. Photograph from above every 6 weeks to track change and consider booking a transplant consultation for vertex coverage planning.'),
+  'WEEKLY_FOCUS_MAP.Crown NW6 should have a finasteride+DHT-shampoo compound branch so users with both finasteride and DHT shampoo but not yet minoxidil receive crown advice acknowledging their dual-layer DHT protocol rather than falling through to the standalone finasteride branch that incorrectly tells them to add DHT shampoo they already have'
+);
+
 console.log('server contract passed');
