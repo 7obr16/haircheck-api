@@ -1520,6 +1520,16 @@ assert(
 );
 
 assert(
+  source.includes("Your supplement and DHT-blocking shampoo routine is protecting remaining follicles at NW6 — keep DHT shampoo on 3-5 minutes per wash and add weekly microneedling over the fringe zones to prime follicle response. A dermatologist check can rule out any inflammatory component that your current protocol cannot address alone."),
+  'WEEKLY_FOCUS_MAP.Health NW6 should be supplements+DHT-shampoo-aware: users who have both a supplement stack and DHT-blocking shampoo at NW6 receive compound-aware acknowledgment rather than falling through to the standalone _hasDHTShampoo branch that ignores their supplements — mirrors the Health NW7 and Potential NW6 supplement+DHT compound patterns'
+);
+
+assert(
+  source.includes("Your supplement stack and DHT-blocking shampoo provide nutritional support and topical DHT suppression for remaining fringe follicles at NW7 — keep DHT shampoo on 3-5 minutes per wash 3× weekly and your supplement stack consistent. The highest-ROI next step is booking a trichologist or transplant consultation to evaluate donor supply, candidacy, and how your nutritional + topical DHT protocol integrates with surgical coverage options (FUE/FUT or SMP)."),
+  'WEEKLY_FOCUS_MAP.Health NW7 should be supplements+DHT-shampoo-aware: users with both a supplement stack and DHT-blocking shampoo at NW7 receive compound-aware fringe-health advice rather than falling through to the standalone _hasDHTShampoo branch that ignores their supplements — mirrors the Health NW6 and Potential NW7 supplement+DHT compound patterns'
+);
+
+assert(
   source.includes('Your supplement stack and DHT-blocking shampoo are both active at NW5 — nutritional support and topical DHT suppression across both frontal and crown thinning zones. Add minoxidil across the entire scalp top twice daily as the topical growth signal; supplements + DHT shampoo + minoxidil gives the strongest OTC triple-layer approach at this advanced stage (realistic potential: 28-48%). Set a 3-month checkpoint with overhead and front-facing photos and consider booking a transplant consultation in parallel to plan surgical and OTC paths together.'),
   'WEEKLY_FOCUS_MAP.Potential NW5 should be supplements+DHT-shampoo-aware: users with both a supplement stack and DHT-blocking shampoo (but no minoxidil) receive acknowledgment of both layers and are directed to add minoxidil rather than falling through to the DHT-shampoo-only branch that ignores their supplements'
 );
