@@ -1263,7 +1263,7 @@ assert(
 );
 
 assert(
-  source.includes("lllt = false, microneedling = false } = protocolCoverage || {};") &&
+  source.includes("lllt = false, microneedling = false, supplements = false } = protocolCoverage || {};") &&
     source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW5?'") &&
     source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW4?'") &&
     source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW3v?'") &&
@@ -1594,6 +1594,12 @@ assert(
 assert(
   source.includes('Finasteride + DHT-blocking shampoo at NW6 delivers dual-level DHT suppression for the crown — systemic through finasteride and topical through the shampoo (3-5 min contact time 3× weekly). Add minoxidil (1ml) directly to the vertex twice daily as the topical growth signal; finasteride + minoxidil + DHT shampoo is the strongest non-surgical crown protocol at this stage. Photograph from above every 6 weeks to track change and consider booking a transplant consultation for vertex coverage planning.'),
   'WEEKLY_FOCUS_MAP.Crown NW6 should have a finasteride+DHT-shampoo compound branch so users with both finasteride and DHT shampoo but not yet minoxidil receive crown advice acknowledging their dual-layer DHT protocol rather than falling through to the standalone finasteride branch that incorrectly tells them to add DHT shampoo they already have'
+);
+
+assert(
+  source.includes("supplements = false } = protocolCoverage || {}") &&
+    source.includes("const hasAnyOTC = topical || dhtShampoo || mechanical || supplements"),
+  'buildSuggestedQuestions should destructure supplements from protocolCoverage and include it in hasAnyOTC so supplement-only users (Nutrafol, Viviscal, biotin+zinc) are routed to the OTC-tier questions (is finasteride worth adding?) rather than the no-treatment tier (what should I start first?)'
 );
 
 console.log('server contract passed');

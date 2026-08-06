@@ -479,8 +479,8 @@ const buildProgressionPrompt = (month, stage) => {
 // Questions are routine-aware (don't suggest starting something already active) and
 // stage-aware (specialist framing for NW5+, cause-finding for diffuse/female).
 const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended) => {
-  const { topical = false, rx = false, dhtShampoo = false, mechanical = false, lllt = false, microneedling = false } = protocolCoverage || {};
-  const hasAnyOTC = topical || dhtShampoo || mechanical;
+  const { topical = false, rx = false, dhtShampoo = false, mechanical = false, lllt = false, microneedling = false, supplements = false } = protocolCoverage || {};
+  const hasAnyOTC = topical || dhtShampoo || mechanical || supplements;
 
   // NW7 — near-total loss; horseshoe fringe only; surgical options (FUE/FUT or SMP) are the primary path.
   // 3-tier structure matches NW5/NW6: no-treatment / OTC-only / Rx, each with transplant-planning context.
