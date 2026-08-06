@@ -1612,4 +1612,14 @@ assert(
   'WEEKLY_FOCUS_MAP.Health NW6 should have a finasteride+DHT-shampoo compound branch so users with both finasteride and DHT shampoo but not supplements receive advice acknowledging their dual-layer DHT protocol rather than falling through to the standalone finasteride branch that incorrectly tells them to add DHT shampoo they already have — mirrors the NW7 Health finasteride+DHT-shampoo pattern'
 );
 
+assert(
+  source.includes('Your scalp health has dual-level DHT protection at NW1 — finasteride suppresses systemic DHT and your DHT-blocking shampoo adds topical control at the scalp surface before any visible thinning begins. Keep DHT shampoo on 3-5 minutes per wash 3× weekly and finasteride consistent without gaps. Add a supplement stack (biotin, zinc, vitamin D) as the nutritional layer to complete the most comprehensive NW1 preventive protocol.'),
+  'WEEKLY_FOCUS_MAP.Health NW1 should have a finasteride+DHT-shampoo compound branch so users with both finasteride and DHT shampoo but not supplements receive advice acknowledging their dual-layer DHT protocol rather than falling through to the standalone finasteride branch that incorrectly tells them to add DHT shampoo they already have'
+);
+
+assert(
+  source.includes('Finasteride + DHT-blocking shampoo covers both systemic and topical DHT suppression at NW2 where miniaturization is just starting at the temple edge — take finasteride consistently and leave DHT shampoo on 3-5 minutes before rinsing for maximum topical DHT suppression. Add a supplement stack (biotin, zinc, vitamin D) as the nutritional layer to complete the three-layer anti-miniaturization foundation at this ideal preventive window.'),
+  'WEEKLY_FOCUS_MAP.Health NW2 should have a finasteride+DHT-shampoo compound branch so users with both finasteride and DHT shampoo but not supplements receive advice acknowledging their dual-layer DHT protocol rather than falling through to the standalone finasteride branch that incorrectly tells them to add DHT shampoo they already have'
+);
+
 console.log('server contract passed');

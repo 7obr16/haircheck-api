@@ -3656,8 +3656,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     ? 'Your scalp health is fully protected at NW1 with finasteride + supplements + DHT-blocking shampoo — the most complete preventive protocol. Target sleep quality this week (7-8 hrs); cortisol from poor sleep accelerates miniaturization even before visible thinning begins.'
                     : _hasFinasteride && _hasSupplements
                       ? 'Finasteride + supplement stack is a strong NW1 health foundation — add a DHT-blocking shampoo 3× weekly with 3-5 minutes of contact time for the topical-level DHT-suppression layer alongside your systemic finasteride coverage.'
-                      : _hasFinasteride
-                        ? 'Finasteride provides systemic DHT protection at NW1 — build the local layer with a supplement stack (biotin, zinc, vitamin D) and a DHT-blocking shampoo 3× weekly. All three together form the most complete anti-miniaturization protocol before any visible thinning begins.'
+                      : _hasFinasteride && _hasDHTShampoo
+                        ? 'Your scalp health has dual-level DHT protection at NW1 — finasteride suppresses systemic DHT and your DHT-blocking shampoo adds topical control at the scalp surface before any visible thinning begins. Keep DHT shampoo on 3-5 minutes per wash 3× weekly and finasteride consistent without gaps. Add a supplement stack (biotin, zinc, vitamin D) as the nutritional layer to complete the most comprehensive NW1 preventive protocol.'
+                        : _hasFinasteride
+                          ? 'Finasteride provides systemic DHT protection at NW1 — build the local layer with a supplement stack (biotin, zinc, vitamin D) and a DHT-blocking shampoo 3× weekly. All three together form the most complete anti-miniaturization protocol before any visible thinning begins.'
                         : _hasSupplements && _hasDHTShampoo
                           ? 'Your scalp is in strong preventive shape — target sleep quality this week (7-8 hrs). Cortisol from poor sleep accelerates miniaturization even before visible thinning begins.'
                           : _hasSupplements && _hasMassage
@@ -3683,8 +3685,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                       ? 'At NW2, finasteride + supplements + DHT shampoo delivers systemic DHT suppression, nutritional support, and topical DHT control — the most complete scalp-health foundation at this early stage. Leave the DHT shampoo on 3-5 minutes before rinsing for maximum contact time at the temple recession edge where miniaturization is just beginning.'
                       : _hasFinasteride && _hasSupplements
                         ? 'Finasteride + supplements is a strong NW2 health foundation — add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the topical DHT layer. Systemic finasteride handles the hormonal root cause; the DHT shampoo adds topical suppression at the early recession edge where miniaturization is beginning.'
-                        : _hasFinasteride
-                          ? 'Finasteride suppresses systemic DHT at NW2 where miniaturization is just beginning — build the local scalp-health layer with a supplement stack (biotin, zinc, vitamin D) and a DHT-blocking shampoo 3× weekly. All three layers together create the strongest anti-miniaturization foundation at the ideal preventive window.'
+                        : _hasFinasteride && _hasDHTShampoo
+                          ? 'Finasteride + DHT-blocking shampoo covers both systemic and topical DHT suppression at NW2 where miniaturization is just starting at the temple edge — take finasteride consistently and leave DHT shampoo on 3-5 minutes before rinsing for maximum topical DHT suppression. Add a supplement stack (biotin, zinc, vitamin D) as the nutritional layer to complete the three-layer anti-miniaturization foundation at this ideal preventive window.'
+                          : _hasFinasteride
+                            ? 'Finasteride suppresses systemic DHT at NW2 where miniaturization is just beginning — build the local scalp-health layer with a supplement stack (biotin, zinc, vitamin D) and a DHT-blocking shampoo 3× weekly. All three layers together create the strongest anti-miniaturization foundation at the ideal preventive window.'
                           : _hasSupplements && _hasDHTShampoo
                             ? 'Supplements and DHT-blocking shampoo are building a strong preventive foundation at NW2 — maximize the DHT shampoo by leaving it on 3-5 minutes before rinsing. Contact time determines how much DHT suppression reaches the follicle level at the recession edge.'
                             : _hasSupplements && _hasMassage
