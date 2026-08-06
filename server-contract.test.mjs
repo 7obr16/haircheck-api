@@ -1602,4 +1602,14 @@ assert(
   'buildSuggestedQuestions should destructure supplements from protocolCoverage and include it in hasAnyOTC so supplement-only users (Nutrafol, Viviscal, biotin+zinc) are routed to the OTC-tier questions (is finasteride worth adding?) rather than the no-treatment tier (what should I start first?)'
 );
 
+assert(
+  source.includes('At NW5, finasteride + DHT-blocking shampoo delivers systemic and topical DHT suppression across the full scalp top where miniaturization spans both the frontal and crown zones — take finasteride at the same time each day and leave DHT shampoo on 3-5 minutes per wash 3× weekly. Add a supplement stack (biotin, zinc, vitamin D) as the nutritional layer and weekly microneedling over the thinnest zones to prime follicle response; the complete four-layer scalp-health protocol gives the strongest anti-miniaturization response where miniaturization is most widespread at this advanced stage.'),
+  'WEEKLY_FOCUS_MAP.Health NW5 should have a finasteride+DHT-shampoo compound branch so users with both finasteride and DHT shampoo but not supplements receive advice acknowledging their dual-layer DHT protocol rather than falling through to the standalone finasteride branch that incorrectly tells them to add DHT shampoo they already have'
+);
+
+assert(
+  source.includes('At NW6, finasteride + DHT-blocking shampoo delivers systemic and topical DHT suppression for remaining fringe follicle health — take finasteride at the same time each day without gaps and leave DHT shampoo on 3-5 minutes per wash 3× weekly. Add weekly microneedling over the fringe zones to prime remaining follicle response and consider a supplement stack (biotin, zinc, vitamin D) as the nutritional layer; a dermatologist check can also rule out any inflammatory component that your current dual-DHT protocol cannot address alone.'),
+  'WEEKLY_FOCUS_MAP.Health NW6 should have a finasteride+DHT-shampoo compound branch so users with both finasteride and DHT shampoo but not supplements receive advice acknowledging their dual-layer DHT protocol rather than falling through to the standalone finasteride branch that incorrectly tells them to add DHT shampoo they already have — mirrors the NW7 Health finasteride+DHT-shampoo pattern'
+);
+
 console.log('server contract passed');
