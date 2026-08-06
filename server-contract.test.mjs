@@ -195,6 +195,11 @@ assert(
 );
 
 assert(
+  source.includes('At NW3, finasteride + DHT-blocking shampoo delivers systemic and topical DHT suppression at the active temple recession edge — take finasteride at the same time each day and leave DHT shampoo on 3-5 minutes per wash 3× weekly.'),
+  'WEEKLY_FOCUS_MAP.Health NW3 branch should have a finasteride+DHT-shampoo compound branch so users who have both but no supplements are told to add supplements and microneedling — not incorrectly told to add DHT-blocking shampoo they already use'
+);
+
+assert(
   source.includes('At NW4, finasteride + minoxidil + DHT shampoo + scalp massage is the most complete non-surgical density protocol') &&
     source.includes('Finasteride is suppressing systemic DHT at NW4 where mid-scalp density is declining'),
   'WEEKLY_FOCUS_MAP.Density NW4 branch should be finasteride-aware so Rx users at the significant-loss stage get the most relevant density advice'
