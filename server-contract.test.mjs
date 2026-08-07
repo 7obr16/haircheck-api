@@ -1182,6 +1182,22 @@ assert(
 );
 
 assert(
+  source.includes("r.includes('kiierr') || r.includes('illumiflow')"),
+  'server should detect Kiierr and Illumiflow as LLLT devices in both _hasLLLT and _hasMassage scan-time detection'
+);
+
+assert(
+  source.includes("s.includes('kiierr') || s.includes('illumiflow')"),
+  'coach pre-scan protocolCoverage fallback should detect Kiierr and Illumiflow as LLLT devices in both mechanical and lllt fields, consistent with scan-time detection'
+);
+
+assert(
+  source.includes("r.includes('finax')") &&
+    source.includes("s.includes('finax')"),
+  'server should detect Finax (Dr. Reddy\'s finasteride 1mg brand) in both scan-time _hasFinasteride and coach pre-scan rx detection'
+);
+
+assert(
   source.includes("r.includes('pura d') || r.includes('shapiro md') || r.includes('rosemary oil')"),
   'server should detect Pura D\'or, Shapiro MD, and rosemary oil as DHT-blocking shampoo brands in _hasDHTShampoo detection'
 );
