@@ -2688,7 +2688,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const _isNW56         = data.stage === 'NW5' || data.stage === 'NW6';
         const WEEKLY_FOCUS_MAP = {
           Hairline: _isNW7
-            ? (_hasFinasteride && _hasDHTShampoo
+            ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
+                ? 'At NW7, your finasteride + minoxidil + DHT-blocking shampoo is the most complete non-surgical fringe protocol — systemic DHT suppression through finasteride, topical growth signal through minoxidil, and local DHT control through the shampoo. Keep all three consistent without gaps. The primary hairline coverage path at this stage is FUE/FUT transplant or SMP; book a trichologist consult this week to understand candidacy, donor supply, and how your triple-layer protocol integrates into the surgical strategy.'
+                : _hasFinasteride && _hasDHTShampoo
                 ? 'Your finasteride + DHT-blocking shampoo at NW7 delivers both systemic and topical DHT suppression for the remaining horseshoe fringe — keep both consistent without gaps. The primary hairline coverage path at this stage is FUE/FUT transplant or SMP; book a trichologist consult this week to understand candidacy, donor supply, and how your dual-layer DHT protocol integrates into the surgical strategy.'
                 : _hasFinasteride && _hasMinoxidil
                 ? 'Your finasteride + minoxidil at NW7 delivers systemic DHT suppression and a topical growth signal for the remaining horseshoe fringe — keep both consistent without gaps. The primary hairline coverage path at this stage is FUE/FUT transplant or SMP; book a trichologist consult this week to understand candidacy, donor supply, and how your dual-layer protocol integrates into the surgical strategy.'
@@ -2989,7 +2991,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                     ? 'Your minoxidil is active — maximize coverage across both recession zones twice daily and add a 3-minute scalp massage post-application to boost absorption.'
                     : 'Apply minoxidil directly to your recession zones every morning and night — temple consistency is the highest-leverage habit right now.',
           Density: _isNW7
-            ? (_hasFinasteride && _hasDHTShampoo
+            ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
+                ? 'At NW7, your finasteride + minoxidil + DHT-blocking shampoo delivers systemic DHT suppression, topical growth signal, and local DHT control for the remaining fringe — keep all three consistent without gaps. Apply minoxidil to the fringe and lateral edges twice daily, leave DHT shampoo on 3-5 minutes per wash, and take finasteride at the same time each day. The primary path for meaningful density coverage is surgical (FUE/FUT or SMP); prioritize a trichologist consultation to evaluate candidacy, donor supply, and how your triple-layer protocol complements the surgical coverage plan.'
+                : _hasFinasteride && _hasDHTShampoo
                 ? 'At NW7, your finasteride + DHT-blocking shampoo delivers systemic and topical DHT suppression for the remaining fringe — keep both consistent without gaps. The primary path for meaningful density coverage is surgical (FUE/FUT or SMP); prioritize a trichologist consultation to evaluate candidacy and how your dual-layer DHT protocol complements the surgical coverage plan.'
                 : _hasFinasteride && _hasMinoxidil
                 ? 'At NW7, your finasteride + minoxidil provides systemic DHT suppression and a topical growth signal for the remaining fringe — keep both consistent without gaps. The primary path for meaningful density coverage is surgical (FUE/FUT or SMP); prioritize a trichologist consultation to evaluate candidacy and how your dual-layer protocol complements the surgical coverage plan.'
@@ -3272,7 +3276,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                                 ? "You're using a DHT-blocking shampoo — add a 5-minute scalp massage each wash session and consider microneedling once a week to prime follicle response."
                                 : 'Add a DHT-blocking shampoo 3× this week and follow with a 5-minute scalp massage each time to boost circulation.'),
           Crown: _isNW7
-            ? (_hasFinasteride && _hasDHTShampoo
+            ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
+                ? 'At NW7, your finasteride + minoxidil + DHT-blocking shampoo delivers systemic DHT suppression, topical growth signal, and local DHT control for the remaining fringe — keep all three consistent without gaps. Crown vertex coverage at this stage is best addressed through FUE/FUT or SMP; book a specialist consult this week to discuss vertex coverage goals, donor supply, and how your triple-layer protocol fits into the surgical plan.'
+                : _hasFinasteride && _hasDHTShampoo
                 ? 'Your finasteride + DHT-blocking shampoo at NW7 delivers dual-level DHT suppression for the remaining fringe — keep both consistent. Crown coverage at this stage is best addressed through FUE/FUT or SMP; book a specialist consult this week to discuss vertex coverage goals, donor supply, and how your dual-layer DHT protocol fits into the surgical plan.'
                 : _hasFinasteride && _hasMinoxidil
                 ? 'Your finasteride + minoxidil at NW7 delivers systemic DHT suppression and a topical growth signal for the remaining fringe — keep both consistent. Crown coverage at this stage is best addressed through FUE/FUT or SMP; book a specialist consult this week to discuss vertex coverage goals, donor supply, and how your dual-layer protocol fits into the surgical plan.'
@@ -3555,7 +3561,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                         ? 'Your massage habit is on — now add crown-targeted topical (minoxidil at vertex, 1ml) and take a weekly overhead photo to track baseline density.'
                         : 'Begin a crown-focused topical routine and take an overhead comparison photo now to track your baseline.',
           Health: _isNW7
-            ? (_hasFinasteride && _hasDHTShampoo
+            ? (_hasFinasteride && _hasMinoxidil && _hasDHTShampoo
+                ? 'At NW7, your finasteride + minoxidil + DHT-blocking shampoo provides the most complete non-surgical fringe follicle health protocol — systemic DHT suppression through finasteride, topical growth signal through minoxidil, and local DHT control through the shampoo. Keep all three consistent without gaps. The highest-ROI next step is booking a trichologist or transplant consultation this week to evaluate how your triple-layer protocol integrates with surgical coverage options (FUE/FUT or SMP).'
+                : _hasFinasteride && _hasDHTShampoo
                 ? 'At NW7, your finasteride + DHT-blocking shampoo provides systemic and topical DHT suppression for remaining fringe follicle health — keep both consistent without gaps. The highest-ROI next step is booking a trichologist or transplant consultation this week to evaluate how your dual-layer DHT protocol integrates with surgical coverage options (FUE/FUT or SMP).'
                 : _hasFinasteride && _hasMinoxidil
                 ? 'At NW7, your finasteride + minoxidil is protecting remaining fringe follicles through systemic DHT suppression and topical stimulation — keep both consistent without gaps. The highest-ROI next step is booking a trichologist or transplant consultation this week to evaluate how your dual-layer protocol integrates with surgical coverage options (FUE/FUT or SMP).'
