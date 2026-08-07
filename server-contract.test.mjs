@@ -1719,4 +1719,20 @@ assert(
   'server should detect HUM Nutrition (popular US supplement brand with hair growth formula) in both scan-time _hasSupplements and coach pre-scan supplements detection'
 );
 
+assert(
+  source.includes("r.includes('aindeem')") &&
+    source.includes("s.includes('aindeem')"),
+  'server should detect Aindeem (Accord Healthcare UK brand of finasteride 1mg, commonly prescribed on NHS) in both scan-time _hasFinasteride and coach pre-scan rx detection — UK users who say "I use Aindeem" should be classified as Rx'
+);
+
+assert(
+  source.includes("r.includes('dr pen')") &&
+    source.includes("r.includes('drpen')") &&
+    source.includes("r.includes('dr.pen')") &&
+    source.includes("s.includes('dr pen')") &&
+    source.includes("s.includes('drpen')") &&
+    source.includes("s.includes('dr.pen')"),
+  'server should detect Dr. Pen (popular microneedling pen device brand) in all three spelling variants in both scan-time _hasMicroneedling/_hasMassage and coach pre-scan microneedling/mechanical detection'
+);
+
 console.log('server contract passed');
