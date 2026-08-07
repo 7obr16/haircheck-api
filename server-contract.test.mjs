@@ -1643,4 +1643,26 @@ assert(
   'WEEKLY_FOCUS_MAP.Health NW2 should have a finasteride+DHT-shampoo compound branch so users with both finasteride and DHT shampoo but not supplements receive advice acknowledging their dual-layer DHT protocol rather than falling through to the standalone finasteride branch that incorrectly tells them to add DHT shampoo they already have'
 );
 
+assert(
+  source.includes("r.includes('nanoxidil')") &&
+    source.includes("s.includes('nanoxidil')"),
+  'server should detect nanoxidil (DS Laboratories Spectral.DNC-N active ingredient) as a topical hair loss treatment in both scan-time _hasMinoxidil and coach pre-scan topical detection'
+);
+
+assert(
+  source.includes("r.includes('bioxsine') || r.includes('watermans')"),
+  'server should detect Bioxsine and Watermans as anti-hair-loss shampoos in scan-time _hasDHTShampoo detection'
+);
+
+assert(
+  source.includes("s.includes('bioxsine') || s.includes('watermans')"),
+  'coach pre-scan protocolCoverage fallback should detect Bioxsine and Watermans as anti-hair-loss shampoos consistent with scan-time _hasDHTShampoo detection'
+);
+
+assert(
+  source.includes("r.includes('sugarbear')") &&
+    source.includes("s.includes('sugarbear')"),
+  'server should detect SugarBear Hair vitamins as a supplement brand in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
 console.log('server contract passed');
