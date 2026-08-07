@@ -1689,4 +1689,34 @@ assert(
   'server should detect Pantovigar (Western European variant of Pantogar, by Stada) as a supplement brand in both scan-time _hasSupplements and coach pre-scan supplements detection'
 );
 
+assert(
+  source.includes("r.includes('philip kingsley')") &&
+    source.includes("s.includes('philip kingsley')"),
+  'server should detect Philip Kingsley (UK trichology supplements brand — Tricho Complex) in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('tricho complex')") &&
+    source.includes("s.includes('tricho complex')"),
+  'server should detect Tricho Complex (Philip Kingsley flagship hair supplement) in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('florisene')") &&
+    source.includes("s.includes('florisene')"),
+  'server should detect Florisene (Philip Kingsley iron supplement for female TE hair loss) in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('lambdapil')") &&
+    source.includes("s.includes('lambdapil')"),
+  'server should detect Lambdapil (popular Spanish/European supplement brand in ampoule form) in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('hum nutrition')") &&
+    source.includes("s.includes('hum nutrition')"),
+  'server should detect HUM Nutrition (popular US supplement brand with hair growth formula) in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
 console.log('server contract passed');
