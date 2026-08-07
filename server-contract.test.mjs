@@ -1665,4 +1665,28 @@ assert(
   'server should detect SugarBear Hair vitamins as a supplement brand in both scan-time _hasSupplements and coach pre-scan supplements detection'
 );
 
+assert(
+  source.includes("r.includes('vegamour')") &&
+    source.includes("s.includes('vegamour')"),
+  'server should detect Vegamour (GROE supplements/serums brand sold at Sephora/Ulta) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('hair la vie')") &&
+    source.includes("s.includes('hair la vie')"),
+  'server should detect Hair La Vie as a supplement brand in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('foligrowth')") &&
+    source.includes("s.includes('foligrowth')"),
+  'server should detect Foligrowth as a supplement brand in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('pantovigar')") &&
+    source.includes("s.includes('pantovigar')"),
+  'server should detect Pantovigar (Western European variant of Pantogar, by Stada) as a supplement brand in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
 console.log('server contract passed');
