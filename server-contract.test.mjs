@@ -596,6 +596,18 @@ assert(
 );
 
 assert(
+  source.includes('Your supplement stack, minoxidil, and DHT-blocking shampoo form the strongest OTC three-layer approach for female-pattern scalp health') &&
+    source.includes('Your supplement stack, minoxidil, and DHT-blocking shampoo form the strongest OTC three-layer approach for diffuse scalp health'),
+  'WEEKLY_FOCUS_MAP.Health diffuse/n/a(female) should have a supplements+minoxidil+DHT-shampoo triple branch so OTC-triple users receive scalp-health advice acknowledging all three layers rather than falling through to the supplements+DHT-shampoo branch that ignores their minoxidil'
+);
+
+assert(
+  source.includes('Your supplement stack and minoxidil cover nutritional follicle support and topical growth stimulation for female-pattern scalp health') &&
+    source.includes('Your supplement stack and minoxidil cover nutritional follicle support and topical growth stimulation for diffuse scalp health'),
+  'WEEKLY_FOCUS_MAP.Health diffuse/n/a(female) should have a supplements+minoxidil dual branch so users with both but no DHT shampoo receive advice acknowledging minoxidil and recommending DHT shampoo as the missing layer'
+);
+
+assert(
   source.includes('Female-pattern potential is 55-78% and your finasteride + minoxidil + DHT shampoo covers the key treatment layers') &&
     source.includes('Female-pattern potential is 55-78% and finasteride in your routine provides systemic DHT suppression') &&
     source.includes('Diffuse potential is 55-78% and your finasteride + minoxidil + DHT shampoo covers systemic DHT suppression') &&
