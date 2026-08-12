@@ -551,9 +551,24 @@ assert(
 );
 
 assert(
+  source.includes('Female-pattern frontal thinning with finasteride + minoxidil + DHT-blocking shampoo covers systemic DHT suppression, topical growth signal, and topical DHT control'),
+  'WEEKLY_FOCUS_MAP.Hairline n/a (female) should have a fin+min+DHT-shampoo triple branch so users on all three treatments receive advice acknowledging the complete triple-layer protocol'
+);
+
+assert(
+  source.includes("Your supplement stack, minoxidil, and DHT-blocking shampoo form the strongest OTC three-layer approach for female-pattern frontal thinning"),
+  'WEEKLY_FOCUS_MAP.Hairline n/a (female) should have a supplements+minoxidil+DHT-shampoo triple branch so OTC-triple users with female-pattern thinning receive advice acknowledging all three layers'
+);
+
+assert(
   source.includes('Diffuse frontal thinning with finasteride + minoxidil + DHT shampoo covers systemic DHT suppression, topical growth signal, and topical DHT control') &&
     source.includes('Finasteride provides systemic DHT suppression for diffuse frontal thinning'),
   'WEEKLY_FOCUS_MAP.Hairline diffuse branch should be finasteride-aware so Rx users with diffuse-pattern loss receive frontal-thinning advice calibrated to their systemic DHT suppression'
+);
+
+assert(
+  source.includes("Your supplement stack, minoxidil, and DHT-blocking shampoo form the strongest OTC three-layer approach for diffuse frontal thinning"),
+  'WEEKLY_FOCUS_MAP.Hairline diffuse should have a supplements+minoxidil+DHT-shampoo triple branch so OTC-triple users with diffuse loss receive advice acknowledging all three layers'
 );
 
 assert(
