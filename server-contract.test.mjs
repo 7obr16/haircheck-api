@@ -1639,6 +1639,18 @@ assert(
 );
 
 assert(
+  source.includes('At NW1, your supplement stack, minoxidil, and DHT-blocking shampoo form the most complete OTC preventive scalp-health protocol before any visible thinning begins — nutritional follicle support, topical growth signal, and local DHT suppression all active.') &&
+    source.includes('This three-layer OTC stack gives the strongest non-Rx scalp-health foundation at the optimal prevention window; target sleep quality this week (7-8 hrs) as the highest-ROI lifestyle addition — cortisol from poor sleep accelerates miniaturization even when your preventive protocol is this complete.'),
+  'WEEKLY_FOCUS_MAP.Health NW1 should have a supplements+minoxidil+DHT-shampoo triple branch so OTC users at NW1 with all three layers get scalp-health advice that acknowledges the complete three-layer preventive protocol rather than falling through to the supplements+DHT-shampoo dual branch that ignores their active minoxidil'
+);
+
+assert(
+  source.includes('At NW1, your supplement stack, minoxidil, and DHT-blocking shampoo form the most complete OTC density-prevention protocol before any mid-scalp miniaturization begins — nutritional follicle support, topical growth signal, and local DHT suppression all active.') &&
+    source.includes('The DHT shampoo is the primary miniaturization-prevention layer; supplements and minoxidil complete the three-layer OTC preventive stack. Take monthly overhead photos to catch any early mid-scalp change at this optimal prevention window.'),
+  'WEEKLY_FOCUS_MAP.Density NW1 should have a supplements+minoxidil+DHT-shampoo triple branch so OTC users at NW1 with all three layers get density advice that acknowledges the complete three-layer preventive protocol rather than falling through to the supplements+DHT-shampoo dual branch that ignores their active minoxidil'
+);
+
+assert(
   source.includes('Finasteride + DHT-blocking shampoo covers both systemic and topical DHT suppression at NW2 where miniaturization is just starting at the temple edge — take finasteride consistently and leave DHT shampoo on 3-5 minutes before rinsing for maximum topical DHT suppression. Add a supplement stack (biotin, zinc, vitamin D) as the nutritional layer to complete the three-layer anti-miniaturization foundation at this ideal preventive window.'),
   'WEEKLY_FOCUS_MAP.Health NW2 should have a finasteride+DHT-shampoo compound branch so users with both finasteride and DHT shampoo but not supplements receive advice acknowledging their dual-layer DHT protocol rather than falling through to the standalone finasteride branch that incorrectly tells them to add DHT shampoo they already have'
 );
