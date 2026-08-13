@@ -1792,4 +1792,34 @@ assert(
   'server should detect Anaphase (Ducray Anaphase+ anti-hair-loss shampoo, popular in France and EU) as a DHT-blocking/anti-hair-loss shampoo in both scan-time _hasDHTShampoo and coach pre-scan dhtShampoo detection'
 );
 
+assert(
+  source.includes("r.includes('vichy')") &&
+    source.includes("s.includes('vichy')"),
+  'server should detect Vichy (Vichy Dercos anti-hair-loss shampoo line, very popular in Europe, Canada, and Australia) as a DHT-blocking/anti-hair-loss shampoo in both scan-time _hasDHTShampoo and coach pre-scan dhtShampoo detection'
+);
+
+assert(
+  source.includes("r.includes('dercos')") &&
+    source.includes("s.includes('dercos')"),
+  'server should detect Dercos (Vichy Dercos brand name — users may type the product name without the Vichy prefix) as a DHT-blocking/anti-hair-loss shampoo in both scan-time _hasDHTShampoo and coach pre-scan dhtShampoo detection'
+);
+
+assert(
+  source.includes("r.includes('klorane')") &&
+    source.includes("s.includes('klorane')"),
+  'server should detect Klorane (Klorane Quinine Strengthening Shampoo with B vitamins, popular French pharmacy brand for hair loss and thinning) as a DHT-blocking/anti-hair-loss shampoo in both scan-time _hasDHTShampoo and coach pre-scan dhtShampoo detection'
+);
+
+assert(
+  source.includes("r.includes('derma stamp')") &&
+    source.includes("s.includes('derma stamp')"),
+  'server should detect derma stamp (stamp-type microneedling device — distinct from a roller; users who type "derma stamp" should be recognized as having a microneedling tool) in both scan-time _hasMicroneedling/_hasMassage and coach pre-scan microneedling/mechanical detection'
+);
+
+assert(
+  source.includes("r.includes('dermastamp')") &&
+    source.includes("s.includes('dermastamp')"),
+  'server should detect dermastamp (single-word variant of derma stamp microneedling device) in both scan-time _hasMicroneedling/_hasMassage and coach pre-scan microneedling/mechanical detection'
+);
+
 console.log('server contract passed');
