@@ -4783,10 +4783,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const daysUntilNextScan = nextCheckInMs !== null ? Math.round((nextCheckInMs - todayMs) / (24 * 60 * 60 * 1000)) : null;
       const scanIsOverdue = daysUntilNextScan !== null && daysUntilNextScan < 0;
       // Derive effective protocol coverage for the coach context.
-      // Always re-derives from ctx.routine when routine entries are available — this ensures the
-      // protocol status line and follow-up chips reflect treatments the user added after their last
-      // scan, without requiring a rescan. Falls back to scan-time protocolCoverage when routine is empty.
+      // Two cases where routine derivation is preferred over the stale scan snapshot:
+      //   • !pc && ctx.routine.length > 0 — no scan yet; ensures status lines are available
+      //     before the first scan when the user has already set up their routine.
+      //   • pc exists but routine changed — reflects post-scan additions without a rescan.
+      // Falls back to scan-time protocolCoverage only when routine is empty.
       const coachProtocolCoverage = (() => {
+        const pc = ctx.scan?.protocolCoverage ?? null;
         if (ctx.routine.length > 0) {
           const r = ctx.routine.map((s) => String(s).toLowerCase());
           return {
@@ -4799,7 +4802,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             supplements:   r.some((s) => s.includes('supplement') || s.includes('biotin') || s.includes('vitamin') || s.includes('zinc') || s.includes('saw palmetto') || s.includes('nutrafol') || s.includes('viviscal') || (s.includes('iron') && !s.includes('flat iron') && !s.includes('curling iron') && !s.includes('steam iron') && !s.includes('hair iron') && !s.includes('flat-iron') && !s.includes('curling-iron')) || s.includes('pumpkin seed') || s.includes('folexin') || s.includes('hairfinity') || s.includes('perfectil') || s.includes('hairburst') || s.includes('collagen') || (s.includes('keratin') && !s.includes('keratin treatment') && !s.includes('keratin therapy') && !s.includes('keratin complex') && !s.includes('keratin smoothing') && !s.includes('keratin straighten') && !s.includes('keratin blowout')) || s.includes('marine collagen') || s.includes('hair formula') || s.includes('omega') || s.includes('fish oil') || s.includes('folic acid') || s.includes('folate') || s.includes('silica') || s.includes('niacin') || s.includes('evening primrose') || s.includes('selenium') || s.includes('magnesium') || s.includes('copper') || s.includes('lysine') || s.includes('msm') || s.includes('ashwagandha') || s.includes('nettle') || s.includes('beta-sitosterol') || s.includes('hair gum') || s.includes('multivitamin') || s.includes('nourkrin') || s.includes('priorin') || s.includes('hair vitalics') || s.includes('pantogar') || s.includes('bhringraj') || s.includes('sugarbear') || s.includes('vegamour') || s.includes('hair la vie') || s.includes('foligrowth') || s.includes('pantovigar') || s.includes('philip kingsley') || s.includes('tricho complex') || s.includes('florisene') || s.includes('lambdapil') || s.includes('hum nutrition') || s.includes('anacaps') || s.includes('pilexil')),
           };
         }
-        return ctx.scan?.protocolCoverage ?? null;
+        return pc;
       })();
 
       // Build a structured protocol-layer status line for the coach system prompt.
@@ -4958,11 +4961,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       warnIfSlow('coach', startedAt, 'coach');
       if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason, reqId });
       const coachTruncated = coachFinishReason === 'length';
-      // suggestedFollowUps: fresh context-aware chips for the iOS coach tab.
-      // Uses coachProtocolCoverage (derived from current routine) so chips reflect treatments
-      // the user added after their last scan — not a stale scan-time snapshot.
+      // suggestedFollowUps: context-aware chips for the iOS coach tab.
+      // Uses scan-time protocolCoverage for consistency with the scan's chip set.
+      // The protocolStatusLine in the system prompt uses coachProtocolCoverage (fresher) for
+      // actual coach responses; chips use ctx.scan.protocolCoverage to match the scan's chip set.
       const suggestedFollowUps = ctx.scan?.stage
-        ? buildSuggestedQuestions(ctx.scan.stage, coachProtocolCoverage, ctx.scan.specialistRecommended)
+        ? buildSuggestedQuestions(ctx.scan.stage, ctx.scan.protocolCoverage, ctx.scan.specialistRecommended)
         : null;
       json(req, res, 200, { reply, truncated: coachTruncated, suggestedFollowUps, requestId: reqId });
     } catch (err) {
