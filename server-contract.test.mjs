@@ -1774,4 +1774,22 @@ assert(
   'server should detect Dr. Pen (popular microneedling pen device brand) in all three spelling variants in both scan-time _hasMicroneedling/_hasMassage and coach pre-scan microneedling/mechanical detection'
 );
 
+assert(
+  source.includes("r.includes('anacaps')") &&
+    source.includes("s.includes('anacaps')"),
+  'server should detect Anacaps (Ducray hair supplement, popular in France and EU) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('pilexil')") &&
+    source.includes("s.includes('pilexil')"),
+  'server should detect Pilexil (Almirall hair supplement, popular in Spain and Latin America) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('anaphase')") &&
+    source.includes("s.includes('anaphase')"),
+  'server should detect Anaphase (Ducray Anaphase+ anti-hair-loss shampoo, popular in France and EU) as a DHT-blocking/anti-hair-loss shampoo in both scan-time _hasDHTShampoo and coach pre-scan dhtShampoo detection'
+);
+
 console.log('server contract passed');
