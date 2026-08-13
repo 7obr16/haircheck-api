@@ -4782,15 +4782,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       const nextCheckInMs = ctx.scan?.nextCheckIn ? new Date(ctx.scan.nextCheckIn).getTime() : null;
       const daysUntilNextScan = nextCheckInMs !== null ? Math.round((nextCheckInMs - todayMs) / (24 * 60 * 60 * 1000)) : null;
       const scanIsOverdue = daysUntilNextScan !== null && daysUntilNextScan < 0;
-      // Build a structured protocol-layer status line for the coach system prompt.
-      // Avoids asking gpt-4o-mini to infer what layers are active/missing from raw routine text.
-      // Falls back to deriving coverage from ctx.routine when protocolCoverage isn't available
-      // (pre-scan users or older iOS clients that don't include it in the scan result).
-      const protocolStatusLine = (() => {
-        let pc = ctx.scan?.protocolCoverage ?? null;
-        if (!pc && ctx.routine.length > 0) {
+      // Derive effective protocol coverage for the coach context.
+      // Always re-derives from ctx.routine when routine entries are available — this ensures the
+      // protocol status line and follow-up chips reflect treatments the user added after their last
+      // scan, without requiring a rescan. Falls back to scan-time protocolCoverage when routine is empty.
+      const coachProtocolCoverage = (() => {
+        if (ctx.routine.length > 0) {
           const r = ctx.routine.map((s) => String(s).toLowerCase());
-          pc = {
+          return {
             topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine') || s.includes('regaine') || s.includes('minox') || s.includes('kirkland') || s.includes('tugain') || s.includes('mintop') || s.includes('loniten') || s.includes('nanoxidil')),
             rx:          r.some((s) => s.includes('finasteride') || s.includes('propecia') || s.includes('dutasteride') || s.includes('avodart') || s.includes('proscar') || s.includes('finpecia') || s.includes('finalo') || s.includes('finast') || s.includes('fincar') || s.includes('finax') || s.includes('aindeem') || s.includes('spironolactone') || s.includes('spiro') || s.includes('aldactone') || s.includes('bicalutamide') || s.includes('flutamide') || s.includes('cyproterone') || s.includes('androcur')),
             dhtShampoo:  r.some((s) => s.includes('dht') || s.includes('ketoconazole') || s.includes('nizoral') || s.includes('keto shampoo') || s.includes('caffeine shampoo') || s.includes('regenepure') || s.includes('alpecin') || s.includes('plantur') || s.includes('foligain') || s.includes('lipogaine') || s.includes('revita') || s.includes('pura d') || s.includes('shapiro md') || s.includes('rosemary oil') || s.includes('mielle') || s.includes('maple holistics') || s.includes('nioxin') || s.includes('keranique') || s.includes('ultrax') || s.includes('phytocyane') || s.includes('bioxsine') || s.includes('watermans') || s.includes('anaphase')),
@@ -4800,6 +4799,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             supplements:   r.some((s) => s.includes('supplement') || s.includes('biotin') || s.includes('vitamin') || s.includes('zinc') || s.includes('saw palmetto') || s.includes('nutrafol') || s.includes('viviscal') || (s.includes('iron') && !s.includes('flat iron') && !s.includes('curling iron') && !s.includes('steam iron') && !s.includes('hair iron') && !s.includes('flat-iron') && !s.includes('curling-iron')) || s.includes('pumpkin seed') || s.includes('folexin') || s.includes('hairfinity') || s.includes('perfectil') || s.includes('hairburst') || s.includes('collagen') || (s.includes('keratin') && !s.includes('keratin treatment') && !s.includes('keratin therapy') && !s.includes('keratin complex') && !s.includes('keratin smoothing') && !s.includes('keratin straighten') && !s.includes('keratin blowout')) || s.includes('marine collagen') || s.includes('hair formula') || s.includes('omega') || s.includes('fish oil') || s.includes('folic acid') || s.includes('folate') || s.includes('silica') || s.includes('niacin') || s.includes('evening primrose') || s.includes('selenium') || s.includes('magnesium') || s.includes('copper') || s.includes('lysine') || s.includes('msm') || s.includes('ashwagandha') || s.includes('nettle') || s.includes('beta-sitosterol') || s.includes('hair gum') || s.includes('multivitamin') || s.includes('nourkrin') || s.includes('priorin') || s.includes('hair vitalics') || s.includes('pantogar') || s.includes('bhringraj') || s.includes('sugarbear') || s.includes('vegamour') || s.includes('hair la vie') || s.includes('foligrowth') || s.includes('pantovigar') || s.includes('philip kingsley') || s.includes('tricho complex') || s.includes('florisene') || s.includes('lambdapil') || s.includes('hum nutrition') || s.includes('anacaps') || s.includes('pilexil')),
           };
         }
+        return ctx.scan?.protocolCoverage ?? null;
+      })();
+
+      // Build a structured protocol-layer status line for the coach system prompt.
+      // Avoids asking gpt-4o-mini to infer what layers are active/missing from raw routine text.
+      const protocolStatusLine = (() => {
+        const pc = coachProtocolCoverage;
         if (!pc) return '';
         const active = [];
         const missing = [];
@@ -4953,10 +4959,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       if (coachUsage) console.log('[coach] ok', { ms: Date.now() - startedAt, tokens: { prompt: coachUsage.prompt_tokens, completion: coachUsage.completion_tokens }, finish: coachFinishReason, reqId });
       const coachTruncated = coachFinishReason === 'length';
       // suggestedFollowUps: fresh context-aware chips for the iOS coach tab.
-      // Reuses scan-time logic so chips stay aligned with stage and protocol without
-      // requiring a fresh scan — returned on every coach response at zero API cost.
+      // Uses coachProtocolCoverage (derived from current routine) so chips reflect treatments
+      // the user added after their last scan — not a stale scan-time snapshot.
       const suggestedFollowUps = ctx.scan?.stage
-        ? buildSuggestedQuestions(ctx.scan.stage, ctx.scan.protocolCoverage, ctx.scan.specialistRecommended)
+        ? buildSuggestedQuestions(ctx.scan.stage, coachProtocolCoverage, ctx.scan.specialistRecommended)
         : null;
       json(req, res, 200, { reply, truncated: coachTruncated, suggestedFollowUps, requestId: reqId });
     } catch (err) {
