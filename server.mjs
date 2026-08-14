@@ -1326,7 +1326,7 @@ const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDel
           throw e;
         }
         const delay = baseDelayMs * Math.pow(2, attempt - 1) * (0.75 + Math.random() * 0.5);
-        console.log(`[openai retry] ${label} ${kind} attempt=${attempt}/${maxAttempts} delay=${Math.round(delay)}ms`);
+        console.log(JSON.stringify({ ts: new Date().toISOString(), event: 'openai_retry', label, reason: kind, attempt, maxAttempts, delayMs: Math.round(delay) }));
         await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
       }
@@ -1356,7 +1356,7 @@ const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDel
     const delay = (serverDelay > 0 && serverDelay <= 60_000)
       ? serverDelay
       : baseDelayMs * Math.pow(2, attempt - 1) * (0.75 + Math.random() * 0.5);
-    console.log(`[openai retry] ${label} status=${r.status} attempt=${attempt}/${maxAttempts} delay=${Math.round(delay)}ms source=${serverDelay > 0 ? 'server' : 'backoff'}`);
+    console.log(JSON.stringify({ ts: new Date().toISOString(), event: 'openai_retry', label, status: r.status, attempt, maxAttempts, delayMs: Math.round(delay), delaySource: serverDelay > 0 ? 'server' : 'backoff' }));
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 };
@@ -1629,11 +1629,11 @@ const server = createServer(async (req, res) => {
   const isHealthCheck = req.method === 'GET' && reqPath === '/api/health';
 
   res.setHeader('X-Request-Id', reqId);
-  if (!isHealthCheck) console.log(`[req] ${req.method} ${req.url} ${reqId}`);
+  if (!isHealthCheck) console.log(JSON.stringify({ ts: new Date().toISOString(), event: 'req', method: req.method, path: reqPath, reqId }));
   const origEnd = res.end.bind(res);
   res.end = (...args) => {
     const ms = Date.now() - reqStart;
-    if (!isHealthCheck) console.log(`[res] ${req.method} ${req.url} ${reqId} ${res.statusCode} ${ms}ms`);
+    if (!isHealthCheck) console.log(JSON.stringify({ ts: new Date().toISOString(), event: 'res', method: req.method, path: reqPath, status: res.statusCode, durationMs: ms, reqId }));
     if (req.method === 'POST') {
       const latencyKey = URL_TO_LATENCY_KEY[reqPath];
       if (latencyKey) recordLatency(latencyKey, ms);
