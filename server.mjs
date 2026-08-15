@@ -4969,9 +4969,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (pc.topical)                 active.push('minoxidil');                                           else missing.push('minoxidil');
         if (pc.rx)                      active.push('Rx antiandrogen (finasteride/dutasteride/spironolactone/bicalutamide/flutamide/cyproterone)'); else missing.push('Rx antiandrogen');
         if (pc.dhtShampoo)              active.push('DHT-blocking shampoo');                                else missing.push('DHT-blocking shampoo');
-        if (pc.lllt)                    active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)');
-        if (pc.mechanical && !pc.lllt)  active.push('mechanical stimulation (massage/microneedling)');
-        if (!pc.mechanical)             missing.push('scalp massage/microneedling');
+        // List each mechanical sub-type explicitly so the coach can give correct timing advice
+        // (microneedling requires a 24-48h wait before minoxidil; massage gets minoxidil applied right after)
+        if (pc.lllt)         active.push('LLLT laser therapy (apply topicals immediately after sessions while circulation is elevated)');
+        if (pc.microneedling) active.push('microneedling/dermaroller (CRITICAL timing: wait 24-48h after each session before applying minoxidil — applying immediately risks follicle irritation)');
+        if (pc.mechanical && !pc.lllt && !pc.microneedling) active.push('scalp massage (apply minoxidil immediately after each massage session while scalp circulation is elevated)');
+        if (!pc.mechanical)  missing.push('scalp stimulation (massage/microneedling)');
         if (pc.supplements)             active.push('supplements (biotin/zinc/vitamin D)');                 else missing.push('supplements');
         return `- Protocol layers — ACTIVE: ${active.join(', ') || 'none'}; NOT STARTED: ${missing.join(', ') || 'none'} — when the user asks what to add next, which layer is missing, or how complete their protocol is, use this structured breakdown; never re-suggest an ACTIVE layer.`;
       })();
