@@ -1822,4 +1822,19 @@ assert(
   'server should detect dermastamp (single-word variant of derma stamp microneedling device) in both scan-time _hasMicroneedling/_hasMassage and coach pre-scan microneedling/mechanical detection'
 );
 
+assert(
+  source.includes('NW5 frontal recession with your supplement stack and scalp massage cover nutritional support and mechanical stimulation across the narrowing frontal bridge — keep your supplement routine consistent and apply a 4-minute scalp massage daily focusing on the full frontal zone where the bridge between the forelock and lateral fringe is narrowing.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW5 should have a supplements+massage branch: users with both a supplement stack and scalp massage but no minoxidil or DHT shampoo at NW5 receive hairline advice acknowledging both layers and recommending DHT shampoo as the next addition, rather than falling through to the plain supplements branch that ignores their massage routine'
+);
+
+assert(
+  source.includes('At NW6, your supplement stack and scalp massage cover nutritional support and mechanical stimulation for the remaining fringe and temporal hairline — keep your supplement routine consistent and massage along the fringe and lateral edges. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer; it is the most impactful addition to your existing stack where fringe coverage is limited at this advanced stage. Book a transplant consultation and consider a doctor consult about finasteride for systemic DHT suppression. Track with monthly front-facing photos.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW6 should have a supplements+massage branch: users with both a supplement stack and scalp massage but no minoxidil or DHT shampoo at NW6 receive fringe hairline advice acknowledging both layers and recommending DHT shampoo as the next addition plus a transplant consult, rather than falling through to the plain supplements branch that ignores their massage routine'
+);
+
+assert(
+  source.includes('At NW4, your supplement stack and scalp massage cover nutritional support and mechanical stimulation across the full frontal hairline — keep your supplement routine consistent and apply a 4-minute scalp massage daily focusing on the entire frontal zone. Add a DHT-blocking shampoo 3× weekly (3-5 min contact time) as the missing topical DHT-suppression layer; it is the most impactful addition to your existing stack where the full frontal hairline has retreated at this established stage. Consider a doctor consult about finasteride for systemic DHT suppression. Track with monthly front-facing photos.'),
+  'WEEKLY_FOCUS_MAP.Hairline NW4 should have a supplements+massage branch: users with both a supplement stack and scalp massage but no minoxidil or DHT shampoo at NW4 receive full-frontal-hairline advice acknowledging both layers and recommending DHT shampoo as the next addition, rather than falling through to the plain supplements branch that ignores their massage routine'
+);
+
 console.log('server contract passed');
