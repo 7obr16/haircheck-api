@@ -2450,7 +2450,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             role: 'user',
             content: [
               { type: 'text', text: 'Analyze this scalp photo with the context below. Return JSON only.\n\n' + ctx },
-              { type: 'image_url', image_url: { url: photoDataUrl } },
+              { type: 'image_url', image_url: { url: photoDataUrl, detail: 'high' } },
             ],
           },
         ],
