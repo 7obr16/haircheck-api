@@ -1837,4 +1837,16 @@ assert(
   'WEEKLY_FOCUS_MAP.Hairline NW4 should have a supplements+massage branch: users with both a supplement stack and scalp massage but no minoxidil or DHT shampoo at NW4 receive full-frontal-hairline advice acknowledging both layers and recommending DHT shampoo as the next addition, rather than falling through to the plain supplements branch that ignores their massage routine'
 );
 
+assert(
+  source.includes("r.includes('revivogen')") &&
+    source.includes("s.includes('revivogen')"),
+  'server should detect Revivogen (DHT-blocking scalp therapy containing zinc, amino acids, and fatty acids that inhibit 5-alpha reductase) as a DHT-blocking shampoo/treatment in both scan-time _hasDHTShampoo and coach pre-scan dhtShampoo detection — users who list Revivogen should not be told to add a DHT-blocking shampoo they already have'
+);
+
+assert(
+  source.includes("r.includes('laser helmet')") &&
+    source.includes("s.includes('laser helmet')"),
+  'server should detect laser helmet (generic term for dome-type LLLT devices like Theradome, Capillus Flex, and similar) as an LLLT device in both scan-time _hasLLLT/_hasMassage and coach pre-scan lllt/mechanical detection — users who describe their device as a laser helmet should be classified as having LLLT rather than having no mechanical stimulation'
+);
+
 console.log('server contract passed');
