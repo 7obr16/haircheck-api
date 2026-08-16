@@ -1849,4 +1849,16 @@ assert(
   'server should detect laser helmet (generic term for dome-type LLLT devices like Theradome, Capillus Flex, and similar) as an LLLT device in both scan-time _hasLLLT/_hasMassage and coach pre-scan lllt/mechanical detection — users who describe their device as a laser helmet should be classified as having LLLT rather than having no mechanical stimulation'
 );
 
+assert(
+  source.includes("r.includes('laserband')") && source.includes("r.includes('laser band')") &&
+    source.includes("s.includes('laserband')") && source.includes("s.includes('laser band')"),
+  'server should detect HairMax LaserBand (popular LLLT headband device) in both scan-time _hasLLLT/_hasMassage and coach pre-scan lllt/mechanical detection — laserband and laser band are common spellings; missing coach-side detection means users with a LaserBand are incorrectly told LLLT is NOT STARTED'
+);
+
+assert(
+  source.includes("r.includes('derminator')") &&
+    source.includes("s.includes('derminator')"),
+  'server should detect Derminator (popular high-speed automated dermaroller brand) as a microneedling device in both scan-time _hasMicroneedling/_hasMassage and coach pre-scan microneedling/mechanical detection — users who list Derminator should not be told to add a microneedling device they already have'
+);
+
 console.log('server contract passed');
