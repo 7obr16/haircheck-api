@@ -997,11 +997,22 @@ DO NOT change hair color, style, length, or any other feature. CRITICAL: preserv
 The result must be photorealistic and pixel-aligned with the input so it can be used as the AFTER side of a before/after slider.`,
 };
 
+const THINNING_PATTERN_MAP_HINTS = {
+  minimal:            'Thinning pattern: MINIMAL — use mostly teal/green across the scalp; at most faint yellow in lightly affected zones; avoid red patches.',
+  bitemporal:         'Thinning pattern: BITEMPORAL — concentrate orange/red at the temples and frontal corners; mid-scalp and crown should remain teal/green.',
+  crown:              'Thinning pattern: CROWN — concentrate orange/red at the crown and vertex; temples and frontal hairline may remain teal/green.',
+  'bitemporal+crown': 'Thinning pattern: BITEMPORAL+CROWN — place orange/red at both the temples/frontal corners AND the crown/vertex; mid-scalp may remain moderate yellow.',
+  frontal:            'Thinning pattern: FRONTAL — concentrate orange/red along the entire frontal hairline band; crown and posterior scalp may remain teal/green.',
+  diffuse:            'Thinning pattern: DIFFUSE — spread red/orange uniformly across the entire scalp top without concentrating in any single region.',
+  total:              'Thinning pattern: TOTAL LOSS — place red/orange across the entire scalp reflecting severe thinning in all zones.',
+};
+
 const buildAnalysisMapPrompt = (kind, result = {}) => {
   const density = Number.isFinite(Number(result.density)) ? Math.round(Number(result.density)) : 'unknown';
   const crown = Number.isFinite(Number(result.crown)) ? Math.round(Number(result.crown)) : 'unknown';
   const hairline = Number.isFinite(Number(result.hairline)) ? Math.round(Number(result.hairline)) : 'unknown';
   const stage = String(result.stage || '').trim();
+  const thinningPattern = String(result.thinningPattern || '').trim();
   const stageHint = MAP_STAGE_HINTS[stage] || null;
 
   const isFemaleStage = stage === 'n/a (female)';
@@ -1019,9 +1030,12 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
     ? `\n\nStage-specific placement guide (${stage}): ${stageHint}`
     : '';
 
+  const patternHint = THINNING_PATTERN_MAP_HINTS[thinningPattern] || null;
+  const patternSection = patternHint ? `\n\n${patternHint}` : '';
+
   return `Edit this input scan photo into a clear clinical hair-density heatmap of the user's actual head hair. Keep the original photograph underneath completely unchanged: same person, same face, same head position, same camera angle, same distance, same crop/framing, same lighting, same background, same hair style, same hair color, same skin tone, same clothing. Do not beautify, redraw, restore, move, rotate, zoom, or replace anything in the photo.
 
-Add only a visible translucent diagnostic heatmap overlay directly on the hair-bearing scalp region, like a premium trichology analysis screen. The heatmap must be obvious enough that the user immediately sees it is an AI-generated scalp map, not just their original photo. ${focus}${stageSection}
+Add only a visible translucent diagnostic heatmap overlay directly on the hair-bearing scalp region, like a premium trichology analysis screen. The heatmap must be obvious enough that the user immediately sees it is an AI-generated scalp map, not just their original photo. ${focus}${stageSection}${patternSection}
 
 Overlay rules:
 - Green/teal means high density.
@@ -2099,15 +2113,15 @@ const server = createServer(async (req, res) => {
         err.statusCode = 422;
         throw err;
       }
-      // Include scores and stage in cache key because buildAnalysisMapPrompt interpolates them.
-      // Stage changes the zone-placement hints so a different stage must produce a fresh image.
+      // Include scores, stage, and thinningPattern in cache key — all three change the overlay placement.
       const scoreKey = [
         Number.isFinite(Number(scanScores.density)) ? Math.round(Number(scanScores.density)) : 'x',
         Number.isFinite(Number(scanScores.crown)) ? Math.round(Number(scanScores.crown)) : 'x',
         Number.isFinite(Number(scanScores.hairline)) ? Math.round(Number(scanScores.hairline)) : 'x',
       ].join(',');
       const stageKey = String(scanScores.stage || '');
-      const hash = cacheHashOf('map', mime, createHash('sha256').update(buffer).digest('hex'), mapKind, scoreKey, stageKey);
+      const patternKey = String(scanScores.thinningPattern || '');
+      const hash = cacheHashOf('map', mime, createHash('sha256').update(buffer).digest('hex'), mapKind, scoreKey, stageKey, patternKey);
 
       // 1. Cache hit — return instantly
       const mapCached = cacheRead(MAP_CACHE, hash);
@@ -2134,7 +2148,7 @@ const server = createServer(async (req, res) => {
       }
 
       const startedAt = Date.now();
-      console.log('[analysis-map] start', { kind: mapKind, stage: stageKey || null, mime, inputKb: Math.round(buffer.length / 1024), reqId });
+      console.log('[analysis-map] start', { kind: mapKind, stage: stageKey || null, pattern: patternKey || null, mime, inputKb: Math.round(buffer.length / 1024), reqId });
 
       const mapPromptText = buildAnalysisMapPrompt(mapKind, scanScores);
       const mapPromise = (async () => {
