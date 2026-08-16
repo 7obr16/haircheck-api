@@ -1861,4 +1861,16 @@ assert(
   'server should detect Derminator (popular high-speed automated dermaroller brand) as a microneedling device in both scan-time _hasMicroneedling/_hasMassage and coach pre-scan microneedling/mechanical detection — users who list Derminator should not be told to add a microneedling device they already have'
 );
 
+assert(
+  source.includes("Your supplement stack and LLLT device cover nutritional follicle support and photobiomodulation at NW1") &&
+    source.includes("Your supplement stack and microneedling cover nutritional follicle support and scalp priming at NW1"),
+  'WEEKLY_FOCUS_MAP.Potential NW1 supplements+massage branch should have LLLT and microneedling sub-branches so users with an LLLT device or microneedling tool do not receive text saying "your scalp massage" when they have a different mechanical stimulation method — mirrors the same sub-branch pattern added to NW3/NW4/NW5/NW6 in prior commits'
+);
+
+assert(
+  source.includes("Your supplement stack and LLLT device cover nutritional follicle support and photobiomodulation at NW2") &&
+    source.includes("Your supplement stack and microneedling cover nutritional follicle support and scalp priming at NW2"),
+  'WEEKLY_FOCUS_MAP.Potential NW2 supplements+massage branch should have LLLT and microneedling sub-branches so users with an LLLT device or microneedling tool do not receive text saying "your scalp massage" when they have a different mechanical stimulation method — mirrors the same sub-branch pattern added to NW3/NW4/NW5/NW6 in prior commits'
+);
+
 console.log('server contract passed');
