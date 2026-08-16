@@ -4853,10 +4853,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           protocolStrengthScore: typeof userContext.result.protocolStrengthScore === 'number' ? userContext.result.protocolStrengthScore : null,
           protocolStrengthLabel: userContext.result.protocolStrengthLabel ? String(userContext.result.protocolStrengthLabel).slice(0, 20) : null,
         } : null,
-        routine: Array.isArray(userContext.routine) ? userContext.routine : [],
+        routine: Array.isArray(userContext.routine) ? userContext.routine.slice(0, 20).map((s) => String(s ?? '').slice(0, 80)) : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
-        planProducts: Array.isArray(userContext.planProducts) ? userContext.planProducts.slice(0, 8) : [],
-        routineDoneToday: Array.isArray(userContext.routineDoneToday) ? userContext.routineDoneToday.slice(0, 12) : [],
+        planProducts: Array.isArray(userContext.planProducts) ? userContext.planProducts.slice(0, 8).map((s) => String(s ?? '').slice(0, 80)) : [],
+        routineDoneToday: Array.isArray(userContext.routineDoneToday) ? userContext.routineDoneToday.slice(0, 12).map((s) => String(s ?? '').slice(0, 80)) : [],
         weakestMetric:        userContext.weakestMetric        || userContext.result?.weakestMetric        || null,
         secondWeakestMetric:  userContext.secondWeakestMetric  || userContext.result?.secondWeakestMetric  || null,
         strongestMetric:      userContext.strongestMetric      || userContext.result?.strongestMetric      || null,
@@ -5070,13 +5070,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.planProducts.length ? `- Saved plan products: ${ctx.planProducts.join(', ')}.` : '- No saved plan products yet.',
         ctx.scanHistory.length
           ? `- Scan history (${ctx.scanHistory.length} scans, latest-first): ${ctx.scanHistory.map((h) => {
-              const date = h.scoredAt ? ` on ${h.scoredAt.split('T')[0]}` : '';
-              const stage = h.stage ? ` (${h.stage})` : '';
+              const date = typeof h.scoredAt === 'string' ? ` on ${h.scoredAt.split('T')[0]}` : '';
+              const stage = h.stage ? ` (${String(h.stage).slice(0, 20)})` : '';
               const metrics = [h.hairline, h.density, h.crown, h.health, h.potential].every((v) => typeof v === 'number')
                 ? ` [H:${h.hairline} D:${h.density} C:${h.crown} Hlth:${h.health} Pot:${h.potential}]` : '';
-              const pattern = h.thinningPattern ? ` pat:${h.thinningPattern}` : '';
+              const pattern = h.thinningPattern ? ` pat:${String(h.thinningPattern).slice(0, 20)}` : '';
               return `${h.overall ?? '?'}${date}${stage}${metrics}${pattern}`;
-            }).join(', ')}${stageTrendStr ? `; stage progression: ${stageTrendStr}` : ctx.scanHistory[0]?.stage ? `; latest stage: ${ctx.scanHistory[0].stage}` : ''}.`
+            }).join(', ')}${stageTrendStr ? `; stage progression: ${stageTrendStr}` : ctx.scanHistory[0]?.stage ? `; latest stage: ${String(ctx.scanHistory[0].stage).slice(0, 20)}` : ''}.`
           : '- No scan history yet.',
         ctx.age ? `- Age: ${ctx.age}.` : '',
         ctx.sex ? `- Sex: ${ctx.sex}.` : '',
