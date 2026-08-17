@@ -1471,6 +1471,13 @@ assert(
 );
 
 assert(
+  source.includes('if (microneedling || lllt) score += 15') &&
+    source.includes('else if (mechanical)       score += 8') &&
+    source.includes('Clinical mechanical (LLLT or microneedling) = 15; basic massage only = 8'),
+  'computeProtocolStrengthScore should differentiate clinical mechanical interventions (LLLT or microneedling = 15 points) from basic scalp massage only (= 8 points) so the protocol strength signal reflects device quality, not just category presence'
+);
+
+assert(
   source.includes('At NW5, finasteride + minoxidil + DHT shampoo + LLLT is the most complete non-surgical density protocol') &&
     source.includes('Apply minoxidil immediately after your LLLT session while scalp circulation is elevated, leave DHT shampoo on 3-5 minutes before rinsing, and take finasteride at the same time each day. Track progress with monthly overhead photos; this four-layer protocol gives the strongest documented non-surgical density response at NW5') &&
     source.includes('At NW5, finasteride + minoxidil + DHT shampoo + microneedling is the most complete non-surgical density protocol') &&

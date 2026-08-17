@@ -1444,17 +1444,21 @@ const computeTreatmentUrgency = (stage, age) => {
 // Weights reflect evidence strength: Rx DHT blocker and topical minoxidil are the
 // two highest-impact interventions; DHT shampoo and mechanical stimulation are
 // supporting layers; supplements are the most foundational / lowest-barrier addition.
+// Mechanical is split: clinical devices (LLLT or microneedling) = 15; basic massage
+// only = 8. This differentiates evidence-backed devices from low-cost stimulation.
 // At NW6/NW7, OTC alone cannot address the primary coverage deficit — surgical options
 // are the main path — so even a perfect OTC protocol is capped at 75 to signal that
 // the "missing 25" requires a specialist/surgical step, not more products.
 const computeProtocolStrengthScore = (stage, protocolCoverage) => {
   if (!protocolCoverage) return { score: 0, label: 'starting' };
-  const { topical, rx, dhtShampoo, mechanical, supplements } = protocolCoverage;
+  const { topical, rx, dhtShampoo, mechanical, microneedling, lllt, supplements } = protocolCoverage;
   let score = 0;
   if (rx)          score += 30; // Rx DHT blocker — highest-evidence systemic layer
   if (topical)     score += 25; // Minoxidil — highest-evidence topical
   if (dhtShampoo)  score += 20; // DHT-blocking shampoo — supporting topical DHT layer
-  if (mechanical)  score += 15; // Massage / microneedling / LLLT
+  // Clinical mechanical (LLLT or microneedling) = 15; basic massage only = 8.
+  if (microneedling || lllt) score += 15;
+  else if (mechanical)       score += 8;
   if (supplements) score += 10; // Biotin, zinc, vitamin D — nutritional layer
   // NW6/NW7: cap at 75 — OTC covers the maintenance role but surgical evaluation is the
   // primary path to meaningful coverage; the capped score signals that gap to the iOS app.
