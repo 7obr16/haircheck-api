@@ -105,8 +105,8 @@ assert(
 );
 
 assert(
-  source.includes('max_tokens: 2000'),
-  'scan should use max_tokens: 2000 to reduce truncation risk for structured output'
+  source.includes('max_tokens: 2500'),
+  'scan should use max_tokens: 2500 to reduce truncation risk for structured output'
 );
 
 assert(
@@ -1241,10 +1241,11 @@ assert(
 );
 
 assert(
-  source.includes("if (pc.lllt)                    active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)')") &&
-    source.includes("if (pc.mechanical && !pc.lllt)  active.push('mechanical stimulation (massage/microneedling)')") &&
-    source.includes("if (!pc.mechanical)             missing.push('scalp massage/microneedling')"),
-  'coach protocolStatusLine should report LLLT as a distinct active layer and avoid listing generic massage/microneedling when the user only has an LLLT device — prevents the coach from giving scalp-massage advice to laser-cap users'
+  source.includes("active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)')") &&
+    source.includes("active.push('microneedling (apply minoxidil 24-48h after each session, not same-day)')") &&
+    source.includes("pc.mechanical && !pc.microneedling && !pc.lllt") &&
+    source.includes("missing.push('scalp massage/microneedling')"),
+  'coach protocolStatusLine should report LLLT as a distinct active layer, microneedling separately with timing note, and fall back to scalp massage only when no microneedling or LLLT — prevents the coach from giving generic massage advice to LLLT or microneedling users'
 );
 
 assert(
