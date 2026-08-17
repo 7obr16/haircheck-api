@@ -113,13 +113,13 @@ const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
 // Per-endpoint counters exposed via /api/health for production monitoring.
 const METRICS = {
-  scan:             { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
-  after:            { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
-  progression:      { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
-  progressionBatch: { requests: 0, errors: 0, lastError: null, lastSuccess: null },
-  map:              { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
-  adviceVisual:     { requests: 0, errors: 0, cacheHits: 0, lastError: null, lastSuccess: null },
-  coach:            { requests: 0, errors: 0, cacheHits: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
+  scan:             { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
+  after:            { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, lastError: null, lastSuccess: null },
+  progression:      { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, lastError: null, lastSuccess: null },
+  progressionBatch: { requests: 0, errors: 0,               slowRequests: 0, lastError: null, lastSuccess: null },
+  map:              { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, lastError: null, lastSuccess: null },
+  adviceVisual:     { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, lastError: null, lastSuccess: null },
+  coach:            { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
 };
 
 // OpenAI pricing constants (USD). Update as pricing changes on platform.openai.com/docs/pricing.
@@ -1147,11 +1147,22 @@ const computeScoreDeltas = (currentData, previousScores) => {
 // Emit a warning when an endpoint is unexpectedly slow. Thresholds are
 // generous to avoid false alarms during cold Railway starts.
 const SLOW_THRESHOLDS_MS = { scan: 45_000, image: 180_000, coach: 30_000 };
+const WARN_LABEL_TO_METRICS_KEY = {
+  'generate-after':            'after',
+  'generate-progression':      'progression',
+  'generate-progression-batch':'progressionBatch',
+  'generate-analysis-map':     'map',
+  'generate-advice-visual':    'adviceVisual',
+  'analyze-scan':              'scan',
+  'coach':                     'coach',
+};
 const warnIfSlow = (label, startedAt, kind = 'image') => {
   const elapsed = Date.now() - startedAt;
   const threshold = SLOW_THRESHOLDS_MS[kind] ?? SLOW_THRESHOLDS_MS.image;
   if (elapsed > threshold) {
-    console.warn(`[perf] SLOW ${label} elapsed=${elapsed}ms threshold=${threshold}ms`);
+    console.warn(JSON.stringify({ ts: new Date().toISOString(), event: 'slow_request', label, elapsed, threshold }));
+    const mk = WARN_LABEL_TO_METRICS_KEY[label];
+    if (mk && METRICS[mk]) METRICS[mk].slowRequests++;
   }
 };
 
