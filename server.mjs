@@ -437,6 +437,13 @@ const PROGRESSION_MINIMAL_3MO_STAGES = new Set(['NW5', 'NW6', 'NW7']); // 3-mont
 // very outermost edge of the recession boundary. Without this calibration the model may
 // prematurely fill visible recession corners that realistically wouldn't change for many months.
 const PROGRESSION_CONSERVATIVE_3MO_STAGES = new Set(['NW2', 'NW3', 'NW3v']); // 3-month calibration
+// 6-month calibration for NW3/NW3v: the base prompt says "40–50% closer to full density"
+// and "hairline edges look more defined and the temple recession appears partially filled".
+// For deep recession stages (NW3/NW3v), 40–50% temple filling significantly overstates
+// what 6 months of treatment achieves — realistic results are around 20–30% recession
+// reduction, not a half-restored hairline. NW2 is not included here because its shallow
+// recession is genuinely more responsive and 40–50% filling is plausible by month 6.
+const PROGRESSION_CALIBRATED_6MO_NW3_STAGES = new Set(['NW3', 'NW3v']); // 6-month calibration
 // NW1 has no hair loss at all — the base prompts for months 3, 6, and 12 all instruct
 // making improvements, which directly conflicts with the stage hint ("make no changes").
 // Without an explicit OVERRIDES qualifier the image model follows the base prompt and
@@ -457,6 +464,8 @@ const buildProgressionPrompt = (month, stage) => {
     qualifier = 'Stage-specific constraint (CALIBRATES the "Full natural-looking density" language above — for diffuse thinning or female-pattern loss the realistic 12-month ceiling is noticeably increased central density and visibly less scalp showing at the central part and crown top, NOT a return to uniformly full hair. Show meaningful improvement — the parting and scalp top look substantially denser than the input — but keep some evidence that central-part thinning was present; do NOT produce a result where the parting and scalp look completely identical to a person with no hair loss history):';
   } else if (month === 6 && PROGRESSION_ADVANCED_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (OVERRIDES the "40–50% closer to full density" language above — at this advanced stage that level of improvement is not realistic at 6 months; show clearly better coverage than the 3-month result but far more modest than the 40–50% figure implies):';
+  } else if (month === 6 && PROGRESSION_CALIBRATED_6MO_NW3_STAGES.has(stage)) {
+    qualifier = 'Stage-specific constraint (CALIBRATES the "40–50% closer to full density" and "temple recession appears partially filled" language above — for NW3 and NW3v with deep bilateral temple recession, the realistic 6-month ceiling is noticeably less recession than the input (roughly 20–30% recession reduction), NOT a half-filled hairline. Temple corners should look visibly less angular and slightly filled compared to the 3-month result, but the deep recession must still be clearly present and recognizable as the same pattern. Show meaningful improvement over the 3-month photo without overstating what 6 months of treatment realistically achieves for deep temple recession):';
   } else if (month === 6 && PROGRESSION_CALIBRATED_DIFFUSE_6MO_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (CALIBRATES the "hairline edges / temple recession" language above — for diffuse thinning or female-pattern loss there is NO temple recession and the hairline position must not change. Show noticeable density improvement at the central parting and scalp top only: the part line looks narrower, visibly less scalp shows through the central area and crown region, and the overall top appears moderately denser than the 3-month result — but DO NOT alter the hairline, temples, or frontal edge in any way):';
   } else if (month === 3 && PROGRESSION_CALIBRATED_DIFFUSE_3MO_STAGES.has(stage)) {
@@ -2469,7 +2478,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           },
         ],
         temperature: 0.15,
-        max_tokens: 2000,
+        max_tokens: 2500,
       });
 
       const scanPromise = (async () => {
