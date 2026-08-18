@@ -1870,14 +1870,14 @@ assert(
 );
 
 assert(
-  source.includes("Your supplement stack and LLLT device cover nutritional follicle support and photobiomodulation at NW1") &&
-    source.includes("Your supplement stack and microneedling cover nutritional follicle support and scalp priming at NW1"),
+  source.includes("At NW1, your supplement stack and LLLT device cover nutritional support and photobiomodulation") &&
+    source.includes("At NW1, your supplement stack and microneedling cover nutritional support and scalp priming"),
   'WEEKLY_FOCUS_MAP.Potential NW1 supplements+massage branch should have LLLT and microneedling sub-branches so users with an LLLT device or microneedling tool do not receive text saying "your scalp massage" when they have a different mechanical stimulation method — mirrors the same sub-branch pattern added to NW3/NW4/NW5/NW6 in prior commits'
 );
 
 assert(
-  source.includes("Your supplement stack and LLLT device cover nutritional follicle support and photobiomodulation at NW2") &&
-    source.includes("Your supplement stack and microneedling cover nutritional follicle support and scalp priming at NW2"),
+  source.includes("At NW2, your supplement stack and LLLT device cover nutritional support and photobiomodulation") &&
+    source.includes("At NW2, your supplement stack and microneedling cover nutritional support and scalp priming"),
   'WEEKLY_FOCUS_MAP.Potential NW2 supplements+massage branch should have LLLT and microneedling sub-branches so users with an LLLT device or microneedling tool do not receive text saying "your scalp massage" when they have a different mechanical stimulation method — mirrors the same sub-branch pattern added to NW3/NW4/NW5/NW6 in prior commits'
 );
 
@@ -1905,6 +1905,26 @@ assert(
     source.includes("s.includes('nac')") &&
     source.includes("s.includes('n-acetyl')"),
   'server should detect turmeric/curcumin, berberine, ginkgo biloba, and NAC (N-acetyl cysteine) as supplements in both scan-time _hasSupplements and coach pre-scan supplements detection — popular hair-health community supplements that should be recognized so users are not told they have no supplement stack when they use these'
+);
+
+assert(
+  source.includes("r.includes('pronexa')") &&
+    source.includes("s.includes('pronexa')"),
+  'server should detect Pronexa (popular caffeine + saw palmetto DHT-blocking shampoo) as a DHT-blocking shampoo in both scan-time _hasDHTShampoo and coach pre-scan dhtShampoo detection — users who list Pronexa should not be told to add a DHT-blocking shampoo they already have'
+);
+
+assert(
+  source.includes("r.includes('coq10')") &&
+    source.includes("r.includes('coenzyme q')") &&
+    source.includes("r.includes('l-carnitine')") &&
+    source.includes("r.includes('quercetin')") &&
+    source.includes("r.includes('melatonin')") &&
+    source.includes("s.includes('coq10')") &&
+    source.includes("s.includes('coenzyme q')") &&
+    source.includes("s.includes('l-carnitine')") &&
+    source.includes("s.includes('quercetin')") &&
+    source.includes("s.includes('melatonin')"),
+  'server should detect CoQ10, L-carnitine, quercetin, and melatonin as supplements in both scan-time _hasSupplements and coach pre-scan supplements detection — these are popular hair-health community supplements that users frequently log alongside their main protocol'
 );
 
 console.log('server contract passed');
