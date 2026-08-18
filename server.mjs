@@ -113,13 +113,13 @@ const CACHE_TTL_MS = 1000 * 60 * 60 * 24; // 24h
 
 // Per-endpoint counters exposed via /api/health for production monitoring.
 const METRICS = {
-  scan:             { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
-  after:            { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, lastError: null, lastSuccess: null },
-  progression:      { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, lastError: null, lastSuccess: null },
-  progressionBatch: { requests: 0, errors: 0,               slowRequests: 0, lastError: null, lastSuccess: null },
-  map:              { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, lastError: null, lastSuccess: null },
-  adviceVisual:     { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, lastError: null, lastSuccess: null },
-  coach:            { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null },
+  scan:             { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, retries: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null, lastRetry: null },
+  after:            { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, retries: 0, lastError: null, lastSuccess: null, lastRetry: null },
+  progression:      { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, retries: 0, lastError: null, lastSuccess: null, lastRetry: null },
+  progressionBatch: { requests: 0, errors: 0,               slowRequests: 0, retries: 0, lastError: null, lastSuccess: null, lastRetry: null },
+  map:              { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, retries: 0, lastError: null, lastSuccess: null, lastRetry: null },
+  adviceVisual:     { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, retries: 0, lastError: null, lastSuccess: null, lastRetry: null },
+  coach:            { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, retries: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null, lastRetry: null },
 };
 
 // OpenAI pricing constants (USD). Update as pricing changes on platform.openai.com/docs/pricing.
@@ -168,6 +168,15 @@ function bumpError(m, httpStatus, msg) {
 
 function bumpSuccess(m) {
   m.lastSuccess = new Date().toISOString();
+}
+
+function bumpRetry(m, reason, status) {
+  m.retries++;
+  m.lastRetry = {
+    at: new Date().toISOString(),
+    reason: String(reason || '').slice(0, 80),
+    status: status || null,
+  };
 }
 
 function latencyStats(arr) {
@@ -1156,12 +1165,23 @@ const WARN_LABEL_TO_METRICS_KEY = {
   'analyze-scan':              'scan',
   'coach':                     'coach',
 };
+// Resolve any retry/slow-request label to a METRICS key. Handles the plain
+// labels above and the per-month batch labels (generate-progression-3/-6/-12)
+// which fan out inside /api/generate-progression-batch — those roll up under
+// progressionBatch so retry counts stay attributable at the endpoint level.
+const resolveMetricsKey = (label) => {
+  if (!label) return null;
+  const direct = WARN_LABEL_TO_METRICS_KEY[label];
+  if (direct) return direct;
+  if (/^generate-progression-\d+$/.test(label)) return 'progressionBatch';
+  return null;
+};
 const warnIfSlow = (label, startedAt, kind = 'image') => {
   const elapsed = Date.now() - startedAt;
   const threshold = SLOW_THRESHOLDS_MS[kind] ?? SLOW_THRESHOLDS_MS.image;
   if (elapsed > threshold) {
     console.warn(JSON.stringify({ ts: new Date().toISOString(), event: 'slow_request', label, elapsed, threshold }));
-    const mk = WARN_LABEL_TO_METRICS_KEY[label];
+    const mk = resolveMetricsKey(label);
     if (mk && METRICS[mk]) METRICS[mk].slowRequests++;
   }
 };
@@ -1363,6 +1383,8 @@ const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDel
         }
         const delay = baseDelayMs * Math.pow(2, attempt - 1) * (0.75 + Math.random() * 0.5);
         console.log(JSON.stringify({ ts: new Date().toISOString(), event: 'openai_retry', label, reason: kind, attempt, maxAttempts, delayMs: Math.round(delay) }));
+        const _mkNet = resolveMetricsKey(label);
+        if (_mkNet && METRICS[_mkNet]) bumpRetry(METRICS[_mkNet], isTimeout ? 'timeout' : 'network', null);
         await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
       }
@@ -1393,6 +1415,8 @@ const withOpenAIRetry = async (label, requestFactory, { maxAttempts = 3, baseDel
       ? serverDelay
       : baseDelayMs * Math.pow(2, attempt - 1) * (0.75 + Math.random() * 0.5);
     console.log(JSON.stringify({ ts: new Date().toISOString(), event: 'openai_retry', label, status: r.status, attempt, maxAttempts, delayMs: Math.round(delay), delaySource: serverDelay > 0 ? 'server' : 'backoff' }));
+    const _mkHttp = resolveMetricsKey(label);
+    if (_mkHttp && METRICS[_mkHttp]) bumpRetry(METRICS[_mkHttp], r.status === 429 ? 'rate_limit' : 'upstream_5xx', r.status);
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 };
