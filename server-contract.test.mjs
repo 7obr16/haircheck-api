@@ -1927,4 +1927,24 @@ assert(
   'server should detect CoQ10, L-carnitine, quercetin, and melatonin as supplements in both scan-time _hasSupplements and coach pre-scan supplements detection — these are popular hair-health community supplements that users frequently log alongside their main protocol'
 );
 
+assert(
+  source.includes("r.includes('hims')") &&
+    source.includes("r.includes('keeps')") &&
+    source.includes("s.includes('hims')") &&
+    source.includes("s.includes('keeps')"),
+  'server should detect Hims and Keeps (popular US telehealth hair loss platforms) as topical minoxidil treatment in both scan-time _hasMinoxidil and coach pre-scan topical detection — users who list "hims" or "keeps" in their routine are on the platform\'s primary topical product and should not be told minoxidil is NOT STARTED'
+);
+
+assert(
+  source.includes("r.includes('sunetics')") &&
+    source.includes("s.includes('sunetics')"),
+  'server should detect Sunetics (clinical LLLT brand used in salons and trichology clinics) as an LLLT device in both scan-time _hasLLLT/_hasMassage and coach pre-scan lllt/mechanical detection — Sunetics users should receive LLLT-aware timing advice rather than being told they have no mechanical stimulation'
+);
+
+assert(
+  source.includes("r.includes('olly')") &&
+    source.includes("s.includes('olly')"),
+  'server should detect Olly (popular US gummy supplement brand with hair vitamins — Olly Heavenly Hair) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection — users who list Olly should not be told they have no supplement stack'
+);
+
 console.log('server contract passed');
