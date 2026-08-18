@@ -1881,4 +1881,14 @@ assert(
   'WEEKLY_FOCUS_MAP.Potential NW2 supplements+massage branch should have LLLT and microneedling sub-branches so users with an LLLT device or microneedling tool do not receive text saying "your scalp massage" when they have a different mechanical stimulation method — mirrors the same sub-branch pattern added to NW3/NW4/NW5/NW6 in prior commits'
 );
 
+assert(
+  source.includes("r.includes('grape seed')") &&
+    source.includes("r.includes('procyanidin')") &&
+    source.includes("r.includes('resveratrol')") &&
+    source.includes("s.includes('grape seed')") &&
+    source.includes("s.includes('procyanidin')") &&
+    source.includes("s.includes('resveratrol')"),
+  'server should detect grape seed extract (procyanidins/OPC), procyanidin, and resveratrol as supplements in both scan-time _hasSupplements and coach pre-scan supplements detection — users listing these common antioxidant/OPC supplements should not be told they have no supplement stack'
+);
+
 console.log('server contract passed');
