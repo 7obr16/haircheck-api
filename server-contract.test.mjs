@@ -1891,4 +1891,20 @@ assert(
   'server should detect grape seed extract (procyanidins/OPC), procyanidin, and resveratrol as supplements in both scan-time _hasSupplements and coach pre-scan supplements detection — users listing these common antioxidant/OPC supplements should not be told they have no supplement stack'
 );
 
+assert(
+  source.includes("r.includes('turmeric')") &&
+    source.includes("r.includes('curcumin')") &&
+    source.includes("r.includes('berberine')") &&
+    source.includes("r.includes('ginkgo')") &&
+    source.includes("r.includes('nac')") &&
+    source.includes("r.includes('n-acetyl')") &&
+    source.includes("s.includes('turmeric')") &&
+    source.includes("s.includes('curcumin')") &&
+    source.includes("s.includes('berberine')") &&
+    source.includes("s.includes('ginkgo')") &&
+    source.includes("s.includes('nac')") &&
+    source.includes("s.includes('n-acetyl')"),
+  'server should detect turmeric/curcumin, berberine, ginkgo biloba, and NAC (N-acetyl cysteine) as supplements in both scan-time _hasSupplements and coach pre-scan supplements detection — popular hair-health community supplements that should be recognized so users are not told they have no supplement stack when they use these'
+);
+
 console.log('server contract passed');
