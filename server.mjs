@@ -1470,7 +1470,7 @@ const computeProtocolStrengthScore = (stage, protocolCoverage) => {
   // Clinical mechanical (LLLT or microneedling) = 15; basic massage only = 8.
   if (microneedling || lllt) score += 15;
   else if (mechanical)       score += 8;
-  if (supplements) score += 10; // Biotin, zinc, vitamin D — nutritional layer
+  if (supplements) score += 10; // nutritional layer (biotin, zinc, vitamin D, saw palmetto, nutrafol, spermidine, etc.)
   // NW6/NW7: cap at 75 — OTC covers the maintenance role but surgical evaluation is the
   // primary path to meaningful coverage; the capped score signals that gap to the iOS app.
   const isAdvanced = stage === 'NW6' || stage === 'NW7';
@@ -5094,8 +5094,48 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (pc.microneedling)                                     active.push('microneedling (apply minoxidil 24-48h after each session, not same-day)');
         if (pc.mechanical && !pc.microneedling && !pc.lllt)       active.push('scalp massage');
         if (!pc.mechanical)                                       missing.push('scalp massage/microneedling');
-        if (pc.supplements)             active.push('supplements (biotin/zinc/vitamin D)');                 else missing.push('supplements');
-        return `- Protocol layers — ACTIVE: ${active.join(', ') || 'none'}; NOT STARTED: ${missing.join(', ') || 'none'} — when the user asks what to add next, which layer is missing, or how complete their protocol is, use this structured breakdown; never re-suggest an ACTIVE layer.`;
+        if (pc.supplements) {
+          // Surface the detected supplement name(s) from the live routine for coach context.
+          // Do NOT hardcode "biotin/zinc/vitamin D" — many users take nutrafol, viviscal,
+          // spermidine, procyanidin, EGCG, or other advanced stacks; the specific product
+          // matters for accurate optimization advice (e.g. timing, dosage, stacking strategy).
+          const _SUPP_LABELS = [
+            ['nutrafol',       'nutrafol'],  ['viviscal',      'viviscal'],
+            ['nourkrin',       'nourkrin'],  ['priorin',       'priorin'],
+            ['pantogar',       'pantogar'],  ['vegamour',      'vegamour'],
+            ['hair la vie',    'Hair la Vie'], ['foligrowth',  'foligrowth'],
+            ['spermidine',     'spermidine'], ['procyanidin',  'procyanidin'],
+            ['grape seed',     'grape seed extract'], ['resveratrol', 'resveratrol'],
+            ['egcg',           'EGCG'], ['green tea extract', 'EGCG/green tea'],
+            ['diindolylmethane','DIM'], ['dim supplement',   'DIM'], [' dim ', 'DIM'],
+            ['inositol',       'inositol'],  ['pycnogenol',   'pycnogenol'],
+            ['saw palmetto',   'saw palmetto'], ['pumpkin seed', 'pumpkin seed oil'],
+            ['beta-sitosterol','beta-sitosterol'],
+            ['ashwagandha',    'ashwagandha'], ['fo-ti',       'fo-ti/he shou wu'],
+            ['he shou wu',     'fo-ti/he shou wu'],
+            ['collagen',       'collagen'],  ['marine collagen','marine collagen'],
+            ['omega',          'omega/fish oil'], ['fish oil',   'omega/fish oil'],
+            ['biotin',         'biotin'],    ['zinc',         'zinc'],
+            ['vitamin d',      'vitamin D'], ['folic acid',   'folate'],
+            ['folate',         'folate'],    ['iron',         'iron'],
+            ['silica',         'silica'],    ['niacin',       'niacin'],
+            ['bhringraj',      'bhringraj'], ['moringa',      'moringa'],
+            ['reishi',         'reishi'],    ['black seed',   'black seed'],
+            ['multivitamin',   'multivitamin'], ['sugarbear',  'SugarBear'],
+          ];
+          const _rl = ctx.routine.map((s) => String(s).toLowerCase());
+          const _found = [];
+          for (const [kw, label] of _SUPP_LABELS) {
+            if (_rl.some((r) => r.includes(kw)) && !_found.includes(label)) {
+              _found.push(label);
+              if (_found.length >= 3) break;
+            }
+          }
+          active.push(_found.length ? `supplements (${_found.join(' + ')})` : 'supplements');
+        } else {
+          missing.push('supplements');
+        }
+        return `- Protocol layers — ACTIVE: ${active.join(', ') || 'none'}; NOT STARTED: ${missing.join(', ') || 'none'} — when the user asks what to add next, which layer is missing, or how complete their protocol is, use this structured breakdown; never re-suggest an ACTIVE layer. For supplements listed as ACTIVE, reference the specific product shown in parentheses when giving optimization advice rather than defaulting to generic "biotin/zinc/vitamin D".`;
       })();
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
