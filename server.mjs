@@ -5112,7 +5112,34 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const active = [];
         const missing = [];
         if (pc.topical)                 active.push('minoxidil');                                           else missing.push('minoxidil');
-        if (pc.rx)                      active.push('Rx antiandrogen (finasteride/dutasteride/spironolactone/bicalutamide/flutamide/cyproterone)'); else missing.push('Rx antiandrogen');
+        if (pc.rx) {
+          // Surface the specific Rx drug(s) from the live routine — different antiandrogens have
+          // completely different mechanisms, routes (oral vs topical), and usage instructions.
+          // Finasteride = oral systemic 5-AR inhibitor; clascoterone = topical androgen receptor
+          // blocker applied to scalp; spironolactone = oral diuretic-antiandrogen (primary female Rx).
+          // Knowing the specific drug lets the coach give accurate timing/application advice.
+          const _RX_LABELS = [
+            ['finasteride', 'finasteride'], ['propecia', 'finasteride'], ['proscar', 'finasteride'],
+            ['finpecia', 'finasteride'],    ['finalo', 'finasteride'],   ['finast', 'finasteride'],
+            ['fincar', 'finasteride'],      ['finax', 'finasteride'],    ['aindeem', 'finasteride'],
+            ['dutasteride', 'dutasteride'], ['avodart', 'dutasteride'],
+            ['spironolactone', 'spironolactone'], ['spiro', 'spironolactone'], ['aldactone', 'spironolactone'],
+            ['bicalutamide', 'bicalutamide'], ['casodex', 'bicalutamide'],
+            ['flutamide', 'flutamide'],
+            ['cyproterone', 'cyproterone acetate'], ['androcur', 'cyproterone acetate'],
+            ['clascoterone', 'clascoterone (Winlevi — topical androgen receptor blocker, apply to scalp)'],
+            ['winlevi', 'clascoterone (Winlevi — topical androgen receptor blocker, apply to scalp)'],
+          ];
+          const _rl = ctx.routine.map((s) => String(s).toLowerCase());
+          const _rxFound = [];
+          for (const [kw, label] of _RX_LABELS) {
+            if (_rl.some((r) => r.includes(kw)) && !_rxFound.includes(label)) {
+              _rxFound.push(label);
+              if (_rxFound.length >= 2) break;
+            }
+          }
+          active.push(_rxFound.length ? `Rx antiandrogen (${_rxFound.join(' + ')})` : 'Rx antiandrogen (finasteride/dutasteride/spironolactone/bicalutamide/flutamide/cyproterone/clascoterone)');
+        } else missing.push('Rx antiandrogen');
         if (pc.dhtShampoo)              active.push('DHT-blocking shampoo');                                else missing.push('DHT-blocking shampoo');
         if (pc.lllt)                                              active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)');
         if (pc.microneedling)                                     active.push('microneedling (apply minoxidil 24-48h after each session, not same-day)');
