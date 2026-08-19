@@ -1253,11 +1253,13 @@ assert(
 );
 
 assert(
-  source.includes("active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)')") &&
-    source.includes("active.push('microneedling (apply minoxidil 24-48h after each session, not same-day)')") &&
+  source.includes("_LLLT_LABELS") &&
+    source.includes("'LLLT (laser cap/comb — Capillus, HairMax, etc.)'") &&
+    source.includes("_NEEDLE_LABELS") &&
+    source.includes("'microneedling (apply minoxidil 24-48h after each session, not same-day)'") &&
     source.includes("pc.mechanical && !pc.microneedling && !pc.lllt") &&
     source.includes("missing.push('scalp massage/microneedling')"),
-  'coach protocolStatusLine should report LLLT as a distinct active layer, microneedling separately with timing note, and fall back to scalp massage only when no microneedling or LLLT — prevents the coach from giving generic massage advice to LLLT or microneedling users'
+  'coach protocolStatusLine should surface specific LLLT device and microneedling tool via lookup tables, fall back to generic labels, and fall back to scalp massage only when no microneedling or LLLT — prevents the coach from giving generic massage advice to LLLT or microneedling users'
 );
 
 assert(

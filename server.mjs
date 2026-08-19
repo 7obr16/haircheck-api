@@ -5141,8 +5141,40 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           active.push(_rxFound.length ? `Rx antiandrogen (${_rxFound.join(' + ')})` : 'Rx antiandrogen (finasteride/dutasteride/spironolactone/bicalutamide/flutamide/cyproterone/clascoterone)');
         } else missing.push('Rx antiandrogen');
         if (pc.dhtShampoo)              active.push('DHT-blocking shampoo');                                else missing.push('DHT-blocking shampoo');
-        if (pc.lllt)                                              active.push('LLLT (laser cap/comb — Capillus, HairMax, etc.)');
-        if (pc.microneedling)                                     active.push('microneedling (apply minoxidil 24-48h after each session, not same-day)');
+        if (pc.lllt) {
+          // Surface specific LLLT device from live routine for personalized session timing advice.
+          const _LLLT_LABELS = [
+            ['capillus', 'Capillus'], ['hairmax', 'HairMax'], ['irestore', 'iRestore'],
+            ['igrow', 'iGrow'], ['theradome', 'Theradome'], ['kiierr', 'Kiierr'],
+            ['illumiflow', 'illumiflow'], ['sunetics', 'Sunetics (clinical)'],
+            ['laserband', 'HairMax LaserBand'], ['laser band', 'HairMax LaserBand'],
+            ['laser cap', 'laser cap'], ['laser helmet', 'laser helmet'], ['laser comb', 'laser comb'],
+          ];
+          const _rl4 = ctx.routine.map((s) => String(s).toLowerCase());
+          let _llltDevice = null;
+          for (const [kw, label] of _LLLT_LABELS) {
+            if (_rl4.some((r) => r.includes(kw))) { _llltDevice = label; break; }
+          }
+          active.push(_llltDevice ? `LLLT (${_llltDevice})` : 'LLLT (laser cap/comb — Capillus, HairMax, etc.)');
+        }
+        if (pc.microneedling) {
+          // Surface specific device type so coach can reference the correct tool by name.
+          const _NEEDLE_LABELS = [
+            ['dermapen', 'Dermapen (electric)'], ['dr pen', 'Dr.Pen (electric)'],
+            ['drpen', 'Dr.Pen (electric)'], ['dr.pen', 'Dr.Pen (electric)'],
+            ['derminator', 'Derminator (electric)'], ['derma stamp', 'derma stamp'],
+            ['dermastamp', 'derma stamp'], ['dermaroller', 'dermaroller'],
+            ['derma roller', 'dermaroller'], ['zgts', 'ZGTS roller'],
+          ];
+          const _rl5 = ctx.routine.map((s) => String(s).toLowerCase());
+          let _needleDevice = null;
+          for (const [kw, label] of _NEEDLE_LABELS) {
+            if (_rl5.some((r) => r.includes(kw))) { _needleDevice = label; break; }
+          }
+          active.push(_needleDevice
+            ? `microneedling (${_needleDevice} — apply minoxidil 24-48h after each session, not same-day)`
+            : 'microneedling (apply minoxidil 24-48h after each session, not same-day)');
+        }
         if (pc.mechanical && !pc.microneedling && !pc.lllt)       active.push('scalp massage');
         if (!pc.mechanical)                                       missing.push('scalp massage/microneedling');
         if (pc.supplements) {
