@@ -2535,7 +2535,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           },
         ],
         temperature: 0.15,
-        max_tokens: 2500,
+        max_tokens: 1800,
       });
 
       const scanPromise = (async () => {
@@ -5377,7 +5377,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         { role: 'user', content: message.slice(0, 1500) },
       ];
 
-      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 2500 });
+      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 1000 });
       const { ok: coachOk, status: coachStatus, payload: coachPayload } = await withOpenAIRetry('coach', (signal) =>
         fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
