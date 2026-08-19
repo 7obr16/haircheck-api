@@ -5228,7 +5228,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : '',
         ctx.scan?.retakeRecommended && ctx.scan.photoGuidance
           ? `- If the user asks about score reliability or why scores seem low, recommend a retake: ${ctx.scan.photoGuidance}`
-          : '',
+          : ctx.scan?.photoQuality === 'acceptable' && ctx.scan.photoGuidance
+            ? `- Photo improvement tip (share when the user asks how to get more accurate scores or how to improve their scan photo): ${ctx.scan.photoGuidance}`
+            : '',
         ctx.scan?.specialistRecommended && ctx.scan.specialistReason
           ? `- Specialist consultation recommended: ${ctx.scan.specialistReason} — if the user asks what their next step is, whether they should see a doctor, or how to get the best outcome at their stage, include this as a concrete CTA alongside any OTC advice.`
           : '',
