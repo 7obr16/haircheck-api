@@ -947,11 +947,23 @@ assert(
 );
 
 assert(
+  source.includes("r.includes('clascoterone')") &&
+    source.includes("r.includes('winlevi')"),
+  'routine detection (_hasFinasteride) should recognise clascoterone and Winlevi (FDA-approved topical androgen receptor inhibitor used off-label for AGA) so users on this Rx topical antiandrogen are correctly classified as having Rx treatment'
+);
+
+assert(
   source.includes("s.includes('bicalutamide')") &&
     source.includes("s.includes('flutamide')") &&
     source.includes("s.includes('cyproterone')") &&
     source.includes("s.includes('androcur')"),
   'coach pre-scan protocolCoverage rx detection should recognise bicalutamide, flutamide, cyproterone, and androcur — mirrors the scan-time _hasFinasteride detection so female users listing these anti-androgens in their routine have their Rx layer correctly identified before their first scan'
+);
+
+assert(
+  source.includes("s.includes('clascoterone')") &&
+    source.includes("s.includes('winlevi')"),
+  'coach pre-scan protocolCoverage rx detection should recognise clascoterone and Winlevi — mirrors the scan-time _hasFinasteride detection so users listing this topical antiandrogen have their Rx layer correctly identified before their first scan'
 );
 
 assert(
