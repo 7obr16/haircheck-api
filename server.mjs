@@ -5003,6 +5003,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         concerns:      coachProfile.concern,
         timeline:      coachProfile.timeline || null,
         familyHistory: coachProfile.family,
+        lifestyle:     coachProfile.lifestyle || {},
       };
 
       // Compute overall trend if ≥2 scans are available (scanHistory is newest-first).
@@ -5353,6 +5354,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.concerns.length ? `- Concerns: ${ctx.concerns.join(', ')}.` : '',
         ctx.timeline ? `- Hair loss onset: ${ctx.timeline}.` : '',
         ctx.familyHistory.length ? `- Family history: ${ctx.familyHistory.join(', ')}.` : '',
+        (ctx.lifestyle?.stress != null || ctx.lifestyle?.sleep != null)
+          ? `- Lifestyle: ${[
+              ctx.lifestyle?.stress != null ? `Stress ${ctx.lifestyle.stress}/10${ctx.lifestyle.stress >= 7 ? ' (HIGH — TE risk; when diffuse thinning is present, mention stress management as a high-priority lever)' : ''}` : '',
+              ctx.lifestyle?.sleep  != null ? `Sleep ${ctx.lifestyle.sleep}h/night${ctx.lifestyle.sleep <= 5 ? ' (LOW — recognized TE trigger; when diffuse thinning is present, restoring sleep is the highest-leverage lifestyle action)' : ''}` : '',
+            ].filter(Boolean).join(', ')}.`
+          : '',
         trackingDurationStr ? `- Treatment journey: ${trackingDurationStr} since first scan (${firstScanDateStr}) — when the user asks how long they've been tracking or when to expect results, reference this duration.` : '',
         trendStr ? `- Overall score trend: ${trendStr}.` : '',
         patternTrendStr
