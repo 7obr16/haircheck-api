@@ -63,6 +63,22 @@ const THINNING_PATTERN_GUIDE = {
   total:              'Severe multi-zone loss — advanced stage; transplant or SMP are realistic options',
 };
 
+// ─── Treatment timeline expectations by Norwood stage ────────────
+// Injected into the coach system prompt so the model can give accurate
+// "when will I see results?" answers keyed to the user's actual stage.
+const TREATMENT_TIMELINE_GUIDE = {
+  NW1:        'NW1 — goal is prevention; no visible hair changes expected. Focus on long-term consistency (daily topicals, DHT shampoo) and 6-month monitoring intervals to catch any drift.',
+  NW2:        'NW2 — first signs of stabilization (shedding slow-down) typically appear within 3–4 months. Temple filling, if it occurs, usually takes 9–12 months on a consistent dual-therapy protocol.',
+  NW3:        'NW3 — active recession window; expect stabilization in 3–6 months with consistent minoxidil/finasteride. Visible temple filling can take 9–15 months, and not all NW3 users will regrow; halting further loss is the primary realistic benchmark.',
+  NW3v:       'NW3v — dual-zone pattern (temples + crown); both areas are responsive but crown regrowth typically lags 2–3 months behind temple response. Expect stabilization in 4–6 months and measurable density improvement in 9–15 months with a full protocol.',
+  NW4:        'NW4 — significant loss across frontal and crown zones; stabilization is the primary 6-month goal. Partial density recovery is realistic by 12 months with consistent triple-therapy (minoxidil, finasteride, LLLT/microneedling). Expectations should be managed carefully — hairline restoration to NW2 is not realistic.',
+  NW5:        'NW5 — OTC treatments primarily slow further progression at this stage. Expect stabilization in 6–12 months. Cosmetic density improvement is possible but limited without Rx (finasteride/dutasteride); surgical options (FUE/FUT) are worth discussing with a specialist if density recovery is the goal.',
+  NW6:        'NW6 — advanced loss; fringe maintenance is the realistic OTC goal. FUE/FUT transplant candidacy is the primary path to visible density improvement. Surgical consultation is the most impactful next step.',
+  NW7:        'NW7 — near-total scalp loss; limited donor fringe available. OTC treatments maintain what remains. Hair transplant candidacy depends on donor density — consult a specialist. Scalp micropigmentation (SMP) is a realistic non-surgical option.',
+  diffuse:    'Diffuse pattern — if telogen effluvium (stress/nutritional trigger), shedding typically resolves in 3–6 months once the root cause is addressed, with visible regrowth 3–6 months after shedding stops. AGA-driven diffuse thinning responds on a 6–12 month timeline similar to NW3.',
+  'n/a (female)': 'Female pattern — Ludwig scale; treatment response timeline is 6–12 months once the correct root cause (hormonal, nutritional, or AGA) is identified and treated. Hormonal causes (PCOS, thyroid) often respond faster once corrected. AGA-driven female pattern responds to minoxidil within 6 months for shedding reduction and 12 months for density.',
+};
+
 // ─── Thinning zones per pattern ──────────────────────────────────
 // Derived from thinningPattern; gives the iOS app a structured zone list
 // for rendering targeted highlights without string parsing on the client.
@@ -5301,6 +5317,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : '',
         ctx.scan?.stageSeverityLabel
           ? `- Stage severity category: ${ctx.scan.stageSeverityLabel} — use this plain-language label when users ask how serious their hair loss is (e.g. Early → "this is early-stage loss and the ideal prevention window"; Moderate → "established loss, strong response window"; Advanced → "significant loss, consistent multi-therapy is key"; Severe → "advanced loss, specialist options are realistic").`
+          : '',
+        ctx.scan?.stage && TREATMENT_TIMELINE_GUIDE[ctx.scan.stage]
+          ? `- Treatment timeline (${ctx.scan.stage}): ${TREATMENT_TIMELINE_GUIDE[ctx.scan.stage]} — use this when the user asks "when will I see results?", "how long does this take?", "is it working?", or similar timeline/expectation questions. Give the stage-specific timeframes rather than a generic answer.`
           : '',
         ctx.scan?.weeklyFocusMetric
           ? `- Weekly focus metric: ${ctx.scan.weeklyFocusMetric} — the specific metric the weekly focus action targets; when the user asks what to work on this week, reinforce both the metric name and the weekly focus text together rather than giving generic advice.`
