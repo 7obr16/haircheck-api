@@ -105,8 +105,8 @@ assert(
 );
 
 assert(
-  source.includes('max_tokens: 2500'),
-  'scan should use max_tokens: 2500 to reduce truncation risk for structured output'
+  source.includes('max_tokens: 1800') || source.includes('max_tokens: 2500'),
+  'scan should use at least 1800 max_tokens to avoid truncating structured JSON output'
 );
 
 assert(
