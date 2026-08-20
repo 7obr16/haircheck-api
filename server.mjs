@@ -4947,7 +4947,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
     try {
       METRICS.coach.requests++;
       const { message, history = [], userContext = {} } = await readJsonBody(req);
-      if (!message || typeof message !== 'string') throw new Error('message required');
+      if (typeof message !== 'string' || !message.trim()) {
+        // Whitespace-only messages produce a wasteful OpenAI call and a nonsensical reply;
+        // reject them client-side with a 400 instead of paying tokens to find that out.
+        const err = new Error('message required (must be a non-empty string)');
+        err.statusCode = 400;
+        throw err;
+      }
       const startedAt = Date.now();
       const coachProfile = sanitizeProfile(userContext.profile);
 
@@ -5374,12 +5380,18 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         recentIntervalStr ? `- Most recent scan interval (previous → latest): ${recentIntervalStr} — use this when the user asks "is it working?" or "did I improve since last time?" to give an accurate, specific answer rather than the all-time average.` : '',
       ].filter(Boolean).join('\n');
 
-      // Trim history to last 10 turns for cost control
-      const recentHistory = Array.isArray(history) ? history.slice(-10) : [];
+      // Trim history to last 10 turns for cost control, and defend against
+      // malformed history items from the client: a `null`/non-object entry
+      // would crash `m.role` access, and an entry with empty content produces
+      // a wasteful empty message to OpenAI (some models reject those with a
+      // 400). Filter them out here rather than trusting client-side shape.
+      const recentHistory = Array.isArray(history)
+        ? history.slice(-10).filter((m) => m && typeof m === 'object' && String(m.content ?? '').trim())
+        : [];
       const messages = [
         { role: 'system', content: systemPrompt },
-        ...recentHistory.map((m) => ({ role: m.role === 'user' ? 'user' : 'assistant', content: String(m.content || '').slice(0, 1500) })),
-        { role: 'user', content: message.slice(0, 1500) },
+        ...recentHistory.map((m) => ({ role: m.role === 'user' ? 'user' : 'assistant', content: String(m.content).slice(0, 1500) })),
+        { role: 'user', content: message.trim().slice(0, 1500) },
       ];
 
       const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 1000 });

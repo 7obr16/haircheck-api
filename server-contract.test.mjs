@@ -1962,4 +1962,17 @@ assert(
   'server should detect Olly (popular US gummy supplement brand with hair vitamins — Olly Heavenly Hair) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection — users who list Olly should not be told they have no supplement stack'
 );
 
+assert(
+  source.includes("typeof message !== 'string' || !message.trim()") &&
+    source.includes("message required (must be a non-empty string)"),
+  'coach should reject whitespace-only or non-string messages with a 400 rather than pay OpenAI tokens for a nonsensical reply'
+);
+
+assert(
+  source.includes("history.slice(-10).filter((m) => m && typeof m === 'object' && String(m.content ?? \'\').trim())") &&
+    source.includes("content: String(m.content).slice(0, 1500)") &&
+    source.includes("message.trim().slice(0, 1500)"),
+  'coach should filter null/non-object/empty-content history items before mapping to prevent crashes on malformed client input and avoid sending empty messages to OpenAI'
+);
+
 console.log('server contract passed');
