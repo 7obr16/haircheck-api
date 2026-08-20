@@ -1484,8 +1484,8 @@ const computeTreatmentUrgency = (stage, age) => {
     case 'NW5':              return 'moderate'; // OTC slows but rarely reverses at this stage
     case 'NW6':
     case 'NW7':              return 'low';      // beyond meaningful OTC response
-    case 'diffuse':          return 'moderate'; // cause-dependent; often reversible
-    case 'n/a (female)':     return 'moderate'; // hormonal/nutritional work-up first
+    case 'diffuse':          return isYoung ? 'high' : 'moderate'; // young diffuse: likely TE, reversible with early action; older: cause uncertain, temper expectations
+    case 'n/a (female)':     return isYoung ? 'high' : 'moderate'; // young female: hormonal correction highly effective early; older: established AGA, moderate outlook
     default:                 return 'moderate';
   }
 };
