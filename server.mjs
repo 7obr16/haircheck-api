@@ -4888,14 +4888,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : data.checkInIntervalDays === 42 ? '6 weeks'
           : '2 months';
         const _STAGE_CHECKIN_REASONS = {
-          'NW1':  `Your scalp is fully intact — rescan in 2 months to confirm prevention is holding; subtle early temple shifts are easy to miss without a periodic baseline comparison`,
+          'NW1':  `Your scalp is fully intact — rescan in ${_dayLabel} to confirm prevention is holding; subtle early temple shifts are easy to miss without a periodic baseline comparison`,
           'NW2':  `Early temple recession is highly responsive to treatment — rescan in ${_dayLabel} to catch the first density response before it's visible in the mirror`,
           'NW3':  `Deep recession at NW3 responds strongly to a consistent protocol — rescan in ${_dayLabel} to see if the miniaturization edge is stabilizing`,
           'NW3v': `Both active zones (temples and early crown) are in the treatment-response window — rescan in ${_dayLabel} to measure density progress across both active fronts`,
           'NW4':  `Consistent multi-layer treatment at NW4 produces measurable results over 4-6 weeks — rescan in ${_dayLabel} to track stabilization across both the frontal and crown zones`,
           'NW5':  `OTC treatment at NW5 primarily slows progression rather than reversing it — rescan in ${_dayLabel} to confirm the rate of change is stabilizing`,
-          'NW6':  'At NW6 the fringe and temporal edges are the last OTC-responsive zones — rescan in 2 months to track fringe density and evaluate whether surgical planning is the right next move',
-          'NW7':  'At NW7 the horseshoe fringe is the priority — rescan in 2 months to monitor fringe density and inform any surgical planning around your available donor reserve',
+          'NW6':  `At NW6 the fringe and temporal edges are the last OTC-responsive zones — rescan in ${_dayLabel} to track fringe density and evaluate whether surgical planning is the right next move`,
+          'NW7':  `At NW7 the horseshoe fringe is the priority — rescan in ${_dayLabel} to monitor fringe density and inform any surgical planning around your available donor reserve`,
           'diffuse':      `Identify the root cause first: book a workup (ferritin, thyroid, hormones) — rescan in ${_dayLabel} once treatment is started to measure initial response`,
           'n/a (female)': `Hormonal workup is step one: ferritin, thyroid, hormone panel — rescan in ${_dayLabel} once treatment is started to measure initial response`,
         };

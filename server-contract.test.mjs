@@ -1461,7 +1461,8 @@ assert(
 );
 
 assert(
-  source.includes("Your scalp is fully intact — rescan in 2 months to confirm prevention is holding; subtle early temple shifts are easy to miss without a periodic baseline comparison") &&
+  source.includes("Your scalp is fully intact — rescan in") &&
+    source.includes("to confirm prevention is holding; subtle early temple shifts are easy to miss without a periodic baseline comparison") &&
     source.includes("Early temple recession is highly responsive to treatment — rescan in") &&
     source.includes("to catch the first density response before it's visible in the mirror") &&
     source.includes("Deep recession at NW3 responds strongly to a consistent protocol — rescan in") &&
