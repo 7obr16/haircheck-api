@@ -1511,8 +1511,12 @@ const computeProtocolStrengthScore = (stage, protocolCoverage) => {
   if (microneedling || lllt) score += 15;
   else if (mechanical)       score += 8;
   if (supplements) score += 10; // nutritional layer (biotin, zinc, vitamin D, saw palmetto, nutrafol, spermidine, etc.)
+  // NW5: cap at 80 — even a fully complete OTC stack can't restore the near-merged frontal/crown
+  // deficit; "strong" (65–84) is the realistic OTC ceiling at this stage. Prevents the iOS app
+  // from showing "complete" for a score that clinical reality doesn't support.
   // NW6/NW7: cap at 75 — OTC covers the maintenance role but surgical evaluation is the
   // primary path to meaningful coverage; the capped score signals that gap to the iOS app.
+  if (stage === 'NW5') score = Math.min(score, 80);
   const isAdvanced = stage === 'NW6' || stage === 'NW7';
   if (isAdvanced) score = Math.min(score, 75);
   const label = score >= 85 ? 'complete'

@@ -1480,8 +1480,9 @@ assert(
     source.includes('protocolStrengthScore') &&
     source.includes('protocolStrengthLabel') &&
     source.includes("score >= 85 ? 'complete'") &&
+    source.includes("if (stage === 'NW5') score = Math.min(score, 80)") &&
     source.includes('if (isAdvanced) score = Math.min(score, 75)'),
-  'scan response should include protocolStrengthScore (0-100) and protocolStrengthLabel derived from protocolCoverage, with NW6/NW7 capped at 75 to signal that surgical options are the primary path'
+  'scan response should include protocolStrengthScore (0-100) and protocolStrengthLabel derived from protocolCoverage, with NW5 capped at 80 and NW6/NW7 capped at 75 to signal that surgical options are the primary path at these advanced stages'
 );
 
 assert(
