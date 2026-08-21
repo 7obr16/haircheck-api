@@ -1976,4 +1976,12 @@ assert(
   'coach should filter null/non-object/empty-content history items before mapping to prevent crashes on malformed client input and avoid sending empty messages to OpenAI'
 );
 
+assert(
+  source.includes('• NW2, under 30: 80-92') &&
+    source.includes('• NW2, age 30-50: 74-86') &&
+    source.includes('• NW2, over 50: 65-78') &&
+    source.includes('NW2 → apply the 30-50 range'),
+  'scan potential score guidance should have three NW2 age bands (under 30 / 30-50 / over 50) matching the NW3/NW3v/NW4 age-stratification pattern — NW2 users in their 20s have dramatically higher treatment response potential than users in their 50s; a combined NW1-NW2 any-age band loses this clinically important distinction'
+);
+
 console.log('server contract passed');
