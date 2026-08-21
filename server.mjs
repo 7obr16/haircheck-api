@@ -4902,8 +4902,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           'NW5':  `OTC treatment at NW5 primarily slows progression rather than reversing it — rescan in ${_dayLabel} to confirm the rate of change is stabilizing`,
           'NW6':  `At NW6 the fringe and temporal edges are the last OTC-responsive zones — rescan in ${_dayLabel} to track fringe density and evaluate whether surgical planning is the right next move`,
           'NW7':  `At NW7 the horseshoe fringe is the priority — rescan in ${_dayLabel} to monitor fringe density and inform any surgical planning around your available donor reserve`,
-          'diffuse':      `Identify the root cause first: book a workup (ferritin, thyroid, hormones) — rescan in ${_dayLabel} once treatment is started to measure initial response`,
-          'n/a (female)': `Hormonal workup is step one: ferritin, thyroid, hormone panel — rescan in ${_dayLabel} once treatment is started to measure initial response`,
+          'diffuse':      profile.routine.length > 0
+            ? `Treatment is active — rescan in ${_dayLabel} to measure response; diffuse thinning with a managed root cause often begins to stabilize within the first 1-2 check-in cycles`
+            : `Identify the root cause first: book a workup (ferritin, thyroid, hormones) — rescan in ${_dayLabel} once treatment is started to measure initial response`,
+          'n/a (female)': profile.routine.length > 0
+            ? `Treatment is active — rescan in ${_dayLabel} to measure response; female-pattern or hormonal thinning often shows first signs of stabilization within the first few scan cycles`
+            : `Hormonal workup is step one: ferritin, thyroid, hormone panel — rescan in ${_dayLabel} once treatment is started to measure initial response`,
         };
         data.nextCheckInReason = _STAGE_CHECKIN_REASONS[stage]
           ?? (URGENCY_REASONS[data.treatmentUrgency] || 'Check back regularly to track progress');

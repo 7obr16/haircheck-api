@@ -1984,4 +1984,12 @@ assert(
   'scan potential score guidance should have three NW2 age bands (under 30 / 30-50 / over 50) matching the NW3/NW3v/NW4 age-stratification pattern — NW2 users in their 20s have dramatically higher treatment response potential than users in their 50s; a combined NW1-NW2 any-age band loses this clinically important distinction'
 );
 
+assert(
+  source.includes("profile.routine.length > 0") &&
+    source.includes("Treatment is active — rescan in") &&
+    source.includes("Identify the root cause first: book a workup (ferritin, thyroid, hormones)") &&
+    source.includes("Hormonal workup is step one: ferritin, thyroid, hormone panel"),
+  'nextCheckInReason for diffuse and n/a (female) should be routine-aware: users with an active routine get a "treatment is active — measure response" message; users without a routine get the workup-first message'
+);
+
 console.log('server contract passed');
