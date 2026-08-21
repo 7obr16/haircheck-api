@@ -5006,6 +5006,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             : null,
           protocolStrengthScore: typeof userContext.result.protocolStrengthScore === 'number' ? userContext.result.protocolStrengthScore : null,
           protocolStrengthLabel: userContext.result.protocolStrengthLabel ? String(userContext.result.protocolStrengthLabel).slice(0, 20) : null,
+          overallDelta:          typeof userContext.result.overallDelta === 'number' ? userContext.result.overallDelta : null,
+          overallDeltaDirection: userContext.result.overallDeltaDirection || null,
+          hairlineDelta:         typeof userContext.result.hairlineDelta === 'number' ? userContext.result.hairlineDelta : null,
+          densityDelta:          typeof userContext.result.densityDelta  === 'number' ? userContext.result.densityDelta  : null,
+          crownDelta:            typeof userContext.result.crownDelta    === 'number' ? userContext.result.crownDelta    : null,
+          healthDelta:           typeof userContext.result.healthDelta   === 'number' ? userContext.result.healthDelta   : null,
+          potentialDelta:        typeof userContext.result.potentialDelta === 'number' ? userContext.result.potentialDelta : null,
+          stageChanged:          userContext.result.stageChanged ?? null,
+          stageDirection:        userContext.result.stageDirection || null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine.slice(0, 20).map((s) => String(s ?? '').slice(0, 80)) : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -5352,6 +5361,18 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         protocolStatusLine,
         ctx.scan?.protocolStrengthScore !== null && ctx.scan?.protocolStrengthLabel
           ? `- Protocol strength: ${ctx.scan.protocolStrengthLabel} (${ctx.scan.protocolStrengthScore}/100) — use this as a concise summary when the user asks how complete or strong their treatment stack is, e.g. "Your protocol is currently ${ctx.scan.protocolStrengthLabel} at ${ctx.scan.protocolStrengthScore}/100." Labels: starting=0–19, basic=20–44, partial=45–64, strong=65–84, complete=85+.`
+          : '',
+        ctx.scan?.overallDelta !== null && ctx.scan?.overallDelta !== undefined
+          ? `- Score change vs. previous scan: overall ${ctx.scan.overallDelta >= 0 ? '+' : ''}${ctx.scan.overallDelta} (${ctx.scan.overallDeltaDirection || '?'}); per metric: ${[
+              ctx.scan.hairlineDelta !== null && ctx.scan.hairlineDelta !== undefined ? `Hairline ${ctx.scan.hairlineDelta >= 0 ? '+' : ''}${ctx.scan.hairlineDelta}` : null,
+              ctx.scan.densityDelta  !== null && ctx.scan.densityDelta  !== undefined ? `Density ${ctx.scan.densityDelta  >= 0 ? '+' : ''}${ctx.scan.densityDelta}`  : null,
+              ctx.scan.crownDelta    !== null && ctx.scan.crownDelta    !== undefined ? `Crown ${ctx.scan.crownDelta    >= 0 ? '+' : ''}${ctx.scan.crownDelta}`    : null,
+              ctx.scan.healthDelta   !== null && ctx.scan.healthDelta   !== undefined ? `Health ${ctx.scan.healthDelta   >= 0 ? '+' : ''}${ctx.scan.healthDelta}`   : null,
+              ctx.scan.potentialDelta!== null && ctx.scan.potentialDelta!== undefined ? `Potential ${ctx.scan.potentialDelta >= 0 ? '+' : ''}${ctx.scan.potentialDelta}` : null,
+            ].filter(Boolean).join(', ')} — use these numbers when the user asks "did I improve?", "is my treatment working?", or "how did I change since last scan?"`
+          : '',
+        ctx.scan?.stageChanged === true
+          ? `- Stage changed since last scan: YES — direction: ${ctx.scan.stageDirection || 'unknown'}. ${ctx.scan.stageDirection === 'improved' ? 'Stage improved — acknowledge the progress.' : ctx.scan.stageDirection === 'progressed' ? 'Stage progressed to higher severity — acknowledge with empathy and motivate action.' : 'Stage changed.'}`
           : '',
         ctx.routineDoneToday.length ? `- Routine tasks completed today: ${ctx.routineDoneToday.join(', ')}.` : '- No routine tasks completed today.',
         ctx.planProducts.length ? `- Saved plan products: ${ctx.planProducts.join(', ')}.` : '- No saved plan products yet.',
