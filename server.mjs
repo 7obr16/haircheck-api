@@ -1069,14 +1069,16 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
   const density = Number.isFinite(Number(result.density)) ? Math.round(Number(result.density)) : 'unknown';
   const crown = Number.isFinite(Number(result.crown)) ? Math.round(Number(result.crown)) : 'unknown';
   const hairline = Number.isFinite(Number(result.hairline)) ? Math.round(Number(result.hairline)) : 'unknown';
-  const densityScore = typeof density === 'number' ? density : null;
-  const crownScore   = typeof crown   === 'number' ? crown   : null;
+  const densityScore  = typeof density  === 'number' ? density  : null;
+  const crownScore    = typeof crown    === 'number' ? crown    : null;
+  const hairlineScore = typeof hairline === 'number' ? hairline : null;
   const stage = String(result.stage || '').trim();
   const thinningPattern = String(result.thinningPattern || '').trim();
 
-  // Build score-aware stage hints for diffuse/female-pattern so the overlay color
-  // reflects actual severity rather than a generic "yellow/orange only" instruction.
-  // For NW1-NW7 the static MAP_STAGE_HINTS are anatomically accurate and are kept.
+  // Build score-aware stage hints for diffuse, female-pattern, NW2, and NW3v so
+  // the overlay color reflects within-stage severity rather than a one-size-fits-all
+  // static description. For NW1 and NW3–NW7 (excluding NW3v) the static MAP_STAGE_HINTS
+  // cover the full stage range without meaningful within-stage variation worth individualising.
   let stageHint;
   if (stage === 'diffuse') {
     // Severity tiers keyed to density score:
@@ -1103,6 +1105,32 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
     } else {
       // crownScore < 48 or unknown
       stageHint = 'Show LOW density (red/orange) along the central parting line and across the crown/vertex area — female-pattern thinning is severe (Ludwig III) for this user. Use red-orange concentrated along the central parting axis and vertex/crown region. Sides and frontal hairline MUST remain HIGH density (teal/green) even at this severity — female-pattern loss always spares the temporal hairline and lateral sides regardless of how severe the central crown thinning is. This contrast (red crown/parting vs. green temples/sides) is the defining visual of female-pattern loss.';
+    }
+  } else if (stage === 'NW2') {
+    // Temple recession severity tiers keyed to hairline score (typical NW2 range: 75–97).
+    //   early      (≥88): slight bilateral temple notching → subtle yellow at corners
+    //   moderate (75–87): defined angular recession → orange at both temple corners
+    //   pronounced (<75): deeper recession near NW3 boundary → red/orange at corners
+    if (hairlineScore !== null && hairlineScore >= 88) {
+      stageHint = 'Show HIGH density (green/teal) across crown, mid-scalp, and most of the frontal area. Place only subtle YELLOW patches at both temple corners where the M-shape recession is just beginning — this user\'s NW2 is early with slight bilateral temple notching. The yellow should look like light, patchy thinning at the outer temple angles only and should not extend toward the central hairline. Do NOT use orange or red outside the corner notches — crown and mid-scalp must remain teal/green.';
+    } else if (hairlineScore !== null && hairlineScore >= 75) {
+      stageHint = 'Show HIGH density (green/teal) across crown and mid-scalp. Place clear ORANGE patches at both temple recession zones following the contours of the M-shape angles — this user is mid-NW2 with defined bilateral temple recession. The orange concentrates at both frontal corners and does not bleed into the mid-scalp or crown. Do NOT use red; orange reflects moderate follicle miniaturization along the recession boundary.';
+    } else {
+      // hairlineScore < 75 or unknown
+      stageHint = 'Show HIGH density (green/teal) across crown and mid-scalp. Place RED/ORANGE patches at both temple recession zones — this user\'s NW2 recession is pronounced with deep angular notches at both frontal corners. The red/orange concentrates along the angular recession lines extending toward the mid-frontal area. Crown and mid-scalp must stay teal/green even though the temple recession is pronounced — the intact crown is what keeps this NW2 rather than NW3.';
+    }
+  } else if (stage === 'NW3v') {
+    // NW3v vertex thinning severity tiers keyed to crown score (typical NW3v range: 55–75).
+    //   early      (≥68): subtle vertex involvement → light orange at crown
+    //   moderate (52–67): clearly visible crown thinning from above → orange at vertex
+    //   pronounced  (<52): significant vertex loss, approaching NW4 severity → red/orange
+    if (crownScore !== null && crownScore >= 68) {
+      stageHint = 'Show LOW density (red/orange) at both temple recession zones. Also place LIGHT ORANGE patches at the vertex/crown area — this user\'s crown involvement is early (NW3v); the vertex is just starting to thin but coverage is still relatively reasonable. The crown orange should look softer than the temple zones to reflect the early crown stage. Mid-scalp between the temple and vertex zones should be MEDIUM density (yellow/orange).';
+    } else if (crownScore !== null && crownScore >= 52) {
+      stageHint = 'Show LOW density (red/orange) at both temple recession zones AND a clearly visible ORANGE zone at the vertex/crown area — this user\'s crown thinning is moderate NW3v. The crown orange should be similar in intensity to the temple zones, with scalp clearly visible through the vertex area. Mid-scalp between the temple and vertex zones should be MEDIUM density (yellow/orange).';
+    } else {
+      // crownScore < 52 or unknown
+      stageHint = 'Show LOW density (red/orange) at both temple recession zones AND a prominent ORANGE/RED zone at the vertex/crown area — this user\'s NW3v crown thinning is pronounced, approaching NW4 vertex severity. The vertex zone may be nearly as red as the temple recession areas, reflecting significant scalp visibility at the crown. Mid-scalp between the temple and vertex zones should be MEDIUM density (yellow/orange).';
     }
   } else {
     stageHint = MAP_STAGE_HINTS[stage] || null;
