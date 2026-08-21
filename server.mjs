@@ -102,6 +102,28 @@ const FEMALE_THINNING_ZONES_MAP = {
   total:   ['frontal', 'mid-scalp', 'crown', 'vertex'],
 };
 
+// Stage-correlated soft score bounds for hairline, density, and crown.
+// Applied server-side after GPT-4o output to catch calibration drift that
+// produces scores clearly inconsistent with the classified stage — e.g. an
+// NW1 user (no recession anywhere) receiving a hairline score of 60, or an
+// NW7 user (near-total loss) receiving a hairline of 55.
+// Format: [hairlineMin, hairlineMax, densityMin, densityMax, crownMin, crownMax]
+// Values = prompt guidance ranges ± 15 pts so only genuine outliers are corrected.
+// health and potential are NOT bounded: they depend on individual scalp condition
+// and treatment history, not stage anatomy, so model discretion is appropriate.
+const STAGE_SCORE_BOUNDS = {
+  NW1:           [75, 100,  73, 100,  75, 100],
+  NW2:           [60, 100,  65, 100,  72, 100],
+  NW3:           [40,  87,  50,  97,  67, 100],
+  NW3v:          [40,  87,  43,  93,  40,  90],
+  NW4:           [20,  70,  30,  83,  20,  73],
+  NW5:           [ 5,  53,  15,  67,   3,  55],
+  NW6:           [ 0,  40,   0,  50,   0,  35],
+  NW7:           [ 0,  33,   0,  40,   0,  27],
+  diffuse:       [50, 100,  20,  80,  17,  87],
+  'n/a (female)': [57, 100, 15,  93,   7, 100],
+};
+
 // ─── In-memory cache for AFTER-photo generation ──────────────────
 // gpt-image-2 takes 2-3 minutes per call. Many client retries are the
 // same photo (e.g. Safari's 60s fetch timeout cancels client-side but
@@ -2711,6 +2733,31 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           confidenceScore,
           scoredAt:            new Date().toISOString(),
         };
+        // Stage-score soft bounds: clamp hairline, density, and crown when GPT-4o
+        // returns values clearly outside the expected range for the classified stage.
+        // health and potential are left untouched — they vary per individual.
+        {
+          const _b = STAGE_SCORE_BOUNDS[stage];
+          if (_b) {
+            const [hlMin, hlMax, dMin, dMax, cMin, cMax] = _b;
+            const _bc = {};
+            if (data.hairline < hlMin || data.hairline > hlMax) {
+              _bc.hairline = { from: data.hairline, to: Math.max(hlMin, Math.min(hlMax, data.hairline)) };
+              data.hairline = _bc.hairline.to;
+            }
+            if (data.density < dMin || data.density > dMax) {
+              _bc.density = { from: data.density, to: Math.max(dMin, Math.min(dMax, data.density)) };
+              data.density = _bc.density.to;
+            }
+            if (data.crown < cMin || data.crown > cMax) {
+              _bc.crown = { from: data.crown, to: Math.max(cMin, Math.min(cMax, data.crown)) };
+              data.crown = _bc.crown.to;
+            }
+            if (Object.keys(_bc).length > 0) {
+              console.warn('[vision] stage-score bounds correction', { stage, corrections: _bc });
+            }
+          }
+        }
         // Include all 5 metrics in overall: hairline, density, crown, health, potential.
         data.overall = Math.round((data.hairline + data.density + data.crown + data.health + data.potential) / 5);
         // currentStateScore: average of the 4 present-tense metrics only (excludes potential,
