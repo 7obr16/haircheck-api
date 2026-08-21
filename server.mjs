@@ -1047,9 +1047,44 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
   const density = Number.isFinite(Number(result.density)) ? Math.round(Number(result.density)) : 'unknown';
   const crown = Number.isFinite(Number(result.crown)) ? Math.round(Number(result.crown)) : 'unknown';
   const hairline = Number.isFinite(Number(result.hairline)) ? Math.round(Number(result.hairline)) : 'unknown';
+  const densityScore = typeof density === 'number' ? density : null;
+  const crownScore   = typeof crown   === 'number' ? crown   : null;
   const stage = String(result.stage || '').trim();
   const thinningPattern = String(result.thinningPattern || '').trim();
-  const stageHint = MAP_STAGE_HINTS[stage] || null;
+
+  // Build score-aware stage hints for diffuse/female-pattern so the overlay color
+  // reflects actual severity rather than a generic "yellow/orange only" instruction.
+  // For NW1-NW7 the static MAP_STAGE_HINTS are anatomically accurate and are kept.
+  let stageHint;
+  if (stage === 'diffuse') {
+    // Severity tiers keyed to density score:
+    //   mild   (≥55): yellow/green-yellow — early diffuse; hairline intact
+    //   moderate (40-54): orange/yellow — moderate uniform thinning
+    //   severe  (<40): red/orange — severe diffuse; large scalp exposure
+    if (densityScore !== null && densityScore >= 55) {
+      stageHint = 'Show MEDIUM density (yellow and green-yellow) distributed uniformly across the entire scalp top and mid-scalp — diffuse thinning is early/mild for this user. The color should look more yellow-green than orange, reflecting that most follicles are still active. The hairline perimeter and temple geometry must remain teal/green because diffuse AGA and telogen effluvium preserve the hairline shape. Do NOT create any concentrated red patches — the defining visual of diffuse loss is uniform, low-grade thinning across the top, not focal bald zones.';
+    } else if (densityScore !== null && densityScore >= 40) {
+      stageHint = 'Show MEDIUM-to-LOW density (orange/yellow-orange) distributed uniformly across the entire scalp top and mid-scalp — diffuse thinning is moderate for this user. Use orange as the dominant heatmap tone with softer yellow at the periphery. The hairline perimeter and temple geometry must remain teal/green because diffuse AGA and TE always preserve the hairline shape. Keep the distribution uniform without concentrating color in any single zone — uniformity is the anatomical hallmark of diffuse loss.';
+    } else {
+      // densityScore < 40 or unknown (default to showing severity)
+      stageHint = 'Show LOW density (red/orange) distributed uniformly across the entire scalp top and mid-scalp — diffuse thinning is severe for this user. Use red-orange as the dominant heatmap tone spread evenly across the entire scalp top without concentrating in a focal zone. The hairline perimeter and temple geometry must remain teal/green because diffuse AGA and TE preserve the hairline shape even at severe density loss. The uniform red-orange across the top is what visually distinguishes severe diffuse loss from focal NW6/NW7 bald zones.';
+    }
+  } else if (stage === 'n/a (female)') {
+    // Ludwig severity tiers keyed to crown score (most affected zone in female-pattern):
+    //   Ludwig I (crown ≥70): mild central-part widening; green-yellow at parting
+    //   Ludwig II (crown 48-69): moderate crown/vertex thinning; orange/yellow
+    //   Ludwig III (crown <48): severe crown/vertex loss; red/orange
+    if (crownScore !== null && crownScore >= 70) {
+      stageHint = 'Show MEDIUM density (yellow/green-yellow) along the central parting line and at the crown/vertex — female-pattern thinning is mild (Ludwig I) for this user; the central part is slightly wider than normal but overall crown coverage is still good. Sides, frontal hairline, and temporal zones must show HIGH density (teal/green) — female-pattern loss always spares the temporal hairline regardless of severity. Do NOT use red; the parting-line color should read as yellow or yellow-green to reflect modest mild thinning.';
+    } else if (crownScore !== null && crownScore >= 48) {
+      stageHint = 'Show LOW-to-MEDIUM density (orange/yellow) along the central parting line and across the crown/vertex area — female-pattern thinning is moderate (Ludwig II) for this user. Concentrate orange along the central parting axis and at the vertex. Sides and frontal hairline must remain HIGH density (teal/green) — female-pattern loss always spares the temporal hairline and sides, regardless of central-part severity.';
+    } else {
+      // crownScore < 48 or unknown
+      stageHint = 'Show LOW density (red/orange) along the central parting line and across the crown/vertex area — female-pattern thinning is severe (Ludwig III) for this user. Use red-orange concentrated along the central parting axis and vertex/crown region. Sides and frontal hairline MUST remain HIGH density (teal/green) even at this severity — female-pattern loss always spares the temporal hairline and lateral sides regardless of how severe the central crown thinning is. This contrast (red crown/parting vs. green temples/sides) is the defining visual of female-pattern loss.';
+    }
+  } else {
+    stageHint = MAP_STAGE_HINTS[stage] || null;
+  }
 
   const isFemaleStage = stage === 'n/a (female)';
   const isDiffuseStage = stage === 'diffuse';
