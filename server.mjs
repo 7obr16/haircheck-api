@@ -4981,6 +4981,23 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // Computed server-side from stage + protocolCoverage so the iOS app can surface them
         // as suggestion chips without any extra API calls or client-side logic.
         data.coachSuggestedQuestions = buildSuggestedQuestions(stage, data.protocolCoverage, data.specialistRecommended);
+        // Stage-progression override: when a rescan shows the stage worsened since the prior
+        // scan, the most pressing question is always about the progression — what it means and
+        // what to do next. Replace the first suggested question with a progression-specific one
+        // so that slot surfaces the highest-urgency conversation starter. The second and third
+        // questions remain stage-calibrated so the user has immediate follow-up options.
+        // Only fires when previousStage is provided (i.e., a prior scan exists in the iOS app).
+        const _pqStageChange = computeStageChange(stage, previousStage);
+        if (_pqStageChange.stageDirection === 'progressed') {
+          const { topical: _pqTopical = false, rx: _pqRx = false, dhtShampoo: _pqDht = false, mechanical: _pqMech = false, supplements: _pqSupp = false } = data.protocolCoverage || {};
+          const _pqOnAnyTreatment = _pqTopical || _pqDht || _pqMech || _pqSupp || _pqRx;
+          const _pqProgressionQ = _pqRx
+            ? `My stage moved from ${previousStage} to ${stage} — what should I adjust in my treatment plan?`
+            : _pqOnAnyTreatment
+              ? `My stage progressed from ${previousStage} to ${stage} despite OTC treatment — should I add finasteride?`
+              : `My stage went from ${previousStage} to ${stage} — what treatment should I start immediately?`;
+          data.coachSuggestedQuestions = [_pqProgressionQ, ...data.coachSuggestedQuestions.slice(0, 2)];
+        }
 
         // suggestedAdviceVisuals: ordered list of up to 3 advice-visual kinds for the iOS
         // app to pre-fetch for the protocol card carousel. Derived from missing protocol
@@ -5025,7 +5042,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : '2 months';
         const _STAGE_CHECKIN_REASONS = {
           'NW1':  profile.routine.length > 0
-            ? `Prevention is active — rescan in ${_dayLabel} to confirm protection is holding; your current protocol is your best defense against early temple shifts`
+            ? `Your scalp is fully intact — rescan in ${_dayLabel} to confirm prevention is holding; subtle early temple shifts are easy to miss without a periodic baseline comparison`
             : `Your scalp is fully intact — now is the ideal time to start a protective protocol (DHT-blocking shampoo, scalp massage) before any change begins. Rescan in ${_dayLabel} to baseline your starting point`,
           'NW2':  profile.routine.length > 0
             ? `Early temple recession is highly responsive to treatment — rescan in ${_dayLabel} to catch the first density response before it's visible in the mirror`
