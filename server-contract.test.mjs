@@ -226,6 +226,14 @@ assert(
 );
 
 assert(
+  source.includes("_pqStageChange.stageDirection === 'improved'") &&
+    source.includes('is this real progress from my treatment or photo variability?') &&
+    source.includes('how do I know if my OTC routine caused this and how do I sustain it?') &&
+    source.includes("without treatment — what does this mean and should I start a protocol now?"),
+  'scan should override the first coachSuggestedQuestion with a stage-improvement question when a rescan shows the stage improved, symmetric to the existing stage-progression override'
+);
+
+assert(
   source.includes('NW3 mid-scalp density with finasteride + DHT shampoo + scalp massage covers the key anti-miniaturization layers') &&
     source.includes('Finasteride suppresses systemic DHT at NW3 — add a DHT-blocking shampoo 3× weekly') &&
     source.includes('NW3v density spans mid-scalp and early crown — your finasteride + DHT shampoo + scalp massage covers all three anti-miniaturization layers') &&

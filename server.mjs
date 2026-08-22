@@ -4997,6 +4997,19 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               ? `My stage progressed from ${previousStage} to ${stage} despite OTC treatment — should I add finasteride?`
               : `My stage went from ${previousStage} to ${stage} — what treatment should I start immediately?`;
           data.coachSuggestedQuestions = [_pqProgressionQ, ...data.coachSuggestedQuestions.slice(0, 2)];
+        } else if (_pqStageChange.stageDirection === 'improved') {
+          // Stage-improvement override: when a rescan shows the stage improved (e.g. NW3 → NW2),
+          // the user's most natural question is whether the improvement is real and how to sustain it.
+          // Replace the first suggested question with an improvement-specific one so the coach tab
+          // surfaces a celebration/validation question as the highest-priority conversation starter.
+          const { topical: _pqTopical = false, rx: _pqRx = false, dhtShampoo: _pqDht = false, mechanical: _pqMech = false, supplements: _pqSupp = false } = data.protocolCoverage || {};
+          const _pqOnAnyTreatment = _pqTopical || _pqDht || _pqMech || _pqSupp || _pqRx;
+          const _pqImprovementQ = _pqRx
+            ? `My stage improved from ${previousStage} to ${stage} — is this real progress from my treatment or photo variability?`
+            : _pqOnAnyTreatment
+              ? `My scan shows my stage improved from ${previousStage} to ${stage} — how do I know if my OTC routine caused this and how do I sustain it?`
+              : `My stage improved from ${previousStage} to ${stage} without treatment — what does this mean and should I start a protocol now?`;
+          data.coachSuggestedQuestions = [_pqImprovementQ, ...data.coachSuggestedQuestions.slice(0, 2)];
         }
 
         // suggestedAdviceVisuals: ordered list of up to 3 advice-visual kinds for the iOS
