@@ -1075,10 +1075,10 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
   const stage = String(result.stage || '').trim();
   const thinningPattern = String(result.thinningPattern || '').trim();
 
-  // Build score-aware stage hints for diffuse, female-pattern, NW2, NW3, NW3v, and NW4 so
-  // the overlay color reflects within-stage severity rather than a one-size-fits-all
-  // static description. For NW1 and NW5–NW7 the static MAP_STAGE_HINTS
-  // cover the full stage range without meaningful within-stage variation worth individualising.
+  // Build score-aware stage hints for diffuse, female-pattern, NW2, NW3, NW3v, NW4, NW5, and NW6
+  // so the overlay color reflects within-stage severity rather than a one-size-fits-all static
+  // description. For NW1 and NW7 the static MAP_STAGE_HINTS cover the full stage range without
+  // meaningful within-stage variation worth individualising.
   let stageHint;
   if (stage === 'diffuse') {
     // Severity tiers keyed to density score:
@@ -1151,6 +1151,26 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
     } else {
       // hairlineScore < 48 or unknown — significant frontal retreat, narrow bridge
       stageHint = 'Show LOW density (red) across the frontal hairline zone AND a separate LOW density (red/orange) zone at the crown/vertex. The band separating these zones is NARROW and sparse — show it as a thin stripe of orange/yellow that is visually nearly consumed by the two bald zones on either side. Lateral sides must remain HIGH density (teal/green). The two red zones should dominate the scalp top, with only a marginal separation remaining.';
+    }
+  } else if (stage === 'NW5') {
+    // Bridge visibility severity tiers keyed to hairline score (typical NW5 range: 20–38).
+    //   moderate (≥30): narrow but still-visible sparse bridge separates frontal and crown zones → dual red with orange bridge
+    //   severe   (<30): bridge nearly gone; scalp top approaching one continuous bald zone → near-merged red mass
+    if (hairlineScore !== null && hairlineScore >= 30) {
+      stageHint = 'Show LOW density (red) at both the frontal hairline zone AND the crown/vertex zone. Between them, place a narrow ORANGE/YELLOW strip representing the sparse bridge of remaining hair — this user\'s NW5 still shows a marginal hair bridge separating the two large bald zones, though it is visibly very sparse. The bridge strip should be clearly narrow but detectable — not strong green, but not fully red. Lateral fringe must show HIGH density (teal/green). The two red zones are dominant; the orange bridge occupies only a small fraction of the scalp top.';
+    } else {
+      // hairlineScore < 30 or unknown — bridge nearly absent, approaching NW6 merger
+      stageHint = 'Show LOW density (red) across the entire frontal and crown zones with almost no visible bridge between them — this user\'s NW5 is close to the NW6 boundary with an almost entirely continuous bald scalp top. Show only a very faint ORANGE sliver or no gap at all between the two large red zones. Lateral fringe must show HIGH density (teal/green). The scalp top should appear almost entirely red — this is the threshold appearance just short of full NW6 merger.';
+    }
+  } else if (stage === 'NW6') {
+    // Fringe coverage severity tiers keyed to density score (typical NW6 range: 12–35).
+    //   moderate (≥22): merged bald top with broader lateral fringe still well-defined → large red top, clear green fringe band
+    //   advanced  (<22): merged bald top with narrower, fading fringe → large red top, thin green fringe border only
+    if (densityScore !== null && densityScore >= 22) {
+      stageHint = 'Show LOW density (red) across the entire merged frontal-to-crown scalp top — the two zones have fully merged at NW6. The lateral sides and nape must show HIGH density (teal/green) representing the remaining fringe hair. For this user the lateral fringe is still reasonably well-defined — show the green fringe band extending a moderate distance up from the ears and along the sides. Do NOT place any red in the lateral fringe zones. The overall visual is a large red scalp top with a clear green border around the sides and back.';
+    } else {
+      // densityScore < 22 or unknown — advanced NW6 with thinner, narrower fringe
+      stageHint = 'Show LOW density (red) across the entire merged frontal-to-crown scalp top. At this severity level the lateral fringe is relatively thin and narrow — show it as a slender teal/green strip only at the very periphery of the sides and nape, not extending far up the sides. The overall visual is a mostly red scalp top with a narrow green border. Do NOT place any red in the fringe strip itself, but the fringe coverage is clearly limited.';
     }
   } else {
     stageHint = MAP_STAGE_HINTS[stage] || null;
