@@ -5005,11 +5005,21 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : '2 months';
         const _STAGE_CHECKIN_REASONS = {
           'NW1':  `Your scalp is fully intact — rescan in ${_dayLabel} to confirm prevention is holding; subtle early temple shifts are easy to miss without a periodic baseline comparison`,
-          'NW2':  `Early temple recession is highly responsive to treatment — rescan in ${_dayLabel} to catch the first density response before it's visible in the mirror`,
-          'NW3':  `Deep recession at NW3 responds strongly to a consistent protocol — rescan in ${_dayLabel} to see if the miniaturization edge is stabilizing`,
-          'NW3v': `Both active zones (temples and early crown) are in the treatment-response window — rescan in ${_dayLabel} to measure density progress across both active fronts`,
-          'NW4':  `Consistent multi-layer treatment at NW4 produces measurable results over 4-6 weeks — rescan in ${_dayLabel} to track stabilization across both the frontal and crown zones`,
-          'NW5':  `OTC treatment at NW5 primarily slows progression rather than reversing it — rescan in ${_dayLabel} to confirm the rate of change is stabilizing`,
+          'NW2':  profile.routine.length > 0
+            ? `Treatment is active — rescan in ${_dayLabel} to catch the first density response; early temple recession is the most responsive window and the first signs often appear before they're visible in the mirror`
+            : `NW2 is the highest-response window — start a consistent OTC protocol (topical minoxidil + DHT-blocking shampoo) before the window narrows, then rescan in ${_dayLabel} to baseline your starting point`,
+          'NW3':  profile.routine.length > 0
+            ? `Treatment is active — rescan in ${_dayLabel} to see if the miniaturization edge is stabilizing; deep NW3 recession responds strongly to a consistent protocol over the first few cycles`
+            : `NW3 is still in the active response window — every month without treatment narrows that window. Start a consistent protocol (minoxidil + DHT suppression) and rescan in ${_dayLabel} to capture your baseline`,
+          'NW3v': profile.routine.length > 0
+            ? `Treatment is active across both zones — rescan in ${_dayLabel} to measure density progress at the temples and early crown; dual-zone stages respond well when the protocol covers both areas`
+            : `Both active zones (temples and early crown) are in the treatment-response window — starting a full protocol now matters. Rescan in ${_dayLabel} once treatment is underway to baseline both zones`,
+          'NW4':  profile.routine.length > 0
+            ? `Treatment is active — rescan in ${_dayLabel} to track stabilization across both the frontal and crown zones; consistent multi-layer treatment at NW4 produces measurable results over 4-6 weeks`
+            : `NW4 still responds to consistent treatment — starting now slows further progression and sets the baseline. Rescan in ${_dayLabel} once treatment is started to track early stabilization`,
+          'NW5':  profile.routine.length > 0
+            ? `Treatment is active — rescan in ${_dayLabel} to confirm the rate of change is stabilizing; OTC at NW5 primarily slows progression, so the key metric is consistency over time`
+            : `NW5 responds mainly to slowing progression rather than reversal — starting OTC treatment (minoxidil) is still worthwhile. Rescan in ${_dayLabel} once started to capture your baseline`,
           'NW6':  `At NW6 the fringe and temporal edges are the last OTC-responsive zones — rescan in ${_dayLabel} to track fringe density and evaluate whether surgical planning is the right next move`,
           'NW7':  `At NW7 the horseshoe fringe is the priority — rescan in ${_dayLabel} to monitor fringe density and inform any surgical planning around your available donor reserve`,
           'diffuse':      profile.routine.length > 0
