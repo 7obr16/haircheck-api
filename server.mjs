@@ -1075,9 +1075,9 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
   const stage = String(result.stage || '').trim();
   const thinningPattern = String(result.thinningPattern || '').trim();
 
-  // Build score-aware stage hints for diffuse, female-pattern, NW2, and NW3v so
+  // Build score-aware stage hints for diffuse, female-pattern, NW2, NW3, NW3v, and NW4 so
   // the overlay color reflects within-stage severity rather than a one-size-fits-all
-  // static description. For NW1 and NW3–NW7 (excluding NW3v) the static MAP_STAGE_HINTS
+  // static description. For NW1 and NW5–NW7 the static MAP_STAGE_HINTS
   // cover the full stage range without meaningful within-stage variation worth individualising.
   let stageHint;
   if (stage === 'diffuse') {
@@ -1131,6 +1131,26 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
     } else {
       // crownScore < 52 or unknown
       stageHint = 'Show LOW density (red/orange) at both temple recession zones AND a prominent ORANGE/RED zone at the vertex/crown area — this user\'s NW3v crown thinning is pronounced, approaching NW4 vertex severity. The vertex zone may be nearly as red as the temple recession areas, reflecting significant scalp visibility at the crown. Mid-scalp between the temple and vertex zones should be MEDIUM density (yellow/orange).';
+    }
+  } else if (stage === 'NW3') {
+    // Temple recession severity tiers keyed to hairline score (typical NW3 range: 55–72).
+    //   moderate (≥65): defined bilateral recession but still within clear NW3 depth → orange
+    //   pronounced (<65): deep bilateral recession approaching NW4 boundary → red/orange
+    if (hairlineScore !== null && hairlineScore >= 65) {
+      stageHint = 'Show HIGH density (green/teal) across crown and mid-scalp. Place clear ORANGE patches at both temple recession zones extending past mid-pupil — this user\'s NW3 recession is moderate in depth. The orange concentrates along both angular temple zones and does not extend toward the crown or mid-scalp. Crown should stay teal/green — crown thinning would indicate NW3v, not plain NW3.';
+    } else {
+      // hairlineScore < 65 or unknown — deep NW3 recession approaching NW4
+      stageHint = 'Show HIGH density (green/teal) across crown and mid-scalp. Place RED/ORANGE patches at both deep temple recession zones — this user\'s NW3 recession is pronounced, with the recession line extending well past mid-pupil and approaching the NW4 depth boundary. The red/orange is concentrated at both angular temple zones; do NOT bleed it into the crown — the intact crown is what keeps this classified as NW3 rather than NW4. Mid-scalp should remain teal/green.';
+    }
+  } else if (stage === 'NW4') {
+    // Combined frontal + crown severity tiers keyed to hairline score (typical NW4 range: 35–55).
+    //   moderate (≥48): frontal retreat with visible band still separating zones → orange frontal + orange crown
+    //   pronounced (<48): significant retreat with narrow or nearly-gone band → red frontal + red/orange crown
+    if (hairlineScore !== null && hairlineScore >= 48) {
+      stageHint = 'Show LOW density (orange/red-orange) across the frontal hairline zone. Show a separate ORANGE zone at the crown/vertex. A MEDIUM density band (yellow-orange) connects the frontal and crown zones — this user\'s NW4 still has a visible hair bridge, though it is thinning. Lateral sides must remain HIGH density (teal/green). Do NOT fully merge the frontal and crown red zones — a bridge is still present at this score level.';
+    } else {
+      // hairlineScore < 48 or unknown — significant frontal retreat, narrow bridge
+      stageHint = 'Show LOW density (red) across the frontal hairline zone AND a separate LOW density (red/orange) zone at the crown/vertex. The band separating these zones is NARROW and sparse — show it as a thin stripe of orange/yellow that is visually nearly consumed by the two bald zones on either side. Lateral sides must remain HIGH density (teal/green). The two red zones should dominate the scalp top, with only a marginal separation remaining.';
     }
   } else {
     stageHint = MAP_STAGE_HINTS[stage] || null;
