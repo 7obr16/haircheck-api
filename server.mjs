@@ -5024,7 +5024,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : data.checkInIntervalDays === 42 ? '6 weeks'
           : '2 months';
         const _STAGE_CHECKIN_REASONS = {
-          'NW1':  `Your scalp is fully intact — rescan in ${_dayLabel} to confirm prevention is holding; subtle early temple shifts are easy to miss without a periodic baseline comparison`,
+          'NW1':  profile.routine.length > 0
+            ? `Prevention is active — rescan in ${_dayLabel} to confirm protection is holding; your current protocol is your best defense against early temple shifts`
+            : `Your scalp is fully intact — now is the ideal time to start a protective protocol (DHT-blocking shampoo, scalp massage) before any change begins. Rescan in ${_dayLabel} to baseline your starting point`,
           'NW2':  profile.routine.length > 0
             ? `Early temple recession is highly responsive to treatment — rescan in ${_dayLabel} to catch the first density response before it's visible in the mirror`
             : `NW2 is the highest-response window — start a consistent OTC protocol (topical minoxidil + DHT-blocking shampoo) before the window narrows, then rescan in ${_dayLabel} to baseline your starting point`,
@@ -5040,8 +5042,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           'NW5':  profile.routine.length > 0
             ? `OTC treatment at NW5 primarily slows progression rather than reversing it — rescan in ${_dayLabel} to confirm the rate of change is stabilizing`
             : `NW5 responds mainly to slowing progression rather than reversal — starting OTC treatment (minoxidil) is still worthwhile. Rescan in ${_dayLabel} once started to capture your baseline`,
-          'NW6':  `At NW6 the fringe and temporal edges are the last OTC-responsive zones — rescan in ${_dayLabel} to track fringe density and evaluate whether surgical planning is the right next move`,
-          'NW7':  `At NW7 the horseshoe fringe is the priority — rescan in ${_dayLabel} to monitor fringe density and inform any surgical planning around your available donor reserve`,
+          'NW6':  profile.routine.length > 0
+            ? `Your current protocol is maintaining the remaining fringe at NW6 — rescan in ${_dayLabel} to track fringe density and evaluate whether surgical planning is the right next move alongside your OTC routine`
+            : `At NW6 the fringe and temporal edges are the last OTC-responsive zones — starting minoxidil on the fringe now slows further loss. Rescan in ${_dayLabel} and consider a trichologist consultation alongside any OTC protocol`,
+          'NW7':  profile.routine.length > 0
+            ? `Your current protocol is maintaining the horseshoe fringe at NW7 — rescan in ${_dayLabel} to monitor fringe density and inform any surgical planning around your available donor reserve`
+            : `At NW7 the horseshoe fringe is the priority — starting OTC treatment (minoxidil on the fringe) helps maintain what remains. Rescan in ${_dayLabel} and book a surgical consultation to understand donor candidacy`,
           'diffuse':      profile.routine.length > 0
             ? `Treatment is active — rescan in ${_dayLabel} to measure response; diffuse thinning with a managed root cause often begins to stabilize within the first 1-2 check-in cycles`
             : `Identify the root cause first: book a workup (ferritin, thyroid, hormones) — rescan in ${_dayLabel} once treatment is started to measure initial response`,
