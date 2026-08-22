@@ -1172,6 +1172,16 @@ const buildAnalysisMapPrompt = (kind, result = {}) => {
       // densityScore < 22 or unknown — advanced NW6 with thinner, narrower fringe
       stageHint = 'Show LOW density (red) across the entire merged frontal-to-crown scalp top. At this severity level the lateral fringe is relatively thin and narrow — show it as a slender teal/green strip only at the very periphery of the sides and nape, not extending far up the sides. The overall visual is a mostly red scalp top with a narrow green border. Do NOT place any red in the fringe strip itself, but the fringe coverage is clearly limited.';
     }
+  } else if (stage === 'NW7') {
+    // Horseshoe fringe quality tiers keyed to density score (typical NW7 range: 8–25).
+    //   moderate (≥18): near-total scalp top loss with horseshoe fringe still relatively visible → large red top, narrow but clear green horseshoe
+    //   severe   (<18): near-total loss with very sparse/thinning fringe approaching total donor compromise → nearly all-red with barely-visible fringe
+    if (densityScore !== null && densityScore >= 18) {
+      stageHint = 'Show LOW density (red) across the entire scalp top — the frontal and crown zones are fully bare at NW7. The horseshoe fringe at the sides and nape must show HIGH density (teal/green) representing the remaining lateral and occipital donor hair — for this user the horseshoe fringe is still a relatively clear narrow band. Show the green horseshoe as a visible but narrow continuous strip along both sides and the back of the scalp. The large red scalp top dominates; the green horseshoe provides a clear but thin perimeter border. Do NOT place any red inside the horseshoe fringe zone.';
+    } else {
+      // densityScore < 18 or unknown — very sparse fringe, approaching total loss
+      stageHint = 'Show LOW density (red) across the entire scalp top. The horseshoe fringe is very sparse and thin at this severity level — show it as a very narrow, barely-visible sliver of yellow-green at the extreme periphery of the sides and nape only. The fringe should look patchy and thin, suggesting the donor zone itself is thinning. The overall visual should be nearly entirely red with only a faint teal-green hint at the very edges. Do NOT use bright teal for the fringe at this severity — the diminished fringe reads as yellow-green or pale teal, not solid green.';
+    }
   } else {
     stageHint = MAP_STAGE_HINTS[stage] || null;
   }
