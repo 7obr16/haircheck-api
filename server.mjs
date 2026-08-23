@@ -5199,6 +5199,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // surface "add scalp massage or microneedling" CTAs at the appropriate treatment stage.
           // Uses protocolCoverage.mechanical (computed above) which covers massage/microneedling/LLLT.
           noScalpStimulationAtActiveStage: (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3 && !data.protocolCoverage.mechanical,
+          // True when the user is at an active loss stage (NW2+) but has no DHT-blocking shampoo
+          // (ketoconazole, Nizoral, rosemary-oil shampoo, or equivalent) in their routine.
+          // Ketoconazole shampoo is the lowest-cost, most accessible OTC adjunct for AGA and is
+          // recommended as a base-layer complement to minoxidil from NW2 onward. Its anti-androgenic
+          // action at the follicle level adds meaningful DHT suppression when Rx is not yet in use,
+          // and amplifies minoxidil efficacy when used together. The iOS app uses this to surface
+          // "consider adding a DHT-blocking shampoo" CTAs alongside the minoxidil CTA at NW2+.
+          noDHTShampooAtActiveStage: (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.dhtShampoo,
         };
 
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null, reqId });

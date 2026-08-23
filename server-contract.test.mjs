@@ -2020,4 +2020,10 @@ assert(
   'riskFactorFlags should include noScalpStimulationAtActiveStage flag that fires at NW3+ when no scalp massage, microneedling, or LLLT is in the routine — allows iOS app to surface targeted mechanical-stimulation CTAs for established-AGA users missing this evidence-backed absorption-amplifying layer'
 );
 
+assert(
+  source.includes('noDHTShampooAtActiveStage') &&
+    source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.dhtShampoo'),
+  'riskFactorFlags should include noDHTShampooAtActiveStage flag that fires at NW2+ when no DHT-blocking shampoo (ketoconazole, Nizoral, rosemary-oil shampoo) is in the routine — allows iOS app to surface targeted DHT-shampoo CTAs for users at active loss stages missing this lowest-cost OTC adjunct layer'
+);
+
 console.log('server contract passed');
