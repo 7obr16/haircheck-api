@@ -5191,6 +5191,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // The iOS app uses this to surface "consider adding topical minoxidil" CTAs.
           // Uses protocolCoverage.topical (computed above) which maps to _hasMinoxidil detection.
           noMinoxidilAtActiveStage:      (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical,
+          // True when the user is at NW3+ (established or advanced AGA) but has no mechanical
+          // scalp stimulation in their routine — no scalp massage, microneedling, or LLLT device.
+          // Mechanical stimulation at NW3+ significantly amplifies minoxidil absorption (up to 3×
+          // increase in follicular uptake with microneedling) and is consistently listed as the
+          // highest-ROI addition when minoxidil is already in place. The iOS app uses this to
+          // surface "add scalp massage or microneedling" CTAs at the appropriate treatment stage.
+          // Uses protocolCoverage.mechanical (computed above) which covers massage/microneedling/LLLT.
+          noScalpStimulationAtActiveStage: (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3 && !data.protocolCoverage.mechanical,
         };
 
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null, reqId });

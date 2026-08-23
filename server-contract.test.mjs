@@ -2014,4 +2014,10 @@ assert(
   'riskFactorFlags should include noMinoxidilAtActiveStage flag that fires at NW2+ when no topical minoxidil is in the routine — allows iOS app to surface targeted minoxidil CTAs for users at active loss stages without topical treatment'
 );
 
+assert(
+  source.includes('noScalpStimulationAtActiveStage') &&
+    source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3 && !data.protocolCoverage.mechanical'),
+  'riskFactorFlags should include noScalpStimulationAtActiveStage flag that fires at NW3+ when no scalp massage, microneedling, or LLLT is in the routine — allows iOS app to surface targeted mechanical-stimulation CTAs for established-AGA users missing this evidence-backed absorption-amplifying layer'
+);
+
 console.log('server contract passed');
