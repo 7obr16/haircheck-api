@@ -109,8 +109,8 @@ const FEMALE_THINNING_ZONES_MAP = {
 // NW7 user (near-total loss) receiving a hairline of 55.
 // Format: [hairlineMin, hairlineMax, densityMin, densityMax, crownMin, crownMax]
 // Values = prompt guidance ranges ± 15 pts so only genuine outliers are corrected.
-// health and potential are NOT bounded: they depend on individual scalp condition
-// and treatment history, not stage anatomy, so model discretion is appropriate.
+// health is NOT bounded: it depends on individual scalp condition regardless of stage.
+// potential has its own POTENTIAL_STAGE_BOUNDS table below (stage-only, age-agnostic).
 const STAGE_SCORE_BOUNDS = {
   NW1:           [75, 100,  73, 100,  75, 100],
   NW2:           [60, 100,  65, 100,  72, 100],
@@ -122,6 +122,27 @@ const STAGE_SCORE_BOUNDS = {
   NW7:           [ 0,  33,   0,  40,   0,  27],
   diffuse:       [50, 100,  20,  80,  17,  87],
   'n/a (female)': [57, 100, 15,  93,   7, 100],
+};
+
+// Stage-correlated soft bounds for the potential score.
+// Unlike hairline/density/crown which are pure anatomy, potential is also
+// age- and routine-dependent. These bounds are intentionally wide (±25 from
+// the midpoint of the widest-age-bracket prompt range) so only genuine
+// calibration outliers are caught — e.g. an NW7 user with potential=82 or
+// an NW2 under-30 user with potential=18. Age-specific within-range variation
+// is handled by the GPT-4o prompt and is NOT corrected here.
+// Format: [potentialMin, potentialMax]
+const POTENTIAL_STAGE_BOUNDS = {
+  NW1:            [55, 100],  // prompt: 75-90; any-age; ±25 floor
+  NW2:            [40, 100],  // prompt: 65-92 across all ages; generous floor for older users
+  NW3:            [25, 100],  // prompt: 50-85 across all ages
+  NW3v:           [19,  99],  // prompt: 44-79 across all ages
+  NW4:            [17,  90],  // prompt: 42-70 across both age brackets
+  NW5:            [ 0,  68],  // prompt: 28-48; +20 ceiling headroom for Rx upward adjustments
+  NW6:            [ 0,  52],  // prompt: 15-32; generous ceiling for Rx combinations
+  NW7:            [ 0,  52],  // same as NW6
+  diffuse:        [23,  98],  // prompt: 48-78 across all ages; wide for TE upward adjustment
+  'n/a (female)': [20,  98],  // prompt: 45-78 (Ludwig I-III); wide for hormonal Rx upward adjustment
 };
 
 // ─── In-memory cache for AFTER-photo generation ──────────────────
@@ -2822,7 +2843,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         };
         // Stage-score soft bounds: clamp hairline, density, and crown when GPT-4o
         // returns values clearly outside the expected range for the classified stage.
-        // health and potential are left untouched — they vary per individual.
+        // health is left untouched — it depends on individual scalp condition.
+        // potential is corrected by POTENTIAL_STAGE_BOUNDS below (separate wide table).
         {
           const _b = STAGE_SCORE_BOUNDS[stage];
           if (_b) {
@@ -2842,6 +2864,21 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             }
             if (Object.keys(_bc).length > 0) {
               console.warn('[vision] stage-score bounds correction', { stage, corrections: _bc });
+            }
+          }
+        }
+        // Potential soft bounds: catch extreme outliers where potential is clearly
+        // wrong for the stage (e.g. NW7 user with potential=82, NW2 with potential=15).
+        // Bounds are wide (±25 from the midpoint of the widest age bracket) so valid
+        // age-specific variation and Rx upward adjustments are never clipped.
+        {
+          const _pb = POTENTIAL_STAGE_BOUNDS[stage];
+          if (_pb) {
+            const [pMin, pMax] = _pb;
+            if (data.potential < pMin || data.potential > pMax) {
+              const _corrected = Math.max(pMin, Math.min(pMax, data.potential));
+              console.warn('[vision] potential bounds correction', { stage, from: data.potential, to: _corrected });
+              data.potential = _corrected;
             }
           }
         }
