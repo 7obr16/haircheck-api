@@ -2000,4 +2000,12 @@ assert(
   'nextCheckInReason for diffuse and n/a (female) should be routine-aware: users with an active routine get a "treatment is active — measure response" message; users without a routine get the workup-first message'
 );
 
+assert(
+  source.includes('noAntiandrogenAtModerateStage') &&
+    source.includes('finasteride|dutasteride|propecia|proscar|avodart|spironolactone') &&
+    source.includes('bicalutamide|flutamide|cyproterone|androcur') &&
+    source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3 && !_hasAntiandrogen'),
+  'riskFactorFlags should include noAntiandrogenAtModerateStage flag that fires at NW3+/diffuse/female when no antiandrogen is in the routine — allows iOS app to surface targeted antiandrogen CTAs without parsing treatment text'
+);
+
 console.log('server contract passed');

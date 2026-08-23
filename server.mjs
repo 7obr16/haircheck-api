@@ -5172,12 +5172,19 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // riskFactorFlags: structured boolean signals the iOS app can use to surface
         // contextual alerts or CTAs (e.g. "early onset detected") without parsing text.
         // All flags are server-side derived — never sent to GPT-4o or included in prompts.
+        const _hasAntiandrogen = profile.routine.some(r =>
+          /finasteride|dutasteride|propecia|proscar|avodart|spironolactone|\bspiro\b|bicalutamide|flutamide|cyproterone|androcur/i.test(r)
+        );
         data.riskFactorFlags = {
-          earlyOnset:            profile.age !== null && profile.age < 30 && (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3,
-          familyHistoryHighRisk: profile.family.some(f => /NW[567]|advanced|total|severe|complete/i.test(f)),
-          highStress:            profile.lifestyle.stress !== null && profile.lifestyle.stress >= 7,
-          poorSleep:             profile.lifestyle.sleep  !== null && profile.lifestyle.sleep  <= 5,
-          untreated:             profile.routine.length === 0 && (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2,
+          earlyOnset:                    profile.age !== null && profile.age < 30 && (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3,
+          familyHistoryHighRisk:         profile.family.some(f => /NW[567]|advanced|total|severe|complete/i.test(f)),
+          highStress:                    profile.lifestyle.stress !== null && profile.lifestyle.stress >= 7,
+          poorSleep:                     profile.lifestyle.sleep  !== null && profile.lifestyle.sleep  <= 5,
+          untreated:                     profile.routine.length === 0 && (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2,
+          // True when the user is at a stage where antiandrogens (finasteride, dutasteride,
+          // spironolactone, etc.) provide the most clinical benefit but none is in their routine.
+          // The iOS app uses this to surface "consider adding an antiandrogen" CTAs at NW3+/diffuse/female.
+          noAntiandrogenAtModerateStage: (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3 && !_hasAntiandrogen,
         };
 
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null, reqId });
