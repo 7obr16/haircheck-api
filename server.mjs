@@ -5086,6 +5086,38 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               ? `My scan shows my stage improved from ${previousStage} to ${stage} — how do I know if my OTC routine caused this and how do I sustain it?`
               : `My stage improved from ${previousStage} to ${stage} without treatment — what does this mean and should I start a protocol now?`;
           data.coachSuggestedQuestions = [_pqImprovementQ, ...data.coachSuggestedQuestions.slice(0, 2)];
+        } else {
+          // No stage-direction override active (first scan, stable stage, or no previousStage).
+          // Replace slot 2 with a risk-profile-aware question when a high-priority lifestyle or
+          // genetic risk factor is present — makes suggestion chips more targeted to the user's
+          // specific situation rather than generic stage + routine combos.
+          // Priority: highStress / poorSleep (reversible, highest urgency) → earlyOnset → familyHistoryHighRisk.
+          const _rff = data.riskFactorFlags;
+          const _stressRelevantStages = new Set(['diffuse', 'n/a (female)', 'NW3', 'NW3v', 'NW4', 'NW5']);
+          if (_rff?.highStress && _stressRelevantStages.has(stage)) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'My stress is very high right now — could this be worsening my hair loss, and what can I do about it?',
+            ];
+          } else if (_rff?.poorSleep && _stressRelevantStages.has(stage)) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'I only get about 5 hours of sleep a night — how much could poor sleep be accelerating my hair loss?',
+            ];
+          } else if (_rff?.earlyOnset) {
+            const _eoAge = typeof profile.age === 'number' ? profile.age : null;
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              _eoAge
+                ? `I'm ${_eoAge} and already at ${stage} — does early onset mean faster progression and a more aggressive protocol?`
+                : `I started losing hair at a young age — does early onset mean faster progression?`,
+            ];
+          } else if (_rff?.familyHistoryHighRisk) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'My family history includes advanced hair loss — how much extra urgency should this add to my treatment plan?',
+            ];
+          }
         }
 
         // suggestedAdviceVisuals: ordered list of up to 3 advice-visual kinds for the iOS
