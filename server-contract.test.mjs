@@ -2008,4 +2008,10 @@ assert(
   'riskFactorFlags should include noAntiandrogenAtModerateStage flag that fires at NW3+/diffuse/female when no antiandrogen is in the routine — allows iOS app to surface targeted antiandrogen CTAs without parsing treatment text'
 );
 
+assert(
+  source.includes('noMinoxidilAtActiveStage') &&
+    source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical'),
+  'riskFactorFlags should include noMinoxidilAtActiveStage flag that fires at NW2+ when no topical minoxidil is in the routine — allows iOS app to surface targeted minoxidil CTAs for users at active loss stages without topical treatment'
+);
+
 console.log('server contract passed');

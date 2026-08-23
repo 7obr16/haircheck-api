@@ -5185,6 +5185,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // spironolactone, etc.) provide the most clinical benefit but none is in their routine.
           // The iOS app uses this to surface "consider adding an antiandrogen" CTAs at NW3+/diffuse/female.
           noAntiandrogenAtModerateStage: (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3 && !_hasAntiandrogen,
+          // True when the user is at an active loss stage (NW2+) but no topical minoxidil or
+          // equivalent vasodilator is in their routine. Minoxidil is the most evidence-backed OTC
+          // treatment for AGA and is first-line at NW2+; absence is a clear actionable gap.
+          // The iOS app uses this to surface "consider adding topical minoxidil" CTAs.
+          // Uses protocolCoverage.topical (computed above) which maps to _hasMinoxidil detection.
+          noMinoxidilAtActiveStage:      (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical,
         };
 
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null, reqId });
