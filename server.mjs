@@ -332,6 +332,9 @@ const PORT = Number(process.env.PORT || 4322);
 const SERVE_STATIC = process.env.SERVE_STATIC === '1';
 const staticRoot = join(here, '..');
 const MAX_BODY_BYTES = Number(process.env.MAX_BODY_BYTES || 14 * 1024 * 1024);
+// Decoded image buffer ceiling — prevents oversized uploads from exhausting Railway RAM
+// and wasting OpenAI vision tokens. iOS HEIC→JPEG photos are typically 1–4 MB.
+const MAX_PHOTO_BYTES = Number(process.env.MAX_PHOTO_BYTES || 8 * 1024 * 1024);
 const RATE_LIMIT_WINDOW_MS = Number(process.env.RATE_LIMIT_WINDOW_MS || 60 * 1000);
 const RATE_LIMIT_MAX = Number(process.env.RATE_LIMIT_MAX || 18);
 const ALLOWED_ORIGINS = new Set([
@@ -1747,6 +1750,12 @@ const dataUrlToBuffer = (dataUrl) => {
     throw err;
   }
   const buffer = Buffer.from(m[2], 'base64');
+
+  if (buffer.length > MAX_PHOTO_BYTES) {
+    const err = new Error(`Photo too large (${Math.round(buffer.length / 1024 / 1024 * 10) / 10} MB). Please resize below ${Math.round(MAX_PHOTO_BYTES / 1024 / 1024)} MB and try again.`);
+    err.statusCode = 413;
+    throw err;
+  }
 
   // Validate magic bytes — catches corrupted uploads and MIME type mismatches
   // before they cause confusing errors from OpenAI.
