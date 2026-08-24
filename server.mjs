@@ -5270,6 +5270,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // and amplifies minoxidil efficacy when used together. The iOS app uses this to surface
           // "consider adding a DHT-blocking shampoo" CTAs alongside the minoxidil CTA at NW2+.
           noDHTShampooAtActiveStage: (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.dhtShampoo,
+          // True when the user is at an active loss stage (NW2+) but has no nutritional supplements
+          // (biotin, zinc, vitamin D, saw palmetto, Nutrafol, etc.) in their routine.
+          // Supplements are the lowest-barrier foundational layer alongside DHT shampoo —
+          // accessible OTC, no prescription needed, and consistently recommended as nutritional
+          // follicle support at every stage of AGA. The iOS app uses this to surface
+          // "consider adding a hair supplement" CTAs for users missing this layer entirely.
+          noSupplementsAtActiveStage: (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.supplements,
         };
 
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null, reqId });

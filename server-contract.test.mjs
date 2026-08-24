@@ -2027,6 +2027,12 @@ assert(
 );
 
 assert(
+  source.includes('noSupplementsAtActiveStage') &&
+    source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.supplements'),
+  'riskFactorFlags should include noSupplementsAtActiveStage flag that fires at NW2+ when no nutritional supplements (biotin, zinc, vitamin D, saw palmetto, Nutrafol, etc.) are in the routine — allows iOS app to surface targeted supplement CTAs for users at active loss stages missing this lowest-barrier foundational nutritional layer'
+);
+
+assert(
   source.includes("_rff?.untreated") &&
     source.includes("haven't started any treatment yet") &&
     source.includes('Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk'),
