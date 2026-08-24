@@ -2035,7 +2035,8 @@ assert(
 assert(
   source.includes("_rff?.untreated") &&
     source.includes("haven't started any treatment yet") &&
-    source.includes('Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk → noAntiandrogenAtModerateStage (OTC-only at NW3+, Rx upgrade opportunity)'),
+    source.includes('Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk →') &&
+    source.includes('noAntiandrogenAtModerateStage'),
   'slot-2 coach question override should handle the untreated riskFactorFlag — when a user at NW2+ has no treatment at all, the third suggested question chip should ask where to start, surfaced between poorSleep and earlyOnset in priority order'
 );
 

@@ -5117,7 +5117,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // Replace slot 2 with a risk-profile-aware question when a high-priority lifestyle or
           // genetic risk factor is present — makes suggestion chips more targeted to the user's
           // specific situation rather than generic stage + routine combos.
-          // Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk → noAntiandrogenAtModerateStage (OTC-only at NW3+, Rx upgrade opportunity).
+          // Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk → noMinoxidilAtActiveStage (most important missing OTC layer) → noAntiandrogenAtModerateStage (OTC-only at NW3+, Rx upgrade opportunity) → noDHTShampooAtActiveStage → noScalpStimulationAtActiveStage → noSupplementsAtActiveStage.
           const _rff = data.riskFactorFlags;
           const _stressRelevantStages = new Set(['diffuse', 'n/a (female)', 'NW3', 'NW3v', 'NW4', 'NW5']);
           if (_rff?.highStress && _stressRelevantStages.has(stage)) {
@@ -5148,10 +5148,30 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               ...data.coachSuggestedQuestions.slice(0, 2),
               'My family history includes advanced hair loss — how much extra urgency should this add to my treatment plan?',
             ];
+          } else if (_rff?.noMinoxidilAtActiveStage) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              `I'm at ${stage} without topical minoxidil in my routine — should I add it, and what results can I realistically expect?`,
+            ];
           } else if (_rff?.noAntiandrogenAtModerateStage) {
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
               `I'm at ${stage} on OTC treatment — is it time to talk to a doctor about finasteride or dutasteride?`,
+            ];
+          } else if (_rff?.noDHTShampooAtActiveStage) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              `I'm at ${stage} without a DHT-blocking shampoo — how much could adding ketoconazole or a rosemary-oil shampoo help?`,
+            ];
+          } else if (_rff?.noScalpStimulationAtActiveStage) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              `I'm at ${stage} without scalp massage or microneedling — how much could adding mechanical stimulation improve my results?`,
+            ];
+          } else if (_rff?.noSupplementsAtActiveStage) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              `I'm at ${stage} without any hair supplements — which ones have the best evidence for my situation?`,
             ];
           }
         }
