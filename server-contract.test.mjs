@@ -2035,8 +2035,14 @@ assert(
 assert(
   source.includes("_rff?.untreated") &&
     source.includes("haven't started any treatment yet") &&
-    source.includes('Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk'),
+    source.includes('Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk → noAntiandrogenAtModerateStage (OTC-only at NW3+, Rx upgrade opportunity)'),
   'slot-2 coach question override should handle the untreated riskFactorFlag — when a user at NW2+ has no treatment at all, the third suggested question chip should ask where to start, surfaced between poorSleep and earlyOnset in priority order'
+);
+
+assert(
+  source.includes("_rff?.noAntiandrogenAtModerateStage") &&
+    source.includes("OTC treatment — is it time to talk to a doctor about finasteride or dutasteride"),
+  'slot-2 coach question override should surface an Rx-upgrade question chip for users at NW3+ on OTC-only protocols (noAntiandrogenAtModerateStage flag set) — guides users toward a doctor consultation at the clinically appropriate threshold'
 );
 
 assert(

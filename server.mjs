@@ -5117,7 +5117,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // Replace slot 2 with a risk-profile-aware question when a high-priority lifestyle or
           // genetic risk factor is present — makes suggestion chips more targeted to the user's
           // specific situation rather than generic stage + routine combos.
-          // Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk.
+          // Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk → noAntiandrogenAtModerateStage (OTC-only at NW3+, Rx upgrade opportunity).
           const _rff = data.riskFactorFlags;
           const _stressRelevantStages = new Set(['diffuse', 'n/a (female)', 'NW3', 'NW3v', 'NW4', 'NW5']);
           if (_rff?.highStress && _stressRelevantStages.has(stage)) {
@@ -5147,6 +5147,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
               'My family history includes advanced hair loss — how much extra urgency should this add to my treatment plan?',
+            ];
+          } else if (_rff?.noAntiandrogenAtModerateStage) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              `I'm at ${stage} on OTC treatment — is it time to talk to a doctor about finasteride or dutasteride?`,
             ];
           }
         }
