@@ -1960,7 +1960,33 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && reqPath === '/api/version') {
-    json(req, res, 200, { sha: GIT_SHA, requestId: reqId });
+    // Enriched deploy metadata: lets operators / the iOS app correlate a live pod
+    // to a specific commit + Railway deployment without opening the dashboard.
+    // Fields are additive — sha and requestId are the historical shape and are
+    // preserved verbatim so any existing client continues to parse cleanly.
+    const railwayEnv        = process.env.RAILWAY_ENVIRONMENT_NAME    || null;
+    const railwayService    = process.env.RAILWAY_SERVICE_NAME        || null;
+    const railwayDeployment = process.env.RAILWAY_DEPLOYMENT_ID       || null;
+    const railwayBranch     = process.env.RAILWAY_GIT_BRANCH          || null;
+    const railwayCommitMsg  = process.env.RAILWAY_GIT_COMMIT_MESSAGE  || null;
+    const railwayCommitFull = process.env.RAILWAY_GIT_COMMIT_SHA      || null;
+    json(req, res, 200, {
+      sha: GIT_SHA,
+      shaFull: railwayCommitFull,
+      nodeVersion: process.version,
+      startedAt: new Date(SERVER_START_MS).toISOString(),
+      uptimeSeconds: Math.floor((Date.now() - SERVER_START_MS) / 1000),
+      ...(railwayEnv || railwayService || railwayDeployment || railwayBranch || railwayCommitMsg
+          ? { railway: {
+                environment:   railwayEnv,
+                service:       railwayService,
+                deploymentId:  railwayDeployment,
+                branch:        railwayBranch,
+                commitMessage: railwayCommitMsg,
+              } }
+          : {}),
+      requestId: reqId,
+    });
     return;
   }
 

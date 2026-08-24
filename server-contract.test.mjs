@@ -2033,4 +2033,14 @@ assert(
   'slot-2 coach question override should handle the untreated riskFactorFlag — when a user at NW2+ has no treatment at all, the third suggested question chip should ask where to start, surfaced between poorSleep and earlyOnset in priority order'
 );
 
+assert(
+  source.includes("reqPath === '/api/version'") &&
+    source.includes('nodeVersion: process.version') &&
+    source.includes('startedAt: new Date(SERVER_START_MS).toISOString()') &&
+    source.includes("RAILWAY_DEPLOYMENT_ID") &&
+    source.includes("RAILWAY_GIT_BRANCH") &&
+    source.includes("RAILWAY_GIT_COMMIT_MESSAGE"),
+  '/api/version should return enriched deploy metadata (nodeVersion, startedAt, uptimeSeconds, and Railway deploymentId/branch/commitMessage when available) so a live pod can be correlated to a specific deploy without the Railway dashboard'
+);
+
 console.log('server contract passed');
