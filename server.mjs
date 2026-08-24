@@ -5261,7 +5261,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // contextual alerts or CTAs (e.g. "early onset detected") without parsing text.
         // All flags are server-side derived — never sent to GPT-4o or included in prompts.
         const _hasAntiandrogen = profile.routine.some(r =>
-          /finasteride|dutasteride|propecia|proscar|avodart|spironolactone|\bspiro\b|bicalutamide|flutamide|cyproterone|androcur/i.test(r)
+          /finasteride|dutasteride|propecia|proscar|avodart|spironolactone|aldactone|\bspiro\b|bicalutamide|flutamide|cyproterone|androcur|casodex|clascoterone|winlevi/i.test(r)
         );
         data.riskFactorFlags = {
           earlyOnset:                    profile.age !== null && profile.age < 30 && (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3,

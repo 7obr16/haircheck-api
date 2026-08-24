@@ -2004,8 +2004,11 @@ assert(
   source.includes('noAntiandrogenAtModerateStage') &&
     source.includes('finasteride|dutasteride|propecia|proscar|avodart|spironolactone') &&
     source.includes('bicalutamide|flutamide|cyproterone|androcur') &&
+    source.includes('clascoterone|winlevi') &&
+    source.includes('aldactone') &&
+    source.includes('casodex') &&
     source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3 && !_hasAntiandrogen'),
-  'riskFactorFlags should include noAntiandrogenAtModerateStage flag that fires at NW3+/diffuse/female when no antiandrogen is in the routine — allows iOS app to surface targeted antiandrogen CTAs without parsing treatment text'
+  'riskFactorFlags should include noAntiandrogenAtModerateStage flag that fires at NW3+/diffuse/female when no antiandrogen is in the routine — allows iOS app to surface targeted antiandrogen CTAs without parsing treatment text; _hasAntiandrogen must detect brand names aldactone (spironolactone), casodex (bicalutamide), and clascoterone/winlevi (Winlevi) so users on these Rx drugs do not incorrectly receive the noAntiandrogenAtModerateStage flag'
 );
 
 assert(
