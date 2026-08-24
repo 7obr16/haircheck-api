@@ -5406,6 +5406,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           potentialDelta:        typeof userContext.result.potentialDelta === 'number' ? userContext.result.potentialDelta : null,
           stageChanged:          userContext.result.stageChanged ?? null,
           stageDirection:        userContext.result.stageDirection || null,
+          riskFactorFlags:       userContext.result.riskFactorFlags && typeof userContext.result.riskFactorFlags === 'object' ? { ...userContext.result.riskFactorFlags } : null,
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine.slice(0, 20).map((s) => String(s ?? '').slice(0, 80)) : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -5854,9 +5855,39 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       // Uses scan-time protocolCoverage for consistency with the scan's chip set.
       // The protocolStatusLine in the system prompt uses coachProtocolCoverage (fresher) for
       // actual coach responses; chips use ctx.scan.protocolCoverage to match the scan's chip set.
-      const suggestedFollowUps = ctx.scan?.stage
+      // suggestedFollowUps: context-aware chips after a coach conversation.
+      // Applies the same riskFactorFlags slot-2 overrides as the scan's coachSuggestedQuestions
+      // so chips stay targeted to the user's specific risk profile rather than reverting to
+      // generic stage + protocol combos between coach turns.
+      let suggestedFollowUps = ctx.scan?.stage
         ? buildSuggestedQuestions(ctx.scan.stage, ctx.scan.protocolCoverage, ctx.scan.specialistRecommended)
         : null;
+      if (suggestedFollowUps && ctx.scan?.riskFactorFlags) {
+        const _rff = ctx.scan.riskFactorFlags;
+        const _fstage = ctx.scan.stage;
+        const _stressFollowUpStages = new Set(['diffuse', 'n/a (female)', 'NW3', 'NW3v', 'NW4', 'NW5']);
+        if (_rff.highStress && _stressFollowUpStages.has(_fstage)) {
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'My stress is very high right now — could this be worsening my hair loss, and what can I do about it?'];
+        } else if (_rff.poorSleep && _stressFollowUpStages.has(_fstage)) {
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'I only get about 5 hours of sleep a night — how much could poor sleep be accelerating my hair loss?'];
+        } else if (_rff.untreated) {
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} and haven't started any treatment yet — what should I begin with right now?`];
+        } else if (_rff.earlyOnset) {
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I started losing hair at a young age — does early onset mean faster progression?`];
+        } else if (_rff.familyHistoryHighRisk) {
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'My family history includes advanced hair loss — how much extra urgency should this add to my treatment plan?'];
+        } else if (_rff.noMinoxidilAtActiveStage) {
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} without topical minoxidil in my routine — should I add it, and what results can I realistically expect?`];
+        } else if (_rff.noAntiandrogenAtModerateStage) {
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} on OTC treatment — is it time to talk to a doctor about finasteride or dutasteride?`];
+        } else if (_rff.noDHTShampooAtActiveStage) {
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} without a DHT-blocking shampoo — how much could adding ketoconazole or a rosemary-oil shampoo help?`];
+        } else if (_rff.noScalpStimulationAtActiveStage) {
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} without scalp massage or microneedling — how much could adding mechanical stimulation improve my results?`];
+        } else if (_rff.noSupplementsAtActiveStage) {
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} without any hair supplements — which ones have the best evidence for my situation?`];
+        }
+      }
       json(req, res, 200, { reply, truncated: coachTruncated, suggestedFollowUps, requestId: reqId });
     } catch (err) {
       bumpError(METRICS.coach, err.statusCode || 500, err.message);
