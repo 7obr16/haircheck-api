@@ -5091,7 +5091,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // Replace slot 2 with a risk-profile-aware question when a high-priority lifestyle or
           // genetic risk factor is present — makes suggestion chips more targeted to the user's
           // specific situation rather than generic stage + routine combos.
-          // Priority: highStress / poorSleep (reversible, highest urgency) → earlyOnset → familyHistoryHighRisk.
+          // Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk.
           const _rff = data.riskFactorFlags;
           const _stressRelevantStages = new Set(['diffuse', 'n/a (female)', 'NW3', 'NW3v', 'NW4', 'NW5']);
           if (_rff?.highStress && _stressRelevantStages.has(stage)) {
@@ -5103,6 +5103,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
               'I only get about 5 hours of sleep a night — how much could poor sleep be accelerating my hair loss?',
+            ];
+          } else if (_rff?.untreated) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              `I'm at ${stage} and haven't started any treatment yet — what should I begin with right now?`,
             ];
           } else if (_rff?.earlyOnset) {
             const _eoAge = typeof profile.age === 'number' ? profile.age : null;

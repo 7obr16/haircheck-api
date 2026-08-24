@@ -2026,4 +2026,11 @@ assert(
   'riskFactorFlags should include noDHTShampooAtActiveStage flag that fires at NW2+ when no DHT-blocking shampoo (ketoconazole, Nizoral, rosemary-oil shampoo) is in the routine — allows iOS app to surface targeted DHT-shampoo CTAs for users at active loss stages missing this lowest-cost OTC adjunct layer'
 );
 
+assert(
+  source.includes("_rff?.untreated") &&
+    source.includes("haven't started any treatment yet") &&
+    source.includes('Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk'),
+  'slot-2 coach question override should handle the untreated riskFactorFlag — when a user at NW2+ has no treatment at all, the third suggested question chip should ask where to start, surfaced between poorSleep and earlyOnset in priority order'
+);
+
 console.log('server contract passed');
