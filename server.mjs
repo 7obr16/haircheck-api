@@ -2803,6 +2803,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // both fixes operate on the same array without conflicting.
         {
           const _isFemaleStage = String(parsed.stage || '').trim() === 'n/a (female)';
+          const _isDiffuseStage = String(parsed.stage || '').trim() === 'diffuse';
           const _allMetrics = ['Hairline', 'Density', 'Crown', 'Health', 'Potential'];
           const _usedMetrics = new Set(rawInsights.map((ins) => ins.metric));
           if (_usedMetrics.size < rawInsights.length) {
@@ -2814,8 +2815,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 const _tgt = _uncovered[_uncovIdx++];
                 // Female-pattern loss spares the temples — override the generic Hairline fallback
                 // which incorrectly references temple recession zones.
+                // Diffuse thinning also preserves the hairline — override for the same reason.
                 const _stageFallback = (_isFemaleStage && _tgt === 'Hairline')
                   ? { title: 'Preserve frontal density', body: 'Apply minoxidil along the central part and crown twice daily — female-pattern loss targets the parting and vertex, not temples; this is the highest-ROI topical step.', metric: 'Hairline' }
+                  : (_isDiffuseStage && _tgt === 'Hairline')
+                    ? { title: 'Support uniform scalp density', body: 'Apply minoxidil broadly across the entire scalp top twice daily — diffuse thinning preserves the hairline but reduces density uniformly; broad coverage is more effective than targeting temples.', metric: 'Hairline' }
                   : STATIC_METRIC_FALLBACKS[_tgt];
                 rawInsights[_i] = _stageFallback ?? rawInsights[_i];
                 _usedMetrics.add(_tgt);
@@ -2956,6 +2960,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               ? { title: 'Protect the remaining fringe',   body: `At ${data.stage} with hairline at ${data.hairline}/100, finasteride protects the lateral fringe from further loss — pair it with a transplant consultation this quarter to plan the most realistic path to coverage.`,                                                                                             metric: 'Hairline' }
               : data.stage === 'n/a (female)'
                 ? { title: 'Protect frontal hair density', body: `Apply minoxidil to the central part and frontal zone twice daily — at ${data.hairline}/100, protecting frontal density is the highest-ROI hairline focus; female-pattern loss can thin the frontal zone at Ludwig III.`,                                                                                      metric: 'Hairline' }
+              : data.stage === 'diffuse'
+                ? { title: 'Support uniform scalp density', body: `Apply minoxidil across the entire scalp top twice daily — at ${data.hairline}/100 with diffuse thinning, broad coverage is the highest-ROI topical step; diffuse loss preserves the hairline but thins uniformly, so targeting temples is less effective than full-scalp application.`,                     metric: 'Hairline' }
                 : { title: 'Target recession zones',       body: `Apply minoxidil twice daily to both temple recession zones — at ${data.hairline}/100, hairline is your highest-ROI focus and the treatment response window is open.`,                                                                                                                                        metric: 'Hairline' },
             Density: _isAdvancedForFallback
               ? { title: 'Defend lateral hair density',    body: `At ${data.stage} with density at ${data.density}/100, apply minoxidil along the fringe and temporal edges twice daily to protect remaining density — book a transplant consultation to build a realistic full-coverage strategy alongside your OTC routine.`,                                                      metric: 'Density'  }
