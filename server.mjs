@@ -5692,6 +5692,24 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         }
         return `- Protocol layers — ACTIVE: ${active.join(', ') || 'none'}; NOT STARTED: ${missing.join(', ') || 'none'} — when the user asks what to add next, which layer is missing, or how complete their protocol is, use this structured breakdown; never re-suggest an ACTIVE layer. For supplements listed as ACTIVE, reference the specific product shown in parentheses when giving optimization advice rather than defaulting to generic "biotin/zinc/vitamin D".`;
       })();
+
+      // Synthesize active non-protocol riskFactorFlags into a single coach context line.
+      // Mirrors protocolStatusLine: pre-computes clinical conclusions the coach would otherwise
+      // have to infer from scattered raw fields (age, stress, family history).
+      // Protocol-related flags (noMinoxidil, noAntiandrogen, etc.) are already covered by
+      // protocolStatusLine and excluded here to avoid duplication.
+      const riskAlertLine = (() => {
+        const rff = ctx.scan?.riskFactorFlags;
+        if (!rff) return '';
+        const alerts = [];
+        if (rff.highStress)            alerts.push('highStress (stress ≥7/10 with active thinning — telogen effluvium risk; when the user asks why they\'re shedding or what lifestyle changes help most, prioritize stress management alongside topicals)');
+        if (rff.poorSleep)             alerts.push('poorSleep (sleep ≤5h/night — recognized TE trigger; restoring 7-8h sleep is the highest-leverage lifestyle action for diffuse shedding)');
+        if (rff.earlyOnset)            alerts.push('earlyOnset (under 30 with NW3+ stage — elevated lifetime progression risk; emphasize urgency of starting a consistent evidence-based protocol now before further miniaturization)');
+        if (rff.familyHistoryHighRisk) alerts.push('familyHistoryHighRisk (family history of NW6+ or advanced loss — higher progression likelihood; reinforce long-term consistency and early Rx consideration when the user asks about prognosis)');
+        if (!alerts.length) return '';
+        return `- Clinical risk alerts (pre-computed from scan context): ${alerts.join(' | ')} — surface the relevant alert proactively when the user asks about urgency, progression risk, what lifestyle factors matter most, or how serious their situation is.`;
+      })();
+
       const systemPrompt = [
         'You are HairlineCheck Coach — an AI specialist on male/female hair loss.',
         'Tone: friendly, direct, evidence-based. Avoid medical disclaimers unless specifically asked.',
@@ -5761,6 +5779,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.strongestMetric?.label ? `- Current strongest metric: ${ctx.strongestMetric.label} (${ctx.strongestMetric.value}/100) — mention this as a positive when relevant.` : '',
         ctx.routine.length ? `- Current routine: ${ctx.routine.join(', ')}.` : '- No routine logged yet.',
         protocolStatusLine,
+        riskAlertLine,
         ctx.scan?.protocolStrengthScore !== null && ctx.scan?.protocolStrengthLabel
           ? `- Protocol strength: ${ctx.scan.protocolStrengthLabel} (${ctx.scan.protocolStrengthScore}/100) — use this as a concise summary when the user asks how complete or strong their treatment stack is, e.g. "Your protocol is currently ${ctx.scan.protocolStrengthLabel} at ${ctx.scan.protocolStrengthScore}/100." Labels: starting=0–19, basic=20–44, partial=45–64, strong=65–84, complete=85+.`
           : '',
