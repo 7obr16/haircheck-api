@@ -5296,8 +5296,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // riskFactorFlags: structured boolean signals the iOS app can use to surface
         // contextual alerts or CTAs (e.g. "early onset detected") without parsing text.
         // All flags are server-side derived — never sent to GPT-4o or included in prompts.
+        // Must mirror _hasFinasteride brand-name coverage so noAntiandrogenAtModerateStage
+        // is consistent with data.protocolCoverage.rx. Added finpecia|finalo|finast|fincar|finax|aindeem
+        // (India/South-Asia/UK brand names for finasteride) — avoids false-positive "add antiandrogen"
+        // CTAs for users on these common generics, which _hasFinasteride already detects.
         const _hasAntiandrogen = profile.routine.some(r =>
-          /finasteride|dutasteride|propecia|proscar|avodart|spironolactone|aldactone|\bspiro\b|bicalutamide|flutamide|cyproterone|androcur|casodex|clascoterone|winlevi/i.test(r)
+          /finasteride|dutasteride|propecia|proscar|avodart|spironolactone|aldactone|\bspiro\b|bicalutamide|flutamide|cyproterone|androcur|casodex|clascoterone|winlevi|finpecia|finalo|finast|fincar|finax|aindeem/i.test(r)
         );
         data.riskFactorFlags = {
           earlyOnset:                    profile.age !== null && profile.age < 30 && (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3,
