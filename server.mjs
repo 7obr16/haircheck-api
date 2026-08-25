@@ -2802,6 +2802,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // targeting an uncovered metric. Runs before the weakest-metric guarantee so
         // both fixes operate on the same array without conflicting.
         {
+          const _isFemaleStage = String(parsed.stage || '').trim() === 'n/a (female)';
           const _allMetrics = ['Hairline', 'Density', 'Crown', 'Health', 'Potential'];
           const _usedMetrics = new Set(rawInsights.map((ins) => ins.metric));
           if (_usedMetrics.size < rawInsights.length) {
@@ -2811,7 +2812,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               const _isDup = rawInsights.slice(0, _i).some((ins) => ins.metric === rawInsights[_i].metric);
               if (_isDup) {
                 const _tgt = _uncovered[_uncovIdx++];
-                rawInsights[_i] = STATIC_METRIC_FALLBACKS[_tgt] ?? rawInsights[_i];
+                // Female-pattern loss spares the temples — override the generic Hairline fallback
+                // which incorrectly references temple recession zones.
+                const _stageFallback = (_isFemaleStage && _tgt === 'Hairline')
+                  ? { title: 'Preserve frontal density', body: 'Apply minoxidil along the central part and crown twice daily — female-pattern loss targets the parting and vertex, not temples; this is the highest-ROI topical step.', metric: 'Hairline' }
+                  : STATIC_METRIC_FALLBACKS[_tgt];
+                rawInsights[_i] = _stageFallback ?? rawInsights[_i];
                 _usedMetrics.add(_tgt);
               }
             }
