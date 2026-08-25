@@ -35,6 +35,14 @@ const STAGE_SEVERITY_INDEX = {
   'n/a (female)': 3,
 };
 
+// Returns a user-readable label for a Norwood stage used in coach chip question text.
+// Replaces internal enum tokens that read awkwardly in a natural sentence.
+function stageChipLabel(stage) {
+  if (stage === 'n/a (female)') return 'female-pattern thinning';
+  if (stage === 'diffuse')      return 'diffuse thinning';
+  return stage;
+}
+
 // ─── Norwood stage descriptions ─────────────────────────────────
 // Used in the scan response (stageLabel) and coach context.
 const NORWOOD_GUIDE = {
@@ -5133,14 +5141,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           } else if (_rff?.untreated) {
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
-              `I'm at ${stage} and haven't started any treatment yet — what should I begin with right now?`,
+              `I'm at ${stageChipLabel(stage)} and haven't started any treatment yet — what should I begin with right now?`,
             ];
           } else if (_rff?.earlyOnset) {
             const _eoAge = typeof profile.age === 'number' ? profile.age : null;
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
               _eoAge
-                ? `I'm ${_eoAge} and already at ${stage} — does early onset mean faster progression and a more aggressive protocol?`
+                ? `I'm ${_eoAge} and already at ${stageChipLabel(stage)} — does early onset mean faster progression and a more aggressive protocol?`
                 : `I started losing hair at a young age — does early onset mean faster progression?`,
             ];
           } else if (_rff?.familyHistoryHighRisk) {
@@ -5151,27 +5159,29 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           } else if (_rff?.noMinoxidilAtActiveStage) {
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
-              `I'm at ${stage} without topical minoxidil in my routine — should I add it, and what results can I realistically expect?`,
+              `I'm at ${stageChipLabel(stage)} without topical minoxidil in my routine — should I add it, and what results can I realistically expect?`,
             ];
           } else if (_rff?.noAntiandrogenAtModerateStage) {
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
-              `I'm at ${stage} on OTC treatment — is it time to talk to a doctor about finasteride or dutasteride?`,
+              stage === 'n/a (female)'
+                ? `I have female-pattern thinning without a Rx antiandrogen — is it time to ask a doctor about spironolactone or another option?`
+                : `I'm at ${stageChipLabel(stage)} on OTC treatment — is it time to talk to a doctor about finasteride or dutasteride?`,
             ];
           } else if (_rff?.noDHTShampooAtActiveStage) {
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
-              `I'm at ${stage} without a DHT-blocking shampoo — how much could adding ketoconazole or a rosemary-oil shampoo help?`,
+              `I'm at ${stageChipLabel(stage)} without a DHT-blocking shampoo — how much could adding ketoconazole or a rosemary-oil shampoo help?`,
             ];
           } else if (_rff?.noScalpStimulationAtActiveStage) {
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
-              `I'm at ${stage} without scalp massage or microneedling — how much could adding mechanical stimulation improve my results?`,
+              `I'm at ${stageChipLabel(stage)} without scalp massage or microneedling — how much could adding mechanical stimulation improve my results?`,
             ];
           } else if (_rff?.noSupplementsAtActiveStage) {
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
-              `I'm at ${stage} without any hair supplements — which ones have the best evidence for my situation?`,
+              `I'm at ${stageChipLabel(stage)} without any hair supplements — which ones have the best evidence for my situation?`,
             ];
           }
         }
@@ -5871,21 +5881,23 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         } else if (_rff.poorSleep && _stressFollowUpStages.has(_fstage)) {
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'I only get about 5 hours of sleep a night — how much could poor sleep be accelerating my hair loss?'];
         } else if (_rff.untreated) {
-          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} and haven't started any treatment yet — what should I begin with right now?`];
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${stageChipLabel(_fstage)} and haven't started any treatment yet — what should I begin with right now?`];
         } else if (_rff.earlyOnset) {
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I started losing hair at a young age — does early onset mean faster progression?`];
         } else if (_rff.familyHistoryHighRisk) {
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'My family history includes advanced hair loss — how much extra urgency should this add to my treatment plan?'];
         } else if (_rff.noMinoxidilAtActiveStage) {
-          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} without topical minoxidil in my routine — should I add it, and what results can I realistically expect?`];
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${stageChipLabel(_fstage)} without topical minoxidil in my routine — should I add it, and what results can I realistically expect?`];
         } else if (_rff.noAntiandrogenAtModerateStage) {
-          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} on OTC treatment — is it time to talk to a doctor about finasteride or dutasteride?`];
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), _fstage === 'n/a (female)'
+            ? `I have female-pattern thinning without a Rx antiandrogen — is it time to ask a doctor about spironolactone or another option?`
+            : `I'm at ${stageChipLabel(_fstage)} on OTC treatment — is it time to talk to a doctor about finasteride or dutasteride?`];
         } else if (_rff.noDHTShampooAtActiveStage) {
-          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} without a DHT-blocking shampoo — how much could adding ketoconazole or a rosemary-oil shampoo help?`];
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${stageChipLabel(_fstage)} without a DHT-blocking shampoo — how much could adding ketoconazole or a rosemary-oil shampoo help?`];
         } else if (_rff.noScalpStimulationAtActiveStage) {
-          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} without scalp massage or microneedling — how much could adding mechanical stimulation improve my results?`];
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${stageChipLabel(_fstage)} without scalp massage or microneedling — how much could adding mechanical stimulation improve my results?`];
         } else if (_rff.noSupplementsAtActiveStage) {
-          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${_fstage} without any hair supplements — which ones have the best evidence for my situation?`];
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), `I'm at ${stageChipLabel(_fstage)} without any hair supplements — which ones have the best evidence for my situation?`];
         }
       }
       json(req, res, 200, { reply, truncated: coachTruncated, suggestedFollowUps, requestId: reqId });
