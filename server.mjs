@@ -483,8 +483,13 @@ const PROGRESSION_STAGE_HINTS = {
 // For 12-month + NW3/NW3v, "Full natural-looking density" overshoots — the realistic best-case
 // ceiling after 12 months of consistent treatment is a substantial fill of the temple recession
 // (equivalent to a NW2 hairline), not full NW1 restoration. Recession lines remain visible.
+// For 12-month + NW4, specific calibration needed: frontal hairline improves to roughly NW2–NW3
+// equivalent, crown noticeably denser but crown must retain 35–45% exposed scalp — never
+// appears as "no hair loss" result. NW4-specific check runs BEFORE the generic NW4–NW7 override.
+// For 12-month + NW5, specific calibration needed: bridge between frontal and crown looks
+// slightly wider/denser, overall scalp top less bare — but at least 50–60% exposed scalp remains.
 const PROGRESSION_ADVANCED_STAGES    = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 6-month override
-const PROGRESSION_REALISTIC_12MO_STAGES = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 12-month override
+const PROGRESSION_REALISTIC_12MO_STAGES = new Set(['NW4', 'NW5', 'NW6', 'NW7']); // 12-month generic fallback (NW4/NW5 handled by specific checks first)
 const PROGRESSION_CALIBRATED_12MO_STAGES = new Set(['NW3', 'NW3v']); // 12-month calibration override
 // 12-month calibration for diffuse/female-pattern stages: miniaturized follicles can recover
 // significantly with treatment, but the base prompt's "Full natural-looking density" language
@@ -537,6 +542,10 @@ const buildProgressionPrompt = (month, stage) => {
   let qualifier;
   if (PROGRESSION_IDENTICAL_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (OVERRIDES the entire improvement prompt above — this user is Norwood 1 with a fully intact hairline and no hair loss anywhere. Make NO visible changes to hair density, hairline shape, or any scalp area for any treatment month. The output must look essentially identical to the input. Do not thicken, darken, add, or restore any hair):';
+  } else if (month === 12 && stage === 'NW4') {
+    qualifier = 'Stage-specific constraint (CALIBRATES the "STRONG / Full natural-looking density" and "Crown looks naturally full" language above — at NW4 the realistic 12-month ceiling is meaningful but not complete recovery: the frontal hairline becomes more defined and densely filled, equivalent to roughly a NW2-to-NW3 appearance (significantly improved but NOT a fully restored NW1 straight hairline), and the crown shows noticeably denser coverage — but the crown must still retain at least 35–45% of its current exposed scalp area. The scalp top as a whole should look clearly improved yet unmistakably show significant hair loss; a viewer should NOT mistake this for a person with no hair loss history, and should still immediately recognize NW4-level recession and crown thinning even in the best-case 12-month result):';
+  } else if (month === 12 && stage === 'NW5') {
+    qualifier = 'Stage-specific constraint (CALIBRATES the "STRONG / Full natural-looking density" language above — at NW5 the realistic 12-month ceiling is modest: the sparse bridge between the frontal and crown zones looks slightly wider and denser than the 6-month result, and the overall scalp top appears somewhat less bare — but at least 50–60% of the current exposed scalp area must still be clearly visible. The viewer should immediately recognize extensive combined frontal+crown hair loss across the full scalp top; the two bald zones are noticeably less severe than the input but the overall impression should still be "significant hair loss with real but limited improvement", never suggesting the scalp top is close to covered):';
   } else if (month === 12 && PROGRESSION_REALISTIC_12MO_STAGES.has(stage)) {
     qualifier = 'Stage-specific constraint (OVERRIDES the "STRONG / Full natural-looking density" language above — do not restore to full density for this stage; show clear improvement proportional to what real users at this stage achieve after 12 months):';
   } else if (month === 12 && PROGRESSION_CALIBRATED_12MO_STAGES.has(stage)) {

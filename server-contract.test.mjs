@@ -92,6 +92,21 @@ assert(
 );
 
 assert(
+  source.includes("month === 12 && stage === 'NW4'") &&
+    source.includes('35–45% of its current exposed scalp area') &&
+    source.includes('NW2-to-NW3 appearance') &&
+    source.includes('NOT a fully restored NW1 straight hairline'),
+  'buildProgressionPrompt should apply a specific NW4 12-month calibration that constrains the crown to retain 35-45% exposed scalp area and the hairline to a NW2-NW3 equivalent — preventing the generic "full density" base prompt from producing an unrealistic fully-restored result at this significant-loss stage'
+);
+
+assert(
+  source.includes("month === 12 && stage === 'NW5'") &&
+    source.includes('50–60% of the current exposed scalp area') &&
+    source.includes('sparse bridge between the frontal and crown zones'),
+  'buildProgressionPrompt should apply a specific NW5 12-month calibration that constrains the scalp top to retain 50-60% exposed scalp area — preventing the generic "full density" base prompt from overstating the modest real-world improvement ceiling at this near-merged loss stage'
+);
+
+assert(
   source.includes('_isNW5only') &&
     source.includes('NW5 density loss spans both frontal and crown zones'),
   'WEEKLY_FOCUS_MAP.Density should have NW5-specific advice distinct from the NW6/NW7 fallback'
