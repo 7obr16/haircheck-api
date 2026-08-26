@@ -975,6 +975,31 @@ assert(
 );
 
 assert(
+  source.includes("s.includes('loniten')") &&
+    source.includes("s.includes('oral') && (s.includes('minoxidil') || s.includes('minox'))") &&
+    source.includes("s.includes('minoxidil') && (s.includes('tablet') || s.includes('pill') || s.includes('low dose') || s.includes('low-dose') || s.includes('systemic'))"),
+  'coach pre-scan protocolCoverage rx detection should recognise oral minoxidil (Loniten brand, "oral minoxidil", "low dose minoxidil", "minoxidil tablet") — oral minoxidil is an Rx-only prescription vasodilator, not OTC topical, so users on low-dose oral minoxidil should have rx=true in their protocol coverage rather than being misclassified as OTC-only'
+);
+
+assert(
+  source.includes("r.includes('loniten')") &&
+    source.includes("r.includes('oral') && (r.includes('minoxidil') || r.includes('minox'))") &&
+    source.includes("r.includes('minoxidil') && (r.includes('tablet') || r.includes('pill') || r.includes('low dose') || r.includes('low-dose') || r.includes('systemic'))"),
+  'scan-time _hasOralMinoxidil detection should recognise loniten (brand), "oral minoxidil", "oral minox", "low dose minoxidil", "minoxidil tablet/pill" — so the protocolCoverage.oralMinoxidil field is correctly set for users on Rx oral minoxidil and the protocolCoverage response gives iOS an explicit oralMinoxidil flag'
+);
+
+assert(
+  source.includes("oralMinoxidil: _hasOralMinoxidil"),
+  'protocolCoverage should expose a separate oralMinoxidil field derived from _hasOralMinoxidil so the iOS app can distinguish Rx oral minoxidil from OTC topical minoxidil without re-parsing the routine string'
+);
+
+assert(
+  source.includes("['loniten', 'oral minoxidil (Loniten") &&
+    source.includes("['oral minoxidil', 'oral minoxidil (Rx prescription"),
+  '_RX_LABELS should include oral minoxidil entries (loniten, "oral minoxidil", "oral minox") so the coach protocolStatusLine names the specific drug when a user lists oral minoxidil in their routine, rather than falling through to a generic Rx antiandrogen label'
+);
+
+assert(
   source.includes("r.includes('revita')"),
   'routine detection (_hasDHTShampoo) should recognise Revita (DS Laboratories ketoconazole + caffeine shampoo) so users of this popular brand are correctly classified as having a DHT-blocking shampoo in their routine'
 );
