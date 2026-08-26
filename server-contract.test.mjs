@@ -1997,6 +1997,16 @@ assert(
 );
 
 assert(
+  source.includes("r.includes('spectral')") &&
+    source.includes("r.includes('forhers')") &&
+    source.includes("r.includes('alopexy')") &&
+    source.includes("s.includes('spectral')") &&
+    source.includes("s.includes('forhers')") &&
+    source.includes("s.includes('alopexy')"),
+  'server should detect Spectral DNC (DS Laboratories), For Hers, and Alopexy as topical minoxidil treatment in both scan-time _hasMinoxidil and coach pre-scan topical detection — users who list these brands in their routine should not be told topical minoxidil is NOT STARTED'
+);
+
+assert(
   source.includes("r.includes('sunetics')") &&
     source.includes("s.includes('sunetics')"),
   'server should detect Sunetics (clinical LLLT brand used in salons and trichology clinics) as an LLLT device in both scan-time _hasLLLT/_hasMassage and coach pre-scan lllt/mechanical detection — Sunetics users should receive LLLT-aware timing advice rather than being told they have no mechanical stimulation'
