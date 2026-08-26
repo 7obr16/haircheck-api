@@ -5583,7 +5583,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           const r = ctx.routine.map((s) => String(s).toLowerCase());
           return {
             topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine') || s.includes('regaine') || s.includes('minox') || s.includes('kirkland') || s.includes('tugain') || s.includes('mintop') || s.includes('loniten') || s.includes('nanoxidil') || s.includes('morr') || s.includes('hims') || s.includes('keeps') || s.includes('spectral') || s.includes('forhers') || s.includes('alopexy') || s.includes('lipogaine')),
-            rx:          r.some((s) => s.includes('finasteride') || s.includes('propecia') || s.includes('dutasteride') || s.includes('avodart') || s.includes('proscar') || s.includes('finpecia') || s.includes('finalo') || s.includes('finast') || s.includes('fincar') || s.includes('finax') || s.includes('aindeem') || s.includes('spironolactone') || s.includes('spiro') || s.includes('aldactone') || s.includes('bicalutamide') || s.includes('casodex') || s.includes('flutamide') || s.includes('cyproterone') || s.includes('androcur') || s.includes('clascoterone') || s.includes('winlevi') || s.includes('loniten') || (s.includes('oral') && (s.includes('minoxidil') || s.includes('minox'))) || (s.includes('minoxidil') && (s.includes('tablet') || s.includes('pill') || s.includes('low dose') || s.includes('low-dose') || s.includes('systemic'))) || (s.includes('minoxidil') && /\d+\.?\d*\s*mg/.test(s))),
+            // oralMinoxidil is Rx-only (vasodilator tablet) — detected separately from rx (antiandrogens)
+            // because oral minoxidil is NOT an antiandrogen: it does not block DHT or androgen receptors.
+            // Keeping it out of rx ensures protocolStatusLine correctly shows "Rx antiandrogen: missing"
+            // for users on oral minoxidil who haven't started finasteride/dutasteride/spironolactone.
+            oralMinoxidil: r.some((s) => s.includes('loniten') || (s.includes('oral') && (s.includes('minoxidil') || s.includes('minox'))) || (s.includes('minoxidil') && (s.includes('tablet') || s.includes('pill') || s.includes('low dose') || s.includes('low-dose') || s.includes('systemic'))) || (s.includes('minoxidil') && /\d+\.?\d*\s*mg/.test(s))),
+            rx:          r.some((s) => s.includes('finasteride') || s.includes('propecia') || s.includes('dutasteride') || s.includes('avodart') || s.includes('proscar') || s.includes('finpecia') || s.includes('finalo') || s.includes('finast') || s.includes('fincar') || s.includes('finax') || s.includes('aindeem') || s.includes('spironolactone') || s.includes('spiro') || s.includes('aldactone') || s.includes('bicalutamide') || s.includes('casodex') || s.includes('flutamide') || s.includes('cyproterone') || s.includes('androcur') || s.includes('clascoterone') || s.includes('winlevi')),
             dhtShampoo:  r.some((s) => s.includes('dht') || s.includes('ketoconazole') || s.includes('nizoral') || s.includes('keto shampoo') || s.includes('caffeine shampoo') || s.includes('regenepure') || s.includes('alpecin') || s.includes('plantur') || s.includes('foligain') || s.includes('lipogaine') || s.includes('revita') || s.includes('pura d') || s.includes('shapiro md') || s.includes('rosemary oil') || s.includes('mielle') || s.includes('maple holistics') || s.includes('nioxin') || s.includes('keranique') || s.includes('ultrax') || s.includes('phytocyane') || s.includes('bioxsine') || s.includes('watermans') || s.includes('anaphase') || s.includes('vichy') || s.includes('dercos') || s.includes('klorane') || s.includes('rene furterer') || s.includes('triphasic') || s.includes('ducray') || s.includes('bioscalin') || s.includes('revivogen') || s.includes('pronexa')),
             mechanical:    r.some((s) => s.includes('massage') || s.includes('dermaroller') || s.includes('derma roller') || s.includes('derma stamp') || s.includes('dermastamp') || s.includes('dermapen') || s.includes('microneedl') || s.includes('micro-needl') || s.includes('dr pen') || s.includes('drpen') || s.includes('dr.pen') || s.includes('zgts') || s.includes('derminator') || s.includes('lllt') || s.includes('laser cap') || s.includes('laser comb') || s.includes('laser helmet') || s.includes('laserband') || s.includes('laser band') || s.includes('capillus') || s.includes('hairmax') || s.includes('irestore') || s.includes('igrow') || s.includes('theradome') || s.includes('kiierr') || s.includes('illumiflow') || s.includes('sunetics')),
             microneedling: r.some((s) => s.includes('microneedl') || s.includes('micro-needl') || s.includes('dermaroller') || s.includes('derma roller') || s.includes('derma stamp') || s.includes('dermastamp') || s.includes('dermapen') || s.includes('dr pen') || s.includes('drpen') || s.includes('dr.pen') || s.includes('zgts') || s.includes('derminator')),
@@ -5619,9 +5624,6 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             ['cyproterone', 'cyproterone acetate'], ['androcur', 'cyproterone acetate'],
             ['clascoterone', 'clascoterone (Winlevi — topical androgen receptor blocker, apply to scalp)'],
             ['winlevi', 'clascoterone (Winlevi — topical androgen receptor blocker, apply to scalp)'],
-            ['loniten', 'oral minoxidil (Loniten — Rx prescription vasodilator tablet, low-dose off-label for hair loss)'],
-            ['oral minoxidil', 'oral minoxidil (Rx prescription vasodilator tablet, low-dose off-label for hair loss)'],
-            ['oral minox', 'oral minoxidil (Rx prescription vasodilator tablet, low-dose off-label for hair loss)'],
           ];
           const _rl = ctx.routine.map((s) => String(s).toLowerCase());
           const _rxFound = [];
@@ -5631,16 +5633,22 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               if (_rxFound.length >= 2) break;
             }
           }
-          // Catch dosage-pattern oral minoxidil ("2.5mg minoxidil", "minoxidil 5 mg", etc.) that
-          // doesn't match any keyword in _RX_LABELS. mg suffix distinguishes oral tablets from
-          // topical solutions (which use % concentration, not mg).
-          if (_rxFound.length < 2 && !_rxFound.some((l) => l.startsWith('oral minoxidil'))) {
-            if (_rl.some((r) => r.includes('minoxidil') && /\d+\.?\d*\s*mg/.test(r))) {
-              _rxFound.push('oral minoxidil (Rx prescription vasodilator tablet, low-dose off-label for hair loss)');
-            }
-          }
           active.push(_rxFound.length ? `Rx antiandrogen (${_rxFound.join(' + ')})` : 'Rx antiandrogen (finasteride/dutasteride/spironolactone/bicalutamide/flutamide/cyproterone/clascoterone)');
         } else missing.push('Rx antiandrogen');
+        if (pc.oralMinoxidil) {
+          // Oral minoxidil is a vasodilator (not an antiandrogen) — it does not block DHT or androgen
+          // receptors. Surfaced separately so the coach correctly identifies it as a non-antiandrogen
+          // Rx treatment and continues recommending finasteride/dutasteride/spiro where appropriate.
+          const _omRl = ctx.routine.map((s) => String(s).toLowerCase());
+          let _omDose = null;
+          for (const r of _omRl) {
+            const _m = r.match(/(\d+\.?\d*)\s*mg/);
+            if (_m && (r.includes('minoxidil') || r.includes('loniten'))) { _omDose = `${_m[1]}mg`; break; }
+          }
+          active.push(_omDose
+            ? `oral minoxidil ${_omDose} (Rx vasodilator tablet — NOT an antiandrogen; does not replace finasteride/dutasteride/spironolactone for DHT suppression)`
+            : 'oral minoxidil (Rx vasodilator tablet — NOT an antiandrogen; does not replace finasteride/dutasteride/spironolactone for DHT suppression)');
+        }
         if (pc.dhtShampoo)              active.push('DHT-blocking shampoo');                                else missing.push('DHT-blocking shampoo');
         if (pc.lllt) {
           // Surface specific LLLT device from live routine for personalized session timing advice.
