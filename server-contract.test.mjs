@@ -1000,6 +1000,18 @@ assert(
 );
 
 assert(
+  source.includes("r.includes('minoxidil') && /\\d+\\.?\\d*\\s*mg/.test(r)") ||
+    source.includes('r.includes(\'minoxidil\') && /\\d+\\.?\\d*\\s*mg/.test(r)'),
+  'scan-time _hasOralMinoxidil and coach rx detection should recognise dosage-pattern oral minoxidil (e.g. "2.5mg minoxidil", "minoxidil 5 mg") — users commonly write their oral dose in mg and this pattern distinguishes oral tablets (mg) from topical solutions (%) so they are correctly classified as Rx'
+);
+
+assert(
+  source.includes("r.includes('minoxidil') && /\\d+\\.?\\d*\\s*mg/.test(r)") &&
+    source.includes("_rxFound.some((l) => l.startsWith('oral minoxidil'))"),
+  '_RX_LABELS fallback should catch dosage-pattern oral minoxidil ("2.5mg minoxidil", "minoxidil 5 mg") that does not match any keyword in _RX_LABELS, so the coach protocolStatusLine correctly labels the drug as oral minoxidil rather than a generic Rx antiandrogen'
+);
+
+assert(
   source.includes("r.includes('revita')"),
   'routine detection (_hasDHTShampoo) should recognise Revita (DS Laboratories ketoconazole + caffeine shampoo) so users of this popular brand are correctly classified as having a DHT-blocking shampoo in their routine'
 );
