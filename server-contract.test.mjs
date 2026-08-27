@@ -2129,4 +2129,11 @@ assert(
   'crown score should include wet-hair calibration so overhead photos taken post-shower or with product-heavy clumping do not produce artificially low crown scores — symmetric with the wet-hair calibration already present in density and health scoring'
 );
 
+assert(
+  source.includes("prp: `") &&
+    source.includes('amber-tinted PRP vial') &&
+    source.includes('PRP (platelet-rich plasma) injections are a clinical procedure'),
+  'ADVICE_VISUAL_PROMPTS should include a prp kind (matching the PRP protocol coverage layer) and the coach constraint should require specialist consultation before starting PRP injections'
+);
+
 console.log('server contract passed');
