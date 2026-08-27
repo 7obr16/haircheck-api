@@ -1684,7 +1684,7 @@ const computeTreatmentUrgency = (stage, age) => {
 // the "missing 25" requires a specialist/surgical step, not more products.
 const computeProtocolStrengthScore = (stage, protocolCoverage) => {
   if (!protocolCoverage) return { score: 0, label: 'starting' };
-  const { topical, rx, dhtShampoo, mechanical, microneedling, lllt, supplements } = protocolCoverage;
+  const { topical, rx, dhtShampoo, mechanical, microneedling, lllt, supplements, prp } = protocolCoverage;
   let score = 0;
   if (rx)          score += 30; // Rx DHT blocker — highest-evidence systemic layer
   if (topical)     score += 25; // Minoxidil — highest-evidence topical
@@ -1692,6 +1692,7 @@ const computeProtocolStrengthScore = (stage, protocolCoverage) => {
   // Clinical mechanical (LLLT or microneedling) = 15; basic massage only = 8.
   if (microneedling || lllt) score += 15;
   else if (mechanical)       score += 8;
+  if (prp)         score += 12; // PRP injections — clinical regenerative procedure (monthly/quarterly)
   if (supplements) score += 10; // nutritional layer (biotin, zinc, vitamin D, saw palmetto, nutrafol, spermidine, etc.)
   // NW5: cap at 80 — even a fully complete OTC stack can't restore the near-merged frontal/crown
   // deficit; "strong" (65–84) is the realistic OTC ceiling at this stage. Prevents the iOS app
@@ -3060,6 +3061,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // Detected separately so protocolCoverage can expose it as its own field and the coach can
         // correctly label it as Rx rather than OTC topical.
         const _hasOralMinoxidil = _routineItems.some((r) => r.includes('loniten') || (r.includes('oral') && (r.includes('minoxidil') || r.includes('minox'))) || (r.includes('minoxidil') && (r.includes('tablet') || r.includes('pill') || r.includes('low dose') || r.includes('low-dose') || r.includes('systemic'))) || (r.includes('minoxidil') && /\d+\.?\d*\s*mg/.test(r)));
+        const _hasPRP           = _routineItems.some((r) => r.includes('prp') || r.includes('platelet') || r.includes('platelet-rich') || r.includes('platelet rich'));
         // Stage gates: at NW5 expectations shift; at NW6/NW7 OTC has very limited effect
         // and the primary path is specialist consultation / surgical options.
         const _isNW7          = data.stage === 'NW7';
@@ -5122,6 +5124,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           microneedling: _hasMicroneedling, // dermaroller / dermapen / microneedling (excludes LLLT)
           lllt:        _hasLLLT,          // LLLT devices: laser cap, laser comb, Capillus, HairMax
           supplements:   _hasSupplements,   // biotin / zinc / vitamins / saw palmetto
+          prp:           _hasPRP,           // platelet-rich plasma injections (clinical procedure)
         };
 
         // protocolStrengthScore + label: how complete the user's treatment stack is for their stage.
@@ -5601,6 +5604,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             microneedling: r.some((s) => s.includes('microneedl') || s.includes('micro-needl') || s.includes('dermaroller') || s.includes('derma roller') || s.includes('derma stamp') || s.includes('dermastamp') || s.includes('dermapen') || s.includes('dr pen') || s.includes('drpen') || s.includes('dr.pen') || s.includes('zgts') || s.includes('derminator')),
             lllt:          r.some((s) => s.includes('lllt') || s.includes('laser cap') || s.includes('laser comb') || s.includes('laser helmet') || s.includes('laserband') || s.includes('laser band') || s.includes('capillus') || s.includes('hairmax') || s.includes('irestore') || s.includes('igrow') || s.includes('theradome') || s.includes('kiierr') || s.includes('illumiflow') || s.includes('sunetics')),
             supplements:   r.some((s) => s.includes('supplement') || s.includes('biotin') || s.includes('vitamin') || s.includes('zinc') || s.includes('saw palmetto') || s.includes('nutrafol') || s.includes('viviscal') || (s.includes('iron') && !s.includes('flat iron') && !s.includes('curling iron') && !s.includes('steam iron') && !s.includes('hair iron') && !s.includes('flat-iron') && !s.includes('curling-iron')) || s.includes('pumpkin seed') || s.includes('folexin') || s.includes('hairfinity') || s.includes('perfectil') || s.includes('hairburst') || s.includes('collagen') || (s.includes('keratin') && !s.includes('keratin treatment') && !s.includes('keratin therapy') && !s.includes('keratin complex') && !s.includes('keratin smoothing') && !s.includes('keratin straighten') && !s.includes('keratin blowout')) || s.includes('marine collagen') || s.includes('hair formula') || s.includes('omega') || s.includes('fish oil') || s.includes('folic acid') || s.includes('folate') || s.includes('silica') || s.includes('niacin') || s.includes('evening primrose') || s.includes('selenium') || s.includes('magnesium') || s.includes('copper') || s.includes('lysine') || s.includes('msm') || s.includes('ashwagandha') || s.includes('nettle') || s.includes('beta-sitosterol') || s.includes('hair gum') || s.includes('multivitamin') || s.includes('nourkrin') || s.includes('priorin') || s.includes('hair vitalics') || s.includes('pantogar') || s.includes('bhringraj') || s.includes('sugarbear') || s.includes('vegamour') || s.includes('hair la vie') || s.includes('foligrowth') || s.includes('pantovigar') || s.includes('philip kingsley') || s.includes('tricho complex') || s.includes('florisene') || s.includes('lambdapil') || s.includes('hum nutrition') || s.includes('anacaps') || s.includes('pilexil') || s.includes('reishi') || s.includes('black seed') || s.includes('fo-ti') || s.includes('he shou wu') || s.includes('pycnogenol') || s.includes('moringa') || s.includes('horsetail') || s.includes('inneov') || s.includes('bioscalin') || s.includes('inositol') || s.includes('spermidine') || s.includes('diindolylmethane') || s.includes(' dim ') || s.includes('dim supplement') || s.includes('green tea extract') || s.includes('egcg') || s.includes('grape seed') || s.includes('procyanidin') || s.includes('resveratrol') || s.includes('turmeric') || s.includes('curcumin') || s.includes('berberine') || s.includes('ginkgo') || s.includes('nac') || s.includes('n-acetyl') || s.includes('coq10') || s.includes('coenzyme q') || s.includes('l-carnitine') || s.includes('carnitine tartrate') || s.includes('quercetin') || s.includes('melatonin') || s.includes('olly') || s.includes('astaxanthin') || s.includes('milk thistle') || s.includes('silymarin') || s.includes('spearmint') || s.includes('licorice root') || s.includes('pygeum') || s.includes('fenugreek') || s.includes('tocopherol') || s.includes('ascorbic acid') || s.includes('pantothenic acid') || s.includes('vitamin b5') || s.includes('l-cysteine') || s.includes('maca') || s.includes('lion') || s.includes('cordyceps') || s.includes('rhodiola') || s.includes('adaptogen') || s.includes('stinging nettle') || s.includes('amla')),
+            prp:           r.some((s) => s.includes('prp') || s.includes('platelet') || s.includes('platelet-rich') || s.includes('platelet rich')),
           };
         }
         return pc;
@@ -5785,6 +5789,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         } else {
           missing.push('supplements');
         }
+        if (pc.prp) active.push('PRP injections (platelet-rich plasma — clinical procedure, monthly/quarterly sessions)');
         return `- Protocol layers — ACTIVE: ${active.join(', ') || 'none'}; NOT STARTED: ${missing.join(', ') || 'none'} — when the user asks what to add next, which layer is missing, or how complete their protocol is, use this structured breakdown; never re-suggest an ACTIVE layer. For supplements listed as ACTIVE, reference the specific product shown in parentheses when giving optimization advice rather than defaulting to generic "biotin/zinc/vitamin D".`;
       })();
 
