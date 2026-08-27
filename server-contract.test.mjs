@@ -2121,4 +2121,12 @@ assert(
   '/api/version should return enriched deploy metadata (nodeVersion, startedAt, uptimeSeconds, and Railway deploymentId/branch/commitMessage when available) so a live pod can be correlated to a specific deploy without the Railway dashboard'
 );
 
+assert(
+  source.includes('Wet hair / styling product calibration from above') &&
+    source.includes('8-15 points lower than the actual underlying follicle coverage') &&
+    source.includes('follicle group distribution across the vertex region') &&
+    source.includes('same artifact affects crown coverage assessment in overhead shots'),
+  'crown score should include wet-hair calibration so overhead photos taken post-shower or with product-heavy clumping do not produce artificially low crown scores — symmetric with the wet-hair calibration already present in density and health scoring'
+);
+
 console.log('server contract passed');
