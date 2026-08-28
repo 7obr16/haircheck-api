@@ -528,7 +528,7 @@ assert(
     source.includes("'My scan flagged a specialist visit — what should I bring up with a trichologist?'") &&
     source.includes("'My scan recommended a specialist visit — what questions should I ask a trichologist?'") &&
     source.includes('specialistRecommended') &&
-    /buildSuggestedQuestions[\s\S]{0,4000}specialistRecommended\s*\?/.test(source),
+    /buildSuggestedQuestions[\s\S]{0,8000}specialistRecommended\s*\?/.test(source),
   "buildSuggestedQuestions should use the specialistRecommended parameter to surface specialist-visit questions for NW3/NW3v/NW4 users flagged for a trichologist — the parameter must not be accepted but silently ignored"
 );
 
@@ -1395,7 +1395,7 @@ assert(
 );
 
 assert(
-  source.includes("lllt = false, microneedling = false, supplements = false } = protocolCoverage || {};") &&
+  source.includes("lllt = false, microneedling = false, supplements = false, transplant = false } = protocolCoverage || {};") &&
     source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW5?'") &&
     source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW4?'") &&
     source.includes("lllt ? 'Should I add a DHT-blocking shampoo to my finasteride + minoxidil + LLLT stack at NW3v?'") &&
@@ -1738,7 +1738,7 @@ assert(
 );
 
 assert(
-  source.includes("supplements = false } = protocolCoverage || {}") &&
+  source.includes("supplements = false, transplant = false } = protocolCoverage || {}") &&
     source.includes("const hasAnyOTC = topical || dhtShampoo || mechanical || supplements"),
   'buildSuggestedQuestions should destructure supplements from protocolCoverage and include it in hasAnyOTC so supplement-only users (Nutrafol, Viviscal, biotin+zinc) are routed to the OTC-tier questions (is finasteride worth adding?) rather than the no-treatment tier (what should I start first?)'
 );
@@ -2143,6 +2143,27 @@ assert(
     source.includes('amber-tinted PRP vial') &&
     source.includes('PRP (platelet-rich plasma) injections are a clinical procedure'),
   'ADVICE_VISUAL_PROMPTS should include a prp kind (matching the PRP protocol coverage layer) and the coach constraint should require specialist consultation before starting PRP injections'
+);
+
+assert(
+  source.includes("transplant: `") &&
+    source.includes('successful hair graft integration') &&
+    source.includes('anagen regrowth'),
+  'ADVICE_VISUAL_PROMPTS should include a transplant kind so post-transplant users get a graft-care visual instead of a generic consultation card'
+);
+
+assert(
+  source.includes("hair transplant / FUE/FUT/DHI (post-op") &&
+    source.includes('grafts shed at weeks 4') &&
+    source.includes('native follicles continue to miniaturize post-surgery unless DHT is suppressed'),
+  'protocolStatusLine should surface transplant context when pc.transplant is true — giving the coach explicit post-op graft-care constraints and native-follicle miniaturization warning'
+);
+
+assert(
+  source.includes('const { topical, dhtShampoo, supplements, mechanical, microneedling, lllt, transplant } = data.protocolCoverage') &&
+    source.includes("if (transplant) {") &&
+    source.includes("return [...missing.slice(0, 2), 'transplant']"),
+  'suggestedAdviceVisuals should surface the transplant visual as the third card for post-transplant users instead of consultation — they have already had surgery and need graft-care context'
 );
 
 console.log('server contract passed');

@@ -1320,6 +1320,7 @@ const ADVICE_VISUAL_PROMPTS = {
   lllt: `Create a photorealistic premium hair-health app advice card image. Subject: a sleek matte-black unbranded low-level laser therapy (LLLT) laser cap or laser comb resting on a dark surface, emitting a soft red-to-infrared glow across its diode array, suggesting clinical photobiomodulation. Add a subtle warm red-rose halo around the device to convey therapeutic energy without looking garish. Style: dark luxury clinical background, black surface, restrained medical-aesthetic, macro detail on the device's diode panel, shallow depth of field. Avoid brand names, logos, identifiable product names, watermarks, text, UI, people wearing the device, exaggerated sci-fi glow, and cartoon style.`,
   consultation: `Create a photorealistic premium hair-health app advice card image. Subject: minimalist dark clinical consultation scene — a premium trichoscope lens examining a scalp parting on dark hair, or a sleek black clinical notepad and pen beside a stethoscope on a dark marble desk. Style: dark luxury medical-aesthetic, subtle violet rim light, calm confident atmosphere. Avoid visible faces, clinical white hospital rooms, brand logos, labels, watermarks, text, UI, or overly bright settings.`,
   prp: `Create a photorealistic premium hair-health app advice card image. Subject: close crop of a clinical PRP (platelet-rich plasma) setup — an unbranded matte medical syringe beside a small amber-tinted PRP vial or centrifuge tube containing golden-amber plasma, arranged on a dark clinical surface. Style: dark luxury medical-aesthetic, subtle gold-amber rim light reflecting off the PRP vial to convey the warmth of the plasma concentrate, premium clinical mood, sharp macro detail on the tube and syringe. Avoid needles piercing skin or scalp (keep the procedure abstract and aspirational), brand names, logos, identifiable product names, text, labels, watermarks, UI, blood, exaggerated clinical equipment, bright hospital-white backgrounds, or cartoon style.`,
+  transplant: `Create a photorealistic premium hair-health app advice card image. Subject: close crop of a healthy scalp showing a clean, evenly distributed row of newly growing short hair follicles along a restored hairline, shot at a shallow 30° angle from above — implying successful hair graft integration and early growth, with a subtle blue-green bioluminescent glow at the follicle bases suggesting active anagen regrowth. Style: dark luxury clinical lighting, black background, realistic skin texture and short terminal hair shafts, shallow depth of field, premium medical-aesthetic. Avoid visible surgical instruments, incisions, blood, pluggy or unnatural hairline rows, brand names, logos, text, labels, watermarks, UI, cartoon style, or exaggerated clinical trauma.`,
 };
 
 const normalizeAdviceKind = (kind) => (
@@ -5303,7 +5304,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // silently dropped when 3+ protocol layers are missing simultaneously, which
         // would happen for untreated advanced-stage users.
         data.suggestedAdviceVisuals = (() => {
-          const { topical, dhtShampoo, supplements, mechanical, microneedling, lllt } = data.protocolCoverage;
+          const { topical, dhtShampoo, supplements, mechanical, microneedling, lllt, transplant } = data.protocolCoverage;
           const missing = [];
           if (!topical)     missing.push('topical');
           if (!dhtShampoo)  missing.push('shampoo');
@@ -5311,6 +5312,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           if (!mechanical)                  missing.push('massage');
           else if (!microneedling && !lllt) missing.push('microneedling');
           else if (!lllt)                   missing.push('lllt');
+          // Post-transplant users need graft-care visual context, not a referral — they've already
+          // had surgery. Surface 'transplant' as the third card instead of 'consultation'.
+          if (transplant) {
+            return [...missing.slice(0, 2), 'transplant'];
+          }
           if (data.specialistRecommended) {
             return [...missing.slice(0, 2), 'consultation'];
           }
@@ -5902,6 +5908,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           missing.push('supplements');
         }
         if (pc.prp) active.push('PRP injections (platelet-rich plasma — clinical procedure, monthly/quarterly sessions)');
+        if (pc.transplant) active.push('hair transplant / FUE/FUT/DHI (post-op — grafts shed at weeks 4–6 and regrow from month 3–4; full density visible at 12–18 months; native follicles continue to miniaturize post-surgery unless DHT is suppressed with finasteride/dutasteride — strongly recommend discussing finasteride with their doctor if not already on it)');
         return `- Protocol layers — ACTIVE: ${active.join(', ') || 'none'}; NOT STARTED: ${missing.join(', ') || 'none'} — when the user asks what to add next, which layer is missing, or how complete their protocol is, use this structured breakdown; never re-suggest an ACTIVE layer. For supplements listed as ACTIVE, reference the specific product shown in parentheses when giving optimization advice rather than defaulting to generic "biotin/zinc/vitamin D".`;
       })();
 
