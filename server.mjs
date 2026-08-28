@@ -605,8 +605,31 @@ const buildProgressionPrompt = (month, stage, thinningPattern) => {
 // Questions are routine-aware (don't suggest starting something already active) and
 // stage-aware (specialist framing for NW5+, cause-finding for diffuse/female).
 const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended) => {
-  const { topical = false, rx = false, dhtShampoo = false, mechanical = false, lllt = false, microneedling = false, supplements = false } = protocolCoverage || {};
+  const { topical = false, rx = false, dhtShampoo = false, mechanical = false, lllt = false, microneedling = false, supplements = false, transplant = false } = protocolCoverage || {};
   const hasAnyOTC = topical || dhtShampoo || mechanical || supplements;
+
+  // Post-transplant override: when the user has had a FUE/FUT/DHI transplant, the most pressing
+  // questions are about graft survival, native hair protection, and realistic growth timelines —
+  // not the standard "should I start treatment?" questions that apply to untreated loss.
+  // This fires regardless of stage since the transplant context supersedes stage-specific coaching.
+  if (transplant) {
+    if (!rx) {
+      return [
+        'Should I take finasteride after a hair transplant to protect my native hair?',
+        topical
+          ? 'How should I apply minoxidil around my transplanted grafts?'
+          : 'Is minoxidil recommended after a hair transplant to support graft growth?',
+        'When will my transplanted hair reach full density and how can I tell if it\'s growing correctly?',
+      ];
+    }
+    return [
+      topical
+        ? 'How do I apply minoxidil and finasteride correctly to protect both my grafts and native hair?'
+        : 'How does finasteride help protect my native hair after a hair transplant?',
+      'When will my transplanted hair reach full density and how can I tell if it\'s growing correctly?',
+      'What should I avoid doing to protect my grafts in the first 12 months?',
+    ];
+  }
 
   // NW7 — near-total loss; horseshoe fringe only; surgical options (FUE/FUT or SMP) are the primary path.
   // 3-tier structure matches NW5/NW6: no-treatment / OTC-only / Rx, each with transplant-planning context.
@@ -1706,7 +1729,7 @@ const computeTreatmentUrgency = (stage, age) => {
 // the "missing 25" requires a specialist/surgical step, not more products.
 const computeProtocolStrengthScore = (stage, protocolCoverage) => {
   if (!protocolCoverage) return { score: 0, label: 'starting' };
-  const { topical, rx, dhtShampoo, mechanical, microneedling, lllt, supplements, prp } = protocolCoverage;
+  const { topical, rx, dhtShampoo, mechanical, microneedling, lllt, supplements, prp, transplant } = protocolCoverage;
   let score = 0;
   if (rx)          score += 30; // Rx DHT blocker — highest-evidence systemic layer
   if (topical)     score += 25; // Minoxidil — highest-evidence topical
@@ -1716,6 +1739,7 @@ const computeProtocolStrengthScore = (stage, protocolCoverage) => {
   else if (mechanical)       score += 8;
   if (prp)         score += 12; // PRP injections — clinical regenerative procedure (monthly/quarterly)
   if (supplements) score += 10; // nutritional layer (biotin, zinc, vitamin D, saw palmetto, nutrafol, spermidine, etc.)
+  if (transplant)  score += 20; // prior FUE/FUT/DHI surgery — significant graft density added (caps at 100)
   // NW5: cap at 80 — even a fully complete OTC stack can't restore the near-merged frontal/crown
   // deficit; "strong" (65–84) is the realistic OTC ceiling at this stage. Prevents the iOS app
   // from showing "complete" for a score that clinical reality doesn't support.
@@ -2775,6 +2799,8 @@ Scoring guide (all scores 0-100 integers):
   No-treatment baseline: when "Current routine" is empty or lists nothing, the user has not yet started treatment. This is a HIGH-potential scenario — any consistent evidence-based protocol will produce improvement from this baseline. Do NOT penalize potential because the user hasn't started yet; if anything, an untreated user at a given stage has MORE upside than a treatment-resistant user at the same stage. Score toward the higher end of the stage range when no treatment is listed, because the first treatment cycle typically delivers the largest gain.
 - overall (computed server-side): do not output this field.
 
+Hair transplant / FUE / FUT / DHI calibration: when "Current routine" lists a prior hair transplant, FUE (follicular unit extraction), FUT (follicular unit transplantation), DHI (direct hair implantation), or any hair restoration surgery: (a) Score hairline, density, and crown based on what is ACTUALLY VISIBLE in the photo — if the transplanted zone is growing in and coverage looks good, score it accordingly (transplanted grafts are real hair follicles producing real growth). (b) Note in photoNote that the user has undergone a hair transplant and that scores reflect the current post-procedure state of the transplanted zone. (c) For STAGING: assign the Norwood stage that the photo shows AFTER the transplant — if the frontal hairline has been successfully restored, assign the stage that matches the current visible appearance (e.g. NW1 or NW2) even though the underlying AGA was more advanced before surgery. Do NOT attempt to infer or assign the pre-transplant stage. (d) For Potential score: post-transplant patients in the active growth phase (6–18 months post-op) — score toward the upper half of the visible stage range and apply a +5 to +8 upward adjustment. Long-term (3+ years post-op) transplants: score normally by current appearance; apply DHT-suppression upward adjustments if finasteride/dutasteride is in the routine since native follicle miniaturization continues. (e) For insights: when a transplant is listed in "Current routine", DO NOT suggest starting a hair transplant. Instead focus on: (1) protecting native non-transplanted hair — native follicles continue to miniaturize post-surgery unless DHT is suppressed; finasteride or dutasteride significantly extends the transplant's longevity; (2) post-op scalp health — avoiding UV, heat styling, and harsh shampoos on grafts for the first 12 months; (3) realistic growth timeline — transplanted grafts shed at weeks 4–6 and regrow starting at months 3–4; full density is visible at 12–18 months. Visual signs of a hair transplant in photos: a hairline that appears unnaturally straight or geometric; uniform short hairs in rows or a pluggy texture in the frontal zone; a density contrast between the transplanted zone and the thinner native mid-scalp or crown; visible circular punch marks or texture irregularity in the occipital donor zone.
+
 Use a balanced visual baseline: score what is actually visible in the photo and user context. Do not artificially lower scores for healthy-looking or stable-looking areas, and do not push users into a low range just for motivation. Typical mild early thinning: 62-78 overall; clearly healthy cases: 78-90; significant recession or density loss: 35-62; 91+ is rare. If photoQuality is 'poor', use a conservative uncertainty range around 62-76 and reflect uncertainty in the verdict. Never refuse — produce a best-effort estimate. Insights array MUST contain exactly 3 entries.`;
 
       const scanReqBody = JSON.stringify({
@@ -3092,6 +3118,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // correctly label it as Rx rather than OTC topical.
         const _hasOralMinoxidil = _routineItems.some((r) => r.includes('loniten') || (r.includes('oral') && (r.includes('minoxidil') || r.includes('minox'))) || (r.includes('minoxidil') && (r.includes('tablet') || r.includes('pill') || r.includes('low dose') || r.includes('low-dose') || r.includes('systemic'))) || (r.includes('minoxidil') && /\d+\.?\d*\s*mg/.test(r)));
         const _hasPRP           = _routineItems.some((r) => r.includes('prp') || r.includes('platelet') || r.includes('platelet-rich') || r.includes('platelet rich'));
+        const _hasTransplant    = _routineItems.some((r) => r.includes('transplant') || r.includes('hair graft') || r.includes('graft') || r.includes('dhi') || (r.includes('fue') && !r.includes('fuel')) || (r.includes('fut') && !r.includes('future') && !r.includes('futile') && !r.includes('futuristic')));
         // Stage gates: at NW5 expectations shift; at NW6/NW7 OTC has very limited effect
         // and the primary path is specialist consultation / surgical options.
         const _isNW7          = data.stage === 'NW7';
@@ -5155,6 +5182,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           lllt:        _hasLLLT,          // LLLT devices: laser cap, laser comb, Capillus, HairMax
           supplements:   _hasSupplements,   // biotin / zinc / vitamins / saw palmetto
           prp:           _hasPRP,           // platelet-rich plasma injections (clinical procedure)
+          transplant:    _hasTransplant,    // prior FUE/FUT/DHI hair transplant surgery
         };
 
         // protocolStrengthScore + label: how complete the user's treatment stack is for their stage.
