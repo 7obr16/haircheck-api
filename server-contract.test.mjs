@@ -1332,6 +1332,15 @@ assert(
 );
 
 assert(
+  source.includes("_TOPICAL_LABELS") &&
+    source.includes("['rogaine foam',     'Rogaine 5% Minoxidil Foam (apply 1× daily to dry scalp — once-daily foam schedule)']") &&
+    source.includes("['kirkland',         'Kirkland Minoxidil 5% (apply to dry scalp twice daily)']") &&
+    source.includes("['spectral.rs',      'Spectral.RS (nanoxidil — apply twice daily; different molecule from minoxidil)']") &&
+    source.includes("_topicalFound ? `minoxidil (${_topicalFound})` : 'minoxidil'"),
+  'coach protocolStatusLine should surface the specific topical minoxidil product via a _TOPICAL_LABELS lookup — Rogaine/Regaine/Mintop/Tugain foam schedules once daily to dry hair while liquids/serums are twice daily, and nanoxidil (Spectral.RS/DNC-N) is a different molecule; naming the brand lets the coach give accurate application frequency instead of generic twice-daily advice'
+);
+
+assert(
   source.includes("dhtShampoo ? 'Should I add minoxidil to my finasteride + DHT-blocking shampoo at NW5?' : 'Should I add minoxidil to my finasteride at NW5?'"),
   'buildSuggestedQuestions NW5 Rx branch first question should be DHT-shampoo-aware: when the user has finasteride + DHT shampoo but no topical, acknowledge both layers rather than describing the protocol as finasteride-alone — consistent with the NW6/NW7 Rx pattern'
 );

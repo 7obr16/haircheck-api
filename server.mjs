@@ -5681,7 +5681,44 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (!pc) return '';
         const active = [];
         const missing = [];
-        if (pc.topical)                 active.push('minoxidil');                                           else missing.push('minoxidil');
+        if (pc.topical) {
+          // Surface specific topical minoxidil product for brand-accurate application coaching.
+          // Rogaine/Regaine 5% Foam and Mintop/Tugain foam use a once-daily schedule (dry hair);
+          // liquids/serums are twice daily. Nanoxidil (Spectral.RS/DNC-N) is a different molecule
+          // from minoxidil but same application schedule. Naming the brand + schedule lets the
+          // coach avoid wrong-frequency advice (e.g. telling a foam user to apply twice daily).
+          const _TOPICAL_LABELS = [
+            ['rogaine foam',     'Rogaine 5% Minoxidil Foam (apply 1× daily to dry scalp — once-daily foam schedule)'],
+            ['rogaine',          'Rogaine (minoxidil — apply to dry scalp twice daily)'],
+            ['regaine foam',     'Regaine 5% Foam (apply 1× daily to dry scalp — once-daily foam schedule)'],
+            ['regaine',          'Regaine (minoxidil — apply twice daily)'],
+            ['kirkland',         'Kirkland Minoxidil 5% (apply to dry scalp twice daily)'],
+            ['spectral.rs',      'Spectral.RS (nanoxidil — apply twice daily; different molecule from minoxidil)'],
+            ['spectral.dnc',     'Spectral.DNC-N (nanoxidil — apply twice daily; different molecule from minoxidil)'],
+            ['spectral',         'Spectral by DS Laboratories (nanoxidil — apply twice daily)'],
+            ['loxon',            'Loxon (minoxidil — apply twice daily)'],
+            ['alopexy',          'Alopexy (minoxidil — apply twice daily)'],
+            ['mintop foam',      'Mintop Forte Foam (minoxidil 5% — apply 1× daily to dry scalp)'],
+            ['mintop',           'Mintop (minoxidil solution — apply twice daily)'],
+            ['tugain foam',      'Tugain 5% Foam (minoxidil — apply 1× daily to dry scalp)'],
+            ['tugain',           'Tugain (minoxidil gel/solution — apply twice daily)'],
+            ['keeps',            'Keeps minoxidil (apply twice daily)'],
+            ['hims minoxidil',   'Hims minoxidil (apply twice daily)'],
+            ['forhers',          'Forhers minoxidil 2% (apply twice daily)'],
+            ['minoxidil direct', 'Minoxidil Direct (apply twice daily)'],
+            ['minoxidil 5%',     'minoxidil 5% (apply to dry scalp twice daily)'],
+            ['5% minoxidil',     'minoxidil 5% (apply to dry scalp twice daily)'],
+            ['minoxidil 2%',     'minoxidil 2% (apply twice daily)'],
+            ['2% minoxidil',     'minoxidil 2% (apply twice daily)'],
+            ['minoxidil foam',   'minoxidil foam (apply 1× daily to dry scalp — once-daily foam schedule)'],
+          ];
+          const _rlTopical = ctx.routine.map((s) => String(s).toLowerCase());
+          let _topicalFound = null;
+          for (const [kw, label] of _TOPICAL_LABELS) {
+            if (_rlTopical.some((r) => r.includes(kw))) { _topicalFound = label; break; }
+          }
+          active.push(_topicalFound ? `minoxidil (${_topicalFound})` : 'minoxidil');
+        } else missing.push('minoxidil');
         if (pc.rx) {
           // Surface the specific Rx drug(s) from the live routine — different antiandrogens have
           // completely different mechanisms, routes (oral vs topical), and usage instructions.
