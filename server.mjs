@@ -426,7 +426,7 @@ The result must be photorealistic and pixel-aligned with the input so it can be 
 const AFTER_STAGE_HINTS = {
   NW1:  "This user is Norwood 1: fully intact hairline with no significant hair loss anywhere on the scalp. There are NO thinning, receding, or bald zones to restore. Make absolutely no changes to the hair — return an output that looks pixel-identical to the input. Do not add extra density, do not modify the hairline position, do not change any aspect of the hair. The result must be indistinguishable from the input photo.",
   NW2:  "This user is Norwood 2: slight symmetric temple recession. Focus only on the temple corners — fill the M-shape recession to a natural, slightly receded adult hairline. Crown and mid-scalp are intact; leave them unchanged.",
-  NW3:  "This user is Norwood 3: deep bilateral temple recession extending past mid-pupil. Prioritize filling both temple recession zones. Crown and mid-scalp should remain mostly unchanged unless thinning is clearly visible there.",
+  NW3:  "This user is Norwood 3: deep bilateral temple recession extending past mid-pupil. Prioritize filling both temple recession zones. Crown and mid-scalp are intact at NW3 by definition — do NOT add density to either area; leave them completely unchanged.",
   NW3v: "This user is Norwood 3v: deep temple recession PLUS early vertex/crown thinning. Address both zones equally — fill temple recession and add modest density to the crown.",
   NW4:  "This user is Norwood 4: significant frontal hairline retreat and pronounced crown thinning. Restore density in both the frontal zone (to a credible age-appropriate hairline — approximately NW2-to-NW3 equivalent, NOT a straight youthful NW1 hairline) and the crown/vertex. The result should look 'clearly improved, not fully restored': the crown must retain at least 40–50% of its current exposed scalp area even in the best-case result — meaningful improvement, but the crown must never appear fully covered. The scalp top should still look clearly thinner than a person with no hair loss. Complete crown coverage at NW4 is not realistic.",
   NW5:  "This user is Norwood 5: frontal and crown zones nearly merging. The merged or nearly-merged bald area across the scalp top is large — show only modest improvement. The scalp top must still show 50–65% of its current exposed scalp area. Show slight density increase primarily at the hairline edge and fringe margins; the central bald area should look marginally less bare than the input but must remain clearly sparse. A person looking at the after photo should still immediately recognize significant hair loss across the full scalp top.",
@@ -436,11 +436,29 @@ const AFTER_STAGE_HINTS = {
   'n/a (female)': "This user has female-pattern thinning (Ludwig scale): diffuse loss at the central part and crown vertex, with the frontal hairline and temple shape largely intact. Focus improvement on two specific zones: (1) the central parting — make it visibly narrower so less scalp shows through the part line; (2) the crown/vertex region — add noticeable density increase across the scalp top. The result should look clearly improved (a narrower central part and fuller crown) but retain some evidence of central-part thinning — hair should not appear uniformly thick from front to crown the way a person with no hair loss history looks. The frontal hairline, temple shape, and sides must remain completely unchanged — female-pattern loss spares these zones and modifying them would look anatomically incorrect.",
 };
 
-// Returns AFTER_PROMPT with an optional stage-specific zone hint appended.
-// Falls back to the base prompt when stage is absent or unrecognised.
-const buildAfterPrompt = (stage) => {
+// Explicit zone-constraint line keyed to thinningPattern. Appended after the
+// stage hint to prevent the image model from modifying scalp zones that are
+// anatomically intact for this user's specific thinning geometry.
+const THINNING_PATTERN_ZONE_CONSTRAINTS = {
+  minimal:            'Zone constraint: NO thinning zones exist — do NOT modify any area of the hair or scalp.',
+  bitemporal:         'Zone constraint: ONLY the temple corners (M-shape recession zones) are affected. Do NOT modify the crown, vertex, or mid-scalp — those areas are intact and must remain completely unchanged.',
+  crown:              'Zone constraint: ONLY the crown/vertex is affected. Do NOT modify the temples, frontal hairline, or mid-scalp — those areas are intact and must remain completely unchanged.',
+  'bitemporal+crown': 'Zone constraint: ONLY the temples AND the crown/vertex are affected. Do NOT add density to the mid-scalp bridge between these zones — that band of hair is intact.',
+  frontal:            'Zone constraint: ONLY the frontal hairline band is affected (diffuse even recession, no sharp temple angles). Do NOT modify the crown or create temple angles where none existed.',
+  diffuse:            'Zone constraint: Thinning is DIFFUSE — distributed uniformly across the entire scalp top. Distribute any density improvement evenly; do NOT concentrate it in one zone or create any focal recession pattern.',
+  total:              'Zone constraint: Thinning is EXTENSIVE across all zones. Any improvement must be highly conservative and realistic — large bald areas must remain clearly visible.',
+};
+
+// Returns AFTER_PROMPT with an optional stage-specific zone hint and thinning
+// pattern zone constraint appended. Falls back to the base prompt when stage
+// is absent or unrecognised. thinningPattern is optional and additive.
+const buildAfterPrompt = (stage, thinningPattern) => {
   const hint = stage ? AFTER_STAGE_HINTS[stage] : null;
-  return hint ? `${AFTER_PROMPT}\n\nStage-specific focus: ${hint}` : AFTER_PROMPT;
+  const zoneConstraint = thinningPattern ? THINNING_PATTERN_ZONE_CONSTRAINTS[thinningPattern] : null;
+  if (!hint) return AFTER_PROMPT;
+  return zoneConstraint
+    ? `${AFTER_PROMPT}\n\nStage-specific focus: ${hint}\n\n${zoneConstraint}`
+    : `${AFTER_PROMPT}\n\nStage-specific focus: ${hint}`;
 };
 
 // Stage-specific zone hints for the analysis-map heatmap overlay.
@@ -466,7 +484,7 @@ const MAP_STAGE_HINTS = {
 const PROGRESSION_STAGE_HINTS = {
   NW1:  "This user is Norwood 1 — fully intact hairline with no hair loss anywhere. There are no thinning zones to improve at any treatment month. Make no visible changes — the 3-month, 6-month, and 12-month results should all look identical to the input photo. Do not add extra density or modify the hairline in any way.",
   NW2:  "This user is Norwood 2 (slight temple recession). Direct all visible improvement to the temple corners only — gradually fill the M-shape recession toward a natural adult hairline. Crown and mid-scalp are intact; leave them unchanged.",
-  NW3:  "This user is Norwood 3 (deep bilateral temple recession). Show improvement primarily in the temple recession zones. Crown and mid-scalp should remain mostly unchanged unless thinning is clearly visible there.",
+  NW3:  "This user is Norwood 3 (deep bilateral temple recession). Show improvement primarily in the temple recession zones. Crown and mid-scalp are intact at NW3 by definition — do NOT add density to either area; leave them completely unchanged at every treatment month.",
   NW3v: "This user is Norwood 3v (deep temple recession + early crown thinning). Show improvement in both zones equally — temple recession filling and modest crown density increase — proportional to the treatment month.",
   NW4:  "This user is Norwood 4 (significant frontal hairline retreat + pronounced crown thinning). Direct any improvement to both zones — the frontal hairline area (toward a more defined, credible adult hairline shape, not a teenager's hairline) and the crown/vertex (denser, but visible scalp always remains; 'clearly improved, not naturally full'). Complete crown coverage at NW4 is unlikely regardless of treatment duration — the crown must still show thinning and exposed scalp even at the strongest improvement level.",
   NW5:  "This user is Norwood 5 (frontal and crown zones nearly merging). Direct improvement uniformly across the entire scalp top — reduce visible scalp throughout, proportional to the treatment month. The sparse band between frontal and crown should look slightly wider and denser, but never fully bridged.",
@@ -537,7 +555,7 @@ const PROGRESSION_CALIBRATED_6MO_NW3_STAGES = new Set(['NW3', 'NW3v']); // 6-mon
 // Without an explicit OVERRIDES qualifier the image model follows the base prompt and
 // incorrectly adds hair to an already-full scalp. Apply an override for all months.
 const PROGRESSION_IDENTICAL_STAGES = new Set(['NW1']); // no-change override (all months)
-const buildProgressionPrompt = (month, stage) => {
+const buildProgressionPrompt = (month, stage, thinningPattern) => {
   const basePrompt = PROGRESSION_PROMPTS[month];
   const hint = stage ? PROGRESSION_STAGE_HINTS[stage] : null;
   if (!hint) return basePrompt;
@@ -575,7 +593,10 @@ const buildProgressionPrompt = (month, stage) => {
   } else {
     qualifier = 'Stage-specific focus:';
   }
-  return `${basePrompt}\n\n${qualifier} ${hint}`;
+  const zoneConstraint = thinningPattern ? THINNING_PATTERN_ZONE_CONSTRAINTS[thinningPattern] : null;
+  return zoneConstraint
+    ? `${basePrompt}\n\n${qualifier} ${hint}\n\n${zoneConstraint}`
+    : `${basePrompt}\n\n${qualifier} ${hint}`;
 };
 
 // Build 3 context-aware suggested questions for the coach tab.
@@ -2018,7 +2039,7 @@ const server = createServer(async (req, res) => {
   if (req.method === 'POST' && reqPath === '/api/generate-after') {
     try {
       METRICS.after.requests++;
-      const { photoDataUrl, prompt, quality: qParam, stage: stageParam } = await readJsonBody(req);
+      const { photoDataUrl, prompt, quality: qParam, stage: stageParam, thinningPattern: thinningParam } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required (data:image/...;base64,...)');
 
       // Quality knob — gpt-image-2 supports: auto | high | medium | low.
@@ -2026,9 +2047,12 @@ const server = createServer(async (req, res) => {
       // Pass `"quality":"high"` from the client to force premium.
       const quality = ['auto','high','medium','low'].includes(qParam) ? qParam : 'low';
 
-      // Accept an optional Norwood stage from a recent scan result.
-      // Used to append a zone-focus hint so the model restores the right areas.
-      const effectivePrompt = prompt || buildAfterPrompt(stageParam);
+      // Accept an optional Norwood stage and thinningPattern from a recent scan result.
+      // Both are used to append zone-focus hints so the model restores the right areas.
+      // thinningPattern is additive — requests without it continue to work identically.
+      const validThinningPatterns = new Set(['minimal','bitemporal','crown','bitemporal+crown','frontal','diffuse','total']);
+      const effectiveThinningPattern = thinningParam && validThinningPatterns.has(String(thinningParam)) ? String(thinningParam) : null;
+      const effectivePrompt = prompt || buildAfterPrompt(stageParam, effectiveThinningPattern);
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
       if (buffer.length < 3000) {
         const err = new Error('Photo appears corrupted or too small. Please retake a clearer photo.');
@@ -2137,11 +2161,13 @@ const server = createServer(async (req, res) => {
   if (req.method === 'POST' && reqPath === '/api/generate-progression') {
     try {
       METRICS.progression.requests++;
-      const { photoDataUrl, month, quality: qParam, stage: stageParam } = await readJsonBody(req);
+      const { photoDataUrl, month, quality: qParam, stage: stageParam, thinningPattern: thinningParam } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
       const m = Number(month);
       if (!PROGRESSION_PROMPTS[m]) throw new Error('month must be 3, 6, or 12');
       const quality = ['auto', 'high', 'medium', 'low'].includes(qParam) ? qParam : 'high';
+      const validThinningPatternsP = new Set(['minimal','bitemporal','crown','bitemporal+crown','frontal','diffuse','total']);
+      const effectiveThinningP = thinningParam && validThinningPatternsP.has(String(thinningParam)) ? String(thinningParam) : null;
 
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
       if (buffer.length < 3000) {
@@ -2161,9 +2187,8 @@ const server = createServer(async (req, res) => {
         return;
       }
 
-      // Include stage in cache key because buildProgressionPrompt interpolates it.
-      // stageParam || '' ensures the key is stable when stage is omitted.
-      const hash = cacheHashOf('progression', mime, createHash('sha256').update(buffer).digest('hex'), String(m), quality, stageParam || '');
+      // Include stage and thinningPattern in cache key because buildProgressionPrompt interpolates both.
+      const hash = cacheHashOf('progression', mime, createHash('sha256').update(buffer).digest('hex'), String(m), quality, stageParam || '', effectiveThinningP || '');
 
       // 1. Cache hit — return instantly
       const progCached = cacheRead(PROGRESSION_CACHE, hash);
@@ -2190,8 +2215,8 @@ const server = createServer(async (req, res) => {
       }
 
       const startedAt = Date.now();
-      const progressionPrompt = buildProgressionPrompt(m, stageParam);
-      console.log('[progression] start', { month: m, stage: stageParam || null, mime, inputKb: Math.round(buffer.length / 1024), quality, reqId });
+      const progressionPrompt = buildProgressionPrompt(m, stageParam, effectiveThinningP);
+      console.log('[progression] start', { month: m, stage: stageParam || null, thinningPattern: effectiveThinningP || null, mime, inputKb: Math.round(buffer.length / 1024), quality, reqId });
 
       const progPromise = (async () => {
         const { ok, status, payload } = await withOpenAIRetry('generate-progression', (signal) => {
@@ -2254,7 +2279,7 @@ const server = createServer(async (req, res) => {
   if (req.method === 'POST' && reqPath === '/api/generate-progression-batch') {
     try {
       METRICS.progressionBatch.requests++;
-      const { photoDataUrl, months: monthsParam = [3, 6, 12], quality: qParam, stage: stageParam } = await readJsonBody(req);
+      const { photoDataUrl, months: monthsParam = [3, 6, 12], quality: qParam, stage: stageParam, thinningPattern: thinningParamB } = await readJsonBody(req);
       if (!photoDataUrl) throw new Error('photoDataUrl required');
 
       const rawMonths = Array.isArray(monthsParam) ? monthsParam : [monthsParam];
@@ -2262,6 +2287,8 @@ const server = createServer(async (req, res) => {
       if (!months.length) throw new Error('months must include one or more of: 3, 6, 12');
 
       const quality = ['auto', 'high', 'medium', 'low'].includes(qParam) ? qParam : 'high';
+      const validThinningPatternsB = new Set(['minimal','bitemporal','crown','bitemporal+crown','frontal','diffuse','total']);
+      const effectiveThinningB = thinningParamB && validThinningPatternsB.has(String(thinningParamB)) ? String(thinningParamB) : null;
       const { mime, buffer } = dataUrlToBuffer(photoDataUrl);
       if (buffer.length < 3000) {
         const err = new Error('Photo appears corrupted or too small. Please retake a clearer photo.');
@@ -2282,13 +2309,13 @@ const server = createServer(async (req, res) => {
 
       const photoHash = createHash('sha256').update(buffer).digest('hex');
       const startedAt = Date.now();
-      console.log('[progression-batch] start', { months, stage: stageParam || null, mime, inputKb: Math.round(buffer.length / 1024), quality, reqId });
+      console.log('[progression-batch] start', { months, stage: stageParam || null, thinningPattern: effectiveThinningB || null, mime, inputKb: Math.round(buffer.length / 1024), quality, reqId });
 
       // Run all requested months in parallel. PROGRESSION_CACHE and PROGRESSION_INFLIGHT are shared
       // with the single-month handler so concurrent calls for the same photo never hit OpenAI twice.
       const monthResults = await Promise.all(months.map(async (m) => {
         METRICS.progression.requests++;
-        const hash = cacheHashOf('progression', mime, photoHash, String(m), quality, stageParam || '');
+        const hash = cacheHashOf('progression', mime, photoHash, String(m), quality, stageParam || '', effectiveThinningB || '');
 
         const progCached = cacheRead(PROGRESSION_CACHE, hash);
         if (progCached) {
@@ -2304,7 +2331,7 @@ const server = createServer(async (req, res) => {
           return { month: m, ...r };
         }
 
-        const progressionPrompt = buildProgressionPrompt(m, stageParam);
+        const progressionPrompt = buildProgressionPrompt(m, stageParam, effectiveThinningB);
         console.log('[progression-batch] generating', { month: m, hash: hash.slice(0, 8) });
 
         const progPromise = (async () => {
