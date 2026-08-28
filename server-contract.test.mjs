@@ -1323,6 +1323,15 @@ assert(
 );
 
 assert(
+  source.includes("_SHAMPOO_LABELS") &&
+    source.includes("['nizoral',        'Nizoral (ketoconazole 1% or 2% — leave on 3–5 min per wash)']") &&
+    source.includes("['alpecin',        'Alpecin caffeine shampoo (leave on ~2 min per wash)']") &&
+    source.includes("['regenepure',     'Regenepure NT (ketoconazole + saw palmetto blend — leave on 3–5 min)']") &&
+    source.includes("`DHT-blocking shampoo (${_shampooFound.join(' + ')})`"),
+  'coach protocolStatusLine should surface the specific DHT-shampoo brand(s) from the live routine via a _SHAMPOO_LABELS lookup — ketoconazole (Nizoral/Nizral/Ketomac/Ketomine) needs 3–5 min contact, caffeine (Alpecin/Plantur) works in ~2 min, and peptide/procyanidin blends differ again; naming the brand lets the coach give accurate contact-time and stacking advice instead of generic "DHT-blocking shampoo"'
+);
+
+assert(
   source.includes("dhtShampoo ? 'Should I add minoxidil to my finasteride + DHT-blocking shampoo at NW5?' : 'Should I add minoxidil to my finasteride at NW5?'"),
   'buildSuggestedQuestions NW5 Rx branch first question should be DHT-shampoo-aware: when the user has finasteride + DHT shampoo but no topical, acknowledge both layers rather than describing the protocol as finasteride-alone — consistent with the NW6/NW7 Rx pattern'
 );

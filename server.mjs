@@ -5687,7 +5687,61 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             ? `oral minoxidil ${_omDose} (Rx vasodilator tablet — NOT an antiandrogen; does not replace finasteride/dutasteride/spironolactone for DHT suppression)`
             : (_omBrandLabel || 'oral minoxidil (Rx vasodilator tablet — NOT an antiandrogen; does not replace finasteride/dutasteride/spironolactone for DHT suppression)'));
         }
-        if (pc.dhtShampoo)              active.push('DHT-blocking shampoo');                                else missing.push('DHT-blocking shampoo');
+        if (pc.dhtShampoo) {
+          // Surface specific DHT-shampoo brand(s) from the live routine. Different formulations
+          // have different active ingredients and contact-time requirements — ketoconazole
+          // (Nizoral, Nizral, Ketomac, Ketomine) needs 3–5 min contact; caffeine-based
+          // (Alpecin, Plantur 21/39) works in ~2 min; peptide/procyanidin blends (Revita,
+          // Foligain) sit somewhere between. Naming the brand lets the coach give accurate
+          // application, frequency, and stacking guidance instead of generic "DHT shampoo".
+          const _SHAMPOO_LABELS = [
+            ['nizoral',        'Nizoral (ketoconazole 1% or 2% — leave on 3–5 min per wash)'],
+            ['nizral',         'Nizral (ketoconazole — leave on 3–5 min per wash)'],
+            ['ketomac',        'Ketomac (ketoconazole — leave on 3–5 min per wash)'],
+            ['ketomine',       'Ketomine (ketoconazole — leave on 3–5 min per wash)'],
+            ['ketoconazole',   'ketoconazole shampoo (leave on 3–5 min per wash)'],
+            ['keto shampoo',   'ketoconazole shampoo (leave on 3–5 min per wash)'],
+            ['alpecin',        'Alpecin caffeine shampoo (leave on ~2 min per wash)'],
+            ['plantur',        'Plantur 21/39 caffeine shampoo (leave on ~2 min per wash)'],
+            ['caffeine shampoo','caffeine shampoo (leave on ~2 min per wash)'],
+            ['revita',         'Revita (procyanidin + caffeine blend — leave on 1–3 min)'],
+            ['regenepure',     'Regenepure NT (ketoconazole + saw palmetto blend — leave on 3–5 min)'],
+            ['foligain',       'Foligain (trioxidil + biotin blend — daily use)'],
+            ['lipogaine',      'Lipogaine Big 3 (biotin + castor + saw palmetto — daily use)'],
+            ['pura d',         'Pura d\'or Anti-Thinning (biotin + argan blend — daily use)'],
+            ['shapiro md',     'Shapiro MD (saw palmetto + procyanidin blend — daily use)'],
+            ['nioxin',         'Nioxin (peppermint + cleansing system — daily use)'],
+            ['keranique',      'Keranique (keratin amino system — daily use)'],
+            ['ultrax',         'Ultrax Labs Hair Surge (caffeine + saw palmetto blend — leave on 3–5 min)'],
+            ['phytocyane',     'Phytocyane (ginkgo + procyanidin blend — daily use)'],
+            ['bioxsine',       'Bioxsine (herbal DHT blend — daily use)'],
+            ['pronexa',        'Pronexa Hairgenics (biotin + peptide blend — daily use)'],
+            ['revivogen',      'Revivogen (saw palmetto + azelaic acid — daily use)'],
+            ['watermans',      'Watermans Grow Me (caffeine + biotin blend — daily use)'],
+            ['anaphase',       'Ducray Anaphase+ (biotin + tocopherol — daily use)'],
+            ['vichy',          'Vichy Dercos Aminexil (aminexil serum + shampoo — daily use)'],
+            ['dercos',         'Vichy Dercos Aminexil (aminexil serum + shampoo — daily use)'],
+            ['klorane',        'Klorane quinine shampoo (quinine + B vitamins — daily use)'],
+            ['rene furterer',  'René Furterer Triphasic (essential oil concentrate — 1–3× weekly)'],
+            ['triphasic',      'René Furterer Triphasic (essential oil concentrate — 1–3× weekly)'],
+            ['ducray',         'Ducray anti-hair-loss shampoo (biotin blend — daily use)'],
+            ['bioscalin',      'Bioscalin (nutricomplex + shampoo — daily use)'],
+            ['mielle',         'Mielle rosemary mint (rosemary oil blend — daily use)'],
+            ['rosemary oil',   'rosemary oil shampoo (daily use)'],
+            ['maple holistics','Maple Holistics (biotin + herbal blend — daily use)'],
+          ];
+          const _rlShampoo = ctx.routine.map((s) => String(s).toLowerCase());
+          const _shampooFound = [];
+          for (const [kw, label] of _SHAMPOO_LABELS) {
+            if (_rlShampoo.some((r) => r.includes(kw)) && !_shampooFound.includes(label)) {
+              _shampooFound.push(label);
+              if (_shampooFound.length >= 2) break;
+            }
+          }
+          active.push(_shampooFound.length
+            ? `DHT-blocking shampoo (${_shampooFound.join(' + ')})`
+            : 'DHT-blocking shampoo');
+        } else missing.push('DHT-blocking shampoo');
         if (pc.lllt) {
           // Surface specific LLLT device from live routine for personalized session timing advice.
           const _LLLT_LABELS = [
