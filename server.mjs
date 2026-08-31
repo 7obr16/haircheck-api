@@ -3000,7 +3000,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           insights:            rawInsights,
           verdict:             String(parsed.verdict || '').slice(0, 400),
           photoQuality,
-          photoNote:           String(parsed.photoNote || '').slice(0, 200),
+          photoNote:           String(parsed.photoNote || '').slice(0, 800),
           thinningPattern,
           thinningPatternLabel: THINNING_PATTERN_GUIDE[thinningPattern] || null,
           thinningZones: stage === 'n/a (female)'
