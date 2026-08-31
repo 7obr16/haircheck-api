@@ -5356,6 +5356,35 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           }
         }
 
+        // Non-AGA condition override: when the scan flagged a non-androgenetic condition in
+        // photoNote (CCCA, FFA, DUPA, alopecia areata, traction alopecia, seborrheic dermatitis,
+        // or psoriasis), replace Q1 with a condition-specific question. These conditions are more
+        // urgent than any generic stage/routine chip because they require different treatments and,
+        // in the case of scarring alopecias (CCCA, FFA), early specialist referral is critical.
+        // Priority: scarring (CCCA > FFA) → autoimmune (AA) → poor-transplant (DUPA) →
+        //           lifestyle (TA) → inflammatory (SD/psoriasis). Only fires when photoNote exists.
+        (() => {
+          const _pn = (data.photoNote || '').toLowerCase();
+          if (!_pn) return;
+          let _condQ = null;
+          if (_pn.includes('central centrifugal cicatricial') || _pn.includes('ccca')) {
+            _condQ = 'My scan flagged a CCCA pattern — what is CCCA and what treatment steps should I take immediately?';
+          } else if (_pn.includes('frontal fibrosing') || _pn.includes('ffa')) {
+            _condQ = 'My scan flagged a possible Frontal Fibrosing Alopecia (FFA) pattern — what are my next steps and why is it different from AGA?';
+          } else if (_pn.includes('alopecia areata')) {
+            _condQ = 'My scan detected a possible alopecia areata pattern — how is it treated differently from androgenetic hair loss?';
+          } else if (_pn.includes('diffuse unpatterned') || _pn.includes('dupa')) {
+            _condQ = 'My scan flagged a DUPA pattern — how does this affect my transplant candidacy and what should I do next?';
+          } else if (_pn.includes('traction alopecia')) {
+            _condQ = 'My scan flagged possible traction alopecia — how do I stop it from progressing and can it regrow?';
+          } else if (_pn.includes('seborrheic dermatitis') || _pn.includes('scalp psoriasis') || _pn.includes('psoriasis')) {
+            _condQ = 'My scan detected scalp inflammation — how does treating it help my hair loss and what should I use?';
+          }
+          if (_condQ) {
+            data.coachSuggestedQuestions = [_condQ, ...data.coachSuggestedQuestions.slice(1)];
+          }
+        })();
+
         // suggestedAdviceVisuals: ordered list of up to 3 advice-visual kinds for the iOS
         // app to pre-fetch for the protocol card carousel. Derived from missing protocol
         // layers (priority: topical → shampoo → supplements → massage/microneedling).
