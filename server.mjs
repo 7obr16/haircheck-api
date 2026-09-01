@@ -5259,6 +5259,28 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           : null;
         data.weeklyFocusSecondaryMetric = data.secondWeakestMetric?.label || null;
 
+        // Non-AGA weeklyFocus override: when a scarring alopecia or active autoimmune condition
+        // is flagged in photoNote, replace the standard protocol-based weeklyFocus with an
+        // urgent specialist-referral message. Standard AGA protocol advice (minoxidil, DHT
+        // shampoo, etc.) is not the primary first-line treatment for these conditions — early
+        // specialist diagnosis is the single highest-ROI action and the standard weekly focus
+        // text would actively misdirect the user.
+        (() => {
+          const _pnLower = (data.photoNote || '').toLowerCase();
+          if (!_pnLower) return;
+          if (_pnLower.includes('frontal fibrosing') || _pnLower.includes('lichen planopilaris') || _pnLower.includes('central centrifugal cicatricial')) {
+            data.weeklyFocus = 'Book a dermatologist or trichologist appointment this week — a potential scarring alopecia was flagged in your scan. Scarring alopecias permanently destroy follicles if left untreated; early specialist diagnosis is the single most important action right now.';
+            data.weeklyFocusMetric = 'Health';
+            data.weeklyFocusSecondary = null;
+            data.weeklyFocusSecondaryMetric = null;
+          } else if (_pnLower.includes('alopecia areata')) {
+            data.weeklyFocus = 'See a dermatologist this week about the possible alopecia areata pattern — it responds to different treatment than androgenetic hair loss. Early evaluation for intralesional corticosteroids or JAK inhibitors is the most effective first step.';
+            data.weeklyFocusMetric = 'Health';
+            data.weeklyFocusSecondary = null;
+            data.weeklyFocusSecondaryMetric = null;
+          }
+        })();
+
         // protocolCoverage: structured breakdown of which treatment categories are active
         // in the user's current routine. Derived server-side from the same parsed routine
         // flags used to build weeklyFocus — no additional client-side string parsing needed.
