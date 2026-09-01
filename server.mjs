@@ -3083,6 +3083,26 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // which is forward-looking). Use this when you want "where the user IS" vs "overall"
         // which is optimistic because it blends in potential.
         data.currentStateScore = Math.round((data.hairline + data.density + data.crown + data.health) / 4);
+        // detectedConditions: machine-readable list of non-AGA conditions flagged in photoNote.
+        // Lets the iOS app react to conditions (show alerts, CTAs, etc.) without parsing text.
+        // Values are stable enum strings; new conditions can be appended without breaking existing clients.
+        // Computed once here and used throughout the server-side pipeline (urgency, coach questions, weeklyFocus).
+        {
+          const _pnL = (data.photoNote || '').toLowerCase();
+          const _conds = [];
+          if (_pnL.includes('frontal fibrosing'))                                     _conds.push('ffa');
+          if (_pnL.includes('lichen planopilaris') || _pnL.includes(' lpp'))          _conds.push('lpp');
+          if (_pnL.includes('central centrifugal cicatricial') || _pnL.includes('ccca')) _conds.push('ccca');
+          if (_pnL.includes('alopecia areata'))                                        _conds.push('alopecia_areata');
+          if (_pnL.includes('diffuse unpatterned') || _pnL.includes(' dupa'))          _conds.push('dupa');
+          if (_pnL.includes('traction alopecia'))                                      _conds.push('traction_alopecia');
+          if (_pnL.includes('seborrheic dermatitis'))                                  _conds.push('seborrheic_dermatitis');
+          if (_pnL.includes('scalp psoriasis'))                                        _conds.push('scalp_psoriasis');
+          if (_pnL.includes('postpartum te') || _pnL.includes('postpartum telogen effluvium') || _pnL.includes('postpartum shedding')) _conds.push('postpartum_te');
+          if (_pnL.includes('treatment-induced te') || _pnL.includes('treatment-induced telogen effluvium')) _conds.push('treatment_induced_te');
+          if (_pnL.includes('seasonal') && (_pnL.includes(' te') || _pnL.includes('telogen effluvium') || _pnL.includes('shedding'))) _conds.push('seasonal_te');
+          data.detectedConditions = _conds;
+        }
         // treatmentUrgency is computed server-side from stage + profile age — not sent to GPT-4o.
         data.treatmentUrgency = computeTreatmentUrgency(stage, profile.age);
         // Non-AGA urgency override: scarring alopecias (FFA, LPP, CCCA) and active autoimmune
@@ -3091,11 +3111,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // in the coach — critical because delay means irreversible follicle destruction.
         // Only upgrades urgency (never downgrades an already-'high' stage result).
         if (data.treatmentUrgency !== 'high') {
-          const _pnLower = (data.photoNote || '').toLowerCase();
-          const _scarringMatch = _pnLower.includes('frontal fibrosing')
-            || _pnLower.includes('lichen planopilaris')
-            || _pnLower.includes('central centrifugal cicatricial')
-            || _pnLower.includes('alopecia areata');
+          const _scarringMatch = data.detectedConditions.some(c => c === 'ffa' || c === 'lpp' || c === 'ccca' || c === 'alopecia_areata');
           if (_scarringMatch) data.treatmentUrgency = 'high';
         }
         // weakestMetric: the lowest-scoring current-state metric (excludes potential, which is forward-looking).
@@ -5260,20 +5276,17 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         data.weeklyFocusSecondaryMetric = data.secondWeakestMetric?.label || null;
 
         // Non-AGA weeklyFocus override: when a scarring alopecia or active autoimmune condition
-        // is flagged in photoNote, replace the standard protocol-based weeklyFocus with an
-        // urgent specialist-referral message. Standard AGA protocol advice (minoxidil, DHT
-        // shampoo, etc.) is not the primary first-line treatment for these conditions — early
-        // specialist diagnosis is the single highest-ROI action and the standard weekly focus
-        // text would actively misdirect the user.
+        // is flagged, replace the standard protocol-based weeklyFocus with an urgent specialist-referral
+        // message. Uses detectedConditions (already computed above) — no repeated photoNote parsing.
         (() => {
-          const _pnLower = (data.photoNote || '').toLowerCase();
-          if (!_pnLower) return;
-          if (_pnLower.includes('frontal fibrosing') || _pnLower.includes('lichen planopilaris') || _pnLower.includes('central centrifugal cicatricial')) {
+          const _dc = data.detectedConditions;
+          if (!_dc.length) return;
+          if (_dc.some(c => c === 'ffa' || c === 'lpp' || c === 'ccca')) {
             data.weeklyFocus = 'Book a dermatologist or trichologist appointment this week — a potential scarring alopecia was flagged in your scan. Scarring alopecias permanently destroy follicles if left untreated; early specialist diagnosis is the single most important action right now.';
             data.weeklyFocusMetric = 'Health';
             data.weeklyFocusSecondary = null;
             data.weeklyFocusSecondaryMetric = null;
-          } else if (_pnLower.includes('alopecia areata')) {
+          } else if (_dc.includes('alopecia_areata')) {
             data.weeklyFocus = 'See a dermatologist this week about the possible alopecia areata pattern — it responds to different treatment than androgenetic hair loss. Early evaluation for intralesional corticosteroids or JAK inhibitors is the most effective first step.';
             data.weeklyFocusMetric = 'Health';
             data.weeklyFocusSecondary = null;
@@ -5411,33 +5424,30 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // Non-AGA condition override: when the scan flagged a non-androgenetic condition in
         // photoNote (CCCA, FFA, LPP, DUPA, alopecia areata, traction alopecia, seborrheic dermatitis,
         // psoriasis, postpartum TE, or treatment-induced TE), replace Q1 with a condition-specific
-        // question. These conditions are more urgent than any generic stage/routine chip because they
-        // require different treatments and, in the case of scarring alopecias (CCCA, FFA, LPP), early
-        // specialist referral is critical.
+        // question. Uses detectedConditions (already computed above) — no repeated photoNote parsing.
         // Priority: scarring (CCCA > FFA > LPP) → autoimmune (AA) → poor-transplant (DUPA) →
         //           lifestyle (TA) → inflammatory (SD/psoriasis) → TE reassurance (postpartum > tx-onset).
-        // Only fires when photoNote exists.
         (() => {
-          const _pn = (data.photoNote || '').toLowerCase();
-          if (!_pn) return;
+          const _dc = data.detectedConditions;
+          if (!_dc.length) return;
           let _condQ = null;
-          if (_pn.includes('central centrifugal cicatricial') || _pn.includes('ccca')) {
+          if (_dc.includes('ccca')) {
             _condQ = 'My scan flagged a CCCA pattern — what is CCCA and what treatment steps should I take immediately?';
-          } else if (_pn.includes('frontal fibrosing') || _pn.includes('ffa')) {
+          } else if (_dc.includes('ffa')) {
             _condQ = 'My scan flagged a possible Frontal Fibrosing Alopecia (FFA) pattern — what are my next steps and why is it different from AGA?';
-          } else if (_pn.includes('lichen planopilaris') || _pn.includes('lpp')) {
+          } else if (_dc.includes('lpp')) {
             _condQ = 'My scan flagged a possible Lichen Planopilaris (LPP) pattern — what is LPP and how is it treated differently from AGA?';
-          } else if (_pn.includes('alopecia areata')) {
+          } else if (_dc.includes('alopecia_areata')) {
             _condQ = 'My scan detected a possible alopecia areata pattern — how is it treated differently from androgenetic hair loss?';
-          } else if (_pn.includes('diffuse unpatterned') || _pn.includes('dupa')) {
+          } else if (_dc.includes('dupa')) {
             _condQ = 'My scan flagged a DUPA pattern — how does this affect my transplant candidacy and what should I do next?';
-          } else if (_pn.includes('traction alopecia')) {
+          } else if (_dc.includes('traction_alopecia')) {
             _condQ = 'My scan flagged possible traction alopecia — how do I stop it from progressing and can it regrow?';
-          } else if (_pn.includes('seborrheic dermatitis') || _pn.includes('scalp psoriasis') || _pn.includes('psoriasis')) {
+          } else if (_dc.includes('seborrheic_dermatitis') || _dc.includes('scalp_psoriasis')) {
             _condQ = 'My scan detected scalp inflammation — how does treating it help my hair loss and what should I use?';
-          } else if (_pn.includes('postpartum te') || _pn.includes('postpartum telogen effluvium') || _pn.includes('postpartum shedding')) {
+          } else if (_dc.includes('postpartum_te')) {
             _condQ = 'My scan noted postpartum shedding — is this temporary and when will my hair fully recover?';
-          } else if (_pn.includes('treatment-induced te') || _pn.includes('treatment-induced telogen effluvium')) {
+          } else if (_dc.includes('treatment_induced_te')) {
             _condQ = 'My scan noted possible treatment-induced shedding — is this temporary and how long should I expect it to last?';
           }
           if (_condQ) {
