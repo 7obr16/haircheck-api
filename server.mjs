@@ -3085,6 +3085,19 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         data.currentStateScore = Math.round((data.hairline + data.density + data.crown + data.health) / 4);
         // treatmentUrgency is computed server-side from stage + profile age — not sent to GPT-4o.
         data.treatmentUrgency = computeTreatmentUrgency(stage, profile.age);
+        // Non-AGA urgency override: scarring alopecias (FFA, LPP, CCCA) and active autoimmune
+        // conditions (alopecia areata) need urgent specialist referral regardless of AGA stage.
+        // Overriding to 'high' shortens checkInIntervalDays to 28 and surfaces urgency language
+        // in the coach — critical because delay means irreversible follicle destruction.
+        // Only upgrades urgency (never downgrades an already-'high' stage result).
+        if (data.treatmentUrgency !== 'high') {
+          const _pnLower = (data.photoNote || '').toLowerCase();
+          const _scarringMatch = _pnLower.includes('frontal fibrosing')
+            || _pnLower.includes('lichen planopilaris')
+            || _pnLower.includes('central centrifugal cicatricial')
+            || _pnLower.includes('alopecia areata');
+          if (_scarringMatch) data.treatmentUrgency = 'high';
+        }
         // weakestMetric: the lowest-scoring current-state metric (excludes potential, which is forward-looking).
         // The iOS app can pass this directly to the coach endpoint as userContext.weakestMetric.
         const _currentState = { Hairline: data.hairline, Density: data.density, Crown: data.crown, Health: data.health };
