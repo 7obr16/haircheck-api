@@ -5369,11 +5369,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
 
         // Non-AGA condition override: when the scan flagged a non-androgenetic condition in
         // photoNote (CCCA, FFA, LPP, DUPA, alopecia areata, traction alopecia, seborrheic dermatitis,
-        // or psoriasis), replace Q1 with a condition-specific question. These conditions are more
-        // urgent than any generic stage/routine chip because they require different treatments and,
-        // in the case of scarring alopecias (CCCA, FFA, LPP), early specialist referral is critical.
+        // psoriasis, postpartum TE, or treatment-induced TE), replace Q1 with a condition-specific
+        // question. These conditions are more urgent than any generic stage/routine chip because they
+        // require different treatments and, in the case of scarring alopecias (CCCA, FFA, LPP), early
+        // specialist referral is critical.
         // Priority: scarring (CCCA > FFA > LPP) → autoimmune (AA) → poor-transplant (DUPA) →
-        //           lifestyle (TA) → inflammatory (SD/psoriasis). Only fires when photoNote exists.
+        //           lifestyle (TA) → inflammatory (SD/psoriasis) → TE reassurance (postpartum > tx-onset).
+        // Only fires when photoNote exists.
         (() => {
           const _pn = (data.photoNote || '').toLowerCase();
           if (!_pn) return;
@@ -5392,6 +5394,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             _condQ = 'My scan flagged possible traction alopecia — how do I stop it from progressing and can it regrow?';
           } else if (_pn.includes('seborrheic dermatitis') || _pn.includes('scalp psoriasis') || _pn.includes('psoriasis')) {
             _condQ = 'My scan detected scalp inflammation — how does treating it help my hair loss and what should I use?';
+          } else if (_pn.includes('postpartum te') || _pn.includes('postpartum telogen effluvium') || _pn.includes('postpartum shedding')) {
+            _condQ = 'My scan noted postpartum shedding — is this temporary and when will my hair fully recover?';
+          } else if (_pn.includes('treatment-induced te') || _pn.includes('treatment-induced telogen effluvium')) {
+            _condQ = 'My scan noted possible treatment-induced shedding — is this temporary and how long should I expect it to last?';
           }
           if (_condQ) {
             data.coachSuggestedQuestions = [_condQ, ...data.coachSuggestedQuestions.slice(1)];
