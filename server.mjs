@@ -5423,10 +5423,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
 
         // Non-AGA condition override: when the scan flagged a non-androgenetic condition in
         // photoNote (CCCA, FFA, LPP, DUPA, alopecia areata, traction alopecia, seborrheic dermatitis,
-        // psoriasis, postpartum TE, or treatment-induced TE), replace Q1 with a condition-specific
-        // question. Uses detectedConditions (already computed above) — no repeated photoNote parsing.
+        // psoriasis, postpartum TE, treatment-induced TE, or seasonal TE), replace Q1 with a
+        // condition-specific question. Uses detectedConditions (already computed above) — no repeated
+        // photoNote parsing.
         // Priority: scarring (CCCA > FFA > LPP) → autoimmune (AA) → poor-transplant (DUPA) →
-        //           lifestyle (TA) → inflammatory (SD/psoriasis) → TE reassurance (postpartum > tx-onset).
+        //           lifestyle (TA) → inflammatory (SD/psoriasis) → TE reassurance (postpartum > tx-onset > seasonal).
         (() => {
           const _dc = data.detectedConditions;
           if (!_dc.length) return;
@@ -5449,6 +5450,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             _condQ = 'My scan noted postpartum shedding — is this temporary and when will my hair fully recover?';
           } else if (_dc.includes('treatment_induced_te')) {
             _condQ = 'My scan noted possible treatment-induced shedding — is this temporary and how long should I expect it to last?';
+          } else if (_dc.includes('seasonal_te')) {
+            _condQ = 'My scan noted seasonal shedding as a possible factor — is this normal and should I change my routine?';
           }
           if (_condQ) {
             data.coachSuggestedQuestions = [_condQ, ...data.coachSuggestedQuestions.slice(1)];

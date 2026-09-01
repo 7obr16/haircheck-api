@@ -2175,4 +2175,23 @@ assert(
   'suggestedAdviceVisuals should surface the transplant visual as the third card for post-transplant users instead of consultation — they have already had surgery and need graft-care context'
 );
 
+assert(
+  source.includes("data.detectedConditions = _conds") &&
+    source.includes("_pnL.includes('frontal fibrosing')") &&
+    source.includes("_pnL.includes('lichen planopilaris')") &&
+    source.includes("_pnL.includes('alopecia areata')") &&
+    source.includes("_pnL.includes('seborrheic dermatitis')") &&
+    source.includes("_pnL.includes('scalp psoriasis')") &&
+    source.includes("_pnL.includes('postpartum te')") &&
+    source.includes("_pnL.includes('treatment-induced te')") &&
+    source.includes("_pnL.includes('seasonal')"),
+  'scan should populate detectedConditions array from photoNote text — machine-readable list of non-AGA conditions for the iOS app to react to without parsing text'
+);
+
+assert(
+  source.includes("_dc.includes('seasonal_te')") &&
+    source.includes("seasonal shedding as a possible factor — is this normal and should I change my routine"),
+  'coachSuggestedQuestions should override Q1 with a seasonal-shedding question when seasonal_te is detected — completing the TE reassurance priority chain (postpartum > tx-onset > seasonal)'
+);
+
 console.log('server contract passed');
