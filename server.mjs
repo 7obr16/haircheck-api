@@ -5699,6 +5699,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           stageChanged:          userContext.result.stageChanged ?? null,
           stageDirection:        userContext.result.stageDirection || null,
           riskFactorFlags:       userContext.result.riskFactorFlags && typeof userContext.result.riskFactorFlags === 'object' ? { ...userContext.result.riskFactorFlags } : null,
+          detectedConditions:    Array.isArray(userContext.result.detectedConditions) ? userContext.result.detectedConditions.map((c) => String(c).slice(0, 40)) : [],
         } : null,
         routine: Array.isArray(userContext.routine) ? userContext.routine.slice(0, 20).map((s) => String(s ?? '').slice(0, 80)) : [],
         scanHistory: Array.isArray(userContext.history) ? userContext.history.slice(-6) : [],
@@ -6324,12 +6325,40 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       // The protocolStatusLine in the system prompt uses coachProtocolCoverage (fresher) for
       // actual coach responses; chips use ctx.scan.protocolCoverage to match the scan's chip set.
       // suggestedFollowUps: context-aware chips after a coach conversation.
-      // Applies the same riskFactorFlags slot-2 overrides as the scan's coachSuggestedQuestions
-      // so chips stay targeted to the user's specific risk profile rather than reverting to
-      // generic stage + protocol combos between coach turns.
+      // Priority: condition-specific chip (slot 0) → riskFactorFlags slot-2 override →
+      // generic stage + protocol combos. This mirrors the scan's coachSuggestedQuestions
+      // priority so chips stay consistent across scan and coach turns.
       let suggestedFollowUps = ctx.scan?.stage
         ? buildSuggestedQuestions(ctx.scan.stage, ctx.scan.protocolCoverage, ctx.scan.specialistRecommended)
         : null;
+      // Apply condition-specific slot-0 chip when a non-AGA condition was detected —
+      // same priority order as the scan's coachSuggestedQuestions condition override.
+      if (suggestedFollowUps && Array.isArray(ctx.scan?.detectedConditions) && ctx.scan.detectedConditions.length) {
+        const _fdc = ctx.scan.detectedConditions;
+        let _condQ = null;
+        if (_fdc.includes('ccca')) {
+          _condQ = 'My scan flagged a CCCA pattern — what is CCCA and what treatment steps should I take immediately?';
+        } else if (_fdc.includes('ffa')) {
+          _condQ = 'My scan flagged a possible Frontal Fibrosing Alopecia (FFA) pattern — what are my next steps and why is it different from AGA?';
+        } else if (_fdc.includes('lpp')) {
+          _condQ = 'My scan flagged a possible Lichen Planopilaris (LPP) pattern — what is LPP and how is it treated differently from AGA?';
+        } else if (_fdc.includes('alopecia_areata')) {
+          _condQ = 'My scan detected a possible alopecia areata pattern — how is it treated differently from androgenetic hair loss?';
+        } else if (_fdc.includes('dupa')) {
+          _condQ = 'My scan flagged a DUPA pattern — how does this affect my transplant candidacy and what should I do next?';
+        } else if (_fdc.includes('traction_alopecia')) {
+          _condQ = 'My scan flagged possible traction alopecia — how do I stop it from progressing and can it regrow?';
+        } else if (_fdc.includes('seborrheic_dermatitis') || _fdc.includes('scalp_psoriasis')) {
+          _condQ = 'My scan detected scalp inflammation — how does treating it help my hair loss and what should I use?';
+        } else if (_fdc.includes('postpartum_te')) {
+          _condQ = 'My scan noted postpartum shedding — is this temporary and when will my hair fully recover?';
+        } else if (_fdc.includes('treatment_induced_te')) {
+          _condQ = 'My scan noted possible treatment-induced shedding — is this temporary and how long should I expect it to last?';
+        } else if (_fdc.includes('seasonal_te')) {
+          _condQ = 'My scan noted seasonal shedding as a possible factor — is this normal and should I change my routine?';
+        }
+        if (_condQ) suggestedFollowUps = [_condQ, ...suggestedFollowUps.slice(1)];
+      }
       if (suggestedFollowUps && ctx.scan?.riskFactorFlags) {
         const _rff = ctx.scan.riskFactorFlags;
         const _fstage = ctx.scan.stage;
