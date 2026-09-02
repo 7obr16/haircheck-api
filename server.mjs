@@ -5308,6 +5308,17 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             data.weeklyFocusMetric = 'Health';
             data.weeklyFocusSecondary = null;
             data.weeklyFocusSecondaryMetric = null;
+          } else if (_dc.includes('treatment_induced_te')) {
+            // Treatment-onset TE: the single most important message is "don't stop treatment."
+            // Users shedding from minoxidil/finasteride/dutasteride are at high risk of quitting
+            // before the stabilization phase — override weeklyFocus with reassurance + stay-on-track.
+            data.weeklyFocus = 'Stay consistent with your treatment — shedding in the first 1–5 months is an expected pharmacological response, not failure. Stopping now means missing the stabilization and regrowth phase that follows.';
+            data.weeklyFocusMetric = 'Health';
+          } else if (_dc.includes('postpartum_te')) {
+            // Postpartum TE: reassure + direct toward the one modifiable lever (ferritin/nutrition).
+            // Do not override secondary focus — user can still work on their protocol priority.
+            data.weeklyFocus = 'Postpartum shedding is temporary and expected — get your ferritin and iron levels checked at your next visit (low ferritin independently extends TE shedding), and give your hair cycle 6–12 months to naturally recover.';
+            data.weeklyFocusMetric = 'Health';
           }
         })();
 
@@ -5509,6 +5520,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // "low" urgency = stable or limited OTC response window (60 days).
         const URGENCY_DAYS = { high: 28, moderate: 42, low: 60 };
         data.checkInIntervalDays = URGENCY_DAYS[data.treatmentUrgency] || 42;
+        // Shorten check-in interval when TE conditions are active:
+        // treatment_induced_te → 28 days (confirm shedding is plateauing)
+        // postpartum_te        → 42 days (recovery is slower; 6-week check is appropriate)
+        // Only shortens (never extends) relative to the urgency-derived baseline.
+        if (data.detectedConditions.includes('treatment_induced_te') && data.checkInIntervalDays > 28) {
+          data.checkInIntervalDays = 28;
+        } else if (data.detectedConditions.includes('postpartum_te') && data.checkInIntervalDays > 42) {
+          data.checkInIntervalDays = 42;
+        }
         data.nextCheckIn = new Date(Date.now() + data.checkInIntervalDays * 24 * 60 * 60 * 1000)
           .toISOString().split('T')[0]; // YYYY-MM-DD
         // nextCheckInReason: human-readable explanation for the iOS app to display inline.
@@ -5555,6 +5575,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         };
         data.nextCheckInReason = _STAGE_CHECKIN_REASONS[stage]
           ?? (URGENCY_REASONS[data.treatmentUrgency] || 'Check back regularly to track progress');
+        // TE-specific reason override: give users explicit context about the early check-in.
+        // Applied after the stage-based reason so it takes priority when TE is active.
+        if (data.detectedConditions.includes('treatment_induced_te')) {
+          data.nextCheckInReason = 'Treatment-onset shedding detected — rescan in 4 weeks to confirm the shedding is plateauing and your follicles are responding to treatment as expected.';
+        } else if (data.detectedConditions.includes('postpartum_te')) {
+          data.nextCheckInReason = 'Postpartum shedding is temporary — rescan in 6 weeks to track early recovery progress and confirm your hair cycle is returning to normal.';
+        }
 
         const scanUsage = scanPayload.usage;
         if (scanUsage) {
