@@ -2195,6 +2195,17 @@ assert(
 );
 
 assert(
+  source.includes("_dc.includes('seasonal_te')") &&
+    source.includes("Late-summer shedding is often seasonal photoperiod TE"),
+  'weeklyFocus should override to seasonal-TE reassurance message when seasonal_te is detected — parallel to treatment_induced_te and postpartum_te overrides'
+);
+
+assert(
+  source.includes("detectedConditions.includes('seasonal_te') && data.checkInIntervalDays > 42"),
+  'checkInIntervalDays should be capped at 42 days when seasonal_te is detected — aligns with scan prompt "rescan in 6–8 weeks" guidance for self-limiting seasonal shedding'
+);
+
+assert(
   source.includes("transplant:    r.some((s) => s.includes('transplant') || s.includes('hair graft') || s.includes('graft') || s.includes('dhi') || (s.includes('fue') && !s.includes('fuel')) || (s.includes('fut') && !s.includes('future') && !s.includes('futile') && !s.includes('futuristic'))) || !!(pc?.transplant)"),
   'coachProtocolCoverage routine-derived branch should include transplant detection so post-transplant users with other routine items retain their transplant flag and the coach protocolStatusLine can surface post-op graft-care context'
 );

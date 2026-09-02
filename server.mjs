@@ -5319,6 +5319,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             // Do not override secondary focus — user can still work on their protocol priority.
             data.weeklyFocus = 'Postpartum shedding is temporary and expected — get your ferritin and iron levels checked at your next visit (low ferritin independently extends TE shedding), and give your hair cycle 6–12 months to naturally recover.';
             data.weeklyFocusMetric = 'Health';
+          } else if (_dc.includes('seasonal_te')) {
+            // Seasonal TE: the most important message is that this is self-limiting and routine-stable.
+            // Users alarmed by late-summer shedding may unnecessarily change or stop their protocol.
+            data.weeklyFocus = 'Late-summer shedding is often seasonal photoperiod TE — a self-limiting, 2–3 month pattern unrelated to your treatment. Keep your routine unchanged and rescan in 6 weeks to confirm it\'s resolving.';
+            data.weeklyFocusMetric = 'Health';
           }
         })();
 
@@ -5523,10 +5528,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // Shorten check-in interval when TE conditions are active:
         // treatment_induced_te → 28 days (confirm shedding is plateauing)
         // postpartum_te        → 42 days (recovery is slower; 6-week check is appropriate)
+        // seasonal_te          → 42 days (self-limiting in 2-3 months; 6-week rescan confirms resolution)
         // Only shortens (never extends) relative to the urgency-derived baseline.
         if (data.detectedConditions.includes('treatment_induced_te') && data.checkInIntervalDays > 28) {
           data.checkInIntervalDays = 28;
         } else if (data.detectedConditions.includes('postpartum_te') && data.checkInIntervalDays > 42) {
+          data.checkInIntervalDays = 42;
+        } else if (data.detectedConditions.includes('seasonal_te') && data.checkInIntervalDays > 42) {
           data.checkInIntervalDays = 42;
         }
         data.nextCheckIn = new Date(Date.now() + data.checkInIntervalDays * 24 * 60 * 60 * 1000)
