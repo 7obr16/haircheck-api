@@ -6241,6 +6241,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ctx.scan?.photoNote && ctx.scan.photoQuality !== 'poor'
           ? `- Scan clinical note: ${ctx.scan.photoNote} — if this note flags a non-AGA condition (FFA, LPP, alopecia areata, DUPA, traction alopecia, CCCA, seborrheic dermatitis, scalp psoriasis), follow the Non-AGA condition handling instructions above.`
           : '',
+        Array.isArray(ctx.scan?.detectedConditions) && ctx.scan.detectedConditions.length
+          ? `- Detected conditions (machine-readable flags from scan): ${ctx.scan.detectedConditions.join(', ')} — these are the specific non-AGA or secondary conditions confirmed by the scan engine. Use these flags directly when applying condition-specific handling: ffa/lpp/ccca → scarring alopecia (urgent specialist referral, NOT standard AGA protocol as primary); alopecia_areata → autoimmune block (intralesional steroids/JAK inhibitor path); dupa → poor transplant candidate (dermoscopic donor assessment needed); traction_alopecia → mechanical cause (hairstyle trigger removal first); seborrheic_dermatitis/scalp_psoriasis → anti-inflammatory treatment (ketoconazole 2% shampoo for SD; dermatologist for psoriasis); postpartum_te → hormonal TE (reassure, nutritional support, drug safety for breastfeeding); treatment_induced_te → pharmacological TE (reassure, stay consistent, expected shedding phase); seasonal_te → photoperiod TE (monitor, self-limiting, no routine change needed).`
+          : '',
         ctx.scan?.retakeRecommended && ctx.scan.photoGuidance
           ? `- If the user asks about score reliability or why scores seem low, recommend a retake: ${ctx.scan.photoGuidance}`
           : ctx.scan?.photoQuality === 'acceptable' && ctx.scan.photoGuidance
