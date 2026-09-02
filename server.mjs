@@ -3098,9 +3098,26 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           if (_pnL.includes('traction alopecia'))                                      _conds.push('traction_alopecia');
           if (_pnL.includes('seborrheic dermatitis'))                                  _conds.push('seborrheic_dermatitis');
           if (_pnL.includes('scalp psoriasis'))                                        _conds.push('scalp_psoriasis');
-          if (_pnL.includes('postpartum te') || _pnL.includes('postpartum telogen effluvium') || _pnL.includes('postpartum shedding')) _conds.push('postpartum_te');
-          if (_pnL.includes('treatment-induced te') || _pnL.includes('treatment-induced telogen effluvium')) _conds.push('treatment_induced_te');
-          if (_pnL.includes('seasonal') && (_pnL.includes(' te') || _pnL.includes('telogen effluvium') || _pnL.includes('shedding'))) _conds.push('seasonal_te');
+          if (_pnL.includes('postpartum te') || _pnL.includes('postpartum telogen effluvium') || _pnL.includes('postpartum shedding') || _pnL.includes('post-partum') || _pnL.includes('post partum')) _conds.push('postpartum_te');
+          if (_pnL.includes('treatment-induced te') || _pnL.includes('treatment-induced telogen effluvium') || _pnL.includes('treatment induced te') || _pnL.includes('treatment induced telogen')) _conds.push('treatment_induced_te');
+          if (_pnL.includes('seasonal') && (_pnL.includes(' te') || _pnL.includes('telogen effluvium') || _pnL.includes('shedding') || _pnL.includes('photoperiod'))) _conds.push('seasonal_te');
+          // Server-side supplementary detection for treatment-induced TE.
+          // The scan prompt tells GPT-4o to flag treatment-onset TE in insights (not photoNote),
+          // so the photoNote-based detection above misses many cases. Detect deterministically
+          // from profile when routine includes a known TE-triggering treatment and onset is recent.
+          // Only applies when not already flagged by photoNote and not overriding a postpartum flag
+          // (postpartum TE takes clinical priority).
+          if (!_conds.includes('treatment_induced_te') && !_conds.includes('postpartum_te')) {
+            const _tl = (profile.timeline || '').toLowerCase();
+            const _isRecentOnset = /\b[1-6]\s*months?\b|\bfew\s+weeks?\b|\b\d+\s*weeks?\b|\bjust\s+start|\brecently\s+start|\bnew(?:\s+to)?\b/i.test(_tl);
+            const _profileItems = (profile.routine || []).map(r => String(r).toLowerCase());
+            const _hasKnownTEDrug = _profileItems.some(r =>
+              r.includes('minoxidil') || r.includes('rogaine') || r.includes('regaine') || r.includes('minox') ||
+              r.includes('finasteride') || r.includes('propecia') || r.includes('proscar') || r.includes('finpecia') ||
+              r.includes('dutasteride') || r.includes('avodart') || r.includes('dutas') || r.includes('duprost')
+            );
+            if (_isRecentOnset && _hasKnownTEDrug) _conds.push('treatment_induced_te');
+          }
           data.detectedConditions = _conds;
         }
         // treatmentUrgency is computed server-side from stage + profile age — not sent to GPT-4o.
