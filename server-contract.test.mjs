@@ -2194,4 +2194,9 @@ assert(
   'coachSuggestedQuestions should override Q1 with a seasonal-shedding question when seasonal_te is detected — completing the TE reassurance priority chain (postpartum > tx-onset > seasonal)'
 );
 
+assert(
+  source.includes("transplant:    r.some((s) => s.includes('transplant') || s.includes('hair graft') || s.includes('graft') || s.includes('dhi') || (s.includes('fue') && !s.includes('fuel')) || (s.includes('fut') && !s.includes('future') && !s.includes('futile') && !s.includes('futuristic'))) || !!(pc?.transplant)"),
+  'coachProtocolCoverage routine-derived branch should include transplant detection so post-transplant users with other routine items retain their transplant flag and the coach protocolStatusLine can surface post-op graft-care context'
+);
+
 console.log('server contract passed');
