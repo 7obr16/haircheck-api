@@ -2199,4 +2199,15 @@ assert(
   'coachProtocolCoverage routine-derived branch should include transplant detection so post-transplant users with other routine items retain their transplant flag and the coach protocolStatusLine can surface post-op graft-care context'
 );
 
+assert(
+  source.includes('Treatment-induced TE handling:') &&
+    source.includes('treatment_induced_te condition flag') &&
+    source.includes('minoxidil-onset TE') &&
+    source.includes('finasteride-onset TE') &&
+    source.includes('dutasteride-onset TE') &&
+    source.includes('stopping treatment at the first sign of shedding is the single most common treatment error') &&
+    source.includes('5–7 before the hair cycle fully restabilizes'),
+  'coach system prompt should include a dedicated treatment-induced TE handling paragraph (parallel to postpartum TE and seasonal TE) with drug-specific timeframes (minoxidil: 1-3 months, finasteride: 3-4 months, dutasteride: 5-7 months) and strong reassurance against stopping treatment — completing the TE reassurance trilogy in the coach prompt'
+);
+
 console.log('server contract passed');
