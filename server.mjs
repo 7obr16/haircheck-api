@@ -186,7 +186,7 @@ const METRICS = {
   progressionBatch: { requests: 0, errors: 0,               slowRequests: 0, retries: 0, lastError: null, lastSuccess: null, lastRetry: null },
   map:              { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, retries: 0, lastError: null, lastSuccess: null, lastRetry: null },
   adviceVisual:     { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, retries: 0, lastError: null, lastSuccess: null, lastRetry: null },
-  coach:            { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, retries: 0, promptTokens: 0, completionTokens: 0, lastError: null, lastSuccess: null, lastRetry: null },
+  coach:            { requests: 0, errors: 0, cacheHits: 0, slowRequests: 0, retries: 0, promptTokens: 0, completionTokens: 0, truncations: 0, lastError: null, lastSuccess: null, lastRetry: null },
 };
 
 // OpenAI pricing constants (USD). Update as pricing changes on platform.openai.com/docs/pricing.
@@ -6339,7 +6339,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         { role: 'user', content: message.trim().slice(0, 1500) },
       ];
 
-      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 1200 });
+      const coachReqBody = JSON.stringify({ model: 'gpt-4o-mini', messages, temperature: 0.6, max_tokens: 1600 });
       const { ok: coachOk, status: coachStatus, payload: coachPayload } = await withOpenAIRetry('coach', (signal) =>
         fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
@@ -6360,7 +6360,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
 
       const coachChoice = coachPayload.choices?.[0];
       const coachFinishReason = coachChoice?.finish_reason;
-      if (coachFinishReason === 'length') console.warn('[coach] reply truncated by max_tokens');
+      if (coachFinishReason === 'length') { console.warn('[coach] reply truncated by max_tokens'); METRICS.coach.truncations++; }
       if (coachFinishReason === 'content_filter') {
         console.warn('[coach] response blocked by content_filter');
         json(req, res, 200, { reply: "I can't respond to that request. Please try rephrasing your question about hair health.", requestId: reqId });
