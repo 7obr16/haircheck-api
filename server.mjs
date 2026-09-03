@@ -5590,6 +5590,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           data.nextCheckInReason = 'Treatment-onset shedding detected — rescan in 4 weeks to confirm the shedding is plateauing and your follicles are responding to treatment as expected.';
         } else if (data.detectedConditions.includes('postpartum_te')) {
           data.nextCheckInReason = 'Postpartum shedding is temporary — rescan in 6 weeks to track early recovery progress and confirm your hair cycle is returning to normal.';
+        } else if (data.detectedConditions.includes('seasonal_te')) {
+          data.nextCheckInReason = 'Seasonal shedding is self-limiting — rescan in 6 weeks to confirm the shedding has plateaued and your hair cycle is returning to its normal rhythm.';
         }
 
         const scanUsage = scanPayload.usage;
