@@ -2221,4 +2221,12 @@ assert(
   'coach system prompt should include a dedicated treatment-induced TE handling paragraph (parallel to postpartum TE and seasonal TE) with drug-specific timeframes (minoxidil: 1-3 months, finasteride: 3-4 months, dutasteride: 5-7 months) and strong reassurance against stopping treatment — completing the TE reassurance trilogy in the coach prompt'
 );
 
+assert(
+  source.includes('Spironolactone-onset TE:') &&
+    source.includes('spiro blocks androgen receptors rather than suppressing DHT production') &&
+    source.includes('resolves by month 3–5') &&
+    source.includes('minoxidil, finasteride, dutasteride, or spironolactone AND their onset was within the past 6 months'),
+  'coach treatment-induced TE handling should include spironolactone-onset TE (parallel to minoxidil/finasteride/dutasteride) with a 3-5 month timeframe and explanation that spiro blocks androgen receptors (not DHT suppression), completing the drug-specific timeframe coverage added alongside the scan spironolactone-TE calibration'
+);
+
 console.log('server contract passed');
