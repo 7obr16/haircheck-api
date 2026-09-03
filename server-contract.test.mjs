@@ -2237,6 +2237,41 @@ assert(
   'coach treatment-induced TE trigger condition should include bicalutamide, flutamide, cyproterone, and androcur so the coach applies TE reassurance for these antiandrogens even without a scan (or when scan TE detection was not triggered) — completing the drug-specific TE coverage for full androgen receptor antagonists alongside the existing spiro/finasteride/dutasteride/minoxidil triggers'
 );
 
+assert(
+  source.includes("'postpill_te'") &&
+    source.includes('stopped.{0,15}pill') &&
+    source.includes('_isPostPill') &&
+    source.includes("!_conds.includes('postpill_te') && !_conds.includes('postpartum_te')"),
+  'postpill_te should be detected server-side from profile concerns/timeline when OCP-stopping keywords are present, guarded against postpartum_te already being set (postpartum takes clinical priority)'
+);
+
+assert(
+  source.includes("detectedConditions.includes('postpill_te') && data.checkInIntervalDays > 42"),
+  'checkInIntervalDays should be capped at 42 days when postpill_te is detected — OCP withdrawal TE recovers over 6-12 months; 6-week rescan confirms trajectory'
+);
+
+assert(
+  source.includes("_dc.includes('postpill_te')") &&
+    source.includes('Post-pill shedding is temporary and expected'),
+  'weeklyFocus should override to post-pill TE reassurance message when postpill_te is detected — parallel to postpartum_te and seasonal_te overrides'
+);
+
+assert(
+  source.includes("detectedConditions.includes('postpill_te')") &&
+    source.includes('Post-pill shedding is temporary — rescan in 6 weeks'),
+  'nextCheckInReason should override to a post-pill TE rescan message when postpill_te is detected — parallel to the other TE nextCheckInReason overrides'
+);
+
+assert(
+  source.includes('Post-pill TE handling:') &&
+    source.includes('postpill_te condition flag') &&
+    source.includes('2–4 months after stopping the pill') &&
+    source.includes('6–12 months') &&
+    source.includes('ferritin') &&
+    source.includes('postpill_te → OCP withdrawal TE'),
+  'coach system prompt should include a dedicated post-pill TE handling paragraph with reassurance, ferritin guidance, and drug-safety distinction from postpartum TE; detectedConditions mapping should include postpill_te'
+);
+
 const _teDrugBlock = source.match(/_hasKnownTEDrug = _profileItems\.some\([\s\S]+?\n            \);/);
 assert(
   _teDrugBlock && !_teDrugBlock[0].includes("r.includes('clascoterone')") && !_teDrugBlock[0].includes("r.includes('winlevi')"),
