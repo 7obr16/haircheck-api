@@ -6392,7 +6392,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
       // generic stage + protocol combos. This mirrors the scan's coachSuggestedQuestions
       // priority so chips stay consistent across scan and coach turns.
       let suggestedFollowUps = ctx.scan?.stage
-        ? buildSuggestedQuestions(ctx.scan.stage, ctx.scan.protocolCoverage, ctx.scan.specialistRecommended)
+        ? buildSuggestedQuestions(ctx.scan.stage, coachProtocolCoverage, ctx.scan.specialistRecommended)
         : null;
       // Apply condition-specific slot-0 chip when a non-AGA condition was detected —
       // same priority order as the scan's coachSuggestedQuestions condition override.

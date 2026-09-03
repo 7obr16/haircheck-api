@@ -534,7 +534,7 @@ assert(
 
 assert(
   source.includes('suggestedFollowUps') &&
-    source.includes('buildSuggestedQuestions(ctx.scan.stage, ctx.scan.protocolCoverage, ctx.scan.specialistRecommended)') &&
+    source.includes('buildSuggestedQuestions(ctx.scan.stage, coachProtocolCoverage, ctx.scan.specialistRecommended)') &&
     source.includes('ctx.scan?.stage') &&
     source.includes("{ reply, truncated: coachTruncated, suggestedFollowUps, requestId: reqId }"),
   'coach response should include suggestedFollowUps: context-aware chips derived from scan stage and protocolCoverage, returned at zero API cost on every reply'
