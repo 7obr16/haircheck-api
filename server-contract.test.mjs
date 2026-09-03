@@ -2237,4 +2237,10 @@ assert(
   'coach treatment-induced TE trigger condition should include bicalutamide, flutamide, cyproterone, and androcur so the coach applies TE reassurance for these antiandrogens even without a scan (or when scan TE detection was not triggered) — completing the drug-specific TE coverage for full androgen receptor antagonists alongside the existing spiro/finasteride/dutasteride/minoxidil triggers'
 );
 
+const _teDrugBlock = source.match(/_hasKnownTEDrug = _profileItems\.some\([\s\S]+?\n            \);/);
+assert(
+  _teDrugBlock && !_teDrugBlock[0].includes("r.includes('clascoterone')") && !_teDrugBlock[0].includes("r.includes('winlevi')"),
+  "server-side _hasKnownTEDrug treatment_induced_te detection must NOT include clascoterone/winlevi — clascoterone (Winlevi) is a topical androgen receptor blocker with <5% systemic absorption; it does not alter serum hormone levels and has no documented systemic-TE mechanism, so including it produces false-positive treatment_induced_te flags for acne patients on Winlevi; the coach prompt also has no clascoterone-onset TE handling, making any flagged condition an orphan"
+);
+
 console.log('server contract passed');

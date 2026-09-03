@@ -3118,8 +3118,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               r.includes('spironolactone') || r.includes('aldactone') || r.includes('spiro') ||
               r.includes('bicalutamide') || r.includes('casodex') ||
               r.includes('flutamide') || r.includes('eulexin') ||
-              r.includes('cyproterone') || r.includes('androcur') ||
-              r.includes('clascoterone') || r.includes('winlevi')
+              r.includes('cyproterone') || r.includes('androcur')
+              // clascoterone/winlevi intentionally excluded: topical-only antiandrogen with
+              // <5% systemic absorption; does not alter serum hormone levels and has no documented
+              // systemic-TE mechanism. The coach prompt also has no clascoterone-onset TE handling,
+              // so flagging treatment_induced_te for Winlevi users would produce an orphaned flag.
             );
             if (_isRecentOnset && _hasKnownTEDrug) _conds.push('treatment_induced_te');
           }
