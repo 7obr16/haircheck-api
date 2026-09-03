@@ -2225,8 +2225,16 @@ assert(
   source.includes('Spironolactone-onset TE:') &&
     source.includes('spiro blocks androgen receptors rather than suppressing DHT production') &&
     source.includes('resolves by month 3–5') &&
-    source.includes('minoxidil, finasteride, dutasteride, or spironolactone AND their onset was within the past 6 months'),
+    source.includes('minoxidil, finasteride, dutasteride, spironolactone, bicalutamide, flutamide, cyproterone, or androcur AND their onset was within the past 6 months'),
   'coach treatment-induced TE handling should include spironolactone-onset TE (parallel to minoxidil/finasteride/dutasteride) with a 3-5 month timeframe and explanation that spiro blocks androgen receptors (not DHT suppression), completing the drug-specific timeframe coverage added alongside the scan spironolactone-TE calibration'
+);
+
+assert(
+  source.includes('Bicalutamide/flutamide/cyproterone-onset TE:') &&
+    source.includes('flutamide and cyproterone — month 2–4') &&
+    source.includes('bicalutamide — month 3–5') &&
+    source.includes('minoxidil, finasteride, dutasteride, spironolactone, bicalutamide, flutamide, cyproterone, or androcur AND their onset was within the past 6 months'),
+  'coach treatment-induced TE trigger condition should include bicalutamide, flutamide, cyproterone, and androcur so the coach applies TE reassurance for these antiandrogens even without a scan (or when scan TE detection was not triggered) — completing the drug-specific TE coverage for full androgen receptor antagonists alongside the existing spiro/finasteride/dutasteride/minoxidil triggers'
 );
 
 console.log('server contract passed');
