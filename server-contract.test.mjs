@@ -1752,9 +1752,9 @@ assert(
 );
 
 assert(
-  source.includes("supplements = false, transplant = false } = protocolCoverage || {}") &&
-    source.includes("const hasAnyOTC = topical || dhtShampoo || mechanical || supplements"),
-  'buildSuggestedQuestions should destructure supplements from protocolCoverage and include it in hasAnyOTC so supplement-only users (Nutrafol, Viviscal, biotin+zinc) are routed to the OTC-tier questions (is finasteride worth adding?) rather than the no-treatment tier (what should I start first?)'
+  source.includes("oralMinoxidil = false, rx = false, dhtShampoo = false, mechanical = false, lllt = false, microneedling = false, supplements = false, transplant = false } = protocolCoverage || {}") &&
+    source.includes("const hasAnyOTC = topical || oralMinoxidil || dhtShampoo || mechanical || supplements"),
+  'buildSuggestedQuestions should destructure oralMinoxidil and supplements from protocolCoverage and include both in hasAnyOTC so supplement-only users (Nutrafol, Viviscal, biotin+zinc) and oral minoxidil users (Loniten/LDOM) are routed to the OTC-tier questions (is finasteride worth adding?) rather than the no-treatment tier (what should I start first?)'
 );
 
 assert(
@@ -2098,8 +2098,8 @@ assert(
 
 assert(
   source.includes('noMinoxidilAtActiveStage') &&
-    source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical'),
-  'riskFactorFlags should include noMinoxidilAtActiveStage flag that fires at NW2+ when no topical minoxidil is in the routine — allows iOS app to surface targeted minoxidil CTAs for users at active loss stages without topical treatment'
+    source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical && !data.protocolCoverage.oralMinoxidil'),
+  'riskFactorFlags should include noMinoxidilAtActiveStage flag that fires at NW2+ when neither topical nor oral minoxidil is in the routine — users on oral minoxidil (Loniten/LDOM) must not receive false "add minoxidil" CTAs since oral minoxidil IS a vasodilator equivalent'
 );
 
 assert(

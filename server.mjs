@@ -605,8 +605,8 @@ const buildProgressionPrompt = (month, stage, thinningPattern) => {
 // Questions are routine-aware (don't suggest starting something already active) and
 // stage-aware (specialist framing for NW5+, cause-finding for diffuse/female).
 const buildSuggestedQuestions = (stage, protocolCoverage, specialistRecommended) => {
-  const { topical = false, rx = false, dhtShampoo = false, mechanical = false, lllt = false, microneedling = false, supplements = false, transplant = false } = protocolCoverage || {};
-  const hasAnyOTC = topical || dhtShampoo || mechanical || supplements;
+  const { topical = false, oralMinoxidil = false, rx = false, dhtShampoo = false, mechanical = false, lllt = false, microneedling = false, supplements = false, transplant = false } = protocolCoverage || {};
+  const hasAnyOTC = topical || oralMinoxidil || dhtShampoo || mechanical || supplements;
 
   // Post-transplant override: when the user has had a FUE/FUT/DHI transplant, the most pressing
   // questions are about graft survival, native hair protection, and realistic growth timelines —
@@ -5657,7 +5657,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // treatment for AGA and is first-line at NW2+; absence is a clear actionable gap.
           // The iOS app uses this to surface "consider adding topical minoxidil" CTAs.
           // Uses protocolCoverage.topical (computed above) which maps to _hasMinoxidil detection.
-          noMinoxidilAtActiveStage:      (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical,
+          noMinoxidilAtActiveStage:      (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical && !data.protocolCoverage.oralMinoxidil,
           // True when the user is at NW3+ (established or advanced AGA) but has no mechanical
           // scalp stimulation in their routine — no scalp massage, microneedling, or LLLT device.
           // Mechanical stimulation at NW3+ significantly amplifies minoxidil absorption (up to 3×
