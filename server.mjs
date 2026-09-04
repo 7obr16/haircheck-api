@@ -5640,7 +5640,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // (India/Europe brand names for dutasteride) — avoids false-positive "add antiandrogen"
         // CTAs for users on these common generics, which _hasFinasteride already detects.
         const _hasAntiandrogen = profile.routine.some(r =>
-          /finasteride|dutasteride|propecia|proscar|avodart|spironolactone|aldactone|\bspiro\b|bicalutamide|flutamide|cyproterone|androcur|casodex|clascoterone|winlevi|finpecia|finalo|finast|fincar|finax|aindeem|dutas|duprost|duodart|combodart|morr-f|morr f|tugain-f|tugain f/i.test(r)
+          /finasteride|dutasteride|propecia|proscar|avodart|spironolactone|aldactone|\bspiro\b|bicalutamide|flutamide|cyproterone|androcur|casodex|clascoterone|winlevi|finpecia|finalo|finast|fincar|finax|aindeem|dutas|duprost|duodart|combodart|morr-f|morr f|tugain-f|tugain f|ru58841|ru 58841|pyrilutamide|kx-826/i.test(r)
         );
         data.riskFactorFlags = {
           earlyOnset:                    profile.age !== null && profile.age < 30 && (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3,
