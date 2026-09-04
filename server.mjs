@@ -5507,6 +5507,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             _condQ = 'My scan detected scalp inflammation — how does treating it help my hair loss and what should I use?';
           } else if (_dc.includes('postpartum_te')) {
             _condQ = 'My scan noted postpartum shedding — is this temporary and when will my hair fully recover?';
+          } else if (_dc.includes('postpill_te')) {
+            _condQ = 'My scan noted I may have post-pill shedding — is this temporary and what should I do while waiting for recovery?';
           } else if (_dc.includes('treatment_induced_te')) {
             _condQ = 'My scan noted possible treatment-induced shedding — is this temporary and how long should I expect it to last?';
           } else if (_dc.includes('seasonal_te')) {
@@ -6442,6 +6444,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           _condQ = 'My scan detected scalp inflammation — how does treating it help my hair loss and what should I use?';
         } else if (_fdc.includes('postpartum_te')) {
           _condQ = 'My scan noted postpartum shedding — is this temporary and when will my hair fully recover?';
+        } else if (_fdc.includes('postpill_te')) {
+          _condQ = 'My scan noted I may have post-pill shedding — is this temporary and what should I do while waiting for recovery?';
         } else if (_fdc.includes('treatment_induced_te')) {
           _condQ = 'My scan noted possible treatment-induced shedding — is this temporary and how long should I expect it to last?';
         } else if (_fdc.includes('seasonal_te')) {
