@@ -120,7 +120,7 @@ assert(
 );
 
 assert(
-  source.includes('max_tokens: 1800') || source.includes('max_tokens: 2500'),
+  source.includes('max_tokens: 1800') || source.includes('max_tokens: 2400') || source.includes('max_tokens: 2500'),
   'scan should use at least 1800 max_tokens to avoid truncating structured JSON output'
 );
 
@@ -2276,6 +2276,54 @@ const _teDrugBlock = source.match(/_hasKnownTEDrug = _profileItems\.some\([\s\S]
 assert(
   _teDrugBlock && !_teDrugBlock[0].includes("r.includes('clascoterone')") && !_teDrugBlock[0].includes("r.includes('winlevi')"),
   "server-side _hasKnownTEDrug treatment_induced_te detection must NOT include clascoterone/winlevi — clascoterone (Winlevi) is a topical androgen receptor blocker with <5% systemic absorption; it does not alter serum hormone levels and has no documented systemic-TE mechanism, so including it produces false-positive treatment_induced_te flags for acne patients on Winlevi; the coach prompt also has no clascoterone-onset TE handling, making any flagged condition an orphan"
+);
+
+assert(
+  source.includes("r.includes('ru58841')") &&
+    source.includes("r.includes('ru 58841')") &&
+    source.includes("r.includes('pyrilutamide')") &&
+    source.includes("r.includes('kx-826')") &&
+    source.includes("s.includes('ru58841')") &&
+    source.includes("s.includes('ru 58841')") &&
+    source.includes("s.includes('pyrilutamide')") &&
+    source.includes("s.includes('kx-826')"),
+  'server should detect RU58841 (both spacing variants), pyrilutamide, and KX-826 as Rx antiandrogens in both scan-time _hasFinasteride and coach pre-scan rx detection — these research/clinical-trial topical antiandrogens are widely used in the hair loss community; detecting them as rx ensures users on these compounds are not incorrectly shown as lacking Rx treatment'
+);
+
+assert(
+  source.includes("r.includes('profollica')") &&
+    source.includes("s.includes('profollica')"),
+  'server should detect Profollica (anti-DHT hair supplement containing saw palmetto, biotin, and millet seed extract, marketed specifically for male hair loss) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('jarrow')") &&
+    source.includes("s.includes('jarrow')"),
+  'server should detect Jarrow Formulas (popular US supplement brand known for biotin, B-vitamins, and collagen — commonly used by hair loss patients) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('solgar')") &&
+    source.includes("s.includes('solgar')"),
+  'server should detect Solgar (premium supplement brand frequently used for hair-growth micronutrients: biotin, keratin, folate, zinc) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('garden of life')") &&
+    source.includes("s.includes('garden of life')"),
+  'server should detect Garden of Life (whole-food supplement brand with popular hair/skin/nails and prenatal vitamin lines used by patients with TE) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('kerotin')") &&
+    source.includes("s.includes('kerotin')"),
+  'server should detect Kerotin (hair growth supplement brand sold on Amazon, contains biotin and key micronutrients) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('natures bounty')") &&
+    source.includes("s.includes('natures bounty')"),
+  "server should detect 'natures bounty' (Nature's Bounty brand, one of the largest OTC supplement manufacturers; users frequently take their Hair, Skin & Nails vitamins or Optimal Solutions Hair supplement) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection"
 );
 
 console.log('server contract passed');
