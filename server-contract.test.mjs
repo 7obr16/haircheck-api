@@ -1009,6 +1009,11 @@ assert(
 );
 
 assert(
+  source.includes('if (topical || oralMinoxidil) score += 25'),
+  'computeProtocolStrengthScore should credit oralMinoxidil (Rx oral minoxidil vasodilator) with the same 25-point growth-signal contribution as topical minoxidil — Loniten users choosing the oral route should not be penalised with a 0 for the topical layer; also guards that Loniten (oral-only brand) is NOT miscounted in the _hasMinoxidil topical detection'
+);
+
+assert(
   source.includes("['loniten', 'oral minoxidil (Loniten") &&
     source.includes("['oral minoxidil', 'oral minoxidil (Rx prescription"),
   '_RX_LABELS should include oral minoxidil entries (loniten, "oral minoxidil", "oral minox") so the coach protocolStatusLine names the specific drug when a user lists oral minoxidil in their routine, rather than falling through to a generic Rx antiandrogen label'

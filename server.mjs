@@ -1730,10 +1730,10 @@ const computeTreatmentUrgency = (stage, age) => {
 // the "missing 25" requires a specialist/surgical step, not more products.
 const computeProtocolStrengthScore = (stage, protocolCoverage) => {
   if (!protocolCoverage) return { score: 0, label: 'starting' };
-  const { topical, rx, dhtShampoo, mechanical, microneedling, lllt, supplements, prp, transplant } = protocolCoverage;
+  const { topical, oralMinoxidil, rx, dhtShampoo, mechanical, microneedling, lllt, supplements, prp, transplant } = protocolCoverage;
   let score = 0;
-  if (rx)          score += 30; // Rx DHT blocker — highest-evidence systemic layer
-  if (topical)     score += 25; // Minoxidil — highest-evidence topical
+  if (rx)                    score += 30; // Rx DHT blocker — highest-evidence systemic layer
+  if (topical || oralMinoxidil) score += 25; // Minoxidil (topical or oral) — highest-evidence growth signal
   if (dhtShampoo)  score += 20; // DHT-blocking shampoo — supporting topical DHT layer
   // Clinical mechanical (LLLT or microneedling) = 15; basic massage only = 8.
   if (microneedling || lllt) score += 15;
@@ -3251,7 +3251,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // Routine-aware: if the primary suggestion is already in their routine, recommend
         // the next most impactful complementary action instead of repeating redundant advice.
         const _routineItems = (profile.routine || []).map((r) => String(r).toLowerCase());
-        const _hasMinoxidil  = _routineItems.some((r) => r.includes('minoxidil') || r.includes('rogaine') || r.includes('regaine') || r.includes('minox') || r.includes('kirkland') || r.includes('tugain') || r.includes('mintop') || r.includes('loniten') || r.includes('nanoxidil') || r.includes('morr') || r.includes('hims') || r.includes('keeps') || r.includes('spectral') || r.includes('forhers') || r.includes('alopexy') || r.includes('lipogaine') || r.includes('loxon') || r.includes('finalo-f') || r.includes('finalo f'));
+        const _hasMinoxidil  = _routineItems.some((r) => r.includes('minoxidil') || r.includes('rogaine') || r.includes('regaine') || r.includes('minox') || r.includes('kirkland') || r.includes('tugain') || r.includes('mintop') || r.includes('nanoxidil') || r.includes('morr') || r.includes('hims') || r.includes('keeps') || r.includes('spectral') || r.includes('forhers') || r.includes('alopexy') || r.includes('lipogaine') || r.includes('loxon') || r.includes('finalo-f') || r.includes('finalo f'));
         const _hasDHTShampoo = _routineItems.some((r) => r.includes('dht') || r.includes('ketoconazole') || r.includes('nizoral') || r.includes('keto shampoo') || r.includes('caffeine shampoo') || r.includes('regenepure') || r.includes('alpecin') || r.includes('plantur') || r.includes('foligain') || r.includes('lipogaine') || r.includes('revita') || r.includes('pura d') || r.includes('shapiro md') || r.includes('rosemary oil') || r.includes('mielle') || r.includes('maple holistics') || r.includes('nioxin') || r.includes('keranique') || r.includes('ultrax') || r.includes('phytocyane') || r.includes('bioxsine') || r.includes('watermans') || r.includes('anaphase') || r.includes('vichy') || r.includes('dercos') || r.includes('klorane') || r.includes('rene furterer') || r.includes('triphasic') || r.includes('ducray') || r.includes('bioscalin') || r.includes('revivogen') || r.includes('pronexa') || r.includes('nizral') || r.includes('ketomac') || r.includes('ketomine'));
         const _hasMassage    = _routineItems.some((r) => r.includes('massage') || r.includes('dermaroller') || r.includes('derma roller') || r.includes('derma stamp') || r.includes('dermastamp') || r.includes('dermapen') || r.includes('microneedl') || r.includes('micro-needl') || r.includes('dr pen') || r.includes('drpen') || r.includes('dr.pen') || r.includes('zgts') || r.includes('derminator') || r.includes('lllt') || r.includes('laser cap') || r.includes('laser comb') || r.includes('laser helmet') || r.includes('laserband') || r.includes('laser band') || r.includes('capillus') || r.includes('hairmax') || r.includes('irestore') || r.includes('igrow') || r.includes('theradome') || r.includes('kiierr') || r.includes('illumiflow') || r.includes('sunetics'));
         const _hasLLLT       = _routineItems.some((r) => r.includes('lllt') || r.includes('laser cap') || r.includes('laser comb') || r.includes('laser helmet') || r.includes('laserband') || r.includes('laser band') || r.includes('capillus') || r.includes('hairmax') || r.includes('irestore') || r.includes('igrow') || r.includes('theradome') || r.includes('kiierr') || r.includes('illumiflow') || r.includes('sunetics'));
@@ -5907,7 +5907,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (ctx.routine.length > 0) {
           const r = ctx.routine.map((s) => String(s).toLowerCase());
           return {
-            topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine') || s.includes('regaine') || s.includes('minox') || s.includes('kirkland') || s.includes('tugain') || s.includes('mintop') || s.includes('loniten') || s.includes('nanoxidil') || s.includes('morr') || s.includes('hims') || s.includes('keeps') || s.includes('spectral') || s.includes('forhers') || s.includes('alopexy') || s.includes('lipogaine') || s.includes('loxon') || s.includes('finalo-f') || s.includes('finalo f')),
+            topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine') || s.includes('regaine') || s.includes('minox') || s.includes('kirkland') || s.includes('tugain') || s.includes('mintop') || s.includes('nanoxidil') || s.includes('morr') || s.includes('hims') || s.includes('keeps') || s.includes('spectral') || s.includes('forhers') || s.includes('alopexy') || s.includes('lipogaine') || s.includes('loxon') || s.includes('finalo-f') || s.includes('finalo f')),
             // oralMinoxidil is Rx-only (vasodilator tablet) — detected separately from rx (antiandrogens)
             // because oral minoxidil is NOT an antiandrogen: it does not block DHT or androgen receptors.
             // Keeping it out of rx ensures protocolStatusLine correctly shows "Rx antiandrogen: missing"
