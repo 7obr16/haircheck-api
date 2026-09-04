@@ -2542,7 +2542,7 @@ const server = createServer(async (req, res) => {
   }
 
   // ─── /api/generate-advice-visual — image-led protocol card art ─
-  // Input: { kind: 'topical' | 'supplements' | 'massage' | 'shampoo' | 'microneedling' | 'lllt' | 'consultation', quality? }
+  // Input: { kind: 'topical' | 'supplements' | 'massage' | 'shampoo' | 'microneedling' | 'lllt' | 'consultation' | 'prp' | 'transplant', quality? }
   // Output: { adviceVisual: 'data:image/png;base64,...', kind }
   if (req.method === 'POST' && reqPath === '/api/generate-advice-visual') {
     try {
@@ -5907,7 +5907,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (ctx.routine.length > 0) {
           const r = ctx.routine.map((s) => String(s).toLowerCase());
           return {
-            topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine') || s.includes('regaine') || s.includes('minox') || s.includes('kirkland') || s.includes('tugain') || s.includes('mintop') || s.includes('loniten') || s.includes('nanoxidil') || s.includes('morr') || s.includes('hims') || s.includes('keeps') || s.includes('spectral') || s.includes('forhers') || s.includes('alopexy') || s.includes('lipogaine') || s.includes('loxon')),
+            topical:     r.some((s) => s.includes('minoxidil') || s.includes('rogaine') || s.includes('regaine') || s.includes('minox') || s.includes('kirkland') || s.includes('tugain') || s.includes('mintop') || s.includes('loniten') || s.includes('nanoxidil') || s.includes('morr') || s.includes('hims') || s.includes('keeps') || s.includes('spectral') || s.includes('forhers') || s.includes('alopexy') || s.includes('lipogaine') || s.includes('loxon') || s.includes('finalo-f') || s.includes('finalo f')),
             // oralMinoxidil is Rx-only (vasodilator tablet) — detected separately from rx (antiandrogens)
             // because oral minoxidil is NOT an antiandrogen: it does not block DHT or androgen receptors.
             // Keeping it out of rx ensures protocolStatusLine correctly shows "Rx antiandrogen: missing"
