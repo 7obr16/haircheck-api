@@ -2358,4 +2358,20 @@ assert(
   'seasonal_te should have server-side supplementary detection from scan date + profile concerns — parallel to treatment_induced_te, postpill_te, and nutritional_te; only fires in Aug-Nov (NH) or Feb-May (SH) when concerns mention shedding and routine has been stable; lower-priority than all other TE flags (postpartum > post-pill > treatment-induced > nutritional > seasonal)'
 );
 
+assert(
+  source.includes('_isThyroidTE') &&
+    source.includes('hypothyroid') &&
+    source.includes('hashimoto') &&
+    source.includes('levothyroxine') &&
+    source.includes("_conds.push('thyroid_te')") &&
+    source.includes("!_conds.includes('thyroid_te')") &&
+    source.includes("thyroid_te → thyroid dysfunction") &&
+    source.includes("data.detectedConditions.includes('thyroid_te') && data.checkInIntervalDays > 42") &&
+    source.includes("data.detectedConditions.includes('thyroid_te')") &&
+    source.includes("_fdc.includes('thyroid_te')") &&
+    source.includes('Book a thyroid function test (TSH, Free T4)') &&
+    source.includes('TSH/Free T4 panel'),
+  'thyroid_te should have server-side detection from profile concerns/timeline (hypothyroid, hashimoto, levothyroxine, etc.), guarded against postpartum and post-pill TE; weeklyFocus override directing to thyroid panel; checkInIntervalDays capped at 42; nextCheckInReason with TSH/Free T4 guidance; coach detectedConditions description with thyroid_te handling; suggestedFollowUp question'
+);
+
 console.log('server contract passed');

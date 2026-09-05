@@ -3151,6 +3151,20 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             const _isNutritionalTE = /low ferritin|iron deficien|ferritin deficien|iron low|low iron|anemi[ac]|anaemi[ac]|vitamin d deficien|low vitamin d|vit\.?\s*d deficien|low vit\.?\s*d|nutritional deficien|b\.?12 deficien|low b\.?12|vitamin b\.?12 deficien|zinc deficien|low zinc|deficien.{0,15}iron|deficien.{0,15}ferritin/i.test(_nCombined);
             if (_isNutritionalTE) _conds.push('nutritional_te');
           }
+          // Server-side detection for thyroid-induced TE (hypothyroid/hyperthyroid telogen effluvium).
+          // Thyroid dysfunction is a leading, highly correctable cause of diffuse hair loss frequently
+          // misattributed to AGA. Detected from profile concerns/timeline keywords; GPT-4o scan prompt
+          // focuses on AGA patterns and won't reliably capture thyroid history in photoNote.
+          // Allowed to co-exist with nutritional_te and treatment_induced_te (thyroid TE and iron
+          // deficiency often co-occur in women); guarded only against postpartum and post-pill TE
+          // since those are more specific hormonal triggers that should be evaluated as the primary cause.
+          if (!_conds.includes('thyroid_te') && !_conds.includes('postpartum_te') && !_conds.includes('postpill_te')) {
+            const _thL = (profile.concern || []).map(c => String(c).toLowerCase()).join(' ');
+            const _ttL = (profile.timeline || '').toLowerCase();
+            const _thCombined = _thL + ' ' + _ttL;
+            const _isThyroidTE = /hypothyroid|hyperthyroid|hashimoto|graves.{0,10}disease|thyroid.{0,20}(condition|disease|issue|problem|disorder|dysfunction)|underactive.{0,10}thyroid|overactive.{0,10}thyroid|low.{0,10}thyroid|thyroid.{0,10}low|thyroid.{0,10}level|levothyroxine|synthroid|thyroxine.{0,15}(replace|therapy|medication|tablet|pill)|on.{0,10}thyroid.{0,10}(med|treatment)|thyroid.{0,10}antibod|autoimmune.{0,10}thyroid/i.test(_thCombined);
+            if (_isThyroidTE) _conds.push('thyroid_te');
+          }
           // Server-side supplementary detection for seasonal TE (photoperiod telogen effluvium).
           // GPT-4o may not always mention "seasonal" in photoNote even when the scan prompt instructs it to.
           // Detect deterministically from the scan date and profile: if today is in the Northern Hemisphere
@@ -5395,6 +5409,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             // Key message: this is reversible — follicles are intact; correcting ferritin/VitD restores the cycle.
             data.weeklyFocus = 'Get a ferritin and vitamin D blood panel this week — low ferritin (below 70 ng/mL) is one of the most correctable causes of diffuse shedding. Correcting the deficiency typically stops shedding within 1–2 months and restores growth by months 3–6.';
             data.weeklyFocusMetric = 'Health';
+          } else if (_dc.includes('thyroid_te')) {
+            // Thyroid TE: most important action is a thyroid function panel.
+            // Key message: once thyroid levels are corrected with medication, the hair cycle normalizes.
+            data.weeklyFocus = 'Book a thyroid function test (TSH, Free T4) this week — thyroid dysfunction is one of the most correctable causes of diffuse shedding. Once thyroid levels are stabilized with treatment, shedding typically slows within 2–4 months and hair regrowth begins by months 4–6.';
+            data.weeklyFocusMetric = 'Health';
           }
         })();
 
@@ -5616,6 +5635,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           data.checkInIntervalDays = 42;
         } else if (data.detectedConditions.includes('nutritional_te') && data.checkInIntervalDays > 42) {
           data.checkInIntervalDays = 42;
+        } else if (data.detectedConditions.includes('thyroid_te') && data.checkInIntervalDays > 42) {
+          data.checkInIntervalDays = 42;
         }
         data.nextCheckIn = new Date(Date.now() + data.checkInIntervalDays * 24 * 60 * 60 * 1000)
           .toISOString().split('T')[0]; // YYYY-MM-DD
@@ -5681,6 +5702,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           data.nextCheckInReason = 'Post-pill shedding is temporary — rescan in 6 weeks to track early recovery progress and confirm your hair cycle is returning to its normal rhythm as your hormones stabilize.';
         } else if (data.detectedConditions.includes('nutritional_te')) {
           data.nextCheckInReason = 'Possible nutritional deficiency detected — rescan in 6 weeks to confirm that correcting iron or ferritin is stabilizing the shedding and your hair cycle is improving.';
+        } else if (data.detectedConditions.includes('thyroid_te')) {
+          data.nextCheckInReason = 'Possible thyroid-related shedding detected — get a TSH/Free T4 panel this week; once thyroid levels are corrected with treatment, hair cycle shedding typically stabilizes within 2–4 months. Rescan in 6 weeks to track early progress.';
         }
 
         const scanUsage = scanPayload.usage;
@@ -6340,7 +6363,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           ? `- Scan clinical note: ${ctx.scan.photoNote} — if this note flags a non-AGA condition (FFA, LPP, alopecia areata, DUPA, traction alopecia, CCCA, seborrheic dermatitis, scalp psoriasis), follow the Non-AGA condition handling instructions above.`
           : '',
         Array.isArray(ctx.scan?.detectedConditions) && ctx.scan.detectedConditions.length
-          ? `- Detected conditions (machine-readable flags from scan): ${ctx.scan.detectedConditions.join(', ')} — these are the specific non-AGA or secondary conditions confirmed by the scan engine. Use these flags directly when applying condition-specific handling: ffa/lpp/ccca → scarring alopecia (urgent specialist referral, NOT standard AGA protocol as primary); alopecia_areata → autoimmune block (intralesional steroids/JAK inhibitor path); dupa → poor transplant candidate (dermoscopic donor assessment needed); traction_alopecia → mechanical cause (hairstyle trigger removal first); seborrheic_dermatitis/scalp_psoriasis → anti-inflammatory treatment (ketoconazole 2% shampoo for SD; dermatologist for psoriasis); postpartum_te → hormonal TE (reassure, nutritional support, drug safety for breastfeeding); treatment_induced_te → pharmacological TE (reassure, stay consistent, expected shedding phase); seasonal_te → photoperiod TE (monitor, self-limiting, no routine change needed); postpill_te → OCP withdrawal TE (reassure, temporary, ferritin panel, topical minoxidil OK if not pregnant/breastfeeding); nutritional_te → iron/ferritin or vitamin D deficiency TE (reassure, order ferritin+CBC+VitD panel, supplement iron to ≥70 ng/mL target, reversible once deficiency corrected — NOT driven by DHT, so DHT blockers are not the fix).`
+          ? `- Detected conditions (machine-readable flags from scan): ${ctx.scan.detectedConditions.join(', ')} — these are the specific non-AGA or secondary conditions confirmed by the scan engine. Use these flags directly when applying condition-specific handling: ffa/lpp/ccca → scarring alopecia (urgent specialist referral, NOT standard AGA protocol as primary); alopecia_areata → autoimmune block (intralesional steroids/JAK inhibitor path); dupa → poor transplant candidate (dermoscopic donor assessment needed); traction_alopecia → mechanical cause (hairstyle trigger removal first); seborrheic_dermatitis/scalp_psoriasis → anti-inflammatory treatment (ketoconazole 2% shampoo for SD; dermatologist for psoriasis); postpartum_te → hormonal TE (reassure, nutritional support, drug safety for breastfeeding); treatment_induced_te → pharmacological TE (reassure, stay consistent, expected shedding phase); seasonal_te → photoperiod TE (monitor, self-limiting, no routine change needed); postpill_te → OCP withdrawal TE (reassure, temporary, ferritin panel, topical minoxidil OK if not pregnant/breastfeeding); nutritional_te → iron/ferritin or vitamin D deficiency TE (reassure, order ferritin+CBC+VitD panel, supplement iron to ≥70 ng/mL target, reversible once deficiency corrected — NOT driven by DHT, so DHT blockers are not the fix); thyroid_te → thyroid dysfunction-induced TE (hypothyroid or hyperthyroid — reassure, order TSH/Free T4 panel, hair cycle normalizes once thyroid levels are corrected with thyroid medication; NOT driven by DHT, so DHT blockers are not the primary fix; treatment timeline: shedding slows 2–4 months after thyroid levels stabilize, regrowth by months 4–6).`
           : '',
         ctx.scan?.retakeRecommended && ctx.scan.photoGuidance
           ? `- If the user asks about score reliability or why scores seem low, recommend a retake: ${ctx.scan.photoGuidance}`
@@ -6514,6 +6537,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           _condQ = 'My scan noted seasonal shedding as a possible factor — is this normal and should I change my routine?';
         } else if (_fdc.includes('nutritional_te')) {
           _condQ = 'My scan noted a possible nutritional deficiency — how do low ferritin or iron levels cause hair shedding and what should I test for?';
+        } else if (_fdc.includes('thyroid_te')) {
+          _condQ = 'My scan noted a possible thyroid-related pattern — how does thyroid dysfunction cause hair loss and what tests should I ask my doctor for?';
         }
         if (_condQ) suggestedFollowUps = [_condQ, ...suggestedFollowUps.slice(1)];
       }
