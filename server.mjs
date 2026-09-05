@@ -5362,6 +5362,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             // Key message: stopping OCP caused a hormonal shift, follicles are intact, recovery is expected.
             data.weeklyFocus = 'Post-pill shedding is temporary and expected — get your ferritin and iron levels checked (low ferritin extends TE shedding), and give your hair cycle 6–12 months to naturally recover once your hormones stabilize.';
             data.weeklyFocusMetric = 'Health';
+          } else if (_dc.includes('nutritional_te')) {
+            // Nutritional TE: the most important action is a blood panel to confirm and correct the deficiency.
+            // Key message: this is reversible — follicles are intact; correcting ferritin/VitD restores the cycle.
+            data.weeklyFocus = 'Get a ferritin and vitamin D blood panel this week — low ferritin (below 70 ng/mL) is one of the most correctable causes of diffuse shedding. Correcting the deficiency typically stops shedding within 1–2 months and restores growth by months 3–6.';
+            data.weeklyFocusMetric = 'Health';
           }
         })();
 
@@ -5525,6 +5530,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             _condQ = 'My scan noted possible treatment-induced shedding — is this temporary and how long should I expect it to last?';
           } else if (_dc.includes('seasonal_te')) {
             _condQ = 'My scan noted seasonal shedding as a possible factor — is this normal and should I change my routine?';
+          } else if (_dc.includes('nutritional_te')) {
+            _condQ = 'My scan noted a possible nutritional deficiency — how do low ferritin or iron levels cause hair shedding and what should I test for?';
           }
           if (_condQ) {
             data.coachSuggestedQuestions = [_condQ, ...data.coachSuggestedQuestions.slice(1)];
