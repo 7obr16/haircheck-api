@@ -5663,9 +5663,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         };
         data.nextCheckInReason = _STAGE_CHECKIN_REASONS[stage]
           ?? (URGENCY_REASONS[data.treatmentUrgency] || 'Check back regularly to track progress');
-        // TE-specific reason override: give users explicit context about the early check-in.
-        // Applied after the stage-based reason so it takes priority when TE is active.
-        if (data.detectedConditions.includes('treatment_induced_te')) {
+        // Condition-specific reason override: give users explicit context about the early check-in.
+        // Applied after the stage-based reason so it takes priority when a specific condition is active.
+        // Scarring alopecias (FFA, LPP, CCCA) and alopecia areata are checked first — they need
+        // urgent specialist language rather than "measure treatment response" framing.
+        if (data.detectedConditions.some(c => c === 'ffa' || c === 'lpp' || c === 'ccca')) {
+          data.nextCheckInReason = 'Possible scarring alopecia flagged — book a dermatologist or trichologist appointment this week; scarring alopecias permanently destroy follicles if untreated, and early specialist evaluation is the single most important action right now.';
+        } else if (data.detectedConditions.includes('alopecia_areata')) {
+          data.nextCheckInReason = 'Possible alopecia areata detected — see a dermatologist within 1–2 weeks; AA responds to treatments (intralesional corticosteroids, JAK inhibitors) that differ entirely from AGA protocol, and early evaluation improves outcomes.';
+        } else if (data.detectedConditions.includes('treatment_induced_te')) {
           data.nextCheckInReason = 'Treatment-onset shedding detected — rescan in 4 weeks to confirm the shedding is plateauing and your follicles are responding to treatment as expected.';
         } else if (data.detectedConditions.includes('postpartum_te')) {
           data.nextCheckInReason = 'Postpartum shedding is temporary — rescan in 6 weeks to track early recovery progress and confirm your hair cycle is returning to normal.';
