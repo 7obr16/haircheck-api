@@ -3139,6 +3139,18 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             );
             if (_isRecentOnset && _hasKnownTEDrug) _conds.push('treatment_induced_te');
           }
+          // Server-side detection for nutritional TE (iron/ferritin deficiency telogen effluvium).
+          // Iron deficiency — especially low ferritin — is a leading and under-diagnosed trigger for
+          // diffuse TE. Detected from profile concerns/timeline keywords; GPT-4o scan prompt focuses
+          // on AGA patterns and won't reliably note this in photoNote.
+          // Only applies when not already flagged as postpartum or post-pill TE (those take priority).
+          if (!_conds.includes('nutritional_te') && !_conds.includes('postpartum_te') && !_conds.includes('postpill_te')) {
+            const _ncL = (profile.concern || []).map(c => String(c).toLowerCase()).join(' ');
+            const _ntL = (profile.timeline || '').toLowerCase();
+            const _nCombined = _ncL + ' ' + _ntL;
+            const _isNutritionalTE = /low ferritin|iron deficien|ferritin deficien|iron low|low iron|anemi[ac]|anaemi[ac]|vitamin d deficien|nutritional deficien/i.test(_nCombined);
+            if (_isNutritionalTE) _conds.push('nutritional_te');
+          }
           data.detectedConditions = _conds;
         }
         // treatmentUrgency is computed server-side from stage + profile age — not sent to GPT-4o.
@@ -6454,6 +6466,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           _condQ = 'My scan noted possible treatment-induced shedding — is this temporary and how long should I expect it to last?';
         } else if (_fdc.includes('seasonal_te')) {
           _condQ = 'My scan noted seasonal shedding as a possible factor — is this normal and should I change my routine?';
+        } else if (_fdc.includes('nutritional_te')) {
+          _condQ = 'My scan noted a possible nutritional deficiency — how do low ferritin or iron levels cause hair shedding and what should I test for?';
         }
         if (_condQ) suggestedFollowUps = [_condQ, ...suggestedFollowUps.slice(1)];
       }
