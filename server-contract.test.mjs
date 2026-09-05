@@ -2343,4 +2343,19 @@ assert(
   'nutritional_te detection should cover low vitamin D, vit D shorthand, B12 deficiency, zinc deficiency, and reversed phrasings like "deficiency in iron"'
 );
 
+assert(
+  source.includes('_inNHWindow') &&
+    source.includes('_inSHWindow') &&
+    source.includes('_month >= 8 && _month <= 11') &&
+    source.includes('_month >= 2 && _month <= 5') &&
+    source.includes('_hasShedding') &&
+    source.includes('_recentStart') &&
+    source.includes("_conds.push('seasonal_te')") &&
+    source.includes("!_conds.includes('postpartum_te')") &&
+    source.includes("!_conds.includes('postpill_te')") &&
+    source.includes("!_conds.includes('treatment_induced_te')") &&
+    source.includes("!_conds.includes('nutritional_te')"),
+  'seasonal_te should have server-side supplementary detection from scan date + profile concerns — parallel to treatment_induced_te, postpill_te, and nutritional_te; only fires in Aug-Nov (NH) or Feb-May (SH) when concerns mention shedding and routine has been stable; lower-priority than all other TE flags (postpartum > post-pill > treatment-induced > nutritional > seasonal)'
+);
+
 console.log('server contract passed');
