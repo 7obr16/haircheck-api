@@ -2331,4 +2331,16 @@ assert(
   "server should detect 'natures bounty' (Nature's Bounty brand, one of the largest OTC supplement manufacturers; users frequently take their Hair, Skin & Nails vitamins or Optimal Solutions Hair supplement) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection"
 );
 
+assert(
+  source.includes('low vitamin d') &&
+    source.includes('vit') && source.includes('d deficien') &&
+    source.includes('low vit') &&
+    source.includes('b') && source.includes('12 deficien') &&
+    source.includes('low b') && source.includes('12|') &&
+    source.includes('zinc deficien') &&
+    source.includes('low zinc') &&
+    source.includes('deficien.{0,15}iron'),
+  'nutritional_te detection should cover low vitamin D, vit D shorthand, B12 deficiency, zinc deficiency, and reversed phrasings like "deficiency in iron"'
+);
+
 console.log('server contract passed');

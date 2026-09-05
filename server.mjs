@@ -3148,7 +3148,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             const _ncL = (profile.concern || []).map(c => String(c).toLowerCase()).join(' ');
             const _ntL = (profile.timeline || '').toLowerCase();
             const _nCombined = _ncL + ' ' + _ntL;
-            const _isNutritionalTE = /low ferritin|iron deficien|ferritin deficien|iron low|low iron|anemi[ac]|anaemi[ac]|vitamin d deficien|nutritional deficien/i.test(_nCombined);
+            const _isNutritionalTE = /low ferritin|iron deficien|ferritin deficien|iron low|low iron|anemi[ac]|anaemi[ac]|vitamin d deficien|low vitamin d|vit\.?\s*d deficien|low vit\.?\s*d|nutritional deficien|b\.?12 deficien|low b\.?12|vitamin b\.?12 deficien|zinc deficien|low zinc|deficien.{0,15}iron|deficien.{0,15}ferritin/i.test(_nCombined);
             if (_isNutritionalTE) _conds.push('nutritional_te');
           }
           data.detectedConditions = _conds;
