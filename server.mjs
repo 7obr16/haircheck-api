@@ -5546,11 +5546,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
 
         // Non-AGA condition override: when the scan flagged a non-androgenetic condition in
         // photoNote (CCCA, FFA, LPP, DUPA, alopecia areata, traction alopecia, seborrheic dermatitis,
-        // psoriasis, postpartum TE, treatment-induced TE, or seasonal TE), replace Q1 with a
-        // condition-specific question. Uses detectedConditions (already computed above) — no repeated
-        // photoNote parsing.
+        // psoriasis, postpartum TE, treatment-induced TE, seasonal TE, nutritional TE, or thyroid TE),
+        // replace Q1 with a condition-specific question. Uses detectedConditions (already computed
+        // above) — no repeated photoNote parsing.
         // Priority: scarring (CCCA > FFA > LPP) → autoimmune (AA) → poor-transplant (DUPA) →
-        //           lifestyle (TA) → inflammatory (SD/psoriasis) → TE reassurance (postpartum > tx-onset > seasonal).
+        //           lifestyle (TA) → inflammatory (SD/psoriasis) → TE reassurance (postpartum > tx-onset > seasonal > nutritional > thyroid).
         (() => {
           const _dc = data.detectedConditions;
           if (!_dc.length) return;
@@ -5579,6 +5579,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             _condQ = 'My scan noted seasonal shedding as a possible factor — is this normal and should I change my routine?';
           } else if (_dc.includes('nutritional_te')) {
             _condQ = 'My scan noted a possible nutritional deficiency — how do low ferritin or iron levels cause hair shedding and what should I test for?';
+          } else if (_dc.includes('thyroid_te')) {
+            _condQ = 'My scan flagged possible thyroid-related shedding — how does thyroid dysfunction cause hair loss and what should I ask my doctor to test for?';
           }
           if (_condQ) {
             data.coachSuggestedQuestions = [_condQ, ...data.coachSuggestedQuestions.slice(1)];
