@@ -3107,6 +3107,21 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           if (_pnL.includes('postpartum te') || _pnL.includes('postpartum telogen effluvium') || _pnL.includes('postpartum shedding') || _pnL.includes('post-partum') || _pnL.includes('post partum')) _conds.push('postpartum_te');
           if (_pnL.includes('treatment-induced te') || _pnL.includes('treatment-induced telogen effluvium') || _pnL.includes('treatment induced te') || _pnL.includes('treatment induced telogen')) _conds.push('treatment_induced_te');
           if (_pnL.includes('seasonal') && (_pnL.includes(' te') || _pnL.includes('telogen effluvium') || _pnL.includes('shedding') || _pnL.includes('photoperiod'))) _conds.push('seasonal_te');
+          // Server-side supplementary detection for postpartum TE.
+          // GPT-4o's scan prompt focuses on AGA/androgenic patterns and the photoNote detection above
+          // only fires when the model explicitly writes "postpartum te" in photoNote — which rarely
+          // happens because postpartum context comes from the user's profile, not the photo.
+          // This block detects postpartum_te deterministically from profile concerns/timeline when
+          // the user mentions postpartum or post-pregnancy language. Mirrors the same pattern used
+          // for postpill_te, nutritional_te, thyroid_te, and seasonal_te server-side detections.
+          // Postpartum takes clinical priority over all other TE variants and is checked first.
+          if (!_conds.includes('postpartum_te')) {
+            const _ppL = (profile.concern || []).map(c => String(c).toLowerCase()).join(' ');
+            const _ptL = (profile.timeline || '').toLowerCase();
+            const _ppCombined = _ppL + ' ' + _ptL;
+            const _isPostpartum = /\bpostpartum\b|\bpost.partum\b|\bpost partum\b|\bafter.{0,5}(baby|birth|delivery|childbirth|pregnancy|giving birth)\b|\bmonths.{0,10}(baby|birth|delivery)\b|\bpost.pregnancy\b|\bpostnatal\b|\bnew\s+mo(?:m|ther)\b|\bhad\s+a\s+baby\b/i.test(_ppCombined);
+            if (_isPostpartum) _conds.push('postpartum_te');
+          }
           // Server-side detection for post-pill TE (OCP withdrawal telogen effluvium).
           // Women stopping oral contraceptives experience diffuse shedding 2–4 months after stopping
           // due to estrogen withdrawal disrupting the hair cycle — follicles intact, self-limiting 6–12 months.
