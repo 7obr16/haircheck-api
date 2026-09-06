@@ -3100,6 +3100,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           if (_pnL.includes('traction alopecia'))                                      _conds.push('traction_alopecia');
           if (_pnL.includes('seborrheic dermatitis'))                                  _conds.push('seborrheic_dermatitis');
           if (_pnL.includes('scalp psoriasis'))                                        _conds.push('scalp_psoriasis');
+          // SMP detection: GPT-4o is instructed to note "suspected scalp micropigmentation" in photoNote
+          // when the stippled tattooed-follicle pattern is detected. Flagging it lets the iOS app
+          // surface a retake prompt and explain why scores reflect underlying loss, not the SMP surface.
+          if (_pnL.includes('scalp micropigmentation') || _pnL.includes('suspected smp')) _conds.push('smp_suspected');
           if (_pnL.includes('postpartum te') || _pnL.includes('postpartum telogen effluvium') || _pnL.includes('postpartum shedding') || _pnL.includes('post-partum') || _pnL.includes('post partum')) _conds.push('postpartum_te');
           if (_pnL.includes('treatment-induced te') || _pnL.includes('treatment-induced telogen effluvium') || _pnL.includes('treatment induced te') || _pnL.includes('treatment induced telogen')) _conds.push('treatment_induced_te');
           if (_pnL.includes('seasonal') && (_pnL.includes(' te') || _pnL.includes('telogen effluvium') || _pnL.includes('shedding') || _pnL.includes('photoperiod'))) _conds.push('seasonal_te');
@@ -5384,6 +5388,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             data.weeklyFocusMetric = 'Health';
             data.weeklyFocusSecondary = null;
             data.weeklyFocusSecondaryMetric = null;
+          } else if (_dc.includes('smp_suspected')) {
+            // SMP detected: the most important action is getting an accurate baseline photo.
+            // Scores reflect the underlying loss level (as estimated through the SMP), not the
+            // tattooed surface — the user needs a retake for reliable tracking over time.
+            data.weeklyFocus = 'Scalp micropigmentation detected — your scores reflect the estimated underlying loss, not the SMP surface. Retake your photo showing your natural fringe clearly (without the SMP zone dominating the frame) for the most accurate tracking baseline.';
+            data.weeklyFocusMetric = 'Health';
           } else if (_dc.includes('treatment_induced_te')) {
             // Treatment-onset TE: the single most important message is "don't stop treatment."
             // Users shedding from minoxidil/finasteride/dutasteride are at high risk of quitting
@@ -5566,6 +5576,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             _condQ = 'My scan detected a possible alopecia areata pattern — how is it treated differently from androgenetic hair loss?';
           } else if (_dc.includes('dupa')) {
             _condQ = 'My scan flagged a DUPA pattern — how does this affect my transplant candidacy and what should I do next?';
+          } else if (_dc.includes('smp_suspected')) {
+            _condQ = 'My scan detected possible scalp micropigmentation — how does SMP affect my scores and how do I get an accurate baseline reading?';
           } else if (_dc.includes('traction_alopecia')) {
             _condQ = 'My scan flagged possible traction alopecia — how do I stop it from progressing and can it regrow?';
           } else if (_dc.includes('seborrheic_dermatitis') || _dc.includes('scalp_psoriasis')) {
@@ -6366,7 +6378,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           ? `- Scan clinical note: ${ctx.scan.photoNote} — if this note flags a non-AGA condition (FFA, LPP, alopecia areata, DUPA, traction alopecia, CCCA, seborrheic dermatitis, scalp psoriasis), follow the Non-AGA condition handling instructions above.`
           : '',
         Array.isArray(ctx.scan?.detectedConditions) && ctx.scan.detectedConditions.length
-          ? `- Detected conditions (machine-readable flags from scan): ${ctx.scan.detectedConditions.join(', ')} — these are the specific non-AGA or secondary conditions confirmed by the scan engine. Use these flags directly when applying condition-specific handling: ffa/lpp/ccca → scarring alopecia (urgent specialist referral, NOT standard AGA protocol as primary); alopecia_areata → autoimmune block (intralesional steroids/JAK inhibitor path); dupa → poor transplant candidate (dermoscopic donor assessment needed); traction_alopecia → mechanical cause (hairstyle trigger removal first); seborrheic_dermatitis/scalp_psoriasis → anti-inflammatory treatment (ketoconazole 2% shampoo for SD; dermatologist for psoriasis); postpartum_te → hormonal TE (reassure, nutritional support, drug safety for breastfeeding); treatment_induced_te → pharmacological TE (reassure, stay consistent, expected shedding phase); seasonal_te → photoperiod TE (monitor, self-limiting, no routine change needed); postpill_te → OCP withdrawal TE (reassure, temporary, ferritin panel, topical minoxidil OK if not pregnant/breastfeeding); nutritional_te → iron/ferritin or vitamin D deficiency TE (reassure, order ferritin+CBC+VitD panel, supplement iron to ≥70 ng/mL target, reversible once deficiency corrected — NOT driven by DHT, so DHT blockers are not the fix); thyroid_te → thyroid dysfunction-induced TE (hypothyroid or hyperthyroid — reassure, order TSH/Free T4 panel, hair cycle normalizes once thyroid levels are corrected with thyroid medication; NOT driven by DHT, so DHT blockers are not the primary fix; treatment timeline: shedding slows 2–4 months after thyroid levels stabilize, regrowth by months 4–6).`
+          ? `- Detected conditions (machine-readable flags from scan): ${ctx.scan.detectedConditions.join(', ')} — these are the specific non-AGA or secondary conditions confirmed by the scan engine. Use these flags directly when applying condition-specific handling: ffa/lpp/ccca → scarring alopecia (urgent specialist referral, NOT standard AGA protocol as primary); alopecia_areata → autoimmune block (intralesional steroids/JAK inhibitor path); dupa → poor transplant candidate (dermoscopic donor assessment needed); traction_alopecia → mechanical cause (hairstyle trigger removal first); seborrheic_dermatitis/scalp_psoriasis → anti-inflammatory treatment (ketoconazole 2% shampoo for SD; dermatologist for psoriasis); postpartum_te → hormonal TE (reassure, nutritional support, drug safety for breastfeeding); treatment_induced_te → pharmacological TE (reassure, stay consistent, expected shedding phase); seasonal_te → photoperiod TE (monitor, self-limiting, no routine change needed); postpill_te → OCP withdrawal TE (reassure, temporary, ferritin panel, topical minoxidil OK if not pregnant/breastfeeding); nutritional_te → iron/ferritin or vitamin D deficiency TE (reassure, order ferritin+CBC+VitD panel, supplement iron to ≥70 ng/mL target, reversible once deficiency corrected — NOT driven by DHT, so DHT blockers are not the fix); thyroid_te → thyroid dysfunction-induced TE (hypothyroid or hyperthyroid — reassure, order TSH/Free T4 panel, hair cycle normalizes once thyroid levels are corrected with thyroid medication; NOT driven by DHT, so DHT blockers are not the primary fix; treatment timeline: shedding slows 2–4 months after thyroid levels stabilize, regrowth by months 4–6); smp_suspected → scalp micropigmentation detected (the scan's scores reflect underlying estimated loss, not the tattooed surface — advise the user to retake their photo showing natural fringe without the SMP zone dominating the frame, acknowledge that the Norwood stage was estimated through the SMP coverage from fringe extent and profile, and note that OTC treatment recommendations remain valid for the underlying stage assigned).`
           : '',
         ctx.scan?.retakeRecommended && ctx.scan.photoGuidance
           ? `- If the user asks about score reliability or why scores seem low, recommend a retake: ${ctx.scan.photoGuidance}`
@@ -6526,6 +6538,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           _condQ = 'My scan detected a possible alopecia areata pattern — how is it treated differently from androgenetic hair loss?';
         } else if (_fdc.includes('dupa')) {
           _condQ = 'My scan flagged a DUPA pattern — how does this affect my transplant candidacy and what should I do next?';
+        } else if (_fdc.includes('smp_suspected')) {
+          _condQ = 'My scan detected possible scalp micropigmentation — how does SMP affect my scores and how do I get an accurate baseline reading?';
         } else if (_fdc.includes('traction_alopecia')) {
           _condQ = 'My scan flagged possible traction alopecia — how do I stop it from progressing and can it regrow?';
         } else if (_fdc.includes('seborrheic_dermatitis') || _fdc.includes('scalp_psoriasis')) {

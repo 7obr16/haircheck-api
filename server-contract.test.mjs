@@ -2374,4 +2374,15 @@ assert(
   'thyroid_te should have server-side detection from profile concerns/timeline (hypothyroid, hashimoto, levothyroxine, etc.), guarded against postpartum and post-pill TE; weeklyFocus override directing to thyroid panel; checkInIntervalDays capped at 42; nextCheckInReason with TSH/Free T4 guidance; coach detectedConditions description with thyroid_te handling; suggestedFollowUp question'
 );
 
+assert(
+  source.includes("_pnL.includes('scalp micropigmentation') || _pnL.includes('suspected smp')") &&
+    source.includes("_conds.push('smp_suspected')") &&
+    source.includes("_dc.includes('smp_suspected')") &&
+    source.includes('Scalp micropigmentation detected') &&
+    source.includes('My scan detected possible scalp micropigmentation') &&
+    source.includes("_fdc.includes('smp_suspected')") &&
+    source.includes('smp_suspected → scalp micropigmentation detected'),
+  'smp_suspected should be detected from photoNote keywords (scalp micropigmentation, suspected smp), have a weeklyFocus override directing to a retake, a coachSuggestedQuestions override in the scan endpoint, a suggestedFollowUps override in the coach endpoint, and a description in the coach detectedConditions prompt so GPT-4o knows how to handle it'
+);
+
 console.log('server contract passed');
