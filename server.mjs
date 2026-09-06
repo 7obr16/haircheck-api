@@ -3170,6 +3170,20 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             const _isThyroidTE = /hypothyroid|hyperthyroid|hashimoto|graves.{0,10}disease|thyroid.{0,20}(condition|disease|issue|problem|disorder|dysfunction)|underactive.{0,10}thyroid|overactive.{0,10}thyroid|low.{0,10}thyroid|thyroid.{0,10}low|thyroid.{0,10}level|levothyroxine|synthroid|thyroxine.{0,15}(replace|therapy|medication|tablet|pill)|on.{0,10}thyroid.{0,10}(med|treatment)|thyroid.{0,10}antibod|autoimmune.{0,10}thyroid/i.test(_thCombined);
             if (_isThyroidTE) _conds.push('thyroid_te');
           }
+          // Server-side detection for PCOS-driven androgenic hair loss.
+          // PCOS is the most common endocrine disorder in women and a leading cause of female-pattern
+          // hair loss via androgen excess. It's detectable from profile text (explicit PCOS mention,
+          // polycystic ovary language, or androgenic hormone signals). Unlike TE conditions, PCOS
+          // causes progressive androgenic alopecia — the treatment axis is hormonal (spironolactone,
+          // oral contraceptives, minoxidil) rather than TE recovery. Not guarded against other
+          // conditions: PCOS can co-exist with nutritional/thyroid TE and should still be surfaced.
+          if (!_conds.includes('pcos')) {
+            const _pcL = (profile.concern || []).map(c => String(c).toLowerCase()).join(' ');
+            const _ptL = (profile.timeline || '').toLowerCase();
+            const _pcCombined = _pcL + ' ' + _ptL;
+            const _isPCOS = /\bpcos\b|polycystic.{0,10}ovar|polycystic.{0,10}ovarian|\bpco\b|high.{0,10}androgen|elevated.{0,10}androgen|high.{0,10}testosterone|elevated.{0,10}testosterone|androgen.{0,10}excess|hyperandrogenism/i.test(_pcCombined);
+            if (_isPCOS) _conds.push('pcos');
+          }
           // Server-side supplementary detection for seasonal TE (photoperiod telogen effluvium).
           // GPT-4o may not always mention "seasonal" in photoNote even when the scan prompt instructs it to.
           // Detect deterministically from the scan date and profile: if today is in the Northern Hemisphere
@@ -5425,6 +5439,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             // Key message: once thyroid levels are corrected with medication, the hair cycle normalizes.
             data.weeklyFocus = 'Book a thyroid function test (TSH, Free T4) this week — thyroid dysfunction is one of the most correctable causes of diffuse shedding. Once thyroid levels are stabilized with treatment, shedding typically slows within 2–4 months and hair regrowth begins by months 4–6.';
             data.weeklyFocusMetric = 'Health';
+          } else if (_dc.includes('pcos')) {
+            // PCOS: most important action is a hormonal workup and discussion of anti-androgen treatment.
+            // Key message: PCOS-driven hair loss responds to hormonal intervention (spironolactone, OCP,
+            // minoxidil) — an endocrinologist or dermatologist can identify the right combination.
+            data.weeklyFocus = 'Book a hormonal workup (testosterone, DHEA-S, LH/FSH ratio) this week — PCOS-related hair loss is driven by androgen excess and responds well to targeted treatment (spironolactone, oral contraceptives, or minoxidil). Early hormonal management is the highest-impact step right now.';
+            data.weeklyFocusMetric = 'Health';
           }
         })();
 
@@ -5594,6 +5614,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             _condQ = 'My scan noted a possible nutritional deficiency — how do low ferritin or iron levels cause hair shedding and what should I test for?';
           } else if (_dc.includes('thyroid_te')) {
             _condQ = 'My scan flagged possible thyroid-related shedding — how does thyroid dysfunction cause hair loss and what should I ask my doctor to test for?';
+          } else if (_dc.includes('pcos')) {
+            _condQ = 'My scan flagged possible PCOS-related hair loss — how does PCOS cause hair thinning and what hormonal tests should I ask my doctor for?';
           }
           if (_condQ) {
             data.coachSuggestedQuestions = [_condQ, ...data.coachSuggestedQuestions.slice(1)];
@@ -5651,6 +5673,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         } else if (data.detectedConditions.includes('nutritional_te') && data.checkInIntervalDays > 42) {
           data.checkInIntervalDays = 42;
         } else if (data.detectedConditions.includes('thyroid_te') && data.checkInIntervalDays > 42) {
+          data.checkInIntervalDays = 42;
+        } else if (data.detectedConditions.includes('pcos') && data.checkInIntervalDays > 42) {
+          // PCOS: 6-week check-in aligns with typical wait time for a hormonal workup result
+          // and allows enough time to begin hormonal treatment and observe early response.
           data.checkInIntervalDays = 42;
         }
         data.nextCheckIn = new Date(Date.now() + data.checkInIntervalDays * 24 * 60 * 60 * 1000)
@@ -5719,6 +5745,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           data.nextCheckInReason = 'Possible nutritional deficiency detected — rescan in 6 weeks to confirm that correcting iron or ferritin is stabilizing the shedding and your hair cycle is improving.';
         } else if (data.detectedConditions.includes('thyroid_te')) {
           data.nextCheckInReason = 'Possible thyroid-related shedding detected — get a TSH/Free T4 panel this week; once thyroid levels are corrected with treatment, hair cycle shedding typically stabilizes within 2–4 months. Rescan in 6 weeks to track early progress.';
+        } else if (data.detectedConditions.includes('pcos')) {
+          data.nextCheckInReason = 'Possible PCOS-related hair loss detected — book a hormonal workup (testosterone, DHEA-S, LH/FSH) and discuss anti-androgen options with your doctor. Rescan in 6 weeks to establish your baseline once hormonal treatment is underway.';
         }
 
         const scanUsage = scanPayload.usage;
@@ -6556,6 +6584,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           _condQ = 'My scan noted a possible nutritional deficiency — how do low ferritin or iron levels cause hair shedding and what should I test for?';
         } else if (_fdc.includes('thyroid_te')) {
           _condQ = 'My scan noted a possible thyroid-related pattern — how does thyroid dysfunction cause hair loss and what tests should I ask my doctor for?';
+        } else if (_fdc.includes('pcos')) {
+          _condQ = 'My scan flagged possible PCOS-related hair loss — what hormonal tests should I ask my doctor for, and what treatments work best for PCOS hair loss?';
         }
         if (_condQ) suggestedFollowUps = [_condQ, ...suggestedFollowUps.slice(1)];
       }
