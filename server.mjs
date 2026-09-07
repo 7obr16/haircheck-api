@@ -5460,6 +5460,27 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             // minoxidil) — an endocrinologist or dermatologist can identify the right combination.
             data.weeklyFocus = 'Book a hormonal workup (testosterone, DHEA-S, LH/FSH ratio) this week — PCOS-related hair loss is driven by androgen excess and responds well to targeted treatment (spironolactone, oral contraceptives, or minoxidil). Early hormonal management is the highest-impact step right now.';
             data.weeklyFocusMetric = 'Health';
+          } else if (_dc.includes('traction_alopecia')) {
+            // Traction alopecia: the single most impactful action is removing the mechanical trigger.
+            // AGA-targeted advice (minoxidil, finasteride) is wrong as primary guidance here —
+            // the weeklyFocus must redirect to the causal hairstyle change first.
+            data.weeklyFocus = 'Switch to a loose hairstyle this week — removing the tight hairstyle tension is the single highest-impact step for traction alopecia. Early-stage TA reverses well once the pulling stops; topical minoxidil is a useful adjunct once the trigger is removed.';
+            data.weeklyFocusMetric = 'Health';
+          } else if (_dc.includes('dupa')) {
+            // DUPA: transplant is contraindicated — the weeklyFocus must redirect to specialist evaluation.
+            // Standard AGA metric advice (add minoxidil layers) is still relevant but the urgent action
+            // is a dermoscopic donor assessment before any surgical planning is considered.
+            data.weeklyFocus = 'Book a trichologist or dermatologist consultation for dermoscopic evaluation of your donor zone — DUPA affects the fringe normally used for transplantation, and a specialist assessment is needed before any surgical planning. Continue OTC treatment to slow progression.';
+            data.weeklyFocusMetric = 'Health';
+          } else if (_dc.includes('seborrheic_dermatitis') || _dc.includes('scalp_psoriasis')) {
+            // Seborrheic dermatitis / scalp psoriasis: first-line treatment is specific anti-inflammatory
+            // shampoo — not generic AGA protocol. Ketoconazole 2% has dual antifungal + mild anti-androgenic
+            // benefit; psoriasis needs a dermatologist for prescription treatment.
+            const _isPsoriasis = _dc.includes('scalp_psoriasis');
+            data.weeklyFocus = _isPsoriasis
+              ? 'See a dermatologist about the scalp psoriasis pattern — prescription-strength corticosteroid shampoo or calcipotriol is the primary treatment, and managing inflammation significantly improves hair loss outcomes alongside any AGA protocol.'
+              : 'Start using ketoconazole 2% shampoo (Nizoral or generic) 2–3× weekly with a 3–5 minute contact time — it treats the seborrheic dermatitis driving scalp inflammation and has a mild anti-androgenic bonus effect on follicles alongside your AGA protocol.';
+            data.weeklyFocusMetric = 'Health';
           }
         })();
 
@@ -5693,6 +5714,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // PCOS: 6-week check-in aligns with typical wait time for a hormonal workup result
           // and allows enough time to begin hormonal treatment and observe early response.
           data.checkInIntervalDays = 42;
+        } else if (data.detectedConditions.includes('traction_alopecia') && data.checkInIntervalDays > 42) {
+          // Traction alopecia: 6-week rescan is appropriate to observe early recovery after
+          // removing the tight hairstyle tension.
+          data.checkInIntervalDays = 42;
+        } else if ((data.detectedConditions.includes('seborrheic_dermatitis') || data.detectedConditions.includes('scalp_psoriasis')) && data.checkInIntervalDays > 42) {
+          // SD / psoriasis: 6-week rescan to confirm anti-inflammatory treatment (ketoconazole
+          // shampoo for SD; prescription treatment for psoriasis) is improving scalp health.
+          data.checkInIntervalDays = 42;
         }
         data.nextCheckIn = new Date(Date.now() + data.checkInIntervalDays * 24 * 60 * 60 * 1000)
           .toISOString().split('T')[0]; // YYYY-MM-DD
@@ -5762,6 +5791,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           data.nextCheckInReason = 'Possible thyroid-related shedding detected — get a TSH/Free T4 panel this week; once thyroid levels are corrected with treatment, hair cycle shedding typically stabilizes within 2–4 months. Rescan in 6 weeks to track early progress.';
         } else if (data.detectedConditions.includes('pcos')) {
           data.nextCheckInReason = 'Possible PCOS-related hair loss detected — book a hormonal workup (testosterone, DHEA-S, LH/FSH) and discuss anti-androgen options with your doctor. Rescan in 6 weeks to establish your baseline once hormonal treatment is underway.';
+        } else if (data.detectedConditions.includes('traction_alopecia')) {
+          data.nextCheckInReason = 'Possible traction alopecia detected — switch to a loose hairstyle immediately and rescan in 6 weeks to track early recovery progress. Early-stage TA reverses well once the mechanical tension is removed.';
+        } else if (data.detectedConditions.includes('dupa')) {
+          data.nextCheckInReason = 'DUPA pattern flagged — book a trichologist consultation for dermoscopic evaluation of your donor zone before considering any surgical options. Rescan in 6 weeks to establish your baseline.';
+        } else if (data.detectedConditions.includes('seborrheic_dermatitis') || data.detectedConditions.includes('scalp_psoriasis')) {
+          data.nextCheckInReason = data.detectedConditions.includes('scalp_psoriasis')
+            ? 'Scalp psoriasis pattern flagged — see a dermatologist for prescription-strength treatment (corticosteroid or calcipotriol shampoo). Rescan in 6 weeks to track scalp health improvement alongside your hair loss protocol.'
+            : 'Possible seborrheic dermatitis detected — start ketoconazole 2% shampoo (Nizoral) 2–3× weekly with a 3-5 minute contact time. Rescan in 6 weeks to confirm the inflammation is resolving and your protocol response is improving.';
         }
 
         const scanUsage = scanPayload.usage;
