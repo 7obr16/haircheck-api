@@ -2400,4 +2400,19 @@ assert(
   'smp_suspected should be detected from photoNote keywords (scalp micropigmentation, suspected smp), have a weeklyFocus override directing to a retake, a coachSuggestedQuestions override in the scan endpoint, a suggestedFollowUps override in the coach endpoint, and a description in the coach detectedConditions prompt so GPT-4o knows how to handle it'
 );
 
+assert(
+  source.includes("_conds.push('stress_te')") &&
+    source.includes("!_conds.includes('stress_te')") &&
+    source.includes('_highStress') &&
+    source.includes('_poorSleep') &&
+    source.includes("stress_te → stress/sleep-induced TE") &&
+    source.includes("data.detectedConditions.includes('stress_te') && data.checkInIntervalDays > 42") &&
+    source.includes("data.detectedConditions.includes('stress_te')") &&
+    source.includes("_dc.includes('stress_te')") &&
+    source.includes("_fdc.includes('stress_te')") &&
+    source.includes('High stress or poor sleep detected alongside diffuse thinning') &&
+    source.includes('My scan flagged high stress or poor sleep as a possible shedding trigger'),
+  'stress_te should be detected when stress ≥7 or sleep ≤5 at a diffuse/n/a(female) stage (lower priority than all other TE flags), have weeklyFocus override with lifestyle guidance, checkInIntervalDays capped at 42, nextCheckInReason with sleep/stress advice, coach detectedConditions description with stress_te handling, coachSuggestedQuestions chip in the scan endpoint, and suggestedFollowUps chip in the coach endpoint'
+);
+
 console.log('server contract passed');
