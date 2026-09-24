@@ -3195,7 +3195,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           if (!_conds.includes('pcos')) {
             const _pcL = (profile.concern || []).map(c => String(c).toLowerCase()).join(' ');
             const _ptL = (profile.timeline || '').toLowerCase();
-            const _pcCombined = _pcL + ' ' + _ptL;
+            const _prL = (profile.routine  || []).map(r => String(r).toLowerCase()).join(' ');
+            const _pcCombined = _pcL + ' ' + _ptL + ' ' + _prL;
             const _isPCOS = /\bpcos\b|polycystic.{0,10}ovar|polycystic.{0,10}ovarian|\bpco\b|high.{0,10}androgen|elevated.{0,10}androgen|high.{0,10}testosterone|elevated.{0,10}testosterone|androgen.{0,10}excess|hyperandrogenism/i.test(_pcCombined);
             if (_isPCOS) _conds.push('pcos');
           }
