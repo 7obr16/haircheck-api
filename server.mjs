@@ -3167,7 +3167,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           if (!_conds.includes('nutritional_te') && !_conds.includes('postpartum_te') && !_conds.includes('postpill_te')) {
             const _ncL = (profile.concern || []).map(c => String(c).toLowerCase()).join(' ');
             const _ntL = (profile.timeline || '').toLowerCase();
-            const _nCombined = _ncL + ' ' + _ntL;
+            const _nrL = (profile.routine  || []).map(r => String(r).toLowerCase()).join(' ');
+            const _nCombined = _ncL + ' ' + _ntL + ' ' + _nrL;
             const _isNutritionalTE = /low ferritin|iron deficien|ferritin deficien|iron low|low iron|anemi[ac]|anaemi[ac]|vitamin d deficien|low vitamin d|vit\.?\s*d deficien|low vit\.?\s*d|nutritional deficien|b\.?12 deficien|low b\.?12|vitamin b\.?12 deficien|zinc deficien|low zinc|deficien.{0,15}iron|deficien.{0,15}ferritin/i.test(_nCombined);
             if (_isNutritionalTE) _conds.push('nutritional_te');
           }
@@ -3181,7 +3182,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           if (!_conds.includes('thyroid_te') && !_conds.includes('postpartum_te') && !_conds.includes('postpill_te')) {
             const _thL = (profile.concern || []).map(c => String(c).toLowerCase()).join(' ');
             const _ttL = (profile.timeline || '').toLowerCase();
-            const _thCombined = _thL + ' ' + _ttL;
+            const _trL = (profile.routine  || []).map(r => String(r).toLowerCase()).join(' ');
+            const _thCombined = _thL + ' ' + _ttL + ' ' + _trL;
             const _isThyroidTE = /hypothyroid|hyperthyroid|hashimoto|graves.{0,10}disease|thyroid.{0,20}(condition|disease|issue|problem|disorder|dysfunction)|underactive.{0,10}thyroid|overactive.{0,10}thyroid|low.{0,10}thyroid|thyroid.{0,10}low|thyroid.{0,10}level|levothyroxine|synthroid|thyroxine.{0,15}(replace|therapy|medication|tablet|pill)|on.{0,10}thyroid.{0,10}(med|treatment)|thyroid.{0,10}antibod|autoimmune.{0,10}thyroid/i.test(_thCombined);
             if (_isThyroidTE) _conds.push('thyroid_te');
           }

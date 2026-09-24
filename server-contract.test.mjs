@@ -2344,6 +2344,20 @@ assert(
 );
 
 assert(
+  source.includes('_nrL') &&
+    source.includes("profile.routine  || []).map(r => String(r).toLowerCase()).join(' ')") &&
+    source.includes('_nCombined = _ncL'),
+  'nutritional_te detection should include profile.routine in the search scope — users often list iron supplements or ferritin-correction supplements in their routine, not just concerns/timeline'
+);
+
+assert(
+  source.includes('_trL') &&
+    source.includes('_thCombined = _thL') &&
+    source.includes('_trL'),
+  'thyroid_te detection should include profile.routine in the search scope — users often list levothyroxine, synthroid, or other thyroid medications in their routine, not just concerns/timeline'
+);
+
+assert(
   source.includes('_inNHWindow') &&
     source.includes('_inSHWindow') &&
     source.includes('_month >= 8 && _month <= 11') &&
