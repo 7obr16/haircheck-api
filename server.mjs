@@ -3227,6 +3227,32 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               }
             }
           }
+          // Server-side detection for stress/sleep-induced TE (lifestyle telogen effluvium).
+          // High stress (≥7/10) and chronic poor sleep (≤5h) are recognized TE triggers — they
+          // push follicles into telogen by elevating cortisol and disrupting the hair growth cycle.
+          // Unlike seasonal/postpartum/nutritional TE, stress TE is detectable from the lifestyle
+          // profile alone, without GPT-4o explicitly naming it in photoNote.
+          // Only fires at diffuse or n/a (female) stages where TE is anatomically plausible —
+          // not at AGA stages (NW2-NW7) where temple or vertex recession indicates androgen-driven
+          // miniaturization rather than a reversible growth-cycle disruption.
+          // Lowest priority: all specific TE conditions (postpartum, postpill, treatment-induced,
+          // nutritional, thyroid, seasonal) take precedence because they are more specific.
+          if (!_conds.includes('stress_te') &&
+              !_conds.includes('postpartum_te') &&
+              !_conds.includes('postpill_te') &&
+              !_conds.includes('treatment_induced_te') &&
+              !_conds.includes('nutritional_te') &&
+              !_conds.includes('thyroid_te') &&
+              !_conds.includes('seasonal_te')) {
+            const _stressVal = profile.lifestyle?.stress;
+            const _sleepVal  = profile.lifestyle?.sleep;
+            const _highStress = typeof _stressVal === 'number' && _stressVal >= 7;
+            const _poorSleep  = typeof _sleepVal  === 'number' && _sleepVal  <= 5;
+            const _diffuseStages = new Set(['diffuse', 'n/a (female)']);
+            if ((_highStress || _poorSleep) && _diffuseStages.has(stage)) {
+              _conds.push('stress_te');
+            }
+          }
           data.detectedConditions = _conds;
         }
         // treatmentUrgency is computed server-side from stage + profile age — not sent to GPT-4o.
@@ -5481,6 +5507,17 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               ? 'See a dermatologist about the scalp psoriasis pattern — prescription-strength corticosteroid shampoo or calcipotriol is the primary treatment, and managing inflammation significantly improves hair loss outcomes alongside any AGA protocol.'
               : 'Start using ketoconazole 2% shampoo (Nizoral or generic) 2–3× weekly with a 3–5 minute contact time — it treats the seborrheic dermatitis driving scalp inflammation and has a mild anti-androgenic bonus effect on follicles alongside your AGA protocol.';
             data.weeklyFocusMetric = 'Health';
+          } else if (_dc.includes('stress_te')) {
+            // Stress/sleep TE: the highest-ROI action is addressing the lifestyle trigger directly.
+            // Elevated cortisol and chronic sleep deprivation are reversible TE causes — diffuse
+            // shedding typically stabilizes within 2–3 months once the stressor is managed.
+            const _stressVal = profile.lifestyle?.stress;
+            const _sleepVal  = profile.lifestyle?.sleep;
+            const _highStress = typeof _stressVal === 'number' && _stressVal >= 7;
+            data.weeklyFocus = _highStress
+              ? 'Stress ≥7/10 with diffuse thinning strongly suggests stress-induced TE — prioritize sleep (target 7–8h), add one daily stress-reduction habit (exercise, mindfulness, or a digital wind-down), and keep your topical routine consistent. Shedding typically stabilizes within 2–3 months once cortisol load drops.'
+              : 'Sleep deprivation (≤5h/night) is a recognized TE trigger — restoring 7–8h of sleep is the single highest-leverage lifestyle action for diffuse shedding. Consistent sleep alone can noticeably reduce cortisol-driven shedding within 6–8 weeks alongside your topical routine.';
+            data.weeklyFocusMetric = 'Health';
           }
         })();
 
@@ -5652,6 +5689,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             _condQ = 'My scan flagged possible thyroid-related shedding — how does thyroid dysfunction cause hair loss and what should I ask my doctor to test for?';
           } else if (_dc.includes('pcos')) {
             _condQ = 'My scan flagged possible PCOS-related hair loss — how does PCOS cause hair thinning and what hormonal tests should I ask my doctor for?';
+          } else if (_dc.includes('stress_te')) {
+            _condQ = 'My scan flagged high stress or poor sleep as a possible shedding trigger — how long will this last and what lifestyle changes help most?';
           }
           if (_condQ) {
             data.coachSuggestedQuestions = [_condQ, ...data.coachSuggestedQuestions.slice(1)];
@@ -5721,6 +5760,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         } else if ((data.detectedConditions.includes('seborrheic_dermatitis') || data.detectedConditions.includes('scalp_psoriasis')) && data.checkInIntervalDays > 42) {
           // SD / psoriasis: 6-week rescan to confirm anti-inflammatory treatment (ketoconazole
           // shampoo for SD; prescription treatment for psoriasis) is improving scalp health.
+          data.checkInIntervalDays = 42;
+        } else if (data.detectedConditions.includes('stress_te') && data.checkInIntervalDays > 42) {
+          // Stress/sleep TE: 6-week rescan allows enough time to observe whether cortisol-reducing
+          // lifestyle changes (sleep, stress management) are stabilizing the shedding rate.
           data.checkInIntervalDays = 42;
         }
         data.nextCheckIn = new Date(Date.now() + data.checkInIntervalDays * 24 * 60 * 60 * 1000)
@@ -5799,6 +5842,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           data.nextCheckInReason = data.detectedConditions.includes('scalp_psoriasis')
             ? 'Scalp psoriasis pattern flagged — see a dermatologist for prescription-strength treatment (corticosteroid or calcipotriol shampoo). Rescan in 6 weeks to track scalp health improvement alongside your hair loss protocol.'
             : 'Possible seborrheic dermatitis detected — start ketoconazole 2% shampoo (Nizoral) 2–3× weekly with a 3-5 minute contact time. Rescan in 6 weeks to confirm the inflammation is resolving and your protocol response is improving.';
+        } else if (data.detectedConditions.includes('stress_te')) {
+          data.nextCheckInReason = 'High stress or poor sleep detected alongside diffuse thinning — this is a recognized reversible TE pattern. Prioritize sleep (7–8h) and daily stress management; shedding typically stabilizes within 2–3 months. Rescan in 6 weeks to track whether the lifestyle change is reducing shedding.';
         }
 
         const scanUsage = scanPayload.usage;
@@ -6458,7 +6503,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           ? `- Scan clinical note: ${ctx.scan.photoNote} — if this note flags a non-AGA condition (FFA, LPP, alopecia areata, DUPA, traction alopecia, CCCA, seborrheic dermatitis, scalp psoriasis), follow the Non-AGA condition handling instructions above.`
           : '',
         Array.isArray(ctx.scan?.detectedConditions) && ctx.scan.detectedConditions.length
-          ? `- Detected conditions (machine-readable flags from scan): ${ctx.scan.detectedConditions.join(', ')} — these are the specific non-AGA or secondary conditions confirmed by the scan engine. Use these flags directly when applying condition-specific handling: ffa/lpp/ccca → scarring alopecia (urgent specialist referral, NOT standard AGA protocol as primary); alopecia_areata → autoimmune block (intralesional steroids/JAK inhibitor path); dupa → poor transplant candidate (dermoscopic donor assessment needed); traction_alopecia → mechanical cause (hairstyle trigger removal first); seborrheic_dermatitis/scalp_psoriasis → anti-inflammatory treatment (ketoconazole 2% shampoo for SD; dermatologist for psoriasis); postpartum_te → hormonal TE (reassure, nutritional support, drug safety for breastfeeding); treatment_induced_te → pharmacological TE (reassure, stay consistent, expected shedding phase); seasonal_te → photoperiod TE (monitor, self-limiting, no routine change needed); postpill_te → OCP withdrawal TE (reassure, temporary, ferritin panel, topical minoxidil OK if not pregnant/breastfeeding); nutritional_te → iron/ferritin or vitamin D deficiency TE (reassure, order ferritin+CBC+VitD panel, supplement iron to ≥70 ng/mL target, reversible once deficiency corrected — NOT driven by DHT, so DHT blockers are not the fix); thyroid_te → thyroid dysfunction-induced TE (hypothyroid or hyperthyroid — reassure, order TSH/Free T4 panel, hair cycle normalizes once thyroid levels are corrected with thyroid medication; NOT driven by DHT, so DHT blockers are not the primary fix; treatment timeline: shedding slows 2–4 months after thyroid levels stabilize, regrowth by months 4–6); pcos → PCOS-driven androgenic female-pattern hair loss (PCOS is the most common endocrine disorder in women; androgen excess — elevated testosterone or DHEA-S — drives follicle miniaturization in a female-pattern distribution; it is NOT the same as TE and is not self-limiting without treatment; the primary mechanism is androgen receptor activation at the follicle, same pathway as male AGA but triggered by ovarian rather than adrenal androgens; recommended coach handling: (1) EXPLAIN the mechanism: PCOS raises androgens that miniaturize follicles at the central parting and crown, producing Ludwig-pattern thinning — it will progress without treatment; (2) MOST ACTIONABLE STEP: a hormonal workup is the single highest-ROI action — request testosterone (total and free), DHEA-S, LH/FSH ratio, and sex hormone binding globulin (SHBG) from a GP, endocrinologist, or OB-GYN; this test identifies whether PCOS is the primary driver and guides treatment selection; also check ferritin and thyroid since nutritional and thyroid TE can coexist with PCOS; (3) TREATMENTS: the most effective PCOS hair loss treatments are anti-androgens — spironolactone (25–200 mg/day, most commonly prescribed for women; blocks androgen receptors at the follicle; typical onset 3–6 months), oral contraceptives with anti-androgenic progestins (drospirenone, cyproterone acetate, or dienogest — NOT levonorgestrel or norethindrone which are androgenic), or a combination of both; topical minoxidil is additive and can be used alongside hormonal treatment; finasteride is less commonly used in women but is an option in post-menopausal women; (4) TIMELINE: shedding stabilizes within 3–6 months of starting anti-androgen treatment; density improvement visible by 6–12 months; PCOS hair loss can be meaningfully reversed with the right hormonal intervention, unlike advanced AGA; (5) REASSURE: PCOS hair loss is androgen-driven and responds well to anti-androgen treatment — this is not a hopeless situation; hormonal management is the highest-leverage step and is distinct from the OTC-only approach for AGA; (6) AVOID: do NOT frame PCOS hair loss as a purely cosmetic AGA issue requiring only minoxidil — the root cause is hormonal and the primary intervention is hormonal; topicals are additive, not the core treatment); smp_suspected → scalp micropigmentation detected (the scan's scores reflect underlying estimated loss, not the tattooed surface — advise the user to retake their photo showing natural fringe without the SMP zone dominating the frame, acknowledge that the Norwood stage was estimated through the SMP coverage from fringe extent and profile, and note that OTC treatment recommendations remain valid for the underlying stage assigned).`
+          ? `- Detected conditions (machine-readable flags from scan): ${ctx.scan.detectedConditions.join(', ')} — these are the specific non-AGA or secondary conditions confirmed by the scan engine. Use these flags directly when applying condition-specific handling: ffa/lpp/ccca → scarring alopecia (urgent specialist referral, NOT standard AGA protocol as primary); alopecia_areata → autoimmune block (intralesional steroids/JAK inhibitor path); dupa → poor transplant candidate (dermoscopic donor assessment needed); traction_alopecia → mechanical cause (hairstyle trigger removal first); seborrheic_dermatitis/scalp_psoriasis → anti-inflammatory treatment (ketoconazole 2% shampoo for SD; dermatologist for psoriasis); postpartum_te → hormonal TE (reassure, nutritional support, drug safety for breastfeeding); treatment_induced_te → pharmacological TE (reassure, stay consistent, expected shedding phase); seasonal_te → photoperiod TE (monitor, self-limiting, no routine change needed); postpill_te → OCP withdrawal TE (reassure, temporary, ferritin panel, topical minoxidil OK if not pregnant/breastfeeding); nutritional_te → iron/ferritin or vitamin D deficiency TE (reassure, order ferritin+CBC+VitD panel, supplement iron to ≥70 ng/mL target, reversible once deficiency corrected — NOT driven by DHT, so DHT blockers are not the fix); thyroid_te → thyroid dysfunction-induced TE (hypothyroid or hyperthyroid — reassure, order TSH/Free T4 panel, hair cycle normalizes once thyroid levels are corrected with thyroid medication; NOT driven by DHT, so DHT blockers are not the primary fix; treatment timeline: shedding slows 2–4 months after thyroid levels stabilize, regrowth by months 4–6); pcos → PCOS-driven androgenic female-pattern hair loss (PCOS is the most common endocrine disorder in women; androgen excess — elevated testosterone or DHEA-S — drives follicle miniaturization in a female-pattern distribution; it is NOT the same as TE and is not self-limiting without treatment; the primary mechanism is androgen receptor activation at the follicle, same pathway as male AGA but triggered by ovarian rather than adrenal androgens; recommended coach handling: (1) EXPLAIN the mechanism: PCOS raises androgens that miniaturize follicles at the central parting and crown, producing Ludwig-pattern thinning — it will progress without treatment; (2) MOST ACTIONABLE STEP: a hormonal workup is the single highest-ROI action — request testosterone (total and free), DHEA-S, LH/FSH ratio, and sex hormone binding globulin (SHBG) from a GP, endocrinologist, or OB-GYN; this test identifies whether PCOS is the primary driver and guides treatment selection; also check ferritin and thyroid since nutritional and thyroid TE can coexist with PCOS; (3) TREATMENTS: the most effective PCOS hair loss treatments are anti-androgens — spironolactone (25–200 mg/day, most commonly prescribed for women; blocks androgen receptors at the follicle; typical onset 3–6 months), oral contraceptives with anti-androgenic progestins (drospirenone, cyproterone acetate, or dienogest — NOT levonorgestrel or norethindrone which are androgenic), or a combination of both; topical minoxidil is additive and can be used alongside hormonal treatment; finasteride is less commonly used in women but is an option in post-menopausal women; (4) TIMELINE: shedding stabilizes within 3–6 months of starting anti-androgen treatment; density improvement visible by 6–12 months; PCOS hair loss can be meaningfully reversed with the right hormonal intervention, unlike advanced AGA; (5) REASSURE: PCOS hair loss is androgen-driven and responds well to anti-androgen treatment — this is not a hopeless situation; hormonal management is the highest-leverage step and is distinct from the OTC-only approach for AGA; (6) AVOID: do NOT frame PCOS hair loss as a purely cosmetic AGA issue requiring only minoxidil — the root cause is hormonal and the primary intervention is hormonal; topicals are additive, not the core treatment); smp_suspected → scalp micropigmentation detected (the scan's scores reflect underlying estimated loss, not the tattooed surface — advise the user to retake their photo showing natural fringe without the SMP zone dominating the frame, acknowledge that the Norwood stage was estimated through the SMP coverage from fringe extent and profile, and note that OTC treatment recommendations remain valid for the underlying stage assigned); stress_te → stress/sleep-induced TE (high stress ≥7/10 or sleep ≤5h detected alongside diffuse thinning — elevated cortisol and sleep deprivation are recognized reversible TE triggers that push follicles into telogen without damaging them; recommended coach handling: (1) REASSURE — follicles are completely intact; diffuse shedding from stress or poor sleep typically stabilizes within 2–3 months once the trigger is managed; (2) ROOT CAUSE — the primary interventions are lifestyle: target 7–8h sleep, add one daily cortisol-reducing habit (20–30 min aerobic exercise, mindfulness/breathing practice, or a consistent digital wind-down before bed); (3) HAIR PROTOCOL — keep existing topical treatment consistent during the TE phase; minoxidil and DHT-blocking shampoo are still useful adjuncts but shedding will not fully stop until the cortisol load drops; adding biotin and zinc can support the hair cycle during recovery; (4) TIMELINE — shedding typically starts to slow within 6–8 weeks of consistent stress reduction; visible density recovery follows 2–3 months after shedding stabilizes; full recovery is expected within 4–6 months of managing the trigger; (5) AVOID — do NOT frame this as AGA progression or suggest Rx DHT blockers as the primary fix; stress TE is NOT androgen-driven miniaturization and will resolve with lifestyle management alone in most cases).`
           : '',
         ctx.scan?.retakeRecommended && ctx.scan.photoGuidance
           ? `- If the user asks about score reliability or why scores seem low, recommend a retake: ${ctx.scan.photoGuidance}`
@@ -6638,6 +6683,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           _condQ = 'My scan noted a possible thyroid-related pattern — how does thyroid dysfunction cause hair loss and what tests should I ask my doctor for?';
         } else if (_fdc.includes('pcos')) {
           _condQ = 'My scan flagged possible PCOS-related hair loss — what hormonal tests should I ask my doctor for, and what treatments work best for PCOS hair loss?';
+        } else if (_fdc.includes('stress_te')) {
+          _condQ = 'My scan flagged high stress or poor sleep as a possible shedding trigger — how long will this last and what lifestyle changes help most?';
         }
         if (_condQ) suggestedFollowUps = [_condQ, ...suggestedFollowUps.slice(1)];
       }
