@@ -3206,13 +3206,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // risk window (August–November) or Southern Hemisphere window (February–May), the user mentions
           // shedding in their concerns, and their routine has been stable (no recent new medication starts),
           // seasonal TE is a plausible contributing factor worth flagging.
-          // Priority guards: postpartum, post-pill, treatment-induced, and nutritional TE all take priority
-          // (they are more specific explanations for the shedding).
+          // Priority guards: postpartum, post-pill, treatment-induced, nutritional, and thyroid TE all take
+          // priority (they are more specific explanations for the shedding). Thyroid TE is a definitive
+          // diagnosed cause — flagging seasonal TE alongside it would dilute the more important clinical message.
           if (!_conds.includes('seasonal_te') &&
               !_conds.includes('postpartum_te') &&
               !_conds.includes('postpill_te') &&
               !_conds.includes('treatment_induced_te') &&
-              !_conds.includes('nutritional_te')) {
+              !_conds.includes('nutritional_te') &&
+              !_conds.includes('thyroid_te')) {
             const _today = new Date();
             const _month = _today.getMonth() + 1; // 1-12
             const _inNHWindow = _month >= 8 && _month <= 11;  // Aug-Nov Northern Hemisphere peak
