@@ -6481,6 +6481,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (rff.poorSleep)             alerts.push('poorSleep (sleep ≤5h/night — recognized TE trigger; restoring 7-8h sleep is the highest-leverage lifestyle action for diffuse shedding)');
         if (rff.earlyOnset)            alerts.push('earlyOnset (under 30 with NW3+ stage — elevated lifetime progression risk; emphasize urgency of starting a consistent evidence-based protocol now before further miniaturization)');
         if (rff.familyHistoryHighRisk) alerts.push('familyHistoryHighRisk (family history of NW6+ or advanced loss — higher progression likelihood; reinforce long-term consistency and early Rx consideration when the user asks about prognosis)');
+        if (rff.pcosDetected)          alerts.push('pcosDetected (PCOS-driven androgenic hair loss confirmed — the root cause is androgen excess, NOT standard AGA; when the user asks about urgency, progression risk, or first steps, lead with the hormonal workup (testosterone, DHEA-S, LH/FSH ratio) and anti-androgen treatment path (spironolactone, anti-androgenic OCP); topical minoxidil is additive but not sufficient alone; emphasize that PCOS hair loss is meaningfully reversible with the right hormonal intervention)');
         if (!alerts.length) return '';
         return `- Clinical risk alerts (pre-computed from scan context): ${alerts.join(' | ')} — surface the relevant alert proactively when the user asks about urgency, progression risk, what lifestyle factors matter most, or how serious their situation is.`;
       })();
@@ -6722,7 +6723,16 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const _rff = ctx.scan.riskFactorFlags;
         const _fstage = ctx.scan.stage;
         const _stressFollowUpStages = new Set(['diffuse', 'n/a (female)', 'NW3', 'NW3v', 'NW4', 'NW5']);
-        if (_rff.highStress && _stressFollowUpStages.has(_fstage)) {
+        if (_rff.pcosDetected) {
+          // PCOS users: replace the third follow-up with a PCOS-specific question.
+          // The detectedConditions block already sets the first follow-up to a PCOS question;
+          // the third slot gets a hormonal optimization or treatment-timeline question
+          // so the chips stay useful across multiple turns.
+          const _hasPcosAntiandrogen = ctx.scan?.protocolCoverage?.rx;
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), _hasPcosAntiandrogen
+            ? 'I\'m taking spironolactone for PCOS hair loss — when should I expect to see results, and what can I add to speed up improvement?'
+            : 'Does PCOS hair loss keep progressing if untreated, and how much can spironolactone realistically improve my density?'];
+        } else if (_rff.highStress && _stressFollowUpStages.has(_fstage)) {
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'My stress is very high right now — could this be worsening my hair loss, and what can I do about it?'];
         } else if (_rff.poorSleep && _stressFollowUpStages.has(_fstage)) {
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'I only get about 5 hours of sleep a night — how much could poor sleep be accelerating my hair loss?'];
