@@ -2415,4 +2415,13 @@ assert(
   'stress_te should be detected when stress ≥7 or sleep ≤5 at a diffuse/n/a(female) stage (lower priority than all other TE flags), have weeklyFocus override with lifestyle guidance, checkInIntervalDays capped at 42, nextCheckInReason with sleep/stress advice, coach detectedConditions description with stress_te handling, coachSuggestedQuestions chip in the scan endpoint, and suggestedFollowUps chip in the coach endpoint'
 );
 
+assert(
+  source.includes('Stress/sleep TE upward adjustment') &&
+    source.includes('apply +4 to +7 on top of the stage baseline') &&
+    source.includes("chronic stress elevates cortisol and poor sleep disrupts the hair growth cycle") &&
+    source.includes('pushing follicles into telogen without damaging or miniaturizing them') &&
+    source.includes('Use the higher end (+5 to +7) when both stress ≥7 AND sleep ≤5h are present simultaneously'),
+  'GPT-4o potential scoring prompt should include a stress/sleep TE upward adjustment (+4 to +7) for diffuse/n/a(female) stages, matching the pattern of other reversible TE conditions (nutritional/thyroid +5-9, postpartum +8-12), because follicles are structurally intact in stress TE'
+);
+
 console.log('server contract passed');
