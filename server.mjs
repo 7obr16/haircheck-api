@@ -5518,9 +5518,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             const _stressVal = profile.lifestyle?.stress;
             const _sleepVal  = profile.lifestyle?.sleep;
             const _highStress = typeof _stressVal === 'number' && _stressVal >= 7;
-            data.weeklyFocus = _highStress
-              ? 'Stress ≥7/10 with diffuse thinning strongly suggests stress-induced TE — prioritize sleep (target 7–8h), add one daily stress-reduction habit (exercise, mindfulness, or a digital wind-down), and keep your topical routine consistent. Shedding typically stabilizes within 2–3 months once cortisol load drops.'
-              : 'Sleep deprivation (≤5h/night) is a recognized TE trigger — restoring 7–8h of sleep is the single highest-leverage lifestyle action for diffuse shedding. Consistent sleep alone can noticeably reduce cortisol-driven shedding within 6–8 weeks alongside your topical routine.';
+            const _poorSleepWF = typeof _sleepVal  === 'number' && _sleepVal  <= 5;
+            data.weeklyFocus = (_highStress && _poorSleepWF)
+              ? 'Stress ≥7/10 and sleep ≤5h are both active TE triggers — compounded cortisol load and sleep disruption are the two strongest reversible causes of diffuse shedding. Target 7–8h sleep as the single highest-ROI first step; add one daily cortisol-reducing habit (exercise, mindfulness, or a digital wind-down). Both changes together typically stabilize shedding within 2–3 months alongside your topical routine.'
+              : _highStress
+                ? 'Stress ≥7/10 with diffuse thinning strongly suggests stress-induced TE — prioritize sleep (target 7–8h), add one daily stress-reduction habit (exercise, mindfulness, or a digital wind-down), and keep your topical routine consistent. Shedding typically stabilizes within 2–3 months once cortisol load drops.'
+                : 'Sleep deprivation (≤5h/night) is a recognized TE trigger — restoring 7–8h of sleep is the single highest-leverage lifestyle action for diffuse shedding. Consistent sleep alone can noticeably reduce cortisol-driven shedding within 6–8 weeks alongside your topical routine.';
             data.weeklyFocusMetric = 'Health';
           }
         })();
