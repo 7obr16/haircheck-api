@@ -3193,13 +3193,28 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // causes progressive androgenic alopecia — the treatment axis is hormonal (spironolactone,
           // oral contraceptives, minoxidil) rather than TE recovery. Not guarded against other
           // conditions: PCOS can co-exist with nutritional/thyroid TE and should still be surfaced.
+          // Sex guard: PCOS is exclusively a female condition. Explicitly male users are excluded.
+          // For sex-unspecified users, only unambiguously female-specific terms (pcos, polycystic
+          // ovary) trigger the flag — hormonal terms like "high testosterone" or "elevated androgens"
+          // are intentionally excluded for unspecified sex because male TRT/bodybuilder users
+          // commonly use this language and would incorrectly trigger a PCOS weeklyFocus message.
           if (!_conds.includes('pcos')) {
-            const _pcL = (profile.concern || []).map(c => String(c).toLowerCase()).join(' ');
-            const _ptL = (profile.timeline || '').toLowerCase();
-            const _prL = (profile.routine  || []).map(r => String(r).toLowerCase()).join(' ');
-            const _pcCombined = _pcL + ' ' + _ptL + ' ' + _prL;
-            const _isPCOS = /\bpcos\b|polycystic.{0,10}ovar|polycystic.{0,10}ovarian|\bpco\b|high.{0,10}androgen|elevated.{0,10}androgen|high.{0,10}testosterone|elevated.{0,10}testosterone|androgen.{0,10}excess|hyperandrogenism/i.test(_pcCombined);
-            if (_isPCOS) _conds.push('pcos');
+            const _pcSex = (profile.sex || '').toLowerCase();
+            const _isMale   = _pcSex === 'male' || _pcSex === 'm';
+            const _isFemale = _pcSex === 'female' || _pcSex === 'f' || _pcSex === 'woman';
+            if (!_isMale) {
+              const _pcL = (profile.concern || []).map(c => String(c).toLowerCase()).join(' ');
+              const _ptL = (profile.timeline || '').toLowerCase();
+              const _prL = (profile.routine  || []).map(r => String(r).toLowerCase()).join(' ');
+              const _pcCombined = _pcL + ' ' + _ptL + ' ' + _prL;
+              // For female users: full detection including hormonal terms.
+              // For sex-unspecified users: only unambiguously female-specific terms
+              // to avoid false positives for male TRT/bodybuilder users.
+              const _isPCOS = _isFemale
+                ? /\bpcos\b|polycystic.{0,10}ovar|polycystic.{0,10}ovarian|\bpco\b|high.{0,10}androgen|elevated.{0,10}androgen|high.{0,10}testosterone|elevated.{0,10}testosterone|androgen.{0,10}excess|hyperandrogenism/i.test(_pcCombined)
+                : /\bpcos\b|polycystic.{0,10}ovar|polycystic.{0,10}ovarian|\bpco\b|hyperandrogenism/i.test(_pcCombined);
+              if (_isPCOS) _conds.push('pcos');
+            }
           }
           // Server-side supplementary detection for seasonal TE (photoperiod telogen effluvium).
           // GPT-4o may not always mention "seasonal" in photoNote even when the scan prompt instructs it to.

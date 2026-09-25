@@ -2424,4 +2424,13 @@ assert(
   'GPT-4o potential scoring prompt should include a stress/sleep TE upward adjustment (+4 to +7) for diffuse/n/a(female) stages, matching the pattern of other reversible TE conditions (nutritional/thyroid +5-9, postpartum +8-12), because follicles are structurally intact in stress TE'
 );
 
+assert(
+  source.includes("const _pcSex = (profile.sex || '').toLowerCase()") &&
+    source.includes("const _isMale   = _pcSex === 'male' || _pcSex === 'm'") &&
+    source.includes("const _isFemale = _pcSex === 'female' || _pcSex === 'f' || _pcSex === 'woman'") &&
+    source.includes('if (!_isMale)') &&
+    source.includes('Sex guard: PCOS is exclusively a female condition'),
+  "PCOS server-side detection must have a sex guard: skip entirely for explicitly male users, use full hormonal detection for explicitly female users, use only unambiguously female-specific terms for sex-unspecified users — prevents male TRT/bodybuilder users who mention 'high testosterone' from incorrectly triggering a PCOS weeklyFocus message"
+);
+
 console.log('server contract passed');
