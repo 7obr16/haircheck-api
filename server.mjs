@@ -5923,6 +5923,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // follicle support at every stage of AGA. The iOS app uses this to surface
           // "consider adding a hair supplement" CTAs for users missing this layer entirely.
           noSupplementsAtActiveStage: (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.supplements,
+          // True when PCOS (polycystic ovary syndrome) is server-side detected from the user's
+          // concern/timeline/routine text. PCOS drives androgen-mediated hair loss in females and
+          // requires a different first-line approach from AGA (spironolactone preferred over finasteride).
+          // The iOS app uses this to surface PCOS-specific CTAs — e.g. "consider seeing an endocrinologist"
+          // or "spironolactone is the recommended first-line antiandrogen for PCOS-related hair loss" —
+          // without needing to parse the detectedConditions array or weeklyFocus string.
+          // Always false for explicitly male users (sex guard is applied at detection time).
+          pcosDetected: data.detectedConditions.includes('pcos'),
         };
 
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null, reqId });

@@ -2121,6 +2121,12 @@ assert(
 );
 
 assert(
+  source.includes('pcosDetected') &&
+    source.includes("data.detectedConditions.includes('pcos')"),
+  "riskFactorFlags should include pcosDetected boolean derived from detectedConditions — allows the iOS app to surface PCOS-specific CTAs (endocrinologist referral, spironolactone as first-line antiandrogen) without parsing the detectedConditions array; always false for male users because the sex guard at detection time excludes them"
+);
+
+assert(
   source.includes("_rff?.untreated") &&
     source.includes("haven't started any treatment yet") &&
     source.includes('Priority: highStress / poorSleep (reversible, highest urgency) → untreated (no protocol at active stage) → earlyOnset → familyHistoryHighRisk →') &&
