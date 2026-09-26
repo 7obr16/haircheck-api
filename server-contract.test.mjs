@@ -2439,4 +2439,32 @@ assert(
   "PCOS server-side detection must have a sex guard: skip entirely for explicitly male users, use full hormonal detection for explicitly female users, use only unambiguously female-specific terms for sex-unspecified users — prevents male TRT/bodybuilder users who mention 'high testosterone' from incorrectly triggering a PCOS weeklyFocus message"
 );
 
+assert(
+  source.includes('postpartumTeDetected') &&
+    source.includes("data.detectedConditions.includes('postpartum_te')") &&
+    source.includes('postpartumTeDetected (postpartum telogen effluvium confirmed'),
+  'riskFactorFlags should include postpartumTeDetected boolean derived from detectedConditions — allows the iOS app to surface postpartum-specific CTAs (reassurance, breastfeeding drug safety warnings, ferritin panel) without parsing the detectedConditions array or weeklyFocus string; riskAlertLine should include a postpartum TE alert with reassurance, breastfeeding drug-safety guidance, and ferritin-panel recommendation'
+);
+
+assert(
+  source.includes('postPillTeDetected') &&
+    source.includes("data.detectedConditions.includes('postpill_te')") &&
+    source.includes('postPillTeDetected (post-pill OCP withdrawal TE confirmed'),
+  'riskFactorFlags should include postPillTeDetected boolean derived from detectedConditions — allows the iOS app to surface post-pill TE CTAs (reassurance, ferritin panel, topical minoxidil OK) without parsing the detectedConditions array; riskAlertLine should include a post-pill TE alert with reassurance and ferritin guidance, distinguishing it from postpartum TE (no breastfeeding drug concern by default)'
+);
+
+assert(
+  source.includes('seasonalTeDetected') &&
+    source.includes("data.detectedConditions.includes('seasonal_te')") &&
+    source.includes('seasonalTeDetected (seasonal photoperiod TE confirmed'),
+  'riskFactorFlags should include seasonalTeDetected boolean derived from detectedConditions — allows the iOS app to surface "stay consistent, seasonal shedding resolves in 2-3 months" CTAs without parsing the detectedConditions array; riskAlertLine should include a seasonal TE alert that suppresses AGA escalation messaging and recommends a 6-8 week rescan'
+);
+
+assert(
+  source.includes('treatmentInducedTeDetected') &&
+    source.includes("data.detectedConditions.includes('treatment_induced_te')") &&
+    source.includes('treatmentInducedTeDetected (treatment-induced TE confirmed'),
+  'riskFactorFlags should include treatmentInducedTeDetected boolean derived from detectedConditions — allows the iOS app to surface "don\'t stop your treatment" reassurance CTAs without parsing the detectedConditions array; riskAlertLine should include a treatment-induced TE alert with drug-specific shedding-phase timeframes (minoxidil 1-3mo, finasteride 3-4mo, dutasteride 5-7mo) and strong message against stopping'
+);
+
 console.log('server contract passed');
