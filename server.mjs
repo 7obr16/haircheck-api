@@ -6806,6 +6806,42 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // mechanism and which tests to request. The slot-2 chip focuses on the recovery timeline
           // and what to do while waiting for thyroid levels to stabilize — the next natural question.
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'If my thyroid levels are corrected with medication, how long before my hair starts recovering — and what can I do in the meantime?'];
+        } else if (_rff.stressTeDetected) {
+          // Stress/sleep TE users: slot-0 chip asked about duration and lifestyle changes.
+          // Slot-2 targets the next question: what stabilization looks like and whether adjuncts help.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'What signs tell me my stress-induced shedding is stabilizing — and is adding biotin or zinc actually worth it during the recovery window?'];
+        } else if (_rff.nutritionalTeDetected) {
+          // Nutritional TE users: slot-0 chip asked about ferritin/iron mechanism and what to test.
+          // Slot-2 targets: timeline once supplementation starts and whether minoxidil helps meanwhile.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'Once I start iron supplementation, how long before my ferritin recovers enough to stop the shedding — and will minoxidil help in the meantime?'];
+        } else if (_rff.postpartumTeDetected) {
+          // Postpartum TE users: slot-0 chip asked whether it's temporary and when it resolves.
+          // Slot-2 targets: actionable steps to support fastest recovery.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'Is there anything I can do to recover my hair density faster after postpartum TE, or does it just take time regardless?'];
+        } else if (_rff.postPillTeDetected) {
+          // Post-pill TE users: slot-0 chip asked whether it's temporary and what to do while waiting.
+          // Slot-2 targets: whether topical minoxidil is worth starting or natural recovery is enough.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'Is topical minoxidil worth starting now while I wait for post-pill recovery, or should I just let my hair cycle normalize naturally?'];
+        } else if (_rff.seasonalTeDetected) {
+          // Seasonal TE users: slot-0 chip asked whether it's normal and if the routine needs changing.
+          // Slot-2 targets: distinguishing seasonal TE from actual AGA progression.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'How do I tell the difference between seasonal shedding that will resolve and AGA progression that needs treatment — what signs should I watch for?'];
+        } else if (_rff.treatmentInducedTeDetected) {
+          // Treatment-induced TE users: slot-0 chip asked whether it's temporary and expected duration.
+          // Slot-2 targets: when the shedding should plateau and what improvement looks like.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'If my shedding started when I began treatment, at what point should I expect it to plateau — and what does improvement actually look like?'];
+        } else if (_rff.scarringAlopeciaDetected) {
+          // Scarring alopecia users: slot-0 chip asked about the condition and next steps.
+          // Slot-2 targets: treatment urgency and what dermatologists can actually offer.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'If a scarring alopecia is confirmed by a dermatologist, what treatments are available — and how quickly do I need to act to prevent permanent loss?'];
+        } else if (_rff.tractionalAlopeciaDetected) {
+          // Traction alopecia users: slot-0 chip asked about stopping progression and regrowth.
+          // Slot-2 targets: the practical recovery timeline once the mechanical trigger is removed.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'Once I stop the tight hairstyle, how quickly can the hairline recover — and what can I do to speed up regrowth along the margins?'];
+        } else if (_rff.alopeciaAreaataDetected) {
+          // Alopecia areata users: slot-0 chip asked about treatment differences from AGA.
+          // Slot-2 targets: most effective early treatment and expected timeline for results.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'If this is alopecia areata, what is the most effective early treatment — and how long does intralesional steroid treatment typically take to show results?'];
         } else if (_rff.highStress && _stressFollowUpStages.has(_fstage)) {
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'My stress is very high right now — could this be worsening my hair loss, and what can I do about it?'];
         } else if (_rff.poorSleep && _stressFollowUpStages.has(_fstage)) {
