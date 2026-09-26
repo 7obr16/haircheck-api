@@ -5931,6 +5931,18 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // without needing to parse the detectedConditions array or weeklyFocus string.
           // Always false for explicitly male users (sex guard is applied at detection time).
           pcosDetected: data.detectedConditions.includes('pcos'),
+          // True when nutritional TE (iron/ferritin or vitamin D deficiency) is server-side detected
+          // from the user's concern/health context. Nutritional TE is correctable — the primary
+          // intervention is a blood panel (ferritin, CBC, vitamin D) and supplementation to target
+          // ferritin ≥70 ng/mL. The iOS app uses this to surface "get a ferritin blood test" CTAs
+          // without needing to parse the detectedConditions array or weeklyFocus string.
+          nutritionalTeDetected: data.detectedConditions.includes('nutritional_te'),
+          // True when thyroid TE (hypothyroid or hyperthyroid dysfunction) is server-side detected
+          // from the user's concern/health/routine context. Thyroid TE is highly correctable — the
+          // primary intervention is a TSH/Free T4 panel and thyroid medication optimization.
+          // The iOS app uses this to surface "get a thyroid blood test" CTAs without parsing
+          // detectedConditions or weeklyFocus.
+          thyroidTeDetected: data.detectedConditions.includes('thyroid_te'),
         };
 
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null, reqId });
@@ -6482,6 +6494,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (rff.earlyOnset)            alerts.push('earlyOnset (under 30 with NW3+ stage — elevated lifetime progression risk; emphasize urgency of starting a consistent evidence-based protocol now before further miniaturization)');
         if (rff.familyHistoryHighRisk) alerts.push('familyHistoryHighRisk (family history of NW6+ or advanced loss — higher progression likelihood; reinforce long-term consistency and early Rx consideration when the user asks about prognosis)');
         if (rff.pcosDetected)          alerts.push('pcosDetected (PCOS-driven androgenic hair loss confirmed — the root cause is androgen excess, NOT standard AGA; when the user asks about urgency, progression risk, or first steps, lead with the hormonal workup (testosterone, DHEA-S, LH/FSH ratio) and anti-androgen treatment path (spironolactone, anti-androgenic OCP); topical minoxidil is additive but not sufficient alone; emphasize that PCOS hair loss is meaningfully reversible with the right hormonal intervention)');
+        if (rff.nutritionalTeDetected) alerts.push('nutritionalTeDetected (iron/ferritin or vitamin D deficiency TE confirmed — the root cause is nutritional, NOT DHT-driven miniaturization; when the user asks about urgency, what to do first, or why they\'re shedding, lead with the blood panel (serum ferritin, CBC, 25-OH vitamin D) and correct the deficiency to target ferritin ≥70 ng/mL; DHT blockers are not the fix here — shedding stops once the nutritional deficit is corrected; typical recovery: shedding stabilizes 1–2 months after ferritin recovers, visible regrowth by months 3–6)');
+        if (rff.thyroidTeDetected)     alerts.push('thyroidTeDetected (thyroid dysfunction-induced TE confirmed — hypothyroid or hyperthyroid disruption is driving the diffuse shedding; NOT DHT-driven miniaturization; when the user asks about urgency, what to do first, or why they\'re shedding, lead with the TSH/Free T4 panel and thyroid medication optimization; DHT blockers are not the primary fix — hair cycle normalizes once thyroid levels are corrected; typical timeline: shedding slows 2–4 months after thyroid levels stabilize, visible regrowth by months 4–6)');
         if (!alerts.length) return '';
         return `- Clinical risk alerts (pre-computed from scan context): ${alerts.join(' | ')} — surface the relevant alert proactively when the user asks about urgency, progression risk, what lifestyle factors matter most, or how serious their situation is.`;
       })();
