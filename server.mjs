@@ -5943,6 +5943,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // The iOS app uses this to surface "get a thyroid blood test" CTAs without parsing
           // detectedConditions or weeklyFocus.
           thyroidTeDetected: data.detectedConditions.includes('thyroid_te'),
+          // True when stress/sleep-induced TE is server-side confirmed: high stress (≥7/10)
+          // or poor sleep (≤5h) detected alongside a diffuse or n/a (female) stage.
+          // Signals that shedding is driven by cortisol/sleep disruption rather than DHT
+          // miniaturization — the iOS app uses this to surface lifestyle-focused CTAs
+          // (sleep improvement, stress reduction) rather than generic AGA protocol CTAs.
+          // The compound condition (not just highStress or poorSleep alone) avoids showing
+          // lifestyle TE CTAs for AGA users who happen to have high stress at NW3+.
+          stressTeDetected: data.detectedConditions.includes('stress_te'),
         };
 
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null, reqId });
@@ -6496,6 +6504,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (rff.pcosDetected)          alerts.push('pcosDetected (PCOS-driven androgenic hair loss confirmed — the root cause is androgen excess, NOT standard AGA; when the user asks about urgency, progression risk, or first steps, lead with the hormonal workup (testosterone, DHEA-S, LH/FSH ratio) and anti-androgen treatment path (spironolactone, anti-androgenic OCP); topical minoxidil is additive but not sufficient alone; emphasize that PCOS hair loss is meaningfully reversible with the right hormonal intervention)');
         if (rff.nutritionalTeDetected) alerts.push('nutritionalTeDetected (iron/ferritin or vitamin D deficiency TE confirmed — the root cause is nutritional, NOT DHT-driven miniaturization; when the user asks about urgency, what to do first, or why they\'re shedding, lead with the blood panel (serum ferritin, CBC, 25-OH vitamin D) and correct the deficiency to target ferritin ≥70 ng/mL; DHT blockers are not the fix here — shedding stops once the nutritional deficit is corrected; typical recovery: shedding stabilizes 1–2 months after ferritin recovers, visible regrowth by months 3–6)');
         if (rff.thyroidTeDetected)     alerts.push('thyroidTeDetected (thyroid dysfunction-induced TE confirmed — hypothyroid or hyperthyroid disruption is driving the diffuse shedding; NOT DHT-driven miniaturization; when the user asks about urgency, what to do first, or why they\'re shedding, lead with the TSH/Free T4 panel and thyroid medication optimization; DHT blockers are not the primary fix — hair cycle normalizes once thyroid levels are corrected; typical timeline: shedding slows 2–4 months after thyroid levels stabilize, visible regrowth by months 4–6)');
+        if (rff.stressTeDetected)      alerts.push('stressTeDetected (stress/sleep-induced TE confirmed — high cortisol or poor sleep has been detected alongside a diffuse thinning stage; NOT AGA miniaturization; follicles are completely intact and shedding is fully reversible once the cortisol load drops; when the user asks why they\'re shedding or what lifestyle changes help most, lead with: (1) sleep target 7–8h/night — the single highest-leverage lifestyle change for diffuse TE; (2) one daily cortisol-reducing habit (20–30 min aerobic exercise, mindfulness, or digital wind-down before bed); (3) existing topical treatment stays consistent during the TE phase — minoxidil and DHT-blocking shampoo remain useful adjuncts but shedding will not fully stop until the cortisol load drops; (4) adding biotin and zinc supports the hair cycle during recovery; TIMELINE: shedding typically starts to slow within 6–8 weeks of consistent stress reduction, visible density recovery follows 2–3 months after shedding stabilizes, full recovery expected within 4–6 months; do NOT frame this as AGA progression or suggest Rx DHT blockers as the primary fix)');
         if (!alerts.length) return '';
         return `- Clinical risk alerts (pre-computed from scan context): ${alerts.join(' | ')} — surface the relevant alert proactively when the user asks about urgency, progression risk, what lifestyle factors matter most, or how serious their situation is.`;
       })();
