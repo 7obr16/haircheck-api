@@ -6854,6 +6854,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // Alopecia areata users: slot-0 chip asked about treatment differences from AGA.
           // Slot-2 targets: most effective early treatment and expected timeline for results.
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'If this is alopecia areata, what is the most effective early treatment — and how long does intralesional steroid treatment typically take to show results?'];
+        } else if (_rff.dupaDetected) {
+          // DUPA users: slot-0 chip asked about transplant candidacy and immediate next steps.
+          // Slot-2 targets: best medical protocol since surgical options may be off the table.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'If DUPA makes me a poor transplant candidate, what medical treatments are most effective for slowing DUPA progression — and is dutasteride stronger than finasteride for this?'];
         } else if (_rff.highStress && _stressFollowUpStages.has(_fstage)) {
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'My stress is very high right now — could this be worsening my hair loss, and what can I do about it?'];
         } else if (_rff.poorSleep && _stressFollowUpStages.has(_fstage)) {
