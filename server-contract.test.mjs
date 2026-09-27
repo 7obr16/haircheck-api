@@ -2491,4 +2491,12 @@ assert(
   "riskFactorFlags should include alopeciaAreaataDetected boolean derived from detectedConditions — allows the iOS app to surface dermatologist consultation CTAs for autoimmune AA without parsing the detectedConditions array; riskAlertLine should include an alopecia areata alert distinguishing it from AGA (JAK inhibitors/intralesional steroids, not DHT blockers); coach slot-2 chip should address effective early treatment and timeline for intralesional steroids"
 );
 
+assert(
+  source.includes('dupaDetected') &&
+    source.includes("data.detectedConditions.includes('dupa')") &&
+    source.includes('dupaDetected (DUPA') &&
+    source.includes('My scan flagged a DUPA pattern — how does this affect my transplant candidacy'),
+  "riskFactorFlags should include dupaDetected boolean derived from detectedConditions — allows the iOS app to suppress transplant CTAs and surface trichologist evaluation prompts for DUPA without parsing the detectedConditions array; riskAlertLine should include a DUPA alert explaining transplant contraindication and donor zone evaluation priority; coach slot-0 chip should address transplant candidacy impact"
+);
+
 console.log('server contract passed');
