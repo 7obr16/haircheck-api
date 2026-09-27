@@ -2467,4 +2467,28 @@ assert(
   'riskFactorFlags should include treatmentInducedTeDetected boolean derived from detectedConditions — allows the iOS app to surface "don\'t stop your treatment" reassurance CTAs without parsing the detectedConditions array; riskAlertLine should include a treatment-induced TE alert with drug-specific shedding-phase timeframes (minoxidil 1-3mo, finasteride 3-4mo, dutasteride 5-7mo) and strong message against stopping'
 );
 
+assert(
+  source.includes('scarringAlopeciaDetected') &&
+    source.includes("data.detectedConditions.some((c) => ['ffa', 'lpp', 'ccca'].includes(c))") &&
+    source.includes('scarringAlopeciaDetected (URGENT: a scarring alopecia') &&
+    source.includes('If a scarring alopecia is confirmed by a dermatologist, what treatments are available'),
+  "riskFactorFlags should include scarringAlopeciaDetected boolean derived from detectedConditions (any of ffa/lpp/ccca) — allows the iOS app to surface urgent specialist referral CTAs without parsing the detectedConditions array; riskAlertLine should include an URGENT scarring alopecia alert emphasising irreversible follicle destruction and anti-inflammatory treatment path; coach slot-2 chip should ask about dermatologist-confirmed treatment options and urgency"
+);
+
+assert(
+  source.includes('tractionalAlopeciaDetected') &&
+    source.includes("data.detectedConditions.includes('traction_alopecia')") &&
+    source.includes('tractionalAlopeciaDetected (traction alopecia confirmed') &&
+    source.includes('Once I stop the tight hairstyle, how quickly can the hairline recover'),
+  "riskFactorFlags should include tractionalAlopeciaDetected boolean derived from detectedConditions — allows the iOS app to surface hairstyle-change CTAs without parsing the detectedConditions array; riskAlertLine should include a traction alopecia alert emphasising mechanical trigger removal as the primary action; coach slot-2 chip should address recovery timeline once the hairstyle trigger is removed"
+);
+
+assert(
+  source.includes('alopeciaAreaataDetected') &&
+    source.includes("data.detectedConditions.includes('alopecia_areata')") &&
+    source.includes('alopeciaAreaataDetected (alopecia areata detected') &&
+    source.includes('If this is alopecia areata, what is the most effective early treatment'),
+  "riskFactorFlags should include alopeciaAreaataDetected boolean derived from detectedConditions — allows the iOS app to surface dermatologist consultation CTAs for autoimmune AA without parsing the detectedConditions array; riskAlertLine should include an alopecia areata alert distinguishing it from AGA (JAK inhibitors/intralesional steroids, not DHT blockers); coach slot-2 chip should address effective early treatment and timeline for intralesional steroids"
+);
+
 console.log('server contract passed');
