@@ -1,0 +1,13 @@
+{
+  "name": "haircheck-api",
+  "version": "1.0.0",
+  "description": "HairCheck sidecar API — GPT-4o Vision hair analysis and gpt-image-2 restoration",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test server-contract.test.mjs"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
