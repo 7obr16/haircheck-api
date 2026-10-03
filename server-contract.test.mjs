@@ -2422,6 +2422,13 @@ assert(
 );
 
 assert(
+  source.includes("detectedConditions.some(c => c === 'ffa' || c === 'lpp' || c === 'ccca') && data.checkInIntervalDays > 21") &&
+    source.includes("data.checkInIntervalDays = 21") &&
+    source.includes("detectedConditions.includes('alopecia_areata') && data.checkInIntervalDays > 21"),
+  'scarring alopecias (FFA/LPP/CCCA) and alopecia areata should cap checkInIntervalDays at 21 days — nextCheckInReason already says "this week" / "within 1-2 weeks"; the interval must reinforce that urgency'
+);
+
+assert(
   source.includes('Stress/sleep TE upward adjustment') &&
     source.includes('apply +4 to +7 on top of the stage baseline') &&
     source.includes("chronic stress elevates cortisol and poor sleep disrupts the hair growth cycle") &&

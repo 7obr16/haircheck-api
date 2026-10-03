@@ -5783,6 +5783,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // SD / psoriasis: 6-week rescan to confirm anti-inflammatory treatment (ketoconazole
           // shampoo for SD; prescription treatment for psoriasis) is improving scalp health.
           data.checkInIntervalDays = 42;
+        } else if (data.detectedConditions.some(c => c === 'ffa' || c === 'lpp' || c === 'ccca') && data.checkInIntervalDays > 21) {
+          // Scarring alopecias (FFA/LPP/CCCA): nextCheckInReason already says "book a dermatologist
+          // this week". Cap at 21 days so the check-in interval reinforces that urgency rather than
+          // letting a low-urgency Norwood stage produce a 60-day interval.
+          data.checkInIntervalDays = 21;
+        } else if (data.detectedConditions.includes('alopecia_areata') && data.checkInIntervalDays > 21) {
+          // Alopecia areata: nextCheckInReason already says "see a dermatologist within 1-2 weeks".
+          // Cap at 21 days to keep the check-in interval consistent with that urgent guidance.
+          data.checkInIntervalDays = 21;
         } else if (data.detectedConditions.includes('dupa') && data.checkInIntervalDays > 42) {
           // DUPA: 6-week rescan to establish a baseline and monitor donor zone progression after
           // trichologist consultation is underway. Surgical planning is deferred until donor
