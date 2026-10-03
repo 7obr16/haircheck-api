@@ -2396,7 +2396,8 @@ assert(
 );
 
 assert(
-  source.includes("_pnL.includes('scalp micropigmentation') || _pnL.includes('suspected smp')") &&
+  source.includes("_pnL.includes('scalp micropigmentation')") &&
+    source.includes("_pnL.includes('suspected smp')") &&
     source.includes("_conds.push('smp_suspected')") &&
     source.includes("_dc.includes('smp_suspected')") &&
     source.includes('Scalp micropigmentation detected') &&
@@ -2529,6 +2530,15 @@ assert(
     source.includes('smpSuspectedDetected (scalp micropigmentation (SMP) detected') &&
     source.includes('are my current scores still useful for tracking progress'),
   "riskFactorFlags should include smpSuspectedDetected boolean derived from detectedConditions — allows the iOS app to caveat displayed scores and surface retake-photo CTAs without parsing the detectedConditions array; riskAlertLine should explain how SMP affects score accuracy and recommend a retake; coach slot-2 chip should ask whether scores are still useful or a new baseline photo is needed"
+);
+
+assert(
+  source.includes("_pnL.includes('scalp micropigmentation')") &&
+    source.includes("_pnL.includes('micropigmentation suspected')") &&
+    source.includes("_pnL.includes('smp suspected')") &&
+    source.includes("_pnL.includes('smp detected')") &&
+    source.includes("Scalp micropigmentation (SMP) suspected"),
+  "SMP detection should check multiple photoNote phrasing patterns (scalp micropigmentation, micropigmentation suspected, suspected smp, smp suspected, smp detected) to robustly catch the range of wording GPT-4o may produce; the GPT prompt should include an explicit sample phrase beginning with 'Scalp micropigmentation (SMP) suspected' to guide reliable detection"
 );
 
 console.log('server contract passed');
