@@ -5572,6 +5572,20 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           }
         })();
 
+        // Transplant routine weeklyFocus override: fires only when no photo-detected condition
+        // override was applied above (i.e. detectedConditions is empty). Transplant users'
+        // most important weekly action is protecting the native hair frame with continued Rx
+        // therapy — a transplant does not stop AGA in the surrounding native hair, and stopping
+        // finasteride/dutasteride post-surgery allows the native frame to thin, producing an
+        // unnatural "island" result over time. Separated from the detectedConditions IIFE
+        // because _hasTransplant is a routine-derived flag, not a photo-detected condition.
+        if (_hasTransplant && !data.detectedConditions.length) {
+          data.weeklyFocus = _hasFinasteride
+            ? 'Continue your Rx treatment consistently — protecting the native hair around your transplant is the most important weekly action. Stopping finasteride or dutasteride allows AGA to miniaturize the surrounding native hair, which undermines your transplant result over time.'
+            : 'Discuss finasteride or dutasteride with your doctor — a hair transplant does not stop AGA in the surrounding native hair. Without Rx therapy, ongoing miniaturization will thin the native frame adjacent to the transplant and produce an unnatural \'island\' appearance. Starting Rx treatment is the single highest-ROI post-transplant step.';
+          data.weeklyFocusMetric = 'Health';
+        }
+
         // protocolCoverage: structured breakdown of which treatment categories are active
         // in the user's current routine. Derived server-side from the same parsed routine
         // flags used to build weeklyFocus — no additional client-side string parsing needed.
