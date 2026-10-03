@@ -2500,4 +2500,28 @@ assert(
   "riskFactorFlags should include dupaDetected boolean derived from detectedConditions — allows the iOS app to suppress transplant CTAs and surface trichologist evaluation prompts for DUPA without parsing the detectedConditions array; riskAlertLine should include a DUPA alert explaining transplant contraindication and donor zone evaluation priority; coach slot-0 chip should address transplant candidacy impact; coach slot-2 chip should ask about most effective medical protocol since surgical may be off the table"
 );
 
+assert(
+  source.includes('seborrheicDermatitisDetected') &&
+    source.includes("data.detectedConditions.includes('seborrheic_dermatitis')") &&
+    source.includes('seborrheicDermatitisDetected (seborrheic dermatitis (SD) confirmed') &&
+    source.includes('How long should I use ketoconazole shampoo before seeing an improvement'),
+  "riskFactorFlags should include seborrheicDermatitisDetected boolean derived from detectedConditions — allows the iOS app to surface ketoconazole shampoo CTAs without parsing the detectedConditions array; riskAlertLine should include an SD alert recommending ketoconazole 2% shampoo as the co-treatable OTC first-line; coach slot-2 chip should ask about duration of ketoconazole use and whether treating SD measurably helps hair loss"
+);
+
+assert(
+  source.includes('scalpPsoriasisDetected') &&
+    source.includes("data.detectedConditions.includes('scalp_psoriasis')") &&
+    source.includes('scalpPsoriasisDetected (scalp psoriasis flagged') &&
+    source.includes('Does treating scalp psoriasis improve my hair density'),
+  "riskFactorFlags should include scalpPsoriasisDetected boolean derived from detectedConditions — allows the iOS app to surface dermatologist-visit CTAs without parsing the detectedConditions array; riskAlertLine should include a scalp psoriasis alert recommending a dermatologist consultation; coach slot-2 chip should ask whether treating psoriasis improves density and what to ask the dermatologist about"
+);
+
+assert(
+  source.includes('smpSuspectedDetected') &&
+    source.includes("data.detectedConditions.includes('smp_suspected')") &&
+    source.includes('smpSuspectedDetected (scalp micropigmentation (SMP) detected') &&
+    source.includes('are my current scores still useful for tracking progress'),
+  "riskFactorFlags should include smpSuspectedDetected boolean derived from detectedConditions — allows the iOS app to caveat displayed scores and surface retake-photo CTAs without parsing the detectedConditions array; riskAlertLine should explain how SMP affects score accuracy and recommend a retake; coach slot-2 chip should ask whether scores are still useful or a new baseline photo is needed"
+);
+
 console.log('server contract passed');
