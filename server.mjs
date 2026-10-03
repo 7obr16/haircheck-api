@@ -3173,6 +3173,27 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             const _isNutritionalTE = /low ferritin|iron deficien|ferritin deficien|iron low|low iron|anemi[ac]|anaemi[ac]|vitamin d deficien|low vitamin d|vit\.?\s*d deficien|low vit\.?\s*d|nutritional deficien|b\.?12 deficien|low b\.?12|vitamin b\.?12 deficien|zinc deficien|low zinc|deficien.{0,15}iron|deficien.{0,15}ferritin/i.test(_nCombined);
             if (_isNutritionalTE) _conds.push('nutritional_te');
           }
+          // Server-side detection for weight-loss/caloric-restriction TE.
+          // Rapid weight loss, crash dieting, bariatric surgery, and very low calorie diets
+          // trigger TE by depriving follicles of the protein and macronutrient substrate needed
+          // for the anagen growth phase — a distinct mechanism from micronutrient deficiency.
+          // This is a very common and highly reversible TE trigger that users often don't
+          // connect to hair loss. Detected from profile concerns and timeline keywords.
+          // Guards against higher-priority TE flags (postpartum, postpill, treatment-induced,
+          // nutritional) that are more specific; weight_loss_te should only fire when none of
+          // those more specific triggers are already active.
+          if (!_conds.includes('weight_loss_te') &&
+              !_conds.includes('nutritional_te') &&
+              !_conds.includes('postpartum_te') &&
+              !_conds.includes('postpill_te') &&
+              !_conds.includes('treatment_induced_te')) {
+            const _wlcL = (profile.concern || []).map(c => String(c).toLowerCase()).join(' ');
+            const _wltL = (profile.timeline || '').toLowerCase();
+            const _wlrL = (profile.routine  || []).map(r => String(r).toLowerCase()).join(' ');
+            const _wlCombined = _wlcL + ' ' + _wltL + ' ' + _wlrL;
+            const _isWeightLossTE = /crash.{0,5}diet|rapid weight loss|quick weight loss|extreme.{0,10}diet(?:ing)?|bariatric|gastric bypass|gastric sleeve|gastric band|weight.{0,10}loss surgery|very low calorie|vlcd|caloric restriction|calorie restriction|calorie.{0,10}deficit.{0,20}(?:large|extreme|severe|big|huge|massive)|eating disorder|anorex(?:ia|ic)|drastic weight loss|severe weight loss|massive weight loss|extreme fast(?:ing)?|water fast(?:ing)?|prolonged fast(?:ing)?|severely.{0,15}restrict|severe food restriction|lost.{0,25}(?:stone|kg|lbs|pounds).{0,20}(?:quickly|fast|rapidly|in \d+ (?:week|month))|big.{0,10}weight.{0,10}loss|weight.{0,10}loss.{0,20}fast|lots of weight|lot of weight.{0,15}(?:fast|quick|rapid)/i.test(_wlCombined);
+            if (_isWeightLossTE) _conds.push('weight_loss_te');
+          }
           // Server-side detection for thyroid-induced TE (hypothyroid/hyperthyroid telogen effluvium).
           // Thyroid dysfunction is a leading, highly correctable cause of diffuse hair loss frequently
           // misattributed to AGA. Detected from profile concerns/timeline keywords; GPT-4o scan prompt
@@ -5496,6 +5517,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             // Key message: this is reversible — follicles are intact; correcting ferritin/VitD restores the cycle.
             data.weeklyFocus = 'Get a ferritin and vitamin D blood panel this week — low ferritin (below 70 ng/mL) is one of the most correctable causes of diffuse shedding. Correcting the deficiency typically stops shedding within 1–2 months and restores growth by months 3–6.';
             data.weeklyFocusMetric = 'Health';
+          } else if (_dc.includes('weight_loss_te')) {
+            // Weight-loss TE: the single highest-ROI action is restoring protein and caloric intake.
+            // Key message: follicles are completely intact; caloric/protein restriction is the cause and
+            // correcting it is sufficient — no DHT blockers needed unless co-existing AGA is present.
+            data.weeklyFocus = 'Restore adequate protein (≥1.0–1.5 g/kg body weight daily) as your first priority — rapid weight loss or crash dieting cuts off the protein supply follicles need for anagen growth, and shedding will not stop until caloric and protein intake is normalized. Also get a ferritin panel (weight loss depletes iron stores).';
+            data.weeklyFocusMetric = 'Health';
           } else if (_dc.includes('thyroid_te')) {
             // Thyroid TE: most important action is a thyroid function panel.
             // Key message: once thyroid levels are corrected with medication, the hair cycle normalizes.
@@ -5776,6 +5803,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           data.checkInIntervalDays = 42;
         } else if (data.detectedConditions.includes('nutritional_te') && data.checkInIntervalDays > 42) {
           data.checkInIntervalDays = 42;
+        } else if (data.detectedConditions.includes('weight_loss_te') && data.checkInIntervalDays > 42) {
+          // Weight-loss TE: 6-week rescan allows time to observe whether restored nutrition
+          // is stabilizing the shedding rate. Full recovery typically takes 3–6 months once
+          // adequate caloric/protein intake is restored.
+          data.checkInIntervalDays = 42;
         } else if (data.detectedConditions.includes('thyroid_te') && data.checkInIntervalDays > 42) {
           data.checkInIntervalDays = 42;
         } else if (data.detectedConditions.includes('pcos') && data.checkInIntervalDays > 42) {
@@ -5873,6 +5905,8 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           data.nextCheckInReason = 'Post-pill shedding is temporary — rescan in 6 weeks to track early recovery progress and confirm your hair cycle is returning to its normal rhythm as your hormones stabilize.';
         } else if (data.detectedConditions.includes('nutritional_te')) {
           data.nextCheckInReason = 'Possible nutritional deficiency detected — rescan in 6 weeks to confirm that correcting iron or ferritin is stabilizing the shedding and your hair cycle is improving.';
+        } else if (data.detectedConditions.includes('weight_loss_te')) {
+          data.nextCheckInReason = 'Rapid weight loss or caloric restriction detected — this is a recognized, reversible TE trigger. Restore adequate protein (≥0.8 g/kg body weight) and overall caloric intake; shedding typically stabilizes within 2–4 months. Rescan in 6 weeks to confirm the shedding is plateauing.';
         } else if (data.detectedConditions.includes('thyroid_te')) {
           data.nextCheckInReason = 'Possible thyroid-related shedding detected — get a TSH/Free T4 panel this week; once thyroid levels are corrected with treatment, hair cycle shedding typically stabilizes within 2–4 months. Rescan in 6 weeks to track early progress.';
         } else if (data.detectedConditions.includes('pcos')) {
@@ -5958,6 +5992,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // ferritin ≥70 ng/mL. The iOS app uses this to surface "get a ferritin blood test" CTAs
           // without needing to parse the detectedConditions array or weeklyFocus string.
           nutritionalTeDetected: data.detectedConditions.includes('nutritional_te'),
+          // True when rapid weight loss / crash diet TE is server-side detected from the user's
+          // concern/timeline context. Caloric and protein restriction cause TE by depriving follicles
+          // of the macronutrient substrate for anagen — a distinct (and reversible) mechanism from
+          // micronutrient deficiency. Only fires when no higher-priority TE flag is active.
+          weightLossTeDetected: data.detectedConditions.includes('weight_loss_te'),
           // True when thyroid TE (hypothyroid or hyperthyroid dysfunction) is server-side detected
           // from the user's concern/health/routine context. Thyroid TE is highly correctable — the
           // primary intervention is a TSH/Free T4 panel and thyroid medication optimization.
@@ -6589,6 +6628,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         if (rff.familyHistoryHighRisk) alerts.push('familyHistoryHighRisk (family history of NW6+ or advanced loss — higher progression likelihood; reinforce long-term consistency and early Rx consideration when the user asks about prognosis)');
         if (rff.pcosDetected)          alerts.push('pcosDetected (PCOS-driven androgenic hair loss confirmed — the root cause is androgen excess, NOT standard AGA; when the user asks about urgency, progression risk, or first steps, lead with the hormonal workup (testosterone, DHEA-S, LH/FSH ratio) and anti-androgen treatment path (spironolactone, anti-androgenic OCP); topical minoxidil is additive but not sufficient alone; emphasize that PCOS hair loss is meaningfully reversible with the right hormonal intervention)');
         if (rff.nutritionalTeDetected) alerts.push('nutritionalTeDetected (iron/ferritin or vitamin D deficiency TE confirmed — the root cause is nutritional, NOT DHT-driven miniaturization; when the user asks about urgency, what to do first, or why they\'re shedding, lead with the blood panel (serum ferritin, CBC, 25-OH vitamin D) and correct the deficiency to target ferritin ≥70 ng/mL; DHT blockers are not the fix here — shedding stops once the nutritional deficit is corrected; typical recovery: shedding stabilizes 1–2 months after ferritin recovers, visible regrowth by months 3–6)');
+        if (rff.weightLossTeDetected) alerts.push('weightLossTeDetected (rapid weight loss or caloric/protein restriction TE confirmed — the root cause is macronutrient deprivation, NOT DHT-driven miniaturization; follicles enter telogen when the body is in an energy deficit because hair growth is a metabolically expensive non-essential process; this is completely reversible once adequate nutrition is restored; when the user asks about urgency, why they\'re shedding, or what to do first: (1) REASSURE — this is one of the most reversible forms of TE because the trigger is mechanical (caloric deficit) and correctable; follicles are completely intact and healthy; (2) MOST ACTIONABLE STEP — restore adequate protein intake (≥0.8 g/kg body weight daily; ideally 1.2–1.5 g/kg during recovery) and overall caloric balance; this is the single highest-ROI intervention and shedding will not fully resolve until caloric/protein intake is normalized; (3) BLOOD PANEL — also recommend serum ferritin (iron), CBC, and 25-OH vitamin D since rapid weight loss frequently depletes these micronutrients simultaneously and low ferritin independently prolongs the shedding window; (4) TIMELINE — shedding typically stabilizes 2–4 months after nutrition is restored; visible density recovery follows 3–6 months after shedding stops; full recovery is expected within 6–9 months; (5) TOPICAL SUPPORT — topical minoxidil is a useful adjunct to support the hair cycle during the nutritional recovery window — it does not replace restoring nutrition but can modestly accelerate regrowth; (6) DO NOT FRAME as AGA progression — do NOT recommend DHT blockers (finasteride, dutasteride) as primary treatment; the mechanism here is caloric/protein, not androgenic miniaturization)');
         if (rff.thyroidTeDetected)     alerts.push('thyroidTeDetected (thyroid dysfunction-induced TE confirmed — hypothyroid or hyperthyroid disruption is driving the diffuse shedding; NOT DHT-driven miniaturization; when the user asks about urgency, what to do first, or why they\'re shedding, lead with the TSH/Free T4 panel and thyroid medication optimization; DHT blockers are not the primary fix — hair cycle normalizes once thyroid levels are corrected; typical timeline: shedding slows 2–4 months after thyroid levels stabilize, visible regrowth by months 4–6)');
         if (rff.stressTeDetected)      alerts.push('stressTeDetected (stress/sleep-induced TE confirmed — high cortisol or poor sleep has been detected alongside a diffuse thinning stage; NOT AGA miniaturization; follicles are completely intact and shedding is fully reversible once the cortisol load drops; when the user asks why they\'re shedding or what lifestyle changes help most, lead with: (1) sleep target 7–8h/night — the single highest-leverage lifestyle change for diffuse TE; (2) one daily cortisol-reducing habit (20–30 min aerobic exercise, mindfulness, or digital wind-down before bed); (3) existing topical treatment stays consistent during the TE phase — minoxidil and DHT-blocking shampoo remain useful adjuncts but shedding will not fully stop until the cortisol load drops; (4) adding biotin and zinc supports the hair cycle during recovery; TIMELINE: shedding typically starts to slow within 6–8 weeks of consistent stress reduction, visible density recovery follows 2–3 months after shedding stabilizes, full recovery expected within 4–6 months; do NOT frame this as AGA progression or suggest Rx DHT blockers as the primary fix)');
         if (rff.scarringAlopeciaDetected) alerts.push('scarringAlopeciaDetected (URGENT: a scarring alopecia — FFA, LPP, or CCCA — has been flagged in the scan. These conditions PERMANENTLY destroy follicles through irreversible scarring; every week without specialist evaluation risks further irreversible loss. When the user asks about urgency, what to do first, or how serious their situation is: lead with an URGENT dermatologist or trichologist consultation as the single non-negotiable first action; explain that standard AGA treatments (minoxidil, finasteride, DHT blockers) are NOT primary therapy for scarring alopecias and will not stop the scarring process; the correct treatment path is anti-inflammatory (hydroxychloroquine, cyclosporine, intralesional/topical corticosteroids, or doxycycline depending on the specific type) and must be directed by a specialist who can confirm the diagnosis with dermoscopy or biopsy; emphasize that early diagnosis significantly slows progression — time matters here in a way that it does not for standard AGA)');
@@ -6868,6 +6908,10 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // Nutritional TE users: slot-0 chip asked about ferritin/iron mechanism and what to test.
           // Slot-2 targets: timeline once supplementation starts and whether minoxidil helps meanwhile.
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'Once I start iron supplementation, how long before my ferritin recovers enough to stop the shedding — and will minoxidil help in the meantime?'];
+        } else if (_rff.weightLossTeDetected) {
+          // Weight-loss TE users: slot-0 chip asked about the mechanism and recovery timeline.
+          // Slot-2 targets: whether topical minoxidil or protein supplements accelerate recovery.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'Now that I know crash dieting caused my shedding, how much protein do I actually need daily to restart hair growth — and will adding topical minoxidil speed up the recovery?'];
         } else if (_rff.postpartumTeDetected) {
           // Postpartum TE users: slot-0 chip asked whether it's temporary and when it resolves.
           // Slot-2 targets: actionable steps to support fastest recovery.
