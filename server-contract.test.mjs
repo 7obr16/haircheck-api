@@ -2541,4 +2541,26 @@ assert(
   "SMP detection should check multiple photoNote phrasing patterns (scalp micropigmentation, micropigmentation suspected, suspected smp, smp suspected, smp detected) to robustly catch the range of wording GPT-4o may produce; the GPT prompt should include an explicit sample phrase beginning with 'Scalp micropigmentation (SMP) suspected' to guide reliable detection"
 );
 
+assert(
+  source.includes('weightLossTeDetected') &&
+    source.includes("data.detectedConditions.includes('weight_loss_te')") &&
+    source.includes('weightLossTeDetected (rapid weight loss or caloric/protein restriction TE confirmed') &&
+    source.includes("_conds.push('weight_loss_te')") &&
+    source.includes("data.detectedConditions.includes('weight_loss_te') && data.checkInIntervalDays > 42") &&
+    source.includes('My scan flagged rapid weight loss or crash dieting as a possible shedding trigger') &&
+    source.includes('weight_loss_te → rapid weight loss or crash diet TE'),
+  'riskFactorFlags should include weightLossTeDetected boolean derived from detectedConditions — allows the iOS app to surface weight-loss TE CTAs (restore protein intake, ferritin panel, reversible) without parsing the detectedConditions array; riskAlertLine should include the weight-loss TE alert; coachSuggestedQuestions chip should ask about mechanism and recovery timeline; checkInIntervalDays capped at 42; coach detectedConditions prompt entry should cover weight_loss_te handling'
+);
+
+assert(
+  source.includes('postCovidTeDetected') &&
+    source.includes("data.detectedConditions.includes('post_covid_te')") &&
+    source.includes('postCovidTeDetected (post-COVID telogen effluvium confirmed') &&
+    source.includes("_conds.push('post_covid_te')") &&
+    source.includes("data.detectedConditions.includes('post_covid_te') && data.checkInIntervalDays > 42") &&
+    source.includes('My scan flagged post-COVID shedding as a possible trigger') &&
+    source.includes('post_covid_te → post-COVID-19 telogen effluvium'),
+  'riskFactorFlags should include postCovidTeDetected boolean derived from detectedConditions — allows the iOS app to surface post-COVID TE CTAs (self-limiting, ferritin/thyroid panel, topical minoxidil OK) without parsing the detectedConditions array; riskAlertLine should include the post-COVID TE alert with long-COVID caveat; coachSuggestedQuestions chip should ask about recovery timeline; checkInIntervalDays capped at 42; coach detectedConditions prompt entry should cover post_covid_te handling'
+);
+
 console.log('server contract passed');
