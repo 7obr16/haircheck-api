@@ -2571,4 +2571,20 @@ assert(
   'weeklyFocus should override to post-COVID TE blood-panel guidance when post_covid_te is detected — parallel to weight_loss_te and stress_te overrides; primary message: get ferritin+thyroid panel, shedding is self-limiting'
 );
 
+assert(
+  source.includes('transplantInRoutineDetected') &&
+    source.includes('data.protocolCoverage.transplant === true') &&
+    source.includes('transplantInRoutineDetected (the user has had or is scheduled for a hair transplant') &&
+    source.includes('a few months post-transplant and my hair is still shedding — is this normal shock loss'),
+  'riskFactorFlags should include transplantInRoutineDetected boolean derived from protocolCoverage.transplant — allows the iOS app to surface transplant-specific coaching CTAs (shock loss reassurance, native hair protection with Rx, recovery milestones) without parsing the routine field; riskAlertLine should include transplant context with post-op shock loss, native hair protection, and recovery timeline; coach slot-2 chip should address current recovery milestone and expected regrowth timeline'
+);
+
+assert(
+  source.includes('prpInRoutineDetected') &&
+    source.includes('data.protocolCoverage.prp === true') &&
+    source.includes('prpInRoutineDetected (the user has PRP') &&
+    source.includes('doing PRP injections — when should I apply topical minoxidil after a PRP session'),
+  'riskFactorFlags should include prpInRoutineDetected boolean derived from protocolCoverage.prp — allows the iOS app to surface PRP-specific coaching CTAs (minoxidil timing after sessions, session frequency guidance, microneedling redundancy) without parsing the routine field; riskAlertLine should include PRP calibration for minoxidil timing (24-48h wait), session frequency (3-4 monthly induction then every 6-12mo), and microneedling interaction; coach slot-2 chip should ask about minoxidil timing and session frequency for their stage'
+);
+
 console.log('server contract passed');
