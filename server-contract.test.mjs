@@ -2563,4 +2563,12 @@ assert(
   'riskFactorFlags should include postCovidTeDetected boolean derived from detectedConditions — allows the iOS app to surface post-COVID TE CTAs (self-limiting, ferritin/thyroid panel, topical minoxidil OK) without parsing the detectedConditions array; riskAlertLine should include the post-COVID TE alert with long-COVID caveat; coachSuggestedQuestions chip should ask about recovery timeline; checkInIntervalDays capped at 42; coach detectedConditions prompt entry should cover post_covid_te handling'
 );
 
+assert(
+  source.includes("_dc.includes('post_covid_te')") &&
+    source.includes('Get a ferritin and thyroid panel (TSH, Free T4) this week') &&
+    source.includes('COVID illness frequently depletes iron stores and can trigger thyroid dysfunction') &&
+    source.includes('post-COVID shedding itself is self-limiting'),
+  'weeklyFocus should override to post-COVID TE blood-panel guidance when post_covid_te is detected — parallel to weight_loss_te and stress_te overrides; primary message: get ferritin+thyroid panel, shedding is self-limiting'
+);
+
 console.log('server contract passed');

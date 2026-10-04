@@ -5586,6 +5586,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
                 ? 'Stress ≥7/10 with diffuse thinning strongly suggests stress-induced TE — prioritize sleep (target 7–8h), add one daily stress-reduction habit (exercise, mindfulness, or a digital wind-down), and keep your topical routine consistent. Shedding typically stabilizes within 2–3 months once cortisol load drops.'
                 : 'Sleep deprivation (≤5h/night) is a recognized TE trigger — restoring 7–8h of sleep is the single highest-leverage lifestyle action for diffuse shedding. Consistent sleep alone can noticeably reduce cortisol-driven shedding within 6–8 weeks alongside your topical routine.';
             data.weeklyFocusMetric = 'Health';
+          } else if (_dc.includes('post_covid_te')) {
+            // Post-COVID TE: the most actionable step is a blood panel (ferritin, thyroid)
+            // since COVID depletes iron and can trigger autoimmune thyroiditis. The primary
+            // message is reassurance — this is self-limiting and fully reversible.
+            data.weeklyFocus = 'Get a ferritin and thyroid panel (TSH, Free T4) this week — COVID illness frequently depletes iron stores and can trigger thyroid dysfunction, both of which independently extend TE shedding beyond the viral recovery window. The post-COVID shedding itself is self-limiting (typically resolves within 6–12 months) and your follicles are completely intact.';
+            data.weeklyFocusMetric = 'Health';
           }
         })();
 
