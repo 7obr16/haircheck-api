@@ -6131,6 +6131,16 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // (full density visible at 12–18 months). The iOS app uses this to surface transplant-specific
           // coaching CTAs rather than treating the user as a first-time AGA case.
           transplantInRoutineDetected: data.protocolCoverage.transplant === true,
+          // True when platelet-rich plasma (PRP) injections are detected in the user's routine.
+          // PRP users have distinct coaching needs: (1) session frequency guidance (3-4 monthly
+          // sessions initially, then every 6-12 months for maintenance); (2) minoxidil timing —
+          // applying topical minoxidil 24-48 hours after a PRP session (not immediately) avoids
+          // diluting the growth-factor concentration at the injection sites; (3) microneedling
+          // interaction — PRP already delivers the scalp-priming benefit that standalone
+          // microneedling provides, so adding a separate dermaroller session the same week is
+          // redundant. The iOS app uses this to surface PRP-specific timing CTAs and to suppress
+          // generic "add microneedling" prompts for users already on PRP.
+          prpInRoutineDetected: data.protocolCoverage.prp === true,
         };
 
         console.log('[vision] ok', { overall: data.overall, stage: data.stage, photoQuality: data.photoQuality, ms: Date.now() - startedAt, tokens: scanUsage ? { prompt: scanUsage.prompt_tokens, completion: scanUsage.completion_tokens } : null, reqId });
