@@ -5711,6 +5711,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               ...data.coachSuggestedQuestions.slice(0, 2),
               'I\'ve had a hair transplant — what\'s the most important thing I can do right now to protect my result and prevent losing the native hair around it?',
             ];
+          } else if (_rff?.prpInRoutineDetected) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'I\'m doing PRP injections — when should I apply topical minoxidil after a PRP session, and what frequency of sessions gives the best results for my stage?',
+            ];
           } else if (_rff?.noMinoxidilAtActiveStage) {
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
@@ -7035,6 +7040,11 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // Transplant users: slot-0 chip asked about protecting native hair and next steps.
           // Slot-2 targets: the specific recovery milestone they're in and what to expect next.
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'I\'m a few months post-transplant and my hair is still shedding — is this normal shock loss, and when should I start seeing real regrowth?'];
+        } else if (_rff.prpInRoutineDetected) {
+          // PRP users: no slot-0 condition chip (PRP is a protocol, not a pathological condition).
+          // Slot-2 targets PRP timing optimization — when to apply topical minoxidil after a session
+          // and how session frequency maps to the user's stage.
+          suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'I\'m doing PRP injections — when should I apply topical minoxidil after a PRP session, and what frequency of sessions gives the best results for my stage?'];
         } else if (_rff.highStress && _stressFollowUpStages.has(_fstage)) {
           suggestedFollowUps = [...suggestedFollowUps.slice(0, 2), 'My stress is very high right now — could this be worsening my hair loss, and what can I do about it?'];
         } else if (_rff.poorSleep && _stressFollowUpStages.has(_fstage)) {
