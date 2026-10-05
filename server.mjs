@@ -5722,6 +5722,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               ...data.coachSuggestedQuestions.slice(0, 2),
               'If my thyroid levels are corrected with medication, how long before my hair starts recovering — and what can I do in the meantime?',
             ];
+          } else if (_rff?.pcosDetected) {
+            // PCOS users: slot-0 chip asked about the PCOS mechanism and hormonal tests to request.
+            // Slot-2 targets: treatment options and realistic timeline — or optimizing existing Rx.
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              data.protocolCoverage?.rx
+                ? 'I\'m taking spironolactone for PCOS hair loss — when should I expect to see results, and what can I add to speed up improvement?'
+                : 'Does PCOS hair loss keep progressing if untreated, and how much can spironolactone realistically improve my density?',
+            ];
           } else if (_rff?.nutritionalTeDetected) {
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
@@ -5782,6 +5791,20 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
               'My scan detected possible SMP — are my current scores still useful for tracking progress, or do I need a completely new baseline photo without the SMP area?',
+            ];
+          } else if (_rff?.scarringAlopeciaDetected) {
+            // Scarring alopecia users: slot-0 chip asked about the condition and urgent next steps.
+            // Slot-2 targets: what treatments are available and how quickly action must be taken.
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'If a scarring alopecia is confirmed by a dermatologist, what treatments are available — and how quickly do I need to act to prevent permanent loss?',
+            ];
+          } else if (_rff?.tractionalAlopeciaDetected) {
+            // Traction alopecia users: slot-0 chip asked how to stop progression and whether it can regrow.
+            // Slot-2 targets: recovery timeline once the mechanical trigger is removed.
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'Once I stop the tight hairstyle, how quickly can the hairline recover — and what can I do to speed up regrowth along the margins?',
             ];
           } else if (_rff?.alopeciaAreaataDetected) {
             // AA users: Q1 asked how it is treated differently from AGA.
