@@ -1321,6 +1321,7 @@ const ADVICE_VISUAL_PROMPTS = {
   consultation: `Create a photorealistic premium hair-health app advice card image. Subject: minimalist dark clinical consultation scene — a premium trichoscope lens examining a scalp parting on dark hair, or a sleek black clinical notepad and pen beside a stethoscope on a dark marble desk. Style: dark luxury medical-aesthetic, subtle violet rim light, calm confident atmosphere. Avoid visible faces, clinical white hospital rooms, brand logos, labels, watermarks, text, UI, or overly bright settings.`,
   prp: `Create a photorealistic premium hair-health app advice card image. Subject: close crop of a clinical PRP (platelet-rich plasma) setup — an unbranded matte medical syringe beside a small amber-tinted PRP vial or centrifuge tube containing golden-amber plasma, arranged on a dark clinical surface. Style: dark luxury medical-aesthetic, subtle gold-amber rim light reflecting off the PRP vial to convey the warmth of the plasma concentrate, premium clinical mood, sharp macro detail on the tube and syringe. Avoid needles piercing skin or scalp (keep the procedure abstract and aspirational), brand names, logos, identifiable product names, text, labels, watermarks, UI, blood, exaggerated clinical equipment, bright hospital-white backgrounds, or cartoon style.`,
   transplant: `Create a photorealistic premium hair-health app advice card image. Subject: close crop of a healthy scalp showing a clean, evenly distributed row of newly growing short hair follicles along a restored hairline, shot at a shallow 30° angle from above — implying successful hair graft integration and early growth, with a subtle blue-green bioluminescent glow at the follicle bases suggesting active anagen regrowth. Style: dark luxury clinical lighting, black background, realistic skin texture and short terminal hair shafts, shallow depth of field, premium medical-aesthetic. Avoid visible surgical instruments, incisions, blood, pluggy or unnatural hairline rows, brand names, logos, text, labels, watermarks, UI, cartoon style, or exaggerated clinical trauma.`,
+  panel: `Create a photorealistic premium hair-health app advice card image. Subject: a dark clinical still life of 2-3 small laboratory blood collection tubes with teal, red, and lavender caps arranged on a black stone surface, with a subtle teal-to-gold rim light catching the glass barrel — implying a serum ferritin, thyroid, and CBC panel. Style: dark luxury medical-aesthetic, macro detail on the tube caps and glass barrel, clean and scientific without being clinical-white or hospital-bright. Avoid brand names, visible writing on labels, watermarks, text, UI, syringes, needles, blood outside tubes, human skin or arms, and generic pharmacy stock-photo settings.`,
 };
 
 const normalizeAdviceKind = (kind) => (
@@ -5855,6 +5856,14 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // had surgery. Surface 'transplant' as the third card instead of 'consultation'.
           if (transplant) {
             return [...missing.slice(0, 2), 'transplant'];
+          }
+          // TE conditions that require a ferritin/thyroid/CBC blood panel: surface 'panel' as the
+          // first visual card so the iOS app can immediately show a "get your blood panel" CTA.
+          // More relevant than the generic topical card for users whose hair loss is not DHT-driven.
+          const _panelConditions = ['nutritional_te', 'post_covid_te', 'weight_loss_te', 'thyroid_te', 'postpartum_te'];
+          const _needsPanel = _panelConditions.some(c => data.detectedConditions.includes(c));
+          if (_needsPanel) {
+            return ['panel', ...missing.slice(0, 2)];
           }
           if (data.specialistRecommended) {
             return [...missing.slice(0, 2), 'consultation'];

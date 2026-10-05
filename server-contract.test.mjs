@@ -2587,4 +2587,13 @@ assert(
   'riskFactorFlags should include prpInRoutineDetected boolean derived from protocolCoverage.prp — allows the iOS app to surface PRP-specific coaching CTAs (minoxidil timing after sessions, session frequency guidance, microneedling redundancy) without parsing the routine field; riskAlertLine should include PRP calibration for minoxidil timing (24-48h wait), session frequency (3-4 monthly induction then every 6-12mo), and microneedling interaction; coach slot-2 chip should ask about minoxidil timing and session frequency for their stage'
 );
 
+assert(
+  source.includes("panel: `Create a photorealistic premium hair-health app advice card image. Subject: a dark clinical still life of 2-3 small laboratory blood collection tubes") &&
+    source.includes('_panelConditions') &&
+    source.includes("_panelConditions.some(c => data.detectedConditions.includes(c))") &&
+    source.includes("return ['panel', ...missing.slice(0, 2)]") &&
+    source.includes("'nutritional_te', 'post_covid_te', 'weight_loss_te', 'thyroid_te', 'postpartum_te'"),
+  "suggestedAdviceVisuals should surface 'panel' (blood-panel advice visual) as the first card for TE conditions that require a ferritin/thyroid/CBC workup — more relevant than a generic topical CTA for users whose shedding is nutritional or viral rather than DHT-driven; ADVICE_VISUAL_PROMPTS should include a 'panel' image prompt depicting clinical lab blood-collection tubes"
+);
+
 console.log('server contract passed');
