@@ -5716,6 +5716,41 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               ...data.coachSuggestedQuestions.slice(0, 2),
               'I\'m doing PRP injections — when should I apply topical minoxidil after a PRP session, and what frequency of sessions gives the best results for my stage?',
             ];
+          } else if (_rff?.seborrheicDermatitisDetected) {
+            // SD users: Q1 asked how treating scalp inflammation helps and what to use.
+            // Slot-2 targets: how long to use ketoconazole and whether treating SD measurably improves density.
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'How long should I use ketoconazole shampoo before seeing an improvement in scalp inflammation — and does treating seborrheic dermatitis actually help slow hair loss or just reduce itching?',
+            ];
+          } else if (_rff?.scalpPsoriasisDetected) {
+            // Psoriasis users: Q1 asked how treating scalp inflammation helps hair loss.
+            // Slot-2 targets: what a dermatologist can offer and whether treating psoriasis improves density.
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'Does treating scalp psoriasis improve my hair density, or does it only address the inflammation — and what should I specifically ask my dermatologist about when it comes to hair loss?',
+            ];
+          } else if (_rff?.smpSuspectedDetected) {
+            // SMP users: Q1 asked how SMP affects scores and how to get an accurate baseline.
+            // Slot-2 targets: whether current scores remain useful and how to retake a clean photo.
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'My scan detected possible SMP — are my current scores still useful for tracking progress, or do I need a completely new baseline photo without the SMP area?',
+            ];
+          } else if (_rff?.alopeciaAreaataDetected) {
+            // AA users: Q1 asked how it is treated differently from AGA.
+            // Slot-2 targets: most effective early treatment and expected timeline for results.
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'If this is alopecia areata, what is the most effective early treatment — and how long does intralesional steroid treatment typically take to show results?',
+            ];
+          } else if (_rff?.dupaDetected) {
+            // DUPA users: Q1 asked about transplant candidacy impact and what to do next.
+            // Slot-2 targets: best medical protocol since surgical options may be off the table.
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'If DUPA makes me a poor transplant candidate, what medical treatments are most effective for slowing DUPA progression — and is dutasteride stronger than finasteride for this?',
+            ];
           } else if (_rff?.noMinoxidilAtActiveStage) {
             data.coachSuggestedQuestions = [
               ...data.coachSuggestedQuestions.slice(0, 2),
