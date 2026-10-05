@@ -5610,6 +5610,16 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           data.weeklyFocusMetric = 'Health';
         }
 
+        // PRP routine weeklyFocus override: fires when no photo-detected condition override
+        // was applied and no transplant override fired. The single most important PRP timing
+        // rule — do not apply topical minoxidil within 24-48 hours after a PRP session — is
+        // not obvious and is frequently missed; surfacing it here ensures every PRP user sees
+        // it as their weekly action, not a buried coach tip.
+        if (_hasPRP && !_hasTransplant && !data.detectedConditions.length) {
+          data.weeklyFocus = 'Wait 24–48 hours after each PRP session before applying topical minoxidil — applying it sooner dilutes the growth factors at the injection sites during the critical therapeutic window. On non-PRP days continue your normal twice-daily application across all thinning zones.';
+          data.weeklyFocusMetric = 'Health';
+        }
+
         // protocolCoverage: structured breakdown of which treatment categories are active
         // in the user's current routine. Derived server-side from the same parsed routine
         // flags used to build weeklyFocus — no additional client-side string parsing needed.

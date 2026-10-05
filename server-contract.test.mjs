@@ -2594,6 +2594,13 @@ assert(
 );
 
 assert(
+  source.includes('_hasPRP && !_hasTransplant && !data.detectedConditions.length') &&
+    source.includes('Wait 24–48 hours after each PRP session before applying topical minoxidil') &&
+    source.includes('dilutes the growth factors at the injection sites during the critical therapeutic window'),
+  'weeklyFocus should override to PRP session-timing guidance when PRP is in the routine and no condition override fired — the 24-48h minoxidil wait rule after PRP sessions is the most clinically important PRP-specific weekly action and is not surfaced anywhere else in the scan result; mirrors the transplant routine weeklyFocus override pattern'
+);
+
+assert(
   source.includes("panel: `Create a photorealistic premium hair-health app advice card image. Subject: a dark clinical still life of 2-3 small laboratory blood collection tubes") &&
     source.includes('_panelConditions') &&
     source.includes("_panelConditions.some(c => data.detectedConditions.includes(c))") &&
