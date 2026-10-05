@@ -2592,8 +2592,8 @@ assert(
     source.includes('_panelConditions') &&
     source.includes("_panelConditions.some(c => data.detectedConditions.includes(c))") &&
     source.includes("return ['panel', ...missing.slice(0, 2)]") &&
-    source.includes("'nutritional_te', 'post_covid_te', 'weight_loss_te', 'thyroid_te', 'postpartum_te'"),
-  "suggestedAdviceVisuals should surface 'panel' (blood-panel advice visual) as the first card for TE conditions that require a ferritin/thyroid/CBC workup — more relevant than a generic topical CTA for users whose shedding is nutritional or viral rather than DHT-driven; ADVICE_VISUAL_PROMPTS should include a 'panel' image prompt depicting clinical lab blood-collection tubes"
+    source.includes("'nutritional_te', 'post_covid_te', 'weight_loss_te', 'thyroid_te', 'postpartum_te', 'postpill_te'"),
+  "suggestedAdviceVisuals should surface 'panel' (blood-panel advice visual) as the first card for TE conditions that require a ferritin/thyroid/CBC workup — more relevant than a generic topical CTA for users whose shedding is nutritional or viral rather than DHT-driven; includes postpill_te since post-pill TE users are explicitly advised to get a ferritin panel; ADVICE_VISUAL_PROMPTS should include a 'panel' image prompt depicting clinical lab blood-collection tubes"
 );
 
 assert(

@@ -5928,7 +5928,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // TE conditions that require a ferritin/thyroid/CBC blood panel: surface 'panel' as the
           // first visual card so the iOS app can immediately show a "get your blood panel" CTA.
           // More relevant than the generic topical card for users whose hair loss is not DHT-driven.
-          const _panelConditions = ['nutritional_te', 'post_covid_te', 'weight_loss_te', 'thyroid_te', 'postpartum_te'];
+          const _panelConditions = ['nutritional_te', 'post_covid_te', 'weight_loss_te', 'thyroid_te', 'postpartum_te', 'postpill_te'];
           const _needsPanel = _panelConditions.some(c => data.detectedConditions.includes(c));
           if (_needsPanel) {
             return ['panel', ...missing.slice(0, 2)];
