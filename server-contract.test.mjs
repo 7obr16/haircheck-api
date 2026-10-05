@@ -2596,4 +2596,26 @@ assert(
   "suggestedAdviceVisuals should surface 'panel' (blood-panel advice visual) as the first card for TE conditions that require a ferritin/thyroid/CBC workup — more relevant than a generic topical CTA for users whose shedding is nutritional or viral rather than DHT-driven; ADVICE_VISUAL_PROMPTS should include a 'panel' image prompt depicting clinical lab blood-collection tubes"
 );
 
+assert(
+  source.includes('_rff?.thyroidTeDetected') &&
+    source.includes('If my thyroid levels are corrected with medication, how long before my hair starts recovering') &&
+    source.includes('_rff?.nutritionalTeDetected') &&
+    source.includes('Once I start iron supplementation, how long before my ferritin recovers enough to stop the shedding') &&
+    source.includes('_rff?.weightLossTeDetected') &&
+    source.includes('Now that I know crash dieting caused my shedding, how much protein do I actually need daily') &&
+    source.includes('_rff?.postCovidTeDetected') &&
+    source.includes('What blood tests should I ask my doctor for after COVID hair loss') &&
+    source.includes('_rff?.stressTeDetected') &&
+    source.includes('What signs tell me my stress-induced shedding is stabilizing') &&
+    source.includes('_rff?.treatmentInducedTeDetected') &&
+    source.includes('If my shedding started when I began treatment, at what point should I expect it to plateau') &&
+    source.includes('_rff?.postpartumTeDetected') &&
+    source.includes('Is there anything I can do to recover my hair density faster after postpartum TE') &&
+    source.includes('_rff?.postPillTeDetected') &&
+    source.includes('Is topical minoxidil worth starting now while I wait for post-pill recovery') &&
+    source.includes('_rff?.seasonalTeDetected') &&
+    source.includes('How do I tell the difference between seasonal shedding that will resolve and AGA progression'),
+  'scan coachSuggestedQuestions else block should include slot-2 TE riskFactorFlag overrides (thyroidTeDetected, nutritionalTeDetected, weightLossTeDetected, postCovidTeDetected, stressTeDetected, treatmentInducedTeDetected, postpartumTeDetected, postPillTeDetected, seasonalTeDetected) so the scan chip set is as targeted for TE users as the coach suggestedFollowUps — Q3 should be a TE recovery-timeline or next-step question that pairs naturally with the TE condition Q1 set by the detectedConditions IIFE'
+);
+
 console.log('server contract passed');

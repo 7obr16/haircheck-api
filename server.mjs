@@ -5717,6 +5717,51 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
               ...data.coachSuggestedQuestions.slice(0, 2),
               'I\'m doing PRP injections — when should I apply topical minoxidil after a PRP session, and what frequency of sessions gives the best results for my stage?',
             ];
+          } else if (_rff?.thyroidTeDetected) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'If my thyroid levels are corrected with medication, how long before my hair starts recovering — and what can I do in the meantime?',
+            ];
+          } else if (_rff?.nutritionalTeDetected) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'Once I start iron supplementation, how long before my ferritin recovers enough to stop the shedding — and will minoxidil help in the meantime?',
+            ];
+          } else if (_rff?.weightLossTeDetected) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'Now that I know crash dieting caused my shedding, how much protein do I actually need daily to restart hair growth — and will adding topical minoxidil speed up the recovery?',
+            ];
+          } else if (_rff?.postCovidTeDetected) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'What blood tests should I ask my doctor for after COVID hair loss — and is topical minoxidil worth starting while I wait for my hair cycle to recover?',
+            ];
+          } else if (_rff?.stressTeDetected) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'What signs tell me my stress-induced shedding is stabilizing — and is adding biotin or zinc actually worth it during the recovery window?',
+            ];
+          } else if (_rff?.treatmentInducedTeDetected) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'If my shedding started when I began treatment, at what point should I expect it to plateau — and what does improvement actually look like?',
+            ];
+          } else if (_rff?.postpartumTeDetected) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'Is there anything I can do to recover my hair density faster after postpartum TE, or does it just take time regardless?',
+            ];
+          } else if (_rff?.postPillTeDetected) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'Is topical minoxidil worth starting now while I wait for post-pill recovery, or should I just let my hair cycle normalize naturally?',
+            ];
+          } else if (_rff?.seasonalTeDetected) {
+            data.coachSuggestedQuestions = [
+              ...data.coachSuggestedQuestions.slice(0, 2),
+              'How do I tell the difference between seasonal shedding that will resolve and AGA progression that needs treatment — what signs should I watch for?',
+            ];
           } else if (_rff?.seborrheicDermatitisDetected) {
             // SD users: Q1 asked how treating scalp inflammation helps and what to use.
             // Slot-2 targets: how long to use ketoconazole and whether treating SD measurably improves density.
