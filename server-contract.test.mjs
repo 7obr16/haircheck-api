@@ -2618,4 +2618,29 @@ assert(
   'scan coachSuggestedQuestions else block should include slot-2 TE riskFactorFlag overrides (thyroidTeDetected, nutritionalTeDetected, weightLossTeDetected, postCovidTeDetected, stressTeDetected, treatmentInducedTeDetected, postpartumTeDetected, postPillTeDetected, seasonalTeDetected) so the scan chip set is as targeted for TE users as the coach suggestedFollowUps — Q3 should be a TE recovery-timeline or next-step question that pairs naturally with the TE condition Q1 set by the detectedConditions IIFE'
 );
 
+assert(
+  source.includes('_rff?.seborrheicDermatitisDetected') &&
+    source.includes('How long should I use ketoconazole shampoo before seeing an improvement in scalp inflammation') &&
+    source.includes('_rff?.scalpPsoriasisDetected') &&
+    source.includes('Does treating scalp psoriasis improve my hair density') &&
+    source.includes('_rff?.smpSuspectedDetected') &&
+    source.includes('My scan detected possible SMP — are my current scores still useful for tracking progress') &&
+    source.includes('_rff?.alopeciaAreaataDetected') &&
+    source.includes('If this is alopecia areata, what is the most effective early treatment') &&
+    source.includes('_rff?.dupaDetected') &&
+    source.includes('If DUPA makes me a poor transplant candidate, what medical treatments are most effective for slowing DUPA progression'),
+  'scan coachSuggestedQuestions else block should include slot-2 chip overrides for non-TE condition flags (seborrheicDermatitisDetected, scalpPsoriasisDetected, smpSuspectedDetected, alopeciaAreaataDetected, dupaDetected) — verified via optional-chaining syntax (_rff?.) unique to the scan block; without these, users with these conditions fall through to generic OTC protocol chips (noMinoxidilAtActiveStage, etc.) that are clinically irrelevant for their condition'
+);
+
+assert(
+  source.includes('_rff?.pcosDetected') &&
+    source.includes("Does PCOS hair loss keep progressing if untreated, and how much can spironolactone realistically improve my density?") &&
+    source.includes("taking spironolactone for PCOS hair loss — when should I expect to see results, and what can I add to speed up improvement?") &&
+    source.includes('_rff?.scarringAlopeciaDetected') &&
+    source.includes('If a scarring alopecia is confirmed by a dermatologist, what treatments are available') &&
+    source.includes('_rff?.tractionalAlopeciaDetected') &&
+    source.includes('Once I stop the tight hairstyle, how quickly can the hairline recover'),
+  'scan coachSuggestedQuestions else block should include slot-2 chip overrides for pcosDetected, scarringAlopeciaDetected, and tractionalAlopeciaDetected — verified via optional-chaining syntax (_rff?.) unique to the scan block; pcosDetected chip varies based on whether the user is already on spironolactone (protocolCoverage.rx), scarring alopecia chip surfaces treatment urgency, traction alopecia chip targets recovery timeline after hairstyle change'
+);
+
 console.log('server contract passed');
