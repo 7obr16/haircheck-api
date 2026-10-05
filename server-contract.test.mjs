@@ -2180,10 +2180,16 @@ assert(
 );
 
 assert(
-  source.includes('const { topical, dhtShampoo, supplements, mechanical, microneedling, lllt, transplant } = data.protocolCoverage') &&
+  source.includes('const { topical, dhtShampoo, supplements, mechanical, microneedling, lllt, transplant, prp } = data.protocolCoverage') &&
     source.includes("if (transplant) {") &&
     source.includes("return [...missing.slice(0, 2), 'transplant']"),
   'suggestedAdviceVisuals should surface the transplant visual as the third card for post-transplant users instead of consultation — they have already had surgery and need graft-care context'
+);
+
+assert(
+  source.includes("if (prp) {") &&
+    source.includes("return [...missing.slice(0, 2), 'prp']"),
+  "suggestedAdviceVisuals should surface the PRP visual as the third card for PRP users — surfaces the session-timing reminder (minoxidil 24-48h wait after sessions, induction frequency) rather than a generic consultation card, since PRP users are already engaged with a clinical procedure"
 );
 
 assert(

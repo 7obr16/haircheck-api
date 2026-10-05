@@ -5912,7 +5912,7 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         // silently dropped when 3+ protocol layers are missing simultaneously, which
         // would happen for untreated advanced-stage users.
         data.suggestedAdviceVisuals = (() => {
-          const { topical, dhtShampoo, supplements, mechanical, microneedling, lllt, transplant } = data.protocolCoverage;
+          const { topical, dhtShampoo, supplements, mechanical, microneedling, lllt, transplant, prp } = data.protocolCoverage;
           const missing = [];
           if (!topical)     missing.push('topical');
           if (!dhtShampoo)  missing.push('shampoo');
@@ -5924,6 +5924,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // had surgery. Surface 'transplant' as the third card instead of 'consultation'.
           if (transplant) {
             return [...missing.slice(0, 2), 'transplant'];
+          }
+          // PRP users benefit from a session-timing reminder card (minoxidil wait 24-48h after
+          // each session, induction frequency). Surface 'prp' as the third visual instead of the
+          // generic consultation card — they're already engaged with a clinical procedure.
+          if (prp) {
+            return [...missing.slice(0, 2), 'prp'];
           }
           // TE conditions that require a ferritin/thyroid/CBC blood panel: surface 'panel' as the
           // first visual card so the iOS app can immediately show a "get your blood panel" CTA.
