@@ -2656,4 +2656,40 @@ assert(
   'scan coachSuggestedQuestions else block should include slot-2 chip overrides for pcosDetected, scarringAlopeciaDetected, and tractionalAlopeciaDetected — verified via optional-chaining syntax (_rff?.) unique to the scan block; pcosDetected chip varies based on whether the user is already on spironolactone (protocolCoverage.rx), scarring alopecia chip surfaces treatment urgency, traction alopecia chip targets recovery timeline after hairstyle change'
 );
 
+assert(
+  source.includes("r.includes('thorne')") &&
+    source.includes("s.includes('thorne')"),
+  'server should detect Thorne (Thorne Research — premium professional-grade supplement brand; users frequently take Thorne Biotin 8, Thorne Basic Nutrients, or Thorne Hair, Skin & Nails) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('sports research')") &&
+    source.includes("s.includes('sports research')"),
+  'server should detect Sports Research (popular US supplement brand sold at Costco, Target, and Amazon; best-known for its Biotin 10,000 mcg softgel and Collagen Peptides) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('now foods')") &&
+    source.includes("s.includes('now foods')"),
+  'server should detect NOW Foods (one of the largest and most widely sold affordable US supplement brands; users frequently list NOW Foods Biotin, NOW Foods Zinc, and NOW Foods Vitamin D as part of their hair health stack) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('floradix')") &&
+    source.includes("s.includes('floradix')"),
+  'server should detect Floradix (Salus Floradix Iron + Herbs — a popular liquid iron supplement specifically recommended for women with iron-deficiency telogen effluvium; widely used in Europe, Canada, and the US; users on Floradix for nutritional TE should not be told they have no supplement stack) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('spatone')") &&
+    source.includes("s.includes('spatone')"),
+  'server should detect Spatone (Nelsons Spatone — a sacheted natural iron-rich water supplement popular in the UK for iron-deficiency TE; commonly recommended by pharmacists and GPs as a gentle iron supplement with high absorption and low GI side effects) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
+assert(
+  source.includes("r.includes('grow gorgeous')") &&
+    source.includes("s.includes('grow gorgeous')"),
+  'server should detect Grow Gorgeous (UK-based hair supplement brand — Hair Growth Supplement Intense and Density Serum are popular products; sold at Cult Beauty, Marks & Spencer, and LookFantastic; commonly used by women with diffuse thinning or TE) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
+);
+
 console.log('server contract passed');
