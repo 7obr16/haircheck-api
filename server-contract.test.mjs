@@ -2692,4 +2692,16 @@ assert(
   'server should detect Grow Gorgeous (UK-based hair supplement brand — Hair Growth Supplement Intense and Density Serum are popular products; sold at Cult Beauty, Marks & Spencer, and LookFantastic; commonly used by women with diffuse thinning or TE) as a supplement in both scan-time _hasSupplements and coach pre-scan supplements detection'
 );
 
+assert(
+  source.includes("r.includes('roman')") &&
+    source.includes("s.includes('roman')"),
+  "server should detect Roman (ro.co — a major US telehealth platform offering prescription minoxidil and finasteride under the Roman brand; comparable to Hims, Keeps, and ForHers in US market share; users frequently list 'Roman minoxidil' or 'Roman hair kit' in their routine) as a minoxidil brand in both scan-time _hasMinoxidil and coach pre-scan topical detection"
+);
+
+assert(
+  source.includes("r.includes('numan')") &&
+    source.includes("s.includes('numan')"),
+  "server should detect Numan (a leading UK telehealth platform offering prescription minoxidil and finasteride — equivalent to Roman/Hims in the UK market; large user base in the UK and Republic of Ireland; users list 'Numan minoxidil foam' or just 'Numan' in their routine) as a minoxidil brand in both scan-time _hasMinoxidil and coach pre-scan topical detection"
+);
+
 console.log('server contract passed');
