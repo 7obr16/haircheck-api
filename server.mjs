@@ -3109,6 +3109,13 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           if (_pnL.includes('postpartum te') || _pnL.includes('postpartum telogen effluvium') || _pnL.includes('postpartum shedding') || _pnL.includes('post-partum') || _pnL.includes('post partum')) _conds.push('postpartum_te');
           if (_pnL.includes('treatment-induced te') || _pnL.includes('treatment-induced telogen effluvium') || _pnL.includes('treatment induced te') || _pnL.includes('treatment induced telogen')) _conds.push('treatment_induced_te');
           if (_pnL.includes('seasonal') && (_pnL.includes(' te') || _pnL.includes('telogen effluvium') || _pnL.includes('shedding') || _pnL.includes('photoperiod'))) _conds.push('seasonal_te');
+          // Weight loss TE and post-COVID TE photoNote detection.
+          // The scan prompt instructs GPT-4o to note these in photoNote when it detects the pattern
+          // from user context + photo. Server-side profile detection handles the common cases, but
+          // this photoNote check catches cases where the model identifies the condition from indirect
+          // descriptions that don't match the profile regex (e.g. "I dropped 25kg before this started").
+          if (!_conds.includes('weight_loss_te') && (_pnL.includes('weight loss te') || _pnL.includes('weight-loss te') || _pnL.includes('weight loss telogen') || _pnL.includes('weight-loss telogen') || _pnL.includes('crash diet te') || _pnL.includes('caloric restriction te') || _pnL.includes('bariatric te') || _pnL.includes('consistent with weight loss te'))) _conds.push('weight_loss_te');
+          if (!_conds.includes('post_covid_te') && (_pnL.includes('post-covid te') || _pnL.includes('post covid te') || _pnL.includes('post-covid telogen') || _pnL.includes('post covid telogen') || _pnL.includes('covid te') || _pnL.includes('covid-19 te') || _pnL.includes('consistent with post-covid te') || _pnL.includes('consistent with post covid te') || _pnL.includes('post-covid shedding'))) _conds.push('post_covid_te');
           // Server-side supplementary detection for postpartum TE.
           // GPT-4o's scan prompt focuses on AGA/androgenic patterns and the photoNote detection above
           // only fires when the model explicitly writes "postpartum te" in photoNote — which rarely

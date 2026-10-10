@@ -2223,6 +2223,16 @@ assert(
 );
 
 assert(
+  source.includes("_pnL.includes('weight loss te')") &&
+    source.includes("_pnL.includes('weight-loss te')") &&
+    source.includes("_conds.push('weight_loss_te')") &&
+    source.includes("_pnL.includes('post-covid te')") &&
+    source.includes("_pnL.includes('post covid te')") &&
+    source.includes("_conds.push('post_covid_te')"),
+  'scan detectedConditions should include photoNote-based detection for weight_loss_te and post_covid_te — the scan prompt instructs GPT-4o to note these in photoNote; photoNote detection catches cases where model identifies the condition from indirect descriptions that do not match the profile regex patterns'
+);
+
+assert(
   source.includes("_dc.includes('seasonal_te')") &&
     source.includes("seasonal shedding as a possible factor — is this normal and should I change my routine"),
   'coachSuggestedQuestions should override Q1 with a seasonal-shedding question when seasonal_te is detected — completing the TE reassurance priority chain (postpartum > tx-onset > seasonal)'
