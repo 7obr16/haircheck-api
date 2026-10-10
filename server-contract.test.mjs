@@ -2107,8 +2107,16 @@ assert(
 
 assert(
   source.includes('noMinoxidilAtActiveStage') &&
-    source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical && !data.protocolCoverage.oralMinoxidil'),
-  'riskFactorFlags should include noMinoxidilAtActiveStage flag that fires at NW2+ when neither topical nor oral minoxidil is in the routine — users on oral minoxidil (Loniten/LDOM) must not receive false "add minoxidil" CTAs since oral minoxidil IS a vasodilator equivalent'
+    source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical && !data.protocolCoverage.oralMinoxidil && !_teMinoxidilSuppressed'),
+  'riskFactorFlags should include noMinoxidilAtActiveStage flag that fires at NW2+ when neither topical nor oral minoxidil is in the routine — users on oral minoxidil (Loniten/LDOM) must not receive false "add minoxidil" CTAs since oral minoxidil IS a vasodilator equivalent; must also be suppressed when _teMinoxidilSuppressed is true'
+);
+
+assert(
+  source.includes('_TE_SUPPRESS_MINOXIDIL') &&
+    source.includes("new Set(['postpartum_te', 'seasonal_te'])") &&
+    source.includes("data.detectedConditions.some(c => _TE_SUPPRESS_MINOXIDIL.has(c))") &&
+    source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical && !data.protocolCoverage.oralMinoxidil && !_teMinoxidilSuppressed'),
+  'noMinoxidilAtActiveStage should be suppressed for postpartum_te (minoxidil contraindicated while breastfeeding) and seasonal_te (transient 2–3 month shed; minoxidil CTAs are unnecessary overkill) on diffuse/female stages — mirrors _TE_SUPPRESS_ANTIANDROGEN pattern'
 );
 
 assert(

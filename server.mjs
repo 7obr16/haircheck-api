@@ -6129,6 +6129,12 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         ]);
         const _teOnDiffuseStage = (stage === 'diffuse' || stage === 'n/a (female)') &&
           data.detectedConditions.some(c => _TE_SUPPRESS_ANTIANDROGEN.has(c));
+        // TE conditions where topical/oral minoxidil CTAs should be suppressed:
+        // postpartum_te — minoxidil is contraindicated while breastfeeding (teratogenic risk);
+        // seasonal_te — transient condition resolving in 2–3 months, minoxidil CTAs are unnecessary overkill.
+        const _TE_SUPPRESS_MINOXIDIL = new Set(['postpartum_te', 'seasonal_te']);
+        const _teMinoxidilSuppressed = (stage === 'diffuse' || stage === 'n/a (female)') &&
+          data.detectedConditions.some(c => _TE_SUPPRESS_MINOXIDIL.has(c));
         data.riskFactorFlags = {
           earlyOnset:                    profile.age !== null && profile.age < 30 && (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3,
           familyHistoryHighRisk:         profile.family.some(f => /NW[567]|advanced|total|severe|complete/i.test(f)),
@@ -6146,7 +6152,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // treatment for AGA and is first-line at NW2+; absence is a clear actionable gap.
           // The iOS app uses this to surface "consider adding topical minoxidil" CTAs.
           // Uses protocolCoverage.topical (computed above) which maps to _hasMinoxidil detection.
-          noMinoxidilAtActiveStage:      (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical && !data.protocolCoverage.oralMinoxidil,
+          // Suppressed for postpartum_te (contraindicated while breastfeeding) and seasonal_te
+          // (transient condition — minoxidil CTAs are unnecessary overkill for a 2–3 month shed).
+          noMinoxidilAtActiveStage:      (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical && !data.protocolCoverage.oralMinoxidil && !_teMinoxidilSuppressed,
           // True when the user is at NW3+ (established or advanced AGA) but has no mechanical
           // scalp stimulation in their routine — no scalp massage, microneedling, or LLLT device.
           // Mechanical stimulation at NW3+ significantly amplifies minoxidil absorption (up to 3×
