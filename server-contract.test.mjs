@@ -2097,6 +2097,15 @@ assert(
 );
 
 assert(
+  source.includes('_TE_SUPPRESS_ANTIANDROGEN') &&
+    source.includes("'postpartum_te', 'weight_loss_te', 'post_covid_te', 'thyroid_te'") &&
+    source.includes("'seasonal_te', 'treatment_induced_te', 'nutritional_te', 'stress_te', 'postpill_te'") &&
+    source.includes("data.detectedConditions.some(c => _TE_SUPPRESS_ANTIANDROGEN.has(c))") &&
+    source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3 && !_hasAntiandrogen && !_teOnDiffuseStage'),
+  'noAntiandrogenAtModerateStage should be suppressed on diffuse/female stages when a reversible TE condition (postpartum_te, weight_loss_te, post_covid_te, thyroid_te, seasonal_te, treatment_induced_te, nutritional_te, stress_te, postpill_te) is detected — antiandrogens are not first-line for these TE variants; pcos is intentionally excluded from _TE_SUPPRESS_ANTIANDROGEN because spironolactone IS the first-line antiandrogen for PCOS-driven androgenic hair loss'
+);
+
+assert(
   source.includes('noMinoxidilAtActiveStage') &&
     source.includes('(STAGE_SEVERITY_INDEX[stage] ?? 0) >= 2 && !data.protocolCoverage.topical && !data.protocolCoverage.oralMinoxidil'),
   'riskFactorFlags should include noMinoxidilAtActiveStage flag that fires at NW2+ when neither topical nor oral minoxidil is in the routine — users on oral minoxidil (Loniten/LDOM) must not receive false "add minoxidil" CTAs since oral minoxidil IS a vasodilator equivalent'
