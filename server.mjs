@@ -6120,6 +6120,15 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
         const _hasAntiandrogen = profile.routine.some(r =>
           /finasteride|dutasteride|propecia|proscar|avodart|spironolactone|aldactone|\bspiro\b|bicalutamide|flutamide|cyproterone|androcur|casodex|clascoterone|winlevi|finpecia|finalo|finast|fincar|finax|aindeem|dutas|duprost|duodart|combodart|morr-f|morr f|tugain-f|tugain f|ru58841|ru 58841|pyrilutamide|kx-826/i.test(r)
         );
+        // Reversible TE conditions where antiandrogens are NOT the primary treatment —
+        // suppresses noAntiandrogenAtModerateStage when one of these is the diagnosed root
+        // cause on a diffuse or female-pattern stage (PCOS excluded: spiro IS first-line).
+        const _TE_SUPPRESS_ANTIANDROGEN = new Set([
+          'postpartum_te', 'weight_loss_te', 'post_covid_te', 'thyroid_te',
+          'seasonal_te', 'treatment_induced_te', 'nutritional_te', 'stress_te', 'postpill_te',
+        ]);
+        const _teOnDiffuseStage = (stage === 'diffuse' || stage === 'n/a (female)') &&
+          data.detectedConditions.some(c => _TE_SUPPRESS_ANTIANDROGEN.has(c));
         data.riskFactorFlags = {
           earlyOnset:                    profile.age !== null && profile.age < 30 && (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3,
           familyHistoryHighRisk:         profile.family.some(f => /NW[567]|advanced|total|severe|complete/i.test(f)),
@@ -6129,7 +6138,9 @@ Use a balanced visual baseline: score what is actually visible in the photo and 
           // True when the user is at a stage where antiandrogens (finasteride, dutasteride,
           // spironolactone, etc.) provide the most clinical benefit but none is in their routine.
           // The iOS app uses this to surface "consider adding an antiandrogen" CTAs at NW3+/diffuse/female.
-          noAntiandrogenAtModerateStage: (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3 && !_hasAntiandrogen,
+          // Suppressed when a reversible TE condition (not PCOS) is the primary root cause on a
+          // diffuse/female stage — antiandrogens are not first-line for those TE variants.
+          noAntiandrogenAtModerateStage: (STAGE_SEVERITY_INDEX[stage] ?? 0) >= 3 && !_hasAntiandrogen && !_teOnDiffuseStage,
           // True when the user is at an active loss stage (NW2+) but no topical minoxidil or
           // equivalent vasodilator is in their routine. Minoxidil is the most evidence-backed OTC
           // treatment for AGA and is first-line at NW2+; absence is a clear actionable gap.
